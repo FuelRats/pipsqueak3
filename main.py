@@ -17,7 +17,6 @@ from Modules.Handlers import Commands
 import logging
 from Modules.constants import base_logger
 
-
 ##########
 # setup logging stuff
 
@@ -82,11 +81,19 @@ class MechaClient(pydle.Client):
         # await command execution
         await Commands.trigger(message=message, sender=user)
 
-    @Commands.command("ping")
-    async def cmd_potato(self, channel=None, sender=None, *args):
-        # self.message(channel, f"{sender if sender is not None else ''} Potatoes are awesome!")
-        log.warning("potato triggered")
-        await self.say(channel, f"{sender} pong!")
+
+@Commands.command("ping")
+async def cmd_ping(bot: pydle.Client, channel: str=None, sender: str=None):
+    """
+    Pongs a ping. lets see if the bots alive (command decorator testing)
+    :param bot: Pydle instance
+    :param channel: text channel the triggering message arrived in
+    :param sender: irc name of the invoking user.
+    :return: None
+    """
+    # self.message(channel, f"{sender if sender is not None else ''} Potatoes are awesome!")
+    log.warning("potato triggered")
+    await bot.say(channel, f"{sender} pong!")
 
 
 # entry point
@@ -94,21 +101,22 @@ if __name__ == "__main__":
     log.info("hello world!")
 
     pool = pydle.ClientPool()
-    servers = ["dev.localecho.net"]
-    log.debug("starting bots for servers...")
-    fail_count = 0
-    for server in servers:
-        try:
-            log.debug("spawning new bot instance...")
-            client = MechaClient('unknownBot')
-            log.info(f"connecting to {server}")
-            pool.connect(client, server, tls=False)
-        except Exception as ex:
-            fail_count += 1
-            log.error(f"unable to connect to {server} due to an error.")
-            log.error(ex)
-    if fail_count >= len(servers):
-        raise RuntimeError("unable to connect to any of the specified servers.")
+    server = "dev.localecho.net"
+    log.debug("starting bot for server...")
+    try:
+        log.debug("spawning new bot instance...")
+        client = MechaClient('unknownBot')
+
+        log.info(f"connecting to {server}")
+        pool.connect(client, server, tls=False)
+    except Exception as ex:
+        log.error(f"unable to connect to {server} due to an error.")
+        log.error(ex)
+        from sys import exit
+        exit(42)
     else:
+        # hand the bot instance to commands
+        Commands.bot = client
+        # and run the event loop
         log.info("running forever...")
         pool.handle_forever()
