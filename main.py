@@ -79,11 +79,11 @@ class MechaClient(pydle.Client):
         log.critical(f"trigger! Sender is {user}\t in channel {channel}\twith data {message}")
 
         # await command execution
-        await Commands.trigger(message=message, sender=user)
+        await Commands.trigger(message=message, sender=user, channel=channel)
 
 
 @Commands.command("ping")
-async def cmd_ping(bot: pydle.Client, channel: str=None, sender: str=None):
+async def cmd_ping(bot: pydle.Client, channel: str, sender: str):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param bot: Pydle instance
@@ -92,8 +92,8 @@ async def cmd_ping(bot: pydle.Client, channel: str=None, sender: str=None):
     :return: None
     """
     # self.message(channel, f"{sender if sender is not None else ''} Potatoes are awesome!")
-    log.warning("potato triggered")
-    await bot.say(channel, f"{sender} pong!")
+    log.warning(f"cmd_ping triggered on channel '{channel}' for user '{sender}'")
+    await bot.message(channel, f"{sender} pong!")
 
 
 # entry point
