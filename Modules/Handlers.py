@@ -17,6 +17,7 @@ import pydle
 from functools import wraps
 import logging
 from Modules.constants import base_logger
+
 # set the logger for handlers
 log = logging.getLogger(f'{base_logger}.handlers')
 
@@ -69,19 +70,22 @@ class Commands:
     # Pydle bot instance. #FIXME set value during MechaClient init!
     bot = None
 
-
     @classmethod
-    async def trigger(cls, message: str, sender: str, channel:str):
+    async def trigger(cls, message: str, sender: str, channel: str):
         """
         Invoke a command, passing args and kwargs to the called function
         :param message: triggers message to invoke
         :param sender: author of triggering message
+        :param channel: channel of triggering message
         :return: bool command
         """
         log.debug("trigger called!")
         if not cls._registered_commands or cls._registered_commands == {}:
             cls.log.critical("something went awful wrong.")
             raise CommandException("something went awful wrong")
+        if not cls.bot:
+            # someone didn't set me.
+            raise CommandException(f"cls.bot is not set. (value = {cls.bot}")
 
         cls.log.debug(f"triggered! message is {message}")
 
