@@ -65,6 +65,11 @@ class Commands:
     # character/s that must prefix a message for it to be parsed as a command.
     prefix = '!'
 
+    ####
+    # Pydle bot instance. #FIXME set value during MechaClient init!
+    bot = None
+
+
     @classmethod
     async def trigger(cls, message: str, sender: str):
         """
@@ -97,7 +102,7 @@ class Commands:
             else:
                 cls.log.debug("found command, invoking...")
                 cmd = cls.get_command(command)
-                await cmd(*c_args)
+                await cmd(*c_args, bot=cls.bot)
 
     @classmethod
     def _register(cls, func, names: list or str) -> bool:
