@@ -89,7 +89,7 @@ async def cmd_ping(bot: pydle.Client, channel: str, sender: str):
     :param bot: Pydle instance
     :param channel: text channel the triggering message arrived in
     :param sender: irc name of the invoking user.
-    :return: None
+    :return:
     """
     # self.message(channel, f"{sender if sender is not None else ''} Potatoes are awesome!")
     log.warning(f"cmd_ping triggered on channel '{channel}' for user '{sender}'")
