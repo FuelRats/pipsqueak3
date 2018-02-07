@@ -88,7 +88,7 @@ class MechaClient(Client):
 
 
 @Commands.command("ping")
-async def cmd_ping(bot, trigger):
+async def cmd_ping(bot: pydle.Client, channel: str=None, sender: str=None):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param bot: Pydle instance.

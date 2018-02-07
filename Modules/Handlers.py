@@ -71,7 +71,7 @@ class Commands:
 
 
     @classmethod
-    async def trigger(cls, message: str, sender: str):
+    async def trigger(cls, message: str, sender: str, channel:str):
         """
         Invoke a command, passing args and kwargs to the called function
         :param message: triggers message to invoke
@@ -102,7 +102,7 @@ class Commands:
             else:
                 cls.log.debug("found command, invoking...")
                 cmd = cls.get_command(command)
-                await cmd(*c_args, bot=cls.bot)
+                await cmd(*c_args, bot=cls.bot, sender=sender, channel=channel)
 
     @classmethod
     def _register(cls, func, names: list or str) -> bool:
