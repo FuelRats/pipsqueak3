@@ -1,5 +1,5 @@
 import unittest
-from Modules.Handlers import Commands, CommandNotFoundException, InvalidCommandException
+from Modules.Handlers import Commands, CommandNotFoundException, InvalidCommandException, CommandNameCollisionException
 import pydle
 
 from aiounittest import async_test
@@ -80,6 +80,25 @@ class CommandTests(unittest.TestCase):
         with self.assertRaises(CommandNotFoundException):
             await Commands.trigger(message="!nope", sender="unit_test", channel="foo")
 
+    def test_double_command_registration(self):
+        """
+        test verifying it is not possible to register a command twice.
+        this prevents odities where commands are bound but the bind is overwriten....
+        which leaves the original bound command not called during a trigger event.
+        :return:
+        """
+        alias = ['potato', 'cannon', 'Fodder', 'fireball']  # TODO: move these common lists to setup_class
+        # lets define them initially.
+        for name in alias:
+            @Commands.command(name)
+            async def foo():
+                pass
+            with self.subTest(name=name):
+                with self.assertRaises(CommandNameCollisionException):
+                    @Commands.command(name)
+                    async def bar():
+                        pass
+
     @async_test
     async def test_call_command(self):
         """
@@ -125,4 +144,4 @@ class CommandTests(unittest.TestCase):
         for word in words:
             with self.subTest(word=word):
                 with self.assertRaises(InvalidCommandException):
-                    await Commands.trigger(message=word, sender="unit_test[BOT]",channel="unit_tests")
+                    await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests")
