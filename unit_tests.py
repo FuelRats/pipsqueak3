@@ -145,3 +145,14 @@ class CommandTests(unittest.TestCase):
             with self.subTest(word=word):
                 with self.assertRaises(InvalidCommandException):
                     await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests")
+
+    def test_null_bot(self):
+        """
+        Verifies the correct exception is raised when someone forgets to set Commands.bot <.<
+        Overkill?
+        :return:
+        """
+        # this is the default value, which should be overwritten during MechaClient init...
+        Commands.bot = None
+        with self.assertRaises(Exception):
+            pass
