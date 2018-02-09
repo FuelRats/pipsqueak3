@@ -1,8 +1,7 @@
 import unittest
-from Modules.Handlers import Commands
+from Modules.Handlers import Commands, CommandNotFoundException
 import pydle
-import asyncio
-import Modules.constants as constants
+
 from aiounittest import async_test
 
 
@@ -71,3 +70,13 @@ class CommandTests(unittest.TestCase):
             self.assertEqual(inSender, outSender)
             self.assertEqual(inChannel, outChannel)
             self.assertIsNotNone(outBot)
+
+    @async_test
+    async def test_invalid_command(self):
+        """
+        Ensures the proper exception is raised when a command is not found.
+        :return:
+        """
+        with self.assertRaises(CommandNotFoundException):
+            await Commands.trigger(message="!nope", sender="unit_test", channel="foo")
+
