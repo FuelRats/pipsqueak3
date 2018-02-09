@@ -41,13 +41,7 @@ class CommandTests(unittest.TestCase):
                 async def potato(bot: pydle.Client, channel: str, sender: str):
                     print(f"bot={bot}\tchannel={channel}\tsender={sender}")
                     return bot, channel, sender
-                # because commands are normally invoked in an async context we need to actually let it complete
-                outBot, outChannel, outSender = await Commands.trigger(message=command, sender=inSender,
-                                                                       channel=inChannel)
-                # otherwise checking for these values is pointless.
-                self.assertEqual(inSender, outSender)
-                self.assertEqual(inChannel, outChannel)
-                self.assertIsNotNone(outBot)
+            self.assertIsNotNone(Commands.get_command(command.strip(Commands.prefix)))
 
     def test_command_decorator_list(self):
         alias = ['potato', 'cannon', 'Fodder', 'fireball']
