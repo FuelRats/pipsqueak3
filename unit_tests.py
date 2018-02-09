@@ -87,3 +87,14 @@ class CommandTests(unittest.TestCase):
                 self.assertEqual(input_sender, outSender)
                 self.assertEqual(input_channel, outChannel)
                 self.assertIsNotNone(outBot)
+
+    @async_test
+    async def test_ignored_message(self):
+        """
+        Tests if Commands.trigger correctly ignores messages not containing the prefix.
+        :return:
+        """
+        words = ['potato', 'cannon', 'Fodder', 'fireball', "what is going on here!", ".!potato"]
+        for word in words:
+            with self.subTest(word=word):
+                self.assertIsNone(await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests"))
