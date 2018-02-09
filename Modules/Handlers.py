@@ -13,7 +13,6 @@ This module is built on top of the Pydle system.
 
 """
 
-import pydle
 from functools import wraps
 import logging
 from Modules.constants import base_logger
@@ -80,9 +79,9 @@ class Commands:
         :return: bool command
         """
         log.debug("trigger called!")
-        if not cls._registered_commands or cls._registered_commands == {}:
-            cls.log.critical("something went awful wrong.")
-            raise CommandException("something went awful wrong")
+        if cls._registered_commands is None:
+            cls.log.critical(" registered commands dict somehow was set to None")
+            raise CommandException("registered_commands is None!")
         if not cls.bot:
             # someone didn't set me.
             raise CommandException(f"cls.bot is not set. (value = {cls.bot}")
