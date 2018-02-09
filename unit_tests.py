@@ -1,5 +1,5 @@
 import unittest
-from Modules.Handlers import Commands, CommandNotFoundException, InvalidCommandException, CommandNameCollisionException, \
+from Modules.Commands import Commands, CommandNotFoundException, InvalidCommandException, CommandNameCollisionException, \
     CommandException
 import pydle
 
