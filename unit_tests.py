@@ -33,8 +33,7 @@ class CommandTests(unittest.TestCase):
         # bunch of commands to test
         alias = ['potato', 'cannon', 'Fodder', "fireball"]
         commands = [f"{Commands.prefix}{name}"for name in alias]
-        inChannel = "#unkn0wndev"
-        inSender = "unit_tester"
+
         for command in commands:
             with self.subTest(command=command):
                 @Commands.command(command.strip(Commands.prefix))
@@ -46,8 +45,6 @@ class CommandTests(unittest.TestCase):
     def test_command_decorator_list(self):
         alias = ['potato', 'cannon', 'Fodder', 'fireball']
         trigger_alias = [f"{Commands.prefix}{name}"for name in alias]
-        inChannel = "#unkn0wndev"
-        inSender = "unit_tester"
 
         # register the command
         @Commands.command(alias)
