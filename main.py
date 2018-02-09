@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 
 """
 import pydle
-from Modules.Handlers import Commands
+from Modules.Commands import Commands
 import logging
 from Modules.constants import base_logger
 
