@@ -135,6 +135,15 @@ class Commands:
             return True
 
     @classmethod
+    def _flush(cls)->None:
+        """
+        Flushes registered commands
+        Probably useless outside testing...
+        :return: None
+        """
+        cls._registered_commands = {}
+
+    @classmethod
     def command(cls, alias: list):
         # stuff that occurs here executes when the wrapped command is first computed
         # use this space for command registration
