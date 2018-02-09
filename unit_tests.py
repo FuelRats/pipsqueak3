@@ -31,9 +31,6 @@ class CommandTests(unittest.TestCase):
         command = f"{Commands.prefix}potato"
         inChannel = "#unkn0wndev"
         inSender = "unit_tester"
-        outChannel = None
-        outSender = None
-        outBot = None
 
         @Commands.command(command.strip(Commands.prefix))
         async def potato(bot: pydle.Client, channel: str, sender: str):
