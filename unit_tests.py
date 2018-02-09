@@ -23,11 +23,17 @@ class CommandTests(unittest.TestCase):
         Commands.bot = "bot"
         super().setUpClass()
 
+    def setUp(self):
+        # this way command registration between individual tests don't interfere and cause false positives/negatives.
+        Commands._flush()
+        super().setUp()
+
     @async_test
     async def test_decorator_single(self):
         """
         Tests if the `Commands.command` decorator can handle string registrations
         """
+        # bunch of commands to test
         alias = ['potato', 'cannon', 'Fodder', "fireball"]
         commands = [f"{Commands.prefix}{name}"for name in alias]
         inChannel = "#unkn0wndev"
@@ -39,9 +45,29 @@ class CommandTests(unittest.TestCase):
                     print(f"bot={bot}\tchannel={channel}\tsender={sender}")
                     return bot, channel, sender
                 # because commands are normally invoked in an async context we need to actually let it complete
-                outBot, outChannel, outSender = await Commands.trigger(message="!potato", sender=inSender,
-                                                                   channel=inChannel)
+                outBot, outChannel, outSender = await Commands.trigger(message=command, sender=inSender,
+                                                                       channel=inChannel)
                 # otherwise checking for these values is pointless.
                 self.assertEqual(inSender, outSender)
                 self.assertEqual(inChannel, outChannel)
                 self.assertIsNotNone(outBot)
+
+    @async_test
+    async def test_decorator_list(self):
+        alias = ['potato', 'cannon', 'Fodder', "fireball"]
+        trigger_alias = [f"{Commands.prefix}{name}"for name in alias]
+        inChannel = "#unkn0wndev"
+        inSender = "unit_tester"
+
+        # register the command
+        @Commands.command(alias)
+        async def potato(bot: pydle.Client, channel: str, sender: str):
+            return bot, channel, sender
+
+        for name in trigger_alias:
+            with self.subTest(name=name):
+                outBot, outChannel, outSender = await Commands.trigger(message=name, sender=inSender,
+                                                                       channel=inChannel)
+            self.assertEqual(inSender, outSender)
+            self.assertEqual(inChannel, outChannel)
+            self.assertIsNotNone(outBot)
