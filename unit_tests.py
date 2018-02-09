@@ -5,8 +5,6 @@ import pydle
 from aiounittest import async_test
 
 
-
-
 class MainTests(unittest.TestCase):
     @unittest.expectedFailure
     def test_run(self):
@@ -28,7 +26,7 @@ class CommandTests(unittest.TestCase):
         super().setUp()
 
     @async_test
-    async def test_decorator_single(self):
+    async def test_command_decorator_single(self):
         """
         Tests if the `Commands.command` decorator can handle string registrations
         """
@@ -51,9 +49,8 @@ class CommandTests(unittest.TestCase):
                 self.assertEqual(inChannel, outChannel)
                 self.assertIsNotNone(outBot)
 
-    @async_test
-    async def test_decorator_list(self):
-        alias = ['potato', 'cannon', 'Fodder', "fireball"]
+    def test_command_decorator_list(self):
+        alias = ['potato', 'cannon', 'Fodder', 'fireball']
         trigger_alias = [f"{Commands.prefix}{name}"for name in alias]
         inChannel = "#unkn0wndev"
         inSender = "unit_tester"
@@ -65,11 +62,7 @@ class CommandTests(unittest.TestCase):
 
         for name in trigger_alias:
             with self.subTest(name=name):
-                outBot, outChannel, outSender = await Commands.trigger(message=name, sender=inSender,
-                                                                       channel=inChannel)
-            self.assertEqual(inSender, outSender)
-            self.assertEqual(inChannel, outChannel)
-            self.assertIsNotNone(outBot)
+                self.assertIsNotNone(Commands.get_command(name))
 
     @async_test
     async def test_invalid_command(self):
@@ -80,3 +73,5 @@ class CommandTests(unittest.TestCase):
         with self.assertRaises(CommandNotFoundException):
             await Commands.trigger(message="!nope", sender="unit_test", channel="foo")
 
+    def test_find_command(self):
+        pass
