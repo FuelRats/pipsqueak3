@@ -1,5 +1,6 @@
 import unittest
-from Modules.Handlers import Commands, CommandNotFoundException, InvalidCommandException, CommandNameCollisionException
+from Modules.Handlers import Commands, CommandNotFoundException, InvalidCommandException, CommandNameCollisionException, \
+    CommandException
 import pydle
 
 from aiounittest import async_test
@@ -23,6 +24,7 @@ class CommandTests(unittest.TestCase):
     def setUp(self):
         # this way command registration between individual tests don't interfere and cause false positives/negatives.
         Commands._flush()
+        Commands.bot = "bot"
         super().setUp()
 
     def test_get_unknown_command(self):
@@ -146,7 +148,8 @@ class CommandTests(unittest.TestCase):
                 with self.assertRaises(InvalidCommandException):
                     await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests")
 
-    def test_null_bot(self):
+    @async_test
+    async def test_null_bot(self):
         """
         Verifies the correct exception is raised when someone forgets to set Commands.bot <.<
         Overkill?
@@ -154,5 +157,5 @@ class CommandTests(unittest.TestCase):
         """
         # this is the default value, which should be overwritten during MechaClient init...
         Commands.bot = None
-        with self.assertRaises(Exception):
-            pass
+        with self.assertRaises(CommandException):
+            await Commands.trigger(message="!message", sender="unit_test[BOT]", channel="unit_tests")
