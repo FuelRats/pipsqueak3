@@ -1,5 +1,5 @@
 import unittest
-from Modules.Handlers import Commands, CommandNotFoundException
+from Modules.Handlers import Commands, CommandNotFoundException, InvalidCommandException
 import pydle
 
 from aiounittest import async_test
@@ -98,3 +98,15 @@ class CommandTests(unittest.TestCase):
         for word in words:
             with self.subTest(word=word):
                 self.assertIsNone(await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests"))
+
+    @async_test
+    async def test_null_message(self):
+        """
+        Verifies the correct exception is raised when a null message is sent
+        :return:
+        """
+        words = ["", None]
+        for word in words:
+            with self.subTest(word=word):
+                with self.assertRaises(InvalidCommandException):
+                    await Commands.trigger(message=word, sender="unit_test[BOT]",channel="unit_tests")
