@@ -88,7 +88,7 @@ class Commands:
 
         cls.log.debug(f"triggered! message is {message}")
 
-        if not message or message == '':
+        if not message:
             raise InvalidCommandException(f"Command required, got {message}")
         elif not message.startswith(cls.prefix):
             log.debug(f"ignoring message{message} as it does not start with my prefix.")
