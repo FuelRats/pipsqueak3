@@ -25,6 +25,22 @@ class CommandTests(unittest.TestCase):
         Commands._flush()
         super().setUp()
 
+    def test_get_unknown_command(self):
+        """
+        Verifies that Commands.get_command() returns None if a command is not found
+        :return:
+        """
+        unknown_names = ["foo", "bar", "meatbag", "limpet"]
+
+        @Commands.command("fuel")
+        async def potato(*args):
+            return True
+        for name in unknown_names:
+            with self.subTest(name=name):
+                self.assertIsNone(Commands.get_command(name))
+        with self.subTest(name="fuel"):
+            self.assertIsNotNone(Commands.get_command("fuel"))
+
     @async_test
     async def test_command_decorator_single(self):
         """
@@ -105,7 +121,7 @@ class CommandTests(unittest.TestCase):
         Verifies the correct exception is raised when a null message is sent
         :return:
         """
-        words = ["", None]
+        words = ["", None, '']
         for word in words:
             with self.subTest(word=word):
                 with self.assertRaises(InvalidCommandException):
