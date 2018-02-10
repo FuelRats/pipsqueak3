@@ -42,7 +42,7 @@ class CommandNotFoundException(CommandException):
     pass
 
 
-class CommandNameCollisionException(CommandException):
+class NameCollisionException(CommandException):
     """
     Someone attempted to register a command already registered.
     """
@@ -126,7 +126,7 @@ class Commands:
             for alias in names:
                 if alias in cls._registered_commands:
                     # command already registered
-                    raise CommandNameCollisionException(f"attempted to re-register command(s) {alias}")
+                    raise NameCollisionException(f"attempted to re-register command(s) {alias}")
                 else:
                     formed_dict = {alias: func}
                     cls._registered_commands.update(formed_dict)

@@ -1,5 +1,5 @@
 import unittest
-from Modules.Commands import Commands, CommandNotFoundException, InvalidCommandException, CommandNameCollisionException, \
+from Modules.Commands import Commands, CommandNotFoundException, InvalidCommandException, NameCollisionException, \
     CommandException
 import pydle
 
@@ -96,7 +96,7 @@ class CommandTests(unittest.TestCase):
             async def foo():
                 pass
             with self.subTest(name=name):
-                with self.assertRaises(CommandNameCollisionException):
+                with self.assertRaises(NameCollisionException):
                     @Commands.command(name)
                     async def bar():
                         pass
