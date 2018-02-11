@@ -12,7 +12,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-import pydle
+from pydle import ClientPool, Client
 from Modules.Commands import Commands
 import logging
 from Modules.constants import base_logger
@@ -46,7 +46,7 @@ logging.basicConfig(level=logging.DEBUG)  # write all the things
 # end log Setup
 ####
 
-class MechaClient(pydle.Client):
+class MechaClient(Client):
     """
     MechaSqueak v3
     """
@@ -83,7 +83,7 @@ class MechaClient(pydle.Client):
 
 
 @Commands.command("ping")
-async def cmd_ping(bot: pydle.Client, channel: str, sender: str):
+async def cmd_ping(bot: Client, channel: str, sender: str):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param bot: Pydle instance
@@ -100,7 +100,7 @@ async def cmd_ping(bot: pydle.Client, channel: str, sender: str):
 if __name__ == "__main__":
     log.info("hello world!")
 
-    pool = pydle.ClientPool()
+    pool = ClientPool()
     server = "dev.localecho.net"
     log.debug("starting bot for server...")
     try:

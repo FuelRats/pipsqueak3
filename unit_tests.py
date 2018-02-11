@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 from Modules.Commands import Commands, CommandNotFoundException, InvalidCommandException, NameCollisionException, \
     CommandException
 import pydle
@@ -159,3 +160,16 @@ class CommandTests(unittest.TestCase):
         Commands.bot = None
         with self.assertRaises(CommandException):
             await Commands.trigger(message="!message", sender="unit_test[BOT]", channel="unit_tests")
+
+    def test_register_non_callable(self):
+        """
+        Verifies the correct exception is raised when someone tries to register something that is not callable.
+        not sure how they would do this outside of calling the private directly or why...
+        :return:
+        """
+        foo = [12, None, "str"]
+        for item in foo:
+            with self.subTest(item=item):
+                self.assertFalse(Commands._register(item, ['foo']))
+
+
