@@ -13,7 +13,7 @@ class MainTests(unittest.TestCase):
         raise NotImplementedError("not implemented yet.")
 
 
-class CommandTests(unittest.TestCase):
+class RatCommandTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
