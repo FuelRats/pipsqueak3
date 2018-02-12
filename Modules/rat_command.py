@@ -1,6 +1,6 @@
 # coding: utf8
 """
-Commands.py - Handles Command Events
+rat_command.py - Handles Command Events
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
