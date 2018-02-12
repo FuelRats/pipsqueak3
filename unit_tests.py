@@ -25,7 +25,6 @@ class CommandTests(unittest.TestCase):
     def setUp(self):
         # this way command registration between individual tests don't interfere and cause false positives/negatives.
         Commands._flush()
-        Commands.bot = "bot"
         super().setUp()
 
     def test_get_unknown_command(self):
@@ -69,7 +68,6 @@ class CommandTests(unittest.TestCase):
         @Commands.command(alias)
         async def potato(bot: pydle.Client, channel: str, sender: str):
             return bot, channel, sender
-
         for name in trigger_alias:
             with self.subTest(name=name):
                 self.assertIsNotNone(Commands.get_command(name))
@@ -149,15 +147,15 @@ class CommandTests(unittest.TestCase):
                 with self.assertRaises(InvalidCommandException):
                     await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests")
 
+    @mock.patch("Modules.Commands.Commands.bot")
     @async_test
-    async def test_null_bot(self):
+    async def test_null_bot(self, mock_bot):
         """
         Verifies the correct exception is raised when someone forgets to set Commands.bot <.<
         Overkill?
         :return:
         """
         # this is the default value, which should be overwritten during MechaClient init...
-        Commands.bot = None
         with self.assertRaises(CommandException):
             await Commands.trigger(message="!message", sender="unit_test[BOT]", channel="unit_tests")
 
