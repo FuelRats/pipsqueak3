@@ -1,6 +1,6 @@
 import unittest
 from unittest import mock
-from Modules.Commands import Commands, CommandNotFoundException, InvalidCommandException, NameCollisionException, \
+from Modules.rat_command import Commands, CommandNotFoundException, InvalidCommandException, NameCollisionException, \
     CommandException
 import pydle
 
@@ -147,7 +147,7 @@ class CommandTests(unittest.TestCase):
                 with self.assertRaises(InvalidCommandException):
                     await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests")
 
-    @mock.patch("Modules.Commands.Commands.bot")
+    @mock.patch("Modules.rat_command.Commands.bot")
     @async_test
     async def test_null_bot(self, mock_bot):
         """
