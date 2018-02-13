@@ -22,6 +22,15 @@ After branching, you should immediately use `git push -u origin feature/my-aweso
 
 Before opening a PR, rebase onto develop so your PR can be merged fast-forward only, without merge commits. The easiest way to do that is to make the main repo a remote using `git remote add upstream git@github.com:fuelrats/pipsqueak` and then running `git pull --rebase upstream develop`. Your PR should have sensible commits with sensible commit messages. It is *not* required or appreciated to squash PRs into a single commit. Every commit by itself should leave the codebase in a working state.
 
-## Documentation
+## Testing Documentation
 
-Use comments and docstrings.
+Use docstrings and comments to document how your features function.
+Further, all new features must include Unit Tests.
+ 
+PRs for new features without Unit Tests will _**NOT**_
+be accepted. 
+
+If you are fixing an existing feature, the relevant UTs should not break. 
+### Code Coverage
+At least 85% of your introduced code must be covered by tests, the more the merrier.
+The module you touch should not fall below 85% coverage
