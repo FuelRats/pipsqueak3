@@ -24,10 +24,10 @@ Before opening a PR, rebase onto develop so your PR can be merged fast-forward o
 
 ## Testing Documentation
 
-Use docstrings and comments to document how your features function.
+Use docstrings and comments to document how your features function and why
 Further, all new features must include Unit Tests.
  
-PRs for new features without Unit Tests will _**NOT**_
+PRs for new features without **meaningful** Unit Tests will _**NOT**_
 be accepted. 
 
 If you are fixing an existing feature, the relevant UTs should not break. 
