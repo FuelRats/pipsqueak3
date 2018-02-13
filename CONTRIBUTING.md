@@ -26,11 +26,11 @@ Before opening a PR, rebase onto develop so your PR can be merged fast-forward o
 
 Use docstrings and comments to document how your features function and why
 Further, all new features must include Unit Tests.
- 
-PRs for new features without **meaningful** Unit Tests will _**NOT**_
-be accepted. 
 
-If you are fixing an existing feature, the relevant UTs should not break. 
+PRs for new features without **meaningful** Unit Tests will _**NOT**_
+be accepted.
+
+If you are fixing an existing feature, the relevant UTs should not break.
 ### Code Coverage
 At least 85% of your introduced code must be covered by tests, the more the merrier.
 The module you touch should not fall below 85% coverage

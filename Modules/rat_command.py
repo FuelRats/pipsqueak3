@@ -49,6 +49,13 @@ class NameCollisionException(CommandException):
     pass
 
 
+class Trigger:
+    """
+    IRC Command event data
+    """
+    pass
+
+
 class Commands:
     """
     Handles command registration and execution
