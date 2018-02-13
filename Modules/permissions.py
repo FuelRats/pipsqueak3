@@ -14,7 +14,7 @@ This module is built on top of the Pydle system.
 """
 from Modules import constants
 import logging
-import enum
+from functools import wraps
 
 log = logging.getLogger(f"{constants.base_logger}.Permissions")
 
@@ -53,31 +53,27 @@ class Permission:
     # TODO: Unit Tests
 
 
-class Permissions(enum):
-    """
-    Permission Enums.
-    """
-    # the uninitiated
-    RECRUIT = Permission(0, "recruit.fuelrats.com")
-    # the initiated
-    RAT = Permission(1, "rat.fuelrats.com")
-    # The mad hatters
-    DISPATCH = Permission(2, "dispatch.fuelrats.com")
-    # Those that oversee the mad house
-    OVERSEER = Permission(3, 'overseer.fuelrats.com')
-    # Those that hold the keys
-    OP = Permission(4, "op.fuelrats.com")
-    # Those that make all the shiny toys
-    TECHRAT = Permission(5, 'techrat.fuelrats.com')
-    # Those that you don't want to upset
-    NETADMIN = Permission(6, 'netadmin.fuelrats.com')
-    # Best you don't hear from one of these...
-    ADMIN = Permission(6, 'admin.fuelrats.com')
-    # OrangeSheets. why do we have this permission again?
-    ORANGE = Permission(10, "i.see.all")
+# the uninitiated
+RECRUIT = Permission(0, "recruit.fuelrats.com")
+# the initiated
+RAT = Permission(1, "rat.fuelrats.com")
+# The mad hatters
+DISPATCH = Permission(2, "dispatch.fuelrats.com")
+# Those that oversee the mad house
+OVERSEER = Permission(3, 'overseer.fuelrats.com')
+# Those that hold the keys
+OP = Permission(4, "op.fuelrats.com")
+# Those that make all the shiny toys
+TECHRAT = Permission(5, 'techrat.fuelrats.com')
+# Those that you don't want to upset
+NETADMIN = Permission(6, 'netadmin.fuelrats.com')
+# Best you don't hear from one of these...
+ADMIN = Permission(6, 'admin.fuelrats.com')
+# OrangeSheets. why do we have this permission again?
+ORANGE = Permission(10, "i.see.all")
 
 
-def require_permission(permission:Permissions, override_message: str or None = None):
+def require_permission(permission: Permission, override_message: str or None = None):
     """
     Require an IRC command to be invoked by an authorized user.
 
@@ -87,6 +83,20 @@ def require_permission(permission:Permissions, override_message: str or None = N
     :return:
     """
     # TODO implement wrapper
-    pass
+    def real_decorator(func):
+        # this also only executes during intial wrap
+        # methinks this is where command reg should occur?
+        log.debug("inside real_decorator")
+        log.debug(f"Congratulations.  You decorated a function that does something with {alias}")
+        log.debug(f"registering command with aliases: {alias}...")
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            log.debug("inside wrapper")
+            func(*args, **kwargs)
+
+        return wrapper
+
+    return real_decorator
 
 
