@@ -84,18 +84,15 @@ def require_permission(permission: Permission, override_message: str or None = N
     """
     # TODO implement wrapper
     def real_decorator(func):
-        # this also only executes during intial wrap
-        # methinks this is where command reg should occur?
         log.debug("inside real_decorator")
-        log.debug(f"Congratulations.  You decorated a function that does something with {alias}")
-        log.debug(f"registering command with aliases: {alias}...")
+        log.debug(f"Wrapping a command with permission {permission}")
 
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            log.debug("inside wrapper")
+        def guarded(*args, **kwargs):
+
             func(*args, **kwargs)
 
-        return wrapper
+        return guarded
 
     return real_decorator
 
