@@ -111,7 +111,7 @@ class RatCommandTests(unittest.TestCase):
         for name in alias:
             @Commands.command(name)
             async def potato(bot: pydle.Client, channel: str, sender: str):
-                print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+                # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
                 return bot, channel, sender
 
         for command in trigger_alias:
