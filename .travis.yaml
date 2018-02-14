@@ -1,0 +1,17 @@
+language: python
+python:
+  - "3.6"
+
+install:
+  - pip install -r requirements.txt
+cache: pip
+
+script:
+  - python -m unittest unit_tests -v
+
+notifications:
+  webhooks:
+    urls:
+      - http://orthanc.localecho.net/cgi-bin/webhook.py
+    on_success: always
+    on_failure: always
