@@ -12,9 +12,10 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from Modules import config
 import logging
 from functools import wraps
+
+import config
 
 log = logging.getLogger(f"{config.Logging.base_logger}.Permissions")
 

@@ -14,7 +14,7 @@ This module is built on top of the Pydle system.
 from pydle import ClientPool, Client
 from Modules.rat_command import Commands
 import logging
-from Modules.config import IRC, Logging
+from config import IRC, Logging
 
 ##########
 # setup logging stuff
