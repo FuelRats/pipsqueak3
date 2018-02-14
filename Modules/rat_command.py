@@ -15,10 +15,11 @@ This module is built on top of the Pydle system.
 
 from functools import wraps
 import logging
-from Modules.config import base_logger
 
 # set the logger for handlers
-log = logging.getLogger(f'{base_logger}.handlers')
+import Modules.config as config
+
+log = logging.getLogger(f'{config.Logging.base_logger}.handlers')
 
 
 class CommandException(Exception):
@@ -70,7 +71,7 @@ class Commands:
 
     ####
     # logger facility
-    log = logging.getLogger(f"{base_logger}.commands")
+    log = logging.getLogger(f"{config.Logging.base_logger}.commands")
     ####
     # commands registered with @command will populate this dict
     _registered_commands = {}
