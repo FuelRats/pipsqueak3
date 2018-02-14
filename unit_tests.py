@@ -32,6 +32,7 @@ class RatCommandTests(unittest.TestCase):
         @Commands.command("fuel")
         async def potato(*args):
             return True
+
         for name in unknown_names:
             with self.subTest(name=name):
                 self.assertIsNone(Commands.get_command(name))
@@ -45,24 +46,25 @@ class RatCommandTests(unittest.TestCase):
         """
         # bunch of commands to test
         alias = ['potato', 'cannon', 'Fodder', "fireball"]
-        commands = [f"{Commands.prefix}{name}"for name in alias]
+        commands = [f"{Commands.prefix}{name}" for name in alias]
 
         for command in commands:
             with self.subTest(command=command):
                 @Commands.command(command.strip(Commands.prefix))
                 async def potato(bot: pydle.Client, channel: str, sender: str):
-                    print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+                    # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
                     return bot, channel, sender
             self.assertIsNotNone(Commands.get_command(command.strip(Commands.prefix)))
 
     def test_command_decorator_list(self):
         alias = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}"for name in alias]
+        trigger_alias = [f"{Commands.prefix}{name}" for name in alias]
 
         # register the command
         @Commands.command(alias)
         async def potato(bot: pydle.Client, channel: str, sender: str):
             return bot, channel, sender
+
         for name in trigger_alias:
             with self.subTest(name=name):
                 self.assertIsNotNone(Commands.get_command(name))
@@ -79,7 +81,7 @@ class RatCommandTests(unittest.TestCase):
     def test_double_command_registration(self):
         """
         test verifying it is not possible to register a command twice.
-        this prevents odities where commands are bound but the bind is overwriten....
+        this prevents odities where commands are bound but the bind is overwritten....
         which leaves the original bound command not called during a trigger event.
         :return:
         """
@@ -89,6 +91,7 @@ class RatCommandTests(unittest.TestCase):
             @Commands.command(name)
             async def foo():
                 pass
+
             with self.subTest(name=name):
                 with self.assertRaises(NameCollisionException):
                     @Commands.command(name)
@@ -102,7 +105,7 @@ class RatCommandTests(unittest.TestCase):
         :return:
         """
         alias = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}"for name in alias]
+        trigger_alias = [f"{Commands.prefix}{name}" for name in alias]
         input_sender = "unit_test[BOT]"
         input_channel = "unit_testing"
         for name in alias:
@@ -113,11 +116,11 @@ class RatCommandTests(unittest.TestCase):
 
         for command in trigger_alias:
             with self.subTest(command=command):
-                outBot, outChannel, outSender = await Commands.trigger(message=command, sender=input_sender,
-                                                                       channel=input_channel)
-                self.assertEqual(input_sender, outSender)
-                self.assertEqual(input_channel, outChannel)
-                self.assertIsNotNone(outBot)
+                out_bot, out_channel, out_sender = await Commands.trigger(message=command, sender=input_sender,
+                                                                          channel=input_channel)
+                self.assertEqual(input_sender, out_sender)
+                self.assertEqual(input_channel, out_channel)
+                self.assertIsNotNone(out_bot)
 
     @async_test
     async def test_ignored_message(self):
