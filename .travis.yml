@@ -7,7 +7,7 @@ install:
 cache: pip
 
 script:
-  - python -m unittest unit_tests -v
+  - python -m unittest discover -v -s tests
 
 notifications:
   webhooks:
