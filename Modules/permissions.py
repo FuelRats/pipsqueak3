@@ -97,6 +97,7 @@ def require_permission(permission: Permission, override_message: str or None = N
     def real_decorator(func):
         log.debug("inside real_decorator")
         log.debug(f"Wrapping a command with permission {permission}")
+        # TODO implement require_permission wrapper.
 
         @wraps(func)
         async def guarded(bot, trigger, words, words_eol):
