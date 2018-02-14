@@ -16,7 +16,7 @@ from Modules import config
 import logging
 from functools import wraps
 
-log = logging.getLogger(f"{config.base_logger}.Permissions")
+log = logging.getLogger(f"{config.Logging.base_logger}.Permissions")
 
 
 class Permission:
