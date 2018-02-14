@@ -16,8 +16,9 @@ This module is built on top of the Pydle system.
 from functools import wraps
 import logging
 
+import config
+
 # set the logger for handlers
-import Modules.config as config
 
 log = logging.getLogger(f'{config.Logging.base_logger}.handlers')
 
