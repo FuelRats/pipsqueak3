@@ -1,3 +1,19 @@
+"""
+test_rat_command.py
+
+Tests for the rat_command module
+
+Copyright (c) 2018 The Fuel Rats Mischief,
+All rights reserved.
+
+Licensed under the BSD 3-Clause License.
+
+See LICENSE.md
+
+This module is built on top of the Pydle system.
+
+"""
+
 import unittest
 from unittest import mock
 

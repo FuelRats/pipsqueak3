@@ -1,4 +1,3 @@
-# coding: utf8
 """
 rat_command.py - Handles Command registration and Command-triggering IRC events
 
