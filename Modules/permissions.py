@@ -12,11 +12,11 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from Modules import constants
+from Modules import config
 import logging
 from functools import wraps
 
-log = logging.getLogger(f"{constants.base_logger}.Permissions")
+log = logging.getLogger(f"{config.base_logger}.Permissions")
 
 
 class Permission:

@@ -14,7 +14,7 @@ This module is built on top of the Pydle system.
 from pydle import ClientPool, Client
 from Modules.rat_command import Commands
 import logging
-from Modules.constants import base_logger, mecha_name
+from Modules.config import base_logger, mecha_name
 
 ##########
 # setup logging stuff

@@ -1,6 +1,6 @@
 # coding: utf8
 """
-constants.py - Misc constants
+config.py - Misc constants
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
