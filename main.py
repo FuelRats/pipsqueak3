@@ -1,4 +1,3 @@
-# coding: utf8
 """
 main.py - Mechasqueak3 main program
 
@@ -15,7 +14,7 @@ This module is built on top of the Pydle system.
 from pydle import ClientPool, Client
 from Modules.rat_command import Commands
 import logging
-from Modules.constants import base_logger
+from Modules.constants import base_logger, mecha_name
 
 ##########
 # setup logging stuff
@@ -76,10 +75,14 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        log.critical(f"trigger! Sender is {user}\t in channel {channel}\twith data {message}")
+        log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data {message}")
+        if user == mecha_name:
+            # don't do this and the bot can get into an infinite self-stimulated positive feedback loop.
+            log.debug("received message from myself ignoring!.")
+            return None
 
-        # await command execution
-        await Commands.trigger(message=message, sender=user, channel=channel)
+        else:  # await command execution
+            await Commands.trigger(message=message, sender=user, channel=channel)
 
 
 @Commands.command("ping")
@@ -105,7 +108,7 @@ if __name__ == "__main__":
     log.debug("starting bot for server...")
     try:
         log.debug("spawning new bot instance...")
-        client = MechaClient('unknownBot')
+        client = MechaClient(mecha_name)
 
         log.info(f"connecting to {server}")
         pool.connect(client, server, tls=False)
