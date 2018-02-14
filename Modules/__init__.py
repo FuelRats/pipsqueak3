@@ -1,1 +1,1 @@
-__all__ = ["rat_command.py", "constants"]
+__all__ = ["rat_command.py", "config.py", "permissions"]
