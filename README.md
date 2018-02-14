@@ -1,7 +1,9 @@
 # pipsqueak
 ED Fuel rats [sopel](http://sopel.chat) module package
 
-# The below information is extreamly outdated.
+[![Build Status](https://travis-ci.org/FuelRats/pipsqueak.svg?branch=mecha3)](https://travis-ci.org/FuelRats/pipsqueak)
+
+# The below information is extremely outdated.
 
 # Requirements
 

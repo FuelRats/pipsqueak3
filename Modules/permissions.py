@@ -50,7 +50,6 @@ class Permission:
 
     def __gt__(self, other: 'Permission')->bool:
         return self.level > other.level
-    # TODO: Unit Tests
 
 
 # the uninitiated
@@ -86,6 +85,7 @@ def require_permission(permission: Permission, override_message: str or None = N
     def real_decorator(func):
         log.debug("inside real_decorator")
         log.debug(f"Wrapping a command with permission {permission}")
+        # TODO implement require_permission wrapper.
 
         @wraps(func)
         def guarded(*args, **kwargs):
