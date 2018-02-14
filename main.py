@@ -14,7 +14,7 @@ This module is built on top of the Pydle system.
 from pydle import ClientPool, Client
 from Modules.rat_command import Commands
 import logging
-from Modules.config import base_logger, mecha_name
+from Modules.config import IRC, Logging
 
 ##########
 # setup logging stuff
@@ -22,7 +22,7 @@ from Modules.config import base_logger, mecha_name
 # create a log formatter
 log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}", style='{')
 # get Mecha's root logger
-log = logging.getLogger(base_logger)
+log = logging.getLogger(Logging.base_logger)
 # Create a file handler for the logger
 log_file_handler = logging.FileHandler("logs/MECHASQUEAK.log", 'w')
 log_file_handler.setFormatter(log_formatter)
@@ -76,7 +76,7 @@ class MechaClient(Client):
         :return:
         """
         log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data {message}")
-        if user == mecha_name:
+        if user == IRC.presence:
             # don't do this and the bot can get into an infinite self-stimulated positive feedback loop.
             log.debug("received message from myself ignoring!.")
             return None
@@ -104,11 +104,11 @@ if __name__ == "__main__":
     log.info("hello world!")
 
     pool = ClientPool()
-    server = "dev.localecho.net"
+    server = IRC.server
     log.debug("starting bot for server...")
     try:
         log.debug("spawning new bot instance...")
-        client = MechaClient(mecha_name)
+        client = MechaClient(IRC.presence)
 
         log.info(f"connecting to {server}")
         pool.connect(client, server, tls=False)
