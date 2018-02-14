@@ -16,3 +16,7 @@ This module is built on top of the Pydle system.
 ####
 # Base logger facility, all others are derivatives
 base_logger = 'mecha'
+
+####
+# Mecha's presence in IRC
+mecha_name = "Mechasqueak3-unknown[BOT]"
