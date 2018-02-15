@@ -59,7 +59,9 @@ class MechaClient(Client):
         """
         log.debug("on connect invoked")
         # join a channel
-        await self.join("#unkn0wndev")
+        for channel in IRC.channels:
+            await self.join(channel)
+
         log.debug("joined channels.")
         # call the super
         super().on_connect()
@@ -104,16 +106,15 @@ if __name__ == "__main__":
     log.info("hello world!")
 
     pool = ClientPool()
-    server = IRC.server
     log.debug("starting bot for server...")
     try:
         log.debug("spawning new bot instance...")
         client = MechaClient(IRC.presence)
 
-        log.info(f"connecting to {server}")
-        pool.connect(client, server, tls=False)
+        log.info(f"connecting to {IRC.server}:{IRC.port}")
+        pool.connect(client, IRC.server, IRC.port, tls=IRC.tls)
     except Exception as ex:
-        log.error(f"unable to connect to {server} due to an error.")
+        log.error(f"unable to connect to {IRC.server}:{IRC.port} due to an error.")
         log.error(ex)
         from sys import exit
         exit(42)
