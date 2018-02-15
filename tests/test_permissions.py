@@ -15,17 +15,25 @@ This module is built on top of the Pydle system.
 """
 import unittest
 
+from aiounittest import async_test
+
 from Modules import permissions
+from Modules.permissions import require_permission
+from Modules.rat_command import Commands
+from tests.mock_bot import MockBot
+
+
+# registration is done in setUp
+@require_permission(permissions.OVERSEER)
+async def restricted(bot, trigger):
+    await trigger.reply("Restricted command was executed.")
 
 
 class PermissionTests(unittest.TestCase):
-
     def setUp(self):
-        super().setUp()
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+        Commands._flush()
+        Commands.bot = self.bot = MockBot()
+        Commands.command("restricted")(restricted)
 
     def test_permission_greater(self):
         """
@@ -79,3 +87,29 @@ class PermissionTests(unittest.TestCase):
         """
         self.assertTrue(permissions.RAT != permissions.TECHRAT)
         self.assertTrue(permissions.DISPATCH != permissions.ORANGE)
+
+    @async_test
+    async def test_restricted_command(self):
+        await Commands.trigger("!restricted", "some_recruit", "#somechannel")
+        self.assertIn({
+            "target": "#somechannel",
+            "message": permissions.OVERSEER.denied_message
+        }, self.bot.sent_messages)
+
+        await Commands.trigger("!restricted", "some_ov", "#somechannel")
+        self.assertIn({
+            "target": "#somechannel",
+            "message": "Restricted command was executed."
+        }, self.bot.sent_messages)
+
+        await Commands.trigger("!restricted", "some_admin", "#somechannel")
+        self.assertIn({
+            "target": "#somechannel",
+            "message": "Restricted command was executed."
+        }, self.bot.sent_messages)
+
+        await Commands.trigger("!restricted", "authorized_but_not_identified", "#somechannel")
+        self.assertIn({
+            "target": "#somechannel",
+            "message": permissions.OVERSEER.denied_message
+        }, self.bot.sent_messages)
