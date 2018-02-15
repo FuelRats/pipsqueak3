@@ -10,14 +10,15 @@ class TriggerTests(unittest.TestCase):
     def setUp(self):
         self.bot = MockBot()
 
-    def test_create_manual(self):
+    def test_create_manual_channel(self):
         trigger = Trigger(self.bot, "test_nick", "#somechannel", "test_ident", "test.vhost")
         self.assertEqual("#somechannel", trigger.channel)
 
+    def test_create_manual_query(self):
         trigger = Trigger(self.bot, "test_nick", "not_a_channel", "test_ident", "test.vhost")
         self.assertIsNone(trigger.channel)
 
-    def test_create_from_user(self):
+    def test_create_from_user_channel(self):
         trigger = Trigger.from_bot_user(self.bot, "unit_test", "#somechannel")
         self.assertEqual(trigger.channel, "#somechannel")
 
@@ -29,6 +30,7 @@ class TriggerTests(unittest.TestCase):
         self.assertEqual(trigger.account, self.bot.users["unit_test"]["account"])
         self.assertEqual(trigger.identified, self.bot.users["unit_test"]["identified"])
 
+    def test_create_from_user_query(self):
         trigger = Trigger.from_bot_user(self.bot, "unit_test[BOT]", "not_a_channel")
         self.assertIsNone(trigger.channel)
 
@@ -41,7 +43,7 @@ class TriggerTests(unittest.TestCase):
         self.assertEqual(trigger.identified, self.bot.users["unit_test[BOT]"]["identified"])
 
     @async_test
-    async def test_reply(self):
+    async def test_reply_channel(self):
         trigger = Trigger(self.bot, "test_nick", "#somechannel", "test_ident", "test.vhost")
         await trigger.reply("Exceedingly smart test message.")
         self.assertIn({
@@ -49,6 +51,8 @@ class TriggerTests(unittest.TestCase):
             "message": "Exceedingly smart test message."
         }, self.bot.sent_messages)
 
+    @async_test
+    async def test_reply_query(self):
         trigger = Trigger(self.bot, "test_nick", "not_a_channel", "test_ident", "test.vhost")
         await trigger.reply("Exceedingly smart test message.")
         self.assertIn({
