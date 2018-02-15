@@ -19,7 +19,7 @@ import config
 
 # set the logger for handlers
 
-log = logging.getLogger(f'{config.Logging.base_logger}.handlers')
+log = logging.getLogger(f'{config.Logging.base_logger}.rat_command')
 
 
 class CommandException(Exception):
@@ -113,7 +113,7 @@ class Commands:
             words = raw_command.split(" ")  # split command into words via spaces
             command = words[0]
             c_args = words[1:]
-            cls.log.debug(f"words={words}\ncommand={command}\nc_args={c_args}")
+            cls.log.info(f"words={words}\ncommand={command}\nc_args={c_args}")
             if command not in cls._registered_commands:
                 cls.log.error(f"unable to find command.{message}")
                 raise CommandNotFoundException(f"Unable to find command {message}")
