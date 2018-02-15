@@ -18,7 +18,12 @@ class Trigger(object):
 
     @classmethod
     def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str):
-        """Creates a `Trigger` object from a user dictionary as used by pydle."""
+        """
+        Creates a `Trigger` object from a user dictionary as used by pydle.
+        :param bot: Instance of the bot.
+        :param nickname: Command sender's nickname.
+        :param target: The message target (usually a channel or, if it was sent in a query window, the bot's nick)
+        """
         user = bot.users[nickname]
         return cls(bot, user["nickname"], target,
                    ident=user["username"], hostname=user["hostname"], away=user["away_message"],
