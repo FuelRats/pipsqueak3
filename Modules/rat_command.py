@@ -15,6 +15,7 @@ This module is built on top of the Pydle system.
 from functools import wraps
 import logging
 
+from Modules.trigger import Trigger
 import config
 
 # set the logger for handlers
@@ -102,18 +103,25 @@ class Commands:
             log.debug(f"ignoring message{message} as it does not start with my prefix.")
             return None
         else:
-            raw_command: str = message.strip(cls.prefix)  # remove command prefix
-            words = raw_command.split(" ")  # split command into words via spaces
-            command = words[0]
-            c_args = words[1:]
-            cls.log.debug(f"words={words}\ncommand={command}\nc_args={c_args}")
-            if command not in cls._registered_commands:
-                cls.log.error(f"unable to find command.{message}")
-                raise CommandNotFoundException(f"Unable to find command {message}")
+            raw_command: str = message.lstrip(cls.prefix)  # remove command prefix
+            words = raw_command.split()  # splits by whitespace by default
+
+            words_eol = []
+            for word in words:
+                for i, _ in enumerate(words_eol):
+                    words_eol[i] += word
+                words_eol.insert(0, word)
+
+            trigger = Trigger.from_bot_user(cls.bot, sender, channel)
+
+            cls.log.debug(f"words={words}\ncommand={words[0]}\nargs={words[1:]}")
+            if words[0] not in cls._registered_commands:
+                cls.log.error(f"unable to find command.{words[0]}")
+                raise CommandNotFoundException(f"Unable to find command {words[0]}")
             else:
                 cls.log.debug("found command, invoking...")
-                cmd = cls.get_command(command)
-                return await cmd(*c_args, bot=cls.bot, sender=sender, channel=channel)
+                cmd = cls.get_command(words[0])
+                return await cmd(cls.bot, trigger, words, words_eol)
 
     @classmethod
     def _register(cls, func, names: list or str) -> bool:
@@ -151,7 +159,7 @@ class Commands:
         cls._registered_commands = {}
 
     @classmethod
-    def command(cls, alias: list):
+    def command(cls, *aliases):
         # stuff that occurs here executes when the wrapped command is first computed
         # use this space for command registration
 
@@ -159,19 +167,25 @@ class Commands:
             # this also only executes during intial wrap
             # methinks this is where command reg should occur?
             cls.log.debug("inside real_decorator")
-            cls.log.debug(f"Congratulations.  You decorated a function that does something with {alias}")
-            cls.log.debug(f"registering command with aliases: {alias}...")
-            if not cls._register(func, alias):
-                raise InvalidCommandException("unable to register commands.")
-            cls.log.debug(f"Success! done registering commands {alias}!")
+            cls.log.debug(f"Congratulations.  You decorated a function that does something with {aliases}")
 
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            async def wrapper(bot, trigger, words, words_eol):
                 cls.log.debug("inside wrapper")
-                func(*args, **kwargs)
+                try:
+                    # This works if we're the bottommost decorator (calling the command function directly)
+                    return await func(bot, trigger)
+                except TypeError:
+                    # Otherwise, we're giving all the things to the underlying wrapper (be it from parametrize or sth)
+                    return await func(bot, trigger, words, words_eol)
+
+            # we want to register the wrapper, not the underlying function
+            cls.log.debug(f"registering command with aliases: {aliases}...")
+            if not cls._register(wrapper, aliases):
+                raise InvalidCommandException("unable to register commands.")
+            cls.log.debug(f"Success! done registering commands {aliases}!")
 
             return wrapper
-
         return real_decorator
 
     @classmethod
