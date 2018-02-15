@@ -91,10 +91,8 @@ class MechaClient(Client):
 async def cmd_ping(bot, trigger):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
-    :param bot: Pydle instance
-    :param channel: text channel the triggering message arrived in
-    :param sender: irc name of the invoking user.
-    :return:
+    :param bot: Pydle instance.
+    :param trigger: `Trigger` object for the command call.
     """
     # self.message(channel, f"{sender if sender is not None else ''} Potatoes are awesome!")
     log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user '{trigger.nickname}'")
