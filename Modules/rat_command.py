@@ -104,13 +104,20 @@ class Commands:
             return None
         else:
             raw_command: str = message.lstrip(cls.prefix)  # remove command prefix
-            words = raw_command.split()  # splits by whitespace by default
 
+            words = []
             words_eol = []
-            for word in words:
-                for i, _ in enumerate(words_eol):
-                    words_eol[i] += word
-                words_eol.insert(0, word)
+            remaining = raw_command
+            while True:
+                words_eol.append(remaining)
+                try:
+                    word, remaining = remaining.split(maxsplit=1)
+                except ValueError:
+                    # we couldn't split -> only one word left
+                    words.append(remaining)
+                    break
+                else:
+                    words.append(word)
 
             trigger = Trigger.from_bot_user(cls.bot, sender, channel)
 
