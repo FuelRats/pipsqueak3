@@ -22,33 +22,7 @@ from aiounittest import async_test
 
 from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, InvalidCommandException, \
     CommandException
-
-
-class MockBot(object):
-    users = {
-        "unit_test[BOT]": {
-            "nickname": "unit_test[BOT]",
-            "username": "unit_test",
-            "hostname": "i.see.none",
-            "away": False,
-            "away_message": None,
-            "account": None,
-            "identified": True
-        },
-        "unit_test": {
-            "nickname": "unit_test",
-            "username": "unit_test",
-            "hostname": "i.see.none",
-            "away": False,
-            "away_message": None,
-            "account": None,
-            "identified": True
-        }
-    }
-
-    @classmethod
-    def is_channel(cls, channel: str):
-        return channel[0] in ("#", "&")
+from tests.mock_bot import MockBot
 
 
 class RatCommandTests(unittest.TestCase):
