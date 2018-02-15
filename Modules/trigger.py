@@ -17,8 +17,9 @@ class Trigger(object):
         self.identified = identified
 
     @classmethod
-    def from_user_dict(cls, bot: pydle.BasicClient, user: dict, target: str):
+    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str):
         """Creates a `Trigger` object from a user dictionary as used by pydle."""
+        user = bot.users[nickname]
         return cls(bot, user["nickname"], target,
                    ident=user["username"], hostname=user["hostname"], away=user["away_message"],
                    account=user["account"], identified=user["identified"])
