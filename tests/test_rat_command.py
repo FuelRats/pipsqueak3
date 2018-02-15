@@ -24,13 +24,39 @@ from Modules.rat_command import Commands, CommandNotFoundException, NameCollisio
     CommandException
 
 
-class RatCommandTests(unittest.TestCase):
+class MockBot(object):
+    users = {
+        "unit_test[BOT]": {
+            "nickname": "unit_test[BOT]",
+            "username": "unit_test",
+            "hostname": "i.see.none",
+            "away": False,
+            "away_message": None,
+            "account": None,
+            "identified": True
+        },
+        "unit_test": {
+            "nickname": "unit_test",
+            "username": "unit_test",
+            "hostname": "i.see.none",
+            "away": False,
+            "away_message": None,
+            "account": None,
+            "identified": True
+        }
+    }
 
+    @classmethod
+    def is_channel(cls, channel: str):
+        return channel[0] in ("#", "&")
+
+
+class RatCommandTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # set the bot to something silly, at least its not None. (this won't cut it for proper commands but works here.)
         # as we are not creating commands that do stuff with bot. duh. these are tests after all.
-        Commands.bot = "bot"
+        Commands.bot = MockBot()
         super().setUpClass()
 
     def setUp(self):
@@ -73,11 +99,11 @@ class RatCommandTests(unittest.TestCase):
             self.assertIsNotNone(Commands.get_command(command.strip(Commands.prefix)))
 
     def test_command_decorator_list(self):
-        alias = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}" for name in alias]
+        aliases = ['potato', 'cannon', 'Fodder', 'fireball']
+        trigger_alias = [f"{Commands.prefix}{name}" for name in aliases]
 
         # register the command
-        @Commands.command(alias)
+        @Commands.command(*aliases)
         async def potato(bot: pydle.Client, channel: str, sender: str):
             return bot, channel, sender
 
@@ -120,15 +146,15 @@ class RatCommandTests(unittest.TestCase):
         Verifiy that found commands can be invoked via Commands.Trigger()
         :return:
         """
-        alias = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}" for name in alias]
+        aliases = ['potato', 'cannon', 'Fodder', 'fireball']
+        trigger_alias = [f"{Commands.prefix}{name}" for name in aliases]
         input_sender = "unit_test[BOT]"
-        input_channel = "unit_testing"
-        for name in alias:
-            @Commands.command(name)
-            async def potato(bot: pydle.Client, channel: str, sender: str):
-                # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
-                return bot, channel, sender
+        input_channel = "#unit_testing"
+
+        @Commands.command(*aliases)
+        async def potato(bot, trigger):
+            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+            return bot, trigger.channel, trigger.nickname
 
         for command in trigger_alias:
             with self.subTest(command=command):
