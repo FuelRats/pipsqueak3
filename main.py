@@ -31,7 +31,7 @@ log_stream_handler = logging.StreamHandler()
 log_stream_handler.setFormatter(log_formatter)
 # adds the two handlers to the logger so they can do their thing.
 log.addHandler(log_file_handler)
-# log.addHandler(log_stream_handler)
+log.addHandler(log_stream_handler)
 # set the minimum severity the logger will report.
 # uncomment for production:
 # log.setLevel(logging.INFO)
