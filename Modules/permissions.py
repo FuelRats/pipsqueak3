@@ -37,19 +37,19 @@ class Permission:
     def __eq__(self, other: 'Permission') -> bool:
         return self.level == other.level
 
-    def __ne__(self, other: 'Permission')->bool:
+    def __ne__(self, other: 'Permission') -> bool:
         return self.level != other.level
 
-    def __le__(self, other: 'Permission')->bool:
+    def __le__(self, other: 'Permission') -> bool:
         return self.level <= other.level
 
-    def __lt__(self, other: 'Permission')-> bool:
+    def __lt__(self, other: 'Permission') -> bool:
         return self.level < other.level
 
-    def __ge__(self, other: 'Permission')->bool:
+    def __ge__(self, other: 'Permission') -> bool:
         return self.level >= other.level
 
-    def __gt__(self, other: 'Permission')->bool:
+    def __gt__(self, other: 'Permission') -> bool:
         return self.level > other.level
 
 
@@ -72,6 +72,18 @@ ADMIN = Permission(6, 'admin.fuelrats.com')
 # OrangeSheets. why do we have this permission again?
 ORANGE = Permission(10, "i.see.all")
 
+_by_vhost = {
+    "recruit.fuelrats.com": RECRUIT,
+    "rat.fuelrats.com": RAT,
+    "dispatch.fuelrats.com": DISPATCH,
+    "overseer.fuelrats.com": OVERSEER,
+    "op.fuelrats.com": OP,
+    "techrat.fuelrats.com": TECHRAT,
+    "netadmin.fuelrats.com": NETADMIN,
+    "admin.fuelrats.com": ADMIN,
+    "i.see.all": ORANGE
+}
+
 
 def require_permission(permission: Permission, override_message: str or None = None):
     """
@@ -80,21 +92,24 @@ def require_permission(permission: Permission, override_message: str or None = N
     Anything lower than the specified permission will be rejected.
     :param permission: Minimum Permissions level required to invoke command
     :param override_message: Message to display rather than the default if the challange fails
-    :return:
     """
-    # TODO implement wrapper
+
     def real_decorator(func):
         log.debug("inside real_decorator")
         log.debug(f"Wrapping a command with permission {permission}")
-        # TODO implement require_permission wrapper.
 
         @wraps(func)
-        def guarded(*args, **kwargs):
-
-            func(*args, **kwargs)
+        async def guarded(bot, trigger, words, words_eol):
+            if trigger.identified and trigger.hostname in _by_vhost.keys() \
+                    and _by_vhost[trigger.hostname] >= permission:
+                try:
+                    # This works if we're the bottommost decorator (calling the command function directly)
+                    return await func(bot, trigger)
+                except TypeError:
+                    # Otherwise, we're giving all the things to the underlying wrapper (be it from parametrize or sth)
+                    return await func(bot, trigger, words, words_eol)
+            else:
+                await trigger.reply(override_message if override_message else permission.denied_message)
 
         return guarded
-
     return real_decorator
-
-
