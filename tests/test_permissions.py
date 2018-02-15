@@ -89,25 +89,31 @@ class PermissionTests(unittest.TestCase):
         self.assertTrue(permissions.DISPATCH != permissions.ORANGE)
 
     @async_test
-    async def test_restricted_command(self):
+    async def test_restricted_command_inferior(self):
         await Commands.trigger("!restricted", "some_recruit", "#somechannel")
         self.assertIn({
             "target": "#somechannel",
             "message": permissions.OVERSEER.denied_message
         }, self.bot.sent_messages)
 
+    @async_test
+    async def test_restricted_command_exact(self):
         await Commands.trigger("!restricted", "some_ov", "#somechannel")
         self.assertIn({
             "target": "#somechannel",
             "message": "Restricted command was executed."
         }, self.bot.sent_messages)
 
+    @async_test
+    async def test_restricted_command_superior(self):
         await Commands.trigger("!restricted", "some_admin", "#somechannel")
         self.assertIn({
             "target": "#somechannel",
             "message": "Restricted command was executed."
         }, self.bot.sent_messages)
 
+    @async_test
+    async def test_restricted_command_not_identified(self):
         await Commands.trigger("!restricted", "authorized_but_not_identified", "#somechannel")
         self.assertIn({
             "target": "#somechannel",
