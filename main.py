@@ -88,7 +88,7 @@ class MechaClient(Client):
 
 
 @Commands.command("ping")
-async def cmd_ping(bot: Client, channel: str, sender: str):
+async def cmd_ping(bot, trigger):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param bot: Pydle instance
@@ -97,8 +97,8 @@ async def cmd_ping(bot: Client, channel: str, sender: str):
     :return:
     """
     # self.message(channel, f"{sender if sender is not None else ''} Potatoes are awesome!")
-    log.warning(f"cmd_ping triggered on channel '{channel}' for user '{sender}'")
-    await bot.message(channel, f"{sender} pong!")
+    log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user '{trigger.nickname}'")
+    await trigger.reply(f"{trigger.nickname} pong!")
 
 
 # entry point
