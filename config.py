@@ -25,8 +25,14 @@ class IRC:
     ####
     # Server to connect to
     server = "dev.localecho.net"
-    port = "6697"
+    ####
+    # Port to connect on
+    port = "6667"
+    ####
+    # use TLS
     tls = False
+    ####
+    # what channels to connect to
     channels = ["#unkn0wndev"]
 
     class Authentication:
