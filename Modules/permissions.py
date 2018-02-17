@@ -1,4 +1,3 @@
-# coding: utf8
 """
 permissions.py - Vhost related permissions and whatnot
 
