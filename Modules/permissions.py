@@ -91,7 +91,7 @@ def require_permission(permission: Permission, override_message: str or None = N
 
     Anything lower than the specified permission will be rejected.
     :param permission: Minimum Permissions level required to invoke command
-    :param override_message: Message to display rather than the default if the challange fails
+    :param override_message: Message to display rather than the default if the challenge fails
     """
 
     def real_decorator(func):
