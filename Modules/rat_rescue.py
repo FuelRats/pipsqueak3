@@ -51,6 +51,17 @@ class Rescue(object):
         """
         return self._client
 
+    @client.setter
+    def client(self, name)->None:
+        """
+        Set the client's Commander name\n
+        :param name: the client's Commander name
+        :type name: str
+        :return: None
+        :rtype: None
+        """
+        self.client = name
+
     @property
     def created_at(self)-> datetime:
         """
