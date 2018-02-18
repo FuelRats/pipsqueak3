@@ -42,6 +42,19 @@ class Rescue(object):
         self._firstLimpet = first_limpet
 
     @property
+    def client(self)->str:
+        """
+        The client the rescue is for\n
+        :return: the client
+        :rtype: str
+        """
+        return self._client
+
+    @property
+    def created_at(self):
+        return self._createdAt
+
+    @property
     def system(self)->str:
         """
         The clients system\n
