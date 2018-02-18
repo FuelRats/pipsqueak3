@@ -172,6 +172,15 @@ class Rescue(object):
         else:
             raise ValueError(f"expected type list, got {type(value)}")
 
+    def add_quote(self, value: dict) -> None:
+        """
+        Appends a quote to the rescue object\n
+        :param value: quote data to append
+        :type value: dict
+        :return: None
+        :rtype: None
+        """
+        self.quotes.append(value)
     # TODO: to/from json
     # TODO: track changes
     # TODO: helper method for adding / editing quotes
