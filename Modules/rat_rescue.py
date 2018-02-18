@@ -23,9 +23,9 @@ class Rescue(object):
     A rescue
     """
 
-    def __init__(self, case_id: str, client: str, system: str, created_at: datetime = None, updated_at: datetime = None,
-                 unidentified_rats=None, active=True, quotes: list = None, is_open=True, epic=False, code_red=False,
-                 successful=False, title='', first_limpet=None):
+    def __init__(self, case_id: str, client: str, system: str, created_at: datetime = datetime.utcnow(),
+                 updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
+                 epic=False, code_red=False, successful=False, title='', first_limpet=None):
         """
         A unique rescue\n
         :param case_id: API id of rescue
