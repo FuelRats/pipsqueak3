@@ -82,15 +82,6 @@ class Rescue(object):
         """
         return self._id
 
-    @case_id.getter
-    def case_id(self) -> str:
-        """
-        Gets the API ID of the rescue.\n
-        :return: API ID
-        :rtype: str
-        """
-        return self._id
-
     @property
     def client(self) -> str:
         """
@@ -183,3 +174,4 @@ class Rescue(object):
 
     # TODO: to/from json
     # TODO: track changes
+    # TODO: helper method for adding / editing quotes
