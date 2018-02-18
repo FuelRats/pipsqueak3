@@ -71,6 +71,24 @@ class Rescue(object):
         self._firstLimpet: str = first_limpet
 
     @property
+    def case_id(self)->str:
+        """
+        The API Id of the rescue. This field is READ ONLY\n
+        :return: api ID
+        :rtype: str
+        """
+        return self._id
+
+    @case_id.getter
+    def case_id(self)->str:
+        """
+        Gets the API ID of the rescue.\n
+        :return: API ID
+        :rtype: str
+        """
+        return self._id
+
+    @property
     def client(self)->str:
         """
         The client the rescue is for\n
