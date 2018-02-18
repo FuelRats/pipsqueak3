@@ -65,7 +65,7 @@ class Rescue(object):
         self._unidentifiedRats = unidentified_rats
         self._system: str = system.upper()
         self._active: bool = active
-        self._quotes: list = quotes
+        self._quotes: list = quotes if quotes else []
         self._open: bool = is_open
         self._epic: bool = epic
         self._codeRed: bool = code_red
@@ -151,6 +151,13 @@ class Rescue(object):
         """
         return self._active
 
+    @active.setter
+    def active(self, value):
+        if isinstance(value, bool):
+            self._active = value
+        else:
+            raise ValueError(f"expected bool, got type {type(value)}")
+
     @property
     def quotes(self) -> list:
         """
@@ -169,6 +176,10 @@ class Rescue(object):
         :return: None
         :rtype: None
         """
+        if isinstance(value, list):
+            self._quotes = value
+        else:
+            raise ValueError(f"expected type list, got {type(value)}")
 
     # TODO: to/from json
     # TODO: track changes

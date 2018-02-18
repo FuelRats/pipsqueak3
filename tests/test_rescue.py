@@ -78,3 +78,60 @@ class TestRescue(TestCase):
 
     def test_case_id(self):
         self.assertEqual(self.case_id, self.rescue.case_id)
+
+    def test_get_active(self):
+        """
+        Verifies `Rescue.active` is readable and set correctly by default
+        :return:
+        :rtype:
+        """
+        self.assertTrue(self.rescue.active)
+
+    def test_set_active_correctly(self):
+        """
+        Tests the `Rescue.active` property for expected function
+        :return:
+        :rtype:
+        """
+        states = [True, False]
+        for state in states:
+            with self.subTest(state=state):
+                self.rescue.active = state
+
+    def test_set_active_set_incorrectly(self):
+        """
+        Tests the `Rescue.active` property for the correct usage errors
+        :return:
+        :rtype:
+        """
+        with self.assertRaises(ValueError):
+            self.rescue.active = "something totally not right"
+
+    def test_get_quotes(self):
+        """
+        Verifies the default settings for `Rescue.quotes` property are set correctly
+        And confirms the property is readable.\n
+        :return:
+        :rtype:
+        """
+        self.assertEqual([], self.rescue.quotes)
+
+    def test_write_quotes_correctly(self):
+        """
+        Verifies the `Rescue.quotes` property can be written to when given a list
+        :return:
+        :rtype:
+        """
+        self.rescue.quotes = ["foo"]
+        self.assertEqual(["foo"], self.rescue.quotes)
+
+    def test_write_quotes_incorrectly(self):
+        """
+        Verifies `Rescue.quotes` cannot be set to wierd things that are not lists
+        :return:
+        :rtype:
+        """
+        names = [False, True, "string", {}, 12]
+        for name in names:
+            with self.assertRaises(ValueError):
+                self.rescue.quotes = name
