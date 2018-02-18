@@ -11,8 +11,10 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
-import config
 from datetime import datetime
+
+import config
+
 log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
 
@@ -20,7 +22,8 @@ class Rescue(object):
     """
     A rescue
     """
-    def __init__(self, case_id: str, client: str, system: str, created_at: datetime=None, updated_at: datetime=None,
+
+    def __init__(self, case_id: str, client: str, system: str, created_at: datetime = None, updated_at: datetime = None,
                  unidentified_rats=None, active=True, quotes: list = None, is_open=True, epic=False, code_red=False,
                  successful=False, title='', first_limpet=None):
         """
@@ -71,7 +74,7 @@ class Rescue(object):
         self._firstLimpet: str = first_limpet
 
     @property
-    def case_id(self)->str:
+    def case_id(self) -> str:
         """
         The API Id of the rescue. This field is READ ONLY\n
         :return: api ID
@@ -80,7 +83,7 @@ class Rescue(object):
         return self._id
 
     @case_id.getter
-    def case_id(self)->str:
+    def case_id(self) -> str:
         """
         Gets the API ID of the rescue.\n
         :return: API ID
@@ -89,7 +92,7 @@ class Rescue(object):
         return self._id
 
     @property
-    def client(self)->str:
+    def client(self) -> str:
         """
         The client the rescue is for\n
         :return: the client
@@ -98,7 +101,7 @@ class Rescue(object):
         return self._client
 
     @client.setter
-    def client(self, name)->None:
+    def client(self, name) -> None:
         """
         Set the client's Commander name\n
         :param name: the client's Commander name
@@ -109,7 +112,7 @@ class Rescue(object):
         self._client = name
 
     @property
-    def created_at(self)-> datetime:
+    def created_at(self) -> datetime:
         """
         Case creation time, this property is readonly.
         It can only be set during Rescue creation\n
@@ -119,7 +122,7 @@ class Rescue(object):
         return self._createdAt
 
     @property
-    def system(self)->str:
+    def system(self) -> str:
         """
         The clients system\n
         :return: the system name
