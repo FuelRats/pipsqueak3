@@ -88,7 +88,7 @@ class Rescue(object):
         :return: None
         :rtype: None
         """
-        self.client = name
+        self._client = name
 
     @property
     def created_at(self)-> datetime:
