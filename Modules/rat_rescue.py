@@ -10,6 +10,9 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
+import logging
+import config
+log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
 
 class Rescue(object):
@@ -36,5 +39,36 @@ class Rescue(object):
         self.successful = successful
         self.title = title
         self.firstLimpet = first_limpet
+
+    @property
+    def system(self)->str:
+        """
+        The clients system\n
+        :return: the system name
+        :rtype: str
+        """
+        return self.system
+
+    @system.setter
+    def system(self, value: str):
+        """
+        Set the system
+        :param value: value to set the system to\n
+        :type value: str
+        :return:
+        :rtype:
+        """
+        # for API v2.1 compatibility reasons we cast to upper case
+        self.system = value.upper()
+
+    @system.getter
+    def system(self)->str:
+        """
+        get the system name\n
+        :return: the system name
+        :rtype: str
+        """
+        return self.system
+
     # TODO: to/from json
     # TODO: track changes
