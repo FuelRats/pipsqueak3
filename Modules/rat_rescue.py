@@ -12,6 +12,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 import config
+from datetime import datetime
 log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
 
@@ -19,27 +20,27 @@ class Rescue(object):
     """
     A unique rescue
     """
-    def __init__(self, case_id: str, client: str, system: str, created_at=None, updated_at=None, unidentified_rats=None,
-                 active=True, quotes: list = None, is_open=True, epic=False, code_red=False, successful=False, title='',
-                 first_limpet=None):
+    def __init__(self, case_id: str, client: str, system: str, created_at: datetime=None, updated_at: datetime=None,
+                 unidentified_rats=None, active=True, quotes: list = None, is_open=True, epic=False, code_red=False,
+                 successful=False, title='', first_limpet=None):
         """
         Create a new rescue
         """
-        self._createdAt = created_at
-        self._updatedAt = updated_at
+        self._createdAt: datetime = created_at
+        self._updatedAt: datetime = updated_at
         self._id: str = case_id
         self._client: str = client
         self._irc_nick: str = self._client.replace(" ", "_")
         self._unidentifiedRats = unidentified_rats
-        self._system = system.upper()
-        self._active = active
-        self._quotes = quotes
-        self._open = is_open
-        self._epic = epic
-        self._codeRed = code_red
-        self._successful = successful
-        self._title = title
-        self._firstLimpet = first_limpet
+        self._system: str = system.upper()
+        self._active: bool = active
+        self._quotes: list = quotes
+        self._open: bool = is_open
+        self._epic: bool = epic
+        self._codeRed: bool = code_red
+        self._successful: bool = successful
+        self._title: str = title
+        self._firstLimpet: str = first_limpet
 
     @property
     def client(self)->str:
@@ -51,7 +52,13 @@ class Rescue(object):
         return self._client
 
     @property
-    def created_at(self):
+    def created_at(self)-> datetime:
+        """
+        Case creation time, this property is readonly.
+        It can only be set during Rescue creation\n
+        :return: creation date
+        :rtype: datetime
+        """
         return self._createdAt
 
     @property
