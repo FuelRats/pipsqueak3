@@ -22,11 +22,10 @@ class TestRescue(TestCase):
     Tests for `Modules.Rescue.Rescue`
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.time = datetime.utcnow()
-
-        cls.rescue = Rescue("my-id", "stranded_commander", system="firestone", created_at=cls.time)
+    def setUp(self):
+        self.time = datetime.utcnow()
+        self.system = "firestone"
+        self.rescue = Rescue("my-id", "stranded_commander", system=self.system, created_at=self.time)
 
     def test_client_property_exists(self):
         """
@@ -34,7 +33,8 @@ class TestRescue(TestCase):
         :return:
         :rtype:
         """
-        self.fail()
+        self.assertTrue(hasattr(self.rescue, "client"))
+        self.assertEqual(self.rescue.client, "stranded_commander")
 
     def test_client_writeable(self):
         """
@@ -42,7 +42,9 @@ class TestRescue(TestCase):
         :return:
         :rtype:
         """
-        self.fail()
+        expected = "some other commander"
+        self.rescue.client = expected
+        self.assertEqual(self.rescue.client, expected)
 
     def test_created_at_creation(self):
         """
@@ -50,7 +52,7 @@ class TestRescue(TestCase):
         :return:
         :rtype:
         """
-        self.fail()
+        self.assertEqual(self.time, self.rescue.created_at)
 
     def test_created_at_not_writable(self):
         """
@@ -58,7 +60,8 @@ class TestRescue(TestCase):
         :return:
         :rtype:
         """
-        self.fail()
+        with self.assertRaises(AttributeError):
+            self.rescue.created_at = datetime.utcnow()
 
     def test_system_initial_set(self):
         """
@@ -66,8 +69,9 @@ class TestRescue(TestCase):
         :return:
         :rtype:
         """
-        self.fail()
+        self.assertEqual(self.system.upper(), self.rescue.system)
 
     def test_system_writable(self):
-        self.fail()
+        self.rescue.system = "sol"
+        self.assertEqual(self.rescue.system, "SOL")
 
