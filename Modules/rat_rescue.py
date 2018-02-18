@@ -19,8 +19,8 @@ class Rescue(object):
     """
     A unique rescue
     """
-    def __init__(self, created_at, updated_at, case_id: str, client: str, unidentified_rats, system: str, active=True,
-                 quotes: list = None, is_open=True, epic=False, code_red=False, successful=False, title='',
+    def __init__(self, case_id: str, client: str, system: str, created_at=None, updated_at=None, unidentified_rats=None,
+                 active=True, quotes: list = None, is_open=True, epic=False, code_red=False, successful=False, title='',
                  first_limpet=None):
         """
         Create a new rescue
