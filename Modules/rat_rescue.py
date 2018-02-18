@@ -93,14 +93,5 @@ class Rescue(object):
         # for API v2.1 compatibility reasons we cast to upper case
         self._system = value.upper()
 
-    @system.getter
-    def system(self)->str:
-        """
-        get the system name\n
-        :return: the system name
-        :rtype: str
-        """
-        return self._system
-
     # TODO: to/from json
     # TODO: track changes
