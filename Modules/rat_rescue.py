@@ -19,7 +19,7 @@ class Rescue(object):
     """
     A unique rescue
     """
-    def __init__(self, created_at, updated_at, case_id, client, unidentified_rats, system, active=True,
+    def __init__(self, created_at, updated_at, case_id: str, client: str, unidentified_rats, system: str, active=True,
                  quotes: list = None, is_open=True, epic=False, code_red=False, successful=False, title='',
                  first_limpet=None):
         """
@@ -30,7 +30,7 @@ class Rescue(object):
         self.id = case_id
         self.client = client
         self.unidentifiedRats = unidentified_rats
-        self.system = system
+        self._system = system.upper()
         self.active = active
         self.quotes = quotes
         self.open = is_open
@@ -47,19 +47,19 @@ class Rescue(object):
         :return: the system name
         :rtype: str
         """
-        return self.system
+        return self._system
 
     @system.setter
     def system(self, value: str):
         """
-        Set the system
+        Set the system name
         :param value: value to set the system to\n
         :type value: str
         :return:
         :rtype:
         """
         # for API v2.1 compatibility reasons we cast to upper case
-        self.system = value.upper()
+        self._system = value.upper()
 
     @system.getter
     def system(self)->str:
@@ -68,7 +68,7 @@ class Rescue(object):
         :return: the system name
         :rtype: str
         """
-        return self.system
+        return self._system
 
     # TODO: to/from json
     # TODO: track changes
