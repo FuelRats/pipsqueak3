@@ -10,7 +10,7 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-
+import uuid
 from unittest import TestCase
 
 from Modules.rat_rescue import Rescue
@@ -25,7 +25,8 @@ class TestRescue(TestCase):
     def setUp(self):
         self.time = datetime.utcnow()
         self.system = "firestone"
-        self.rescue = Rescue("my-id", "stranded_commander", system=self.system, created_at=self.time)
+        self.case_id = "some_id"
+        self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system, created_at=self.time)
 
     def test_client_property_exists(self):
         """
@@ -46,7 +47,7 @@ class TestRescue(TestCase):
         self.rescue.client = expected
         self.assertEqual(self.rescue.client, expected)
 
-    def test_created_at_creation(self):
+    def test_created_at_made_correctly(self):
         """
         Verifies the `Rescue.created_at` property was correctly created\n
         :return:
@@ -75,3 +76,5 @@ class TestRescue(TestCase):
         self.rescue.system = "sol"
         self.assertEqual(self.rescue.system, "SOL")
 
+    def test_case_id(self):
+        self.assertEqual(self.case_id, self.rescue.case_id)
