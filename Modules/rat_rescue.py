@@ -142,5 +142,33 @@ class Rescue(object):
         # for API v2.1 compatibility reasons we cast to upper case
         self._system = value.upper()
 
+    @property
+    def active(self) -> bool:
+        """
+        Property storing the active state of the rescue\n
+        :return: is the case marked active?
+        :rtype: bool
+        """
+        return self._active
+
+    @property
+    def quotes(self) -> list:
+        """
+        Quotes associated with this rescue\n
+        :return: list of quotes
+        :rtype: list
+        """
+        return self._quotes
+
+    @quotes.setter
+    def quotes(self, value):
+        """
+        Sets the value of the quotes property to whatever `value` is\n
+        :param value: value to set quotes to
+        :type value: list
+        :return: None
+        :rtype: None
+        """
+
     # TODO: to/from json
     # TODO: track changes
