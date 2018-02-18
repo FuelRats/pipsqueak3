@@ -25,20 +25,21 @@ class Rescue(object):
         """
         Create a new rescue
         """
-        self.createdAt = created_at
-        self.updatedAt = updated_at
-        self.id = case_id
-        self.client = client
-        self.unidentifiedRats = unidentified_rats
+        self._createdAt = created_at
+        self._updatedAt = updated_at
+        self._id: str = case_id
+        self._client: str = client
+        self._irc_nick: str = self._client.replace(" ", "_")
+        self._unidentifiedRats = unidentified_rats
         self._system = system.upper()
-        self.active = active
-        self.quotes = quotes
-        self.open = is_open
-        self.epic = epic
-        self.codeRed = code_red
-        self.successful = successful
-        self.title = title
-        self.firstLimpet = first_limpet
+        self._active = active
+        self._quotes = quotes
+        self._open = is_open
+        self._epic = epic
+        self._codeRed = code_red
+        self._successful = successful
+        self._title = title
+        self._firstLimpet = first_limpet
 
     @property
     def system(self)->str:
