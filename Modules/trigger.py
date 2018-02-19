@@ -19,7 +19,7 @@ class Trigger(object):
         :type ident: str
         :param hostname: triggering users hostname
         :type hostname: str
-        :param realname: users set realname
+        :param realname: users defined realname
         :type realname: str
         :param away: Away message
         :type away: str
