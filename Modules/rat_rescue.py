@@ -22,7 +22,6 @@ log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 class Quotes(object):
     """
     A quotes object, element of Rescue
-
     """
 
     def __init__(self, message: str, author="Mecha", created_at=datetime.utcnow(), updated_at=datetime.utcnow(),
@@ -129,21 +128,6 @@ class Quotes(object):
         self._message = message
         self._updated_at = datetime.utcnow()
         self._last_author = event_trigger.nickname
-
-    @classmethod
-    def new(cls, rescue: 'Rescue', message: str, author: str = "mecha"):
-        """
-        Helper method: Add a new quote to an existing rescue\n
-        :param rescue: Rescue object to append quotes to
-        :param message: quote to record
-        :type message: str
-        :param author: Who made the associated quote
-        :type author: str
-        :return:
-        :rtype:
-        """
-
-        rescue.quotes.append(cls(message=message, author=author))
 
 
 class Rescue(object):

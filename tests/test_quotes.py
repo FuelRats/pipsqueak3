@@ -14,7 +14,7 @@ import datetime
 from unittest import TestCase, expectedFailure
 
 import mock_bot
-from Modules.rat_rescue import Quotes
+from Modules.rat_rescue import Quotes, Rescue
 from Modules.trigger import Trigger
 
 
@@ -109,6 +109,11 @@ class TestQuotes(TestCase):
                     quote.last_author = value
 
     def test_modify(self):
+        """
+        Verifies a quote can be changed correctly, that the correct fields are set\n
+        :return:
+        :rtype:
+        """
         trigger = Trigger(mock_bot, nickname="unit_test[BOT]", target="#unit_tests", ident="mechasqueak3",
                           hostname="techrat.fuelrats.com")
         quote = Quotes("foo")
@@ -116,7 +121,3 @@ class TestQuotes(TestCase):
         self.assertEqual("bar", quote.message)
         self.assertNotEqual(quote.created_at, quote.updated_at)
         self.assertNotEqual(quote.author, quote.last_author)
-
-    @expectedFailure
-    def test_new(self):
-        self.fail()
