@@ -49,7 +49,7 @@ class Quotes(object):
     @property
     def message(self) -> str:
         """
-        Recorded message
+        Recorded message\n
         :return: message
         :rtype: str
         """
