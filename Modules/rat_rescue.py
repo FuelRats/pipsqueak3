@@ -14,6 +14,7 @@ import logging
 from datetime import datetime
 
 import config
+from Modules import trigger
 
 log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
@@ -109,7 +110,12 @@ class Rescue(object):
             return self._message
 
         @property
-        def author(self):
+        def author(self) -> str:
+            """
+            Original author of message ( READ ONLY )
+            :return: author
+            :rtype: str
+            """
             return self._author
 
         @property
@@ -134,6 +140,8 @@ class Rescue(object):
         def updated_at(self, value):
             if isinstance(value, datetime):
                 self._updated_at = value
+            else:
+                f"Expected string got {type(value)}"
 
         @property
         def last_author(self):
@@ -145,6 +153,16 @@ class Rescue(object):
                 self._last_author = value
             else:
                 raise ValueError(f"Expected string got {type(value)}")
+
+        def modify(self, event_trigger: trigger) -> None:
+            """
+            Helper method for modifying a quote\n
+            :param event_trigger: who triggered the modification
+            :type event_trigger: trigger
+            :return: None
+            :rtype: None
+            """
+            self.message
 
     @property
     def case_id(self) -> str:
