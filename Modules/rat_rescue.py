@@ -151,35 +151,22 @@ class Rescue(object):
                  updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
                  epic=False, code_red=False, successful=False, title='', first_limpet=None):
         """
-        A unique rescue\n
-        :param case_id: API id of rescue
-        :type case_id: str
-        :param client: The client's Commander name
-        :type client: str
-        :param system: The reported system for the rescue
-        :type system: str
-        :param created_at: Time the Rescue was first created ( READ ONLY once set)
-        :type created_at: datetime
-        :param updated_at: Last time the rescue was modified
-        :type updated_at: datetime
-        :param unidentified_rats: Assigned but unidentified rats
-        :type unidentified_rats: list
-        :param active: Bool determining if the case is marked as active
-        :type active: bool
-        :param quotes: Associated quotes for rescue
-        :type quotes: list
-        :param is_open: whether the case is marked as open
-        :type is_open: bool
-        :param epic: Is the rescue an Epic (NOT IMPLEMENTED YET)
-        :type epic: bool
-        :param code_red: is the rescue Code Red
-        :type code_red: bool
-        :param successful: was the rescue a success?
-        :type successful: bool
-        :param title: title for rescue, if any
-        :type title: str
-        :param first_limpet: Rat ID of the first-limpet
-        :type first_limpet: str
+        creates a unique rescue\n
+        Args:
+            case_id (str): API id of rescue
+            client (str): Commander name of the Commander rescued
+            system (str): System name the Commander is stranded in (WILL BE CAST TO UPPER CASE)
+            created_at (datetime): time the case was first created **( READONLY )**
+            updated_at (datetime): last tme the case was modified
+            unidentified_rats (list): list of unidentified rats responding to rescue **(nicknames)**
+            active (bool): marks whether the case is active or not
+            quotes (list): list of Quotation objects associated with rescue
+            is_open (bool): is the case marked as open
+            epic (bool): is the case marked as an epic
+            code_red (bool): is the case marked as a Code Red
+            successful (bool): is the case marked as a success
+            title (str): name of operation, if applicable
+            first_limpet (str): Id of the rat that got the first limpet
         """
         self._createdAt: datetime = created_at
         self._updatedAt: datetime = updated_at
