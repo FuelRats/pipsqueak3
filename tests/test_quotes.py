@@ -10,9 +10,8 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-from unittest import TestCase, expectedFailure
-
 import datetime
+from unittest import TestCase, expectedFailure
 
 from Modules.rat_rescue import Quotes
 
@@ -75,11 +74,18 @@ class TestQuotes(TestCase):
         """
         expected_time = datetime.datetime.utcnow()
         quote = Quotes(message="foo", updated_at=expected_time)
+
         self.assertEqual(expected_time, quote.updated_at)
+
         quote.updated_at = expected_time = datetime.datetime.utcnow()
         self.assertEqual(expected_time, quote.updated_at)
 
     def test_updated_at_invalid(self):
+        """
+        Verifies writing garbage to `Quotes.updated_at` raises expected Error.
+        :return:
+        :rtype:
+        """
         quote = Quotes("foobar")
         bad_values = [12, False, ["foo"], "bar", None]
         for value in bad_values:
@@ -87,17 +93,23 @@ class TestQuotes(TestCase):
                 with self.assertRaises(ValueError):
                     quote.updated_at = value
 
-    def test_updated_at_setter(self):
-        self.fail()
+    def test_last_author_setter_invalid(self):
+        """
+        Verifies `Quotes.last_author` can be written to
+        :return:
+        :rtype:
+        """
+        quote = Quotes("foobar")
+        bad_values = [12, False, ["foo"], None]
+        for value in bad_values:
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    quote.last_author = value
 
-    def test_last_author(self):
-        self.fail()
-
-    def test_last_author_setter(self):
-        self.fail()
-
+    @expectedFailure
     def test_modify(self):
         self.fail()
 
+    @expectedFailure
     def test_new(self):
         self.fail()
