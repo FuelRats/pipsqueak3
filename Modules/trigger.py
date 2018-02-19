@@ -6,6 +6,28 @@ class Trigger(object):
 
     def __init__(self, bot: pydle.BasicClient, nickname: str, target: str, ident: str, hostname: str,
                  realname: str = "", away: str = None, account: str = None, identified: bool = False):
+        """
+        Object to hold information on the user who invoked a command (and where they did it).\n
+        :param bot: Pydle instance
+        :type bot: Pydle
+        :param nickname: irc nickname of the triggering user
+        :type nickname: str
+        :param target: target: The message target (usually a channel or, if it was sent in a query window, the bot's
+            nick)
+        :type target: str
+        :param ident: Triggering user's identity
+        :type ident: str
+        :param hostname: triggering users hostname
+        :type hostname: str
+        :param realname: users set realname
+        :type realname: str
+        :param away: Away message
+        :type away: str
+        :param account: ???
+        :type account: str
+        :param identified: is the user identified with nickserv?
+        :type identified: bool
+        """
         self.bot = bot
         self.nickname = nickname
         self.target = target
