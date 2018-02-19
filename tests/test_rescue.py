@@ -10,11 +10,10 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-import uuid
+from datetime import datetime
 from unittest import TestCase
 
 from Modules.rat_rescue import Rescue
-from datetime import datetime
 
 
 class TestRescue(TestCase):
@@ -135,3 +134,14 @@ class TestRescue(TestCase):
         for name in names:
             with self.assertRaises(ValueError):
                 self.rescue.quotes = name
+
+    def test_add_quote(self):
+        # verify the list was empty
+        self.assertEqual(self.rescue.quotes, [])
+        # add ourselves a quote
+        self.rescue.add_quote(message="foo", author='unit_test[BOT]')
+        # verify something got written to the rescue property
+        self.assertEqual(1, len(self.rescue.quotes))
+        # now verify that something is what we wanted to write
+        self.assertEqual("foo", self.rescue.quotes[0].message)
+        self.assertEqual("unit_test[BOT]", self.rescue.quotes[0].author)

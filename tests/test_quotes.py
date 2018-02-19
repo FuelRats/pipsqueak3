@@ -14,7 +14,7 @@ import datetime
 from unittest import TestCase, expectedFailure
 
 import mock_bot
-from Modules.rat_rescue import Quotes, Rescue
+from Modules.rat_rescue import Quotation, Rescue
 from Modules.trigger import Trigger
 
 
@@ -28,7 +28,7 @@ class TestQuotes(TestCase):
         Verifies functionality of the default constructor
         """
         expectedMessage = "some test message"
-        quote = Quotes(message=expectedMessage)
+        quote = Quotation(message=expectedMessage)
         self.assertEqual(expectedMessage, quote.message)
         self.assertEqual("Mecha", quote.author)
 
@@ -39,43 +39,43 @@ class TestQuotes(TestCase):
         :rtype:
         """
         expected_message = "my glorious message"
-        quote = Quotes(message="foo")
+        quote = Quotation(message="foo")
         quote.message = expected_message
         self.assertEqual(expected_message, quote.message)
 
     def test_author(self):
         """
-        Verifies `Quotes.author` gets set correctly during creation
+        Verifies `Quotation.author` gets set correctly during creation
         :return:
         :rtype:
         """
         expected_author = "unit_test[BOT]"
-        quote = Quotes(message="foo", author=expected_author)
+        quote = Quotation(message="foo", author=expected_author)
         self.assertEqual(expected_author, quote.author)
 
     def test_author_is_readonly(self):
         """
-        verifies `Quotes.author` is a readonly property.
+        verifies `Quotation.author` is a readonly property.
         :return:
         :rtype:
         """
-        quote = Quotes("foo")
+        quote = Quotation("foo")
         with self.assertRaises(AttributeError):
             quote.author = "unit_test[BOT]"
 
     def test_created_at(self):
         expected_time = datetime.datetime.utcnow()
-        quote = Quotes(message="foo", created_at=expected_time)
+        quote = Quotation(message="foo", created_at=expected_time)
         self.assertEqual(quote.created_at, expected_time)
 
     def test_updated_at_setter_valid(self):
         """
-        Verifies `Quotes.updated_at` is writable given correct parameters
+        Verifies `Quotation.updated_at` is writable given correct parameters
         :return:
         :rtype:
         """
         expected_time = datetime.datetime.utcnow()
-        quote = Quotes(message="foo", updated_at=expected_time)
+        quote = Quotation(message="foo", updated_at=expected_time)
 
         self.assertEqual(expected_time, quote.updated_at)
 
@@ -84,11 +84,11 @@ class TestQuotes(TestCase):
 
     def test_updated_at_invalid(self):
         """
-        Verifies writing garbage to `Quotes.updated_at` raises expected Error.
+        Verifies writing garbage to `Quotation.updated_at` raises expected Error.
         :return:
         :rtype:
         """
-        quote = Quotes("foobar")
+        quote = Quotation("foobar")
         bad_values = [12, False, ["foo"], "bar", None]
         for value in bad_values:
             with self.subTest(value=value):
@@ -97,11 +97,11 @@ class TestQuotes(TestCase):
 
     def test_last_author_setter_invalid(self):
         """
-        Verifies `Quotes.last_author` can be written to
+        Verifies `Quotation.last_author` can be written to
         :return:
         :rtype:
         """
-        quote = Quotes("foobar")
+        quote = Quotation("foobar")
         bad_values = [12, False, ["foo"], None]
         for value in bad_values:
             with self.subTest(value=value):
@@ -116,7 +116,7 @@ class TestQuotes(TestCase):
         """
         trigger = Trigger(mock_bot, nickname="unit_test[BOT]", target="#unit_tests", ident="mechasqueak3",
                           hostname="techrat.fuelrats.com")
-        quote = Quotes("foo")
+        quote = Quotation("foo")
         quote.modify(trigger, message="bar")
         self.assertEqual("bar", quote.message)
         self.assertNotEqual(quote.created_at, quote.updated_at)

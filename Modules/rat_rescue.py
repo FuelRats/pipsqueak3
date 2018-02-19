@@ -19,7 +19,7 @@ from Modules.trigger import Trigger
 log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
 
-class Quotes(object):
+class Quotation(object):
     """
     A quotes object, element of Rescue
     """
@@ -27,7 +27,7 @@ class Quotes(object):
     def __init__(self, message: str, author="Mecha", created_at=datetime.utcnow(), updated_at=datetime.utcnow(),
                  last_author="Mecha"):
         """
-        Creates a new Quotes object\n
+        Creates a new Quotation object\n
         :param message: recorded message
         :type message: str
         :param author: who wrote the message
@@ -273,7 +273,10 @@ class Rescue(object):
     @quotes.setter
     def quotes(self, value):
         """
-        Sets the value of the quotes property to whatever `value` is\n
+        Sets the value of the quotes property to whatever `value` is.
+        This should not be set directly outside of case init, rather via `add_quote`
+
+
         :param value: value to set quotes to
         :type value: list
         :return: None
@@ -284,15 +287,21 @@ class Rescue(object):
         else:
             raise ValueError(f"expected type list, got {type(value)}")
 
-    def add_quote(self, value: dict) -> None:
+    def add_quote(self, message: str, author: str or None = None) -> None:
         """
         Appends a quote to the rescue object\n
-        :param value: quote data to append
-        :type value: dict
+        :param message: quoted text to make a quotation
+        :type message: str
+        :param author: IRC nickname of whoever the quotation is of
+        :type author: str
         :return: None
         :rtype: None
         """
-        self.quotes.append(value)
+        if author:
+            self.quotes.append(Quotation(author=author, message=message))
+        else:
+            self.quotes += Quotation(message=message)
+
     # TODO: to/from json
     # TODO: track changes
     # TODO: helper method for adding / editing quotes
