@@ -12,8 +12,9 @@ This module is built on top of the Pydle system.
 """
 from unittest import TestCase, expectedFailure
 
-from Modules.rat_rescue import Quotes
+import datetime
 
+from Modules.rat_rescue import Quotes
 
 
 class TestQuotes(TestCase):
@@ -22,21 +23,69 @@ class TestQuotes(TestCase):
         pass
 
     def test_message(self):
+        """
+        Verifies functionality of the default constructor
+        """
         expectedMessage = "some test message"
         quote = Quotes(message=expectedMessage)
         self.assertEqual(expectedMessage, quote.message)
+        self.assertEqual("Mecha", quote.author)
 
     def test_message_setter(self):
-        self.fail()
+        """
+        Verifies Quote.message property is writable.
+        :return:
+        :rtype:
+        """
+        expected_message = "my glorious message"
+        quote = Quotes(message="foo")
+        quote.message = expected_message
+        self.assertEqual(expected_message, quote.message)
 
     def test_author(self):
-        self.fail()
+        """
+        Verifies `Quotes.author` gets set correctly during creation
+        :return:
+        :rtype:
+        """
+        expected_author = "unit_test[BOT]"
+        quote = Quotes(message="foo", author=expected_author)
+        self.assertEqual(expected_author, quote.author)
+
+    def test_author_is_readonly(self):
+        """
+        verifies `Quotes.author` is a readonly property.
+        :return:
+        :rtype:
+        """
+        quote = Quotes("foo")
+        with self.assertRaises(AttributeError):
+            quote.author = "unit_test[BOT]"
 
     def test_created_at(self):
-        self.fail()
+        expected_time = datetime.datetime.utcnow()
+        quote = Quotes(message="foo", created_at=expected_time)
+        self.assertEqual(quote.created_at, expected_time)
 
-    def test_updated_at(self):
-        self.fail()
+    def test_updated_at_setter_valid(self):
+        """
+        Verifies `Quotes.updated_at` is writable given correct parameters
+        :return:
+        :rtype:
+        """
+        expected_time = datetime.datetime.utcnow()
+        quote = Quotes(message="foo", updated_at=expected_time)
+        self.assertEqual(expected_time, quote.updated_at)
+        quote.updated_at = expected_time = datetime.datetime.utcnow()
+        self.assertEqual(expected_time, quote.updated_at)
+
+    def test_updated_at_invalid(self):
+        quote = Quotes("foobar")
+        bad_values = [12, False, ["foo"], "bar", None]
+        for value in bad_values:
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    quote.updated_at = value
 
     def test_updated_at_setter(self):
         self.fail()
