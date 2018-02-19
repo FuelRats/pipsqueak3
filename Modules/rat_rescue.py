@@ -118,16 +118,28 @@ class Quotation(object):
     def modify(self, event_trigger: Trigger, message: str) -> None:
         """
         Helper method for modifying a quote\n
-        :param event_trigger: who triggered the modification
-        :type event_trigger: trigger
-        :param message: message to write
-        :type: str
-        :return: None
-        :rtype: None
+        Args:
+            event_trigger (Trigger): Trigger object of invoking user
+            message (str): message to set as quoted text
+
+        Returns: None
+
         """
         self._message = message
         self._updated_at = datetime.utcnow()
         self._last_author = event_trigger.nickname
+
+    @classmethod
+    def from_json(cls, data: dict) -> list:
+        """
+        Parses a Rescue dictionary for quotes
+        Args:
+            data (dict):
+
+        Returns: list of Quotation objects
+
+        """
+        pass
 
 
 class Rescue(object):
