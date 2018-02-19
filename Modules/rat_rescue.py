@@ -124,6 +124,21 @@ class Quotes(object):
         self.updated_at = datetime.utcnow()
         self.last_author = event_trigger.nickname
 
+    @classmethod
+    def new(cls, rescue: 'Rescue', message: str, author: str = "mecha"):
+        """
+        Helper method: Add a new quote to an existing rescue
+        :param rescue: Rescue object to append quotes to
+        :param message: quote to record
+        :type message: str
+        :param author: Who made the associated quote
+        :type author: str
+        :return:
+        :rtype:
+        """
+
+        rescue.quotes = rescue.quotes.append(cls(message=message, author=author))
+
 
 class Rescue(object):
     """
@@ -179,7 +194,6 @@ class Rescue(object):
         self._successful: bool = successful
         self._title: str = title
         self._firstLimpet: str = first_limpet
-
 
     @property
     def case_id(self) -> str:
