@@ -58,7 +58,7 @@ class Quotes(object):
     @message.setter
     def message(self, value) -> None:
         """
-        Sets the message property
+        Sets the message property\n
         :param value: value to set
         :type value: str
         :return: None
@@ -69,7 +69,7 @@ class Quotes(object):
     @property
     def author(self) -> str:
         """
-        Original author of message ( READ ONLY )
+        Original author of message ( READ ONLY )\n
         :return: author
         :rtype: str
         """
@@ -78,7 +78,7 @@ class Quotes(object):
     @property
     def created_at(self) -> datetime:
         """
-        When the case was created
+        When the case was created\n
         :return: time of creation
         :rtype: datetime
         """
@@ -87,7 +87,7 @@ class Quotes(object):
     @property
     def updated_at(self):
         """
-        When the quote was last modified
+        When the quote was last modified\n
         :return: modify time
         :rtype: datetime
         """
@@ -98,10 +98,15 @@ class Quotes(object):
         if isinstance(value, datetime):
             self._updated_at = value
         else:
-            f"Expected string got {type(value)}"
+            raise ValueError(f"Expected string got {type(value)}")
 
     @property
     def last_author(self):
+        """
+        IRC nickname of the last person to modify this quote
+        :return:
+        :rtype:
+        """
         return self._last_author
 
     @last_author.setter
