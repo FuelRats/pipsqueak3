@@ -13,7 +13,9 @@ This module is built on top of the Pydle system.
 import datetime
 from unittest import TestCase, expectedFailure
 
+import mock_bot
 from Modules.rat_rescue import Quotes
+from Modules.trigger import Trigger
 
 
 class TestQuotes(TestCase):
@@ -106,9 +108,14 @@ class TestQuotes(TestCase):
                 with self.assertRaises(ValueError):
                     quote.last_author = value
 
-    @expectedFailure
     def test_modify(self):
-        self.fail()
+        trigger = Trigger(mock_bot, nickname="unit_test[BOT]", target="#unit_tests", ident="mechasqueak3",
+                          hostname="techrat.fuelrats.com")
+        quote = Quotes("foo")
+        quote.modify(trigger, message="bar")
+        self.assertEqual("bar", quote.message)
+        self.assertNotEqual(quote.created_at, quote.updated_at)
+        self.assertNotEqual(quote.author, quote.last_author)
 
     @expectedFailure
     def test_new(self):
