@@ -14,9 +14,115 @@ import logging
 from datetime import datetime
 
 import config
-from Modules import trigger
+from Modules.trigger import Trigger
 
 log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
+
+
+class Quotes(object):
+    """
+    A quotes object, element of Rescue
+    """
+
+    def __init__(self, message: str, author="Mecha", created_at=datetime.utcnow(), updated_at=datetime.utcnow(),
+                 last_author="Mecha"):
+        """
+        Creates a new Quotes object\n
+        :param message: recorded message
+        :type message: str
+        :param author: who wrote the message
+        :type author: str
+        :param created_at: time the quote was created
+        :type created_at: datetime
+        :param updated_at: last time the quote was touched
+        :type updated_at: datetime
+        :param last_author: Last person to touch the quote
+        :type last_author: str
+        """
+        self._message = message
+        self._author = author
+        self._created_at = created_at
+        self._updated_at = updated_at
+        self._last_author = last_author
+
+    @property
+    def message(self) -> str:
+        """
+        Recorded message
+        :return: message
+        :rtype: str
+        """
+        return self._message
+
+    @message.setter
+    def message(self, value) -> None:
+        """
+        Sets the message property
+        :param value: value to set
+        :type value: str
+        :return: None
+        :rtype: None
+        """
+        self._message = value
+
+    @property
+    def author(self) -> str:
+        """
+        Original author of message ( READ ONLY )
+        :return: author
+        :rtype: str
+        """
+        return self._author
+
+    @property
+    def created_at(self) -> datetime:
+        """
+        When the case was created
+        :return: time of creation
+        :rtype: datetime
+        """
+        return self._created_at
+
+    @property
+    def updated_at(self):
+        """
+        When the quote was last modified
+        :return: modify time
+        :rtype: datetime
+        """
+        return self._updated_at
+
+    @updated_at.setter
+    def updated_at(self, value):
+        if isinstance(value, datetime):
+            self._updated_at = value
+        else:
+            f"Expected string got {type(value)}"
+
+    @property
+    def last_author(self):
+        return self._last_author
+
+    @last_author.setter
+    def last_author(self, value):
+        if isinstance(value, str):
+            self._last_author = value
+        else:
+            raise ValueError(f"Expected string got {type(value)}")
+
+    def modify(self, event_trigger: Trigger, message: str) -> None:
+        """
+        Helper method for modifying a quote\n
+        :param event_trigger: who triggered the modification
+        :type event_trigger: trigger
+        :param message: message to write
+        :type: str
+        :return: None
+        :rtype: None
+        """
+        self.message = message
+        self.updated_at = datetime.utcnow()
+        self.last_author = event_trigger.nickname
 
 
 class Rescue(object):
@@ -74,95 +180,6 @@ class Rescue(object):
         self._title: str = title
         self._firstLimpet: str = first_limpet
 
-    class Quotes(object):
-        """
-        A quotes object, element of Rescue
-        """
-
-        def __init__(self, message: str, author="Mecha", created_at=datetime.utcnow(), updated_at=datetime.utcnow(),
-                     last_author="Mecha"):
-            """
-            Creates a new Quotes object\n
-            :param message: recorded message
-            :type message: str
-            :param author: who wrote the message
-            :type author: str
-            :param created_at: time the quote was created
-            :type created_at: datetime
-            :param updated_at: last time the quote was touched
-            :type updated_at: datetime
-            :param last_author: Last person to touch the quote
-            :type last_author: str
-            """
-            self._message = message
-            self._author = author
-            self._created_at = created_at
-            self._updated_at = updated_at
-            self._last_author = last_author
-
-        @property
-        def message(self) -> str:
-            """
-            Recorded message
-            :return: message
-            :rtype: str
-            """
-            return self._message
-
-        @property
-        def author(self) -> str:
-            """
-            Original author of message ( READ ONLY )
-            :return: author
-            :rtype: str
-            """
-            return self._author
-
-        @property
-        def created_at(self) -> datetime:
-            """
-            When the case was created
-            :return: time of creation
-            :rtype: datetime
-            """
-            return self._created_at
-
-        @property
-        def updated_at(self):
-            """
-            When the quote was last modified
-            :return: modify time
-            :rtype: datetime
-            """
-            return self._updated_at
-
-        @updated_at.setter
-        def updated_at(self, value):
-            if isinstance(value, datetime):
-                self._updated_at = value
-            else:
-                f"Expected string got {type(value)}"
-
-        @property
-        def last_author(self):
-            return self._last_author
-
-        @last_author.setter
-        def last_author(self, value):
-            if isinstance(value, str):
-                self._last_author = value
-            else:
-                raise ValueError(f"Expected string got {type(value)}")
-
-        def modify(self, event_trigger: trigger) -> None:
-            """
-            Helper method for modifying a quote\n
-            :param event_trigger: who triggered the modification
-            :type event_trigger: trigger
-            :return: None
-            :rtype: None
-            """
-            self.message
 
     @property
     def case_id(self) -> str:
