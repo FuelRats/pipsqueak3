@@ -13,9 +13,9 @@ This module is built on top of the Pydle system.
 import datetime
 from unittest import TestCase, expectedFailure
 
-import mock_bot
 from Modules.rat_rescue import Quotation, Rescue
 from Modules.trigger import Trigger
+from tests import mock_bot
 
 
 class TestQuotes(TestCase):
