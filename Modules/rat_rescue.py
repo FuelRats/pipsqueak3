@@ -151,7 +151,8 @@ class Rescue(object):
                  updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
                  epic=False, code_red=False, successful=False, title='', first_limpet=None):
         """
-        creates a unique rescue\n
+        creates a unique rescue
+
         Args:
             case_id (str): API id of rescue
             client (str): Commander name of the Commander rescued
@@ -187,74 +188,107 @@ class Rescue(object):
     @property
     def case_id(self) -> str:
         """
-        The API Id of the rescue. This field is READ ONLY\n
-        :return: api ID
-        :rtype: str
+        The API Id of the rescue.
+
+        Returns: API id
+
+        Notes:
+            This field is **READ ONLY**
         """
+
         return self._id
 
     @property
     def client(self) -> str:
         """
-        The client the rescue is for\n
-        :return: the client
-        :rtype: str
+        The client associated with the rescue\n
+        Returns:
+            (str) the client
+
         """
         return self._client
 
     @client.setter
     def client(self, name) -> None:
         """
-        Set the client's Commander name\n
-        :param name: the client's Commander name
-        :type name: str
-        :return: None
-        :rtype: None
+        Sets the client's Commander Name associated with the rescue
+        Args:
+            name (str): Commander name of the client
+
+        Returns:
+            None
         """
         self._client = name
 
     @property
     def created_at(self) -> datetime:
         """
-        Case creation time, this property is readonly.
-        It can only be set during Rescue creation\n
-        :return: creation date
-        :rtype: datetime
+        Case creation time.
+
+        Notes
+            this property is **READONLY**.
+
+
+        It can only be set during Rescue object creation
+
+        Returns:
+            datetime: creation date
         """
         return self._createdAt
 
     @property
     def system(self) -> str:
         """
-        The clients system\n
-        :return: the system name
-        :rtype: str
+        The clients system name
+
+        Returns:
+            str: the clients system name
         """
         return self._system
 
     @system.setter
     def system(self, value: str):
         """
-        Set the system name
-        :param value: value to set the system to\n
-        :type value: str
-        :return:
-        :rtype:
+        Sets the system property to the upper case of `value`
+
+        Raises:
+            AttributeError: if `value` is not a string
+
+        Args:
+            value (str): string to set `self.system` to
+
+        Returns:
+            None
+
+        Notes:
+            this method will cast `value` to upper case, as to comply with Fuelrats Api v2.1
         """
+
         # for API v2.1 compatibility reasons we cast to upper case
         self._system = value.upper()
 
     @property
     def active(self) -> bool:
         """
-        Property storing the active state of the rescue\n
-        :return: is the case marked active?
-        :rtype: bool
+        marker indicating whether a case is active or not. this has no direct effect on bot functionality,
+        rather its primary function is case management.
+
+        Returns:
+            bool: Active state
         """
         return self._active
 
     @active.setter
-    def active(self, value):
+    def active(self, value) -> None:
+        """
+        setter for `Rescue.active`
+
+        Args:
+            value (bool): state to set `active` to.
+
+        Returns:
+            None
+        """
         if isinstance(value, bool):
             self._active = value
         else:
@@ -263,23 +297,27 @@ class Rescue(object):
     @property
     def quotes(self) -> list:
         """
-        Quotes associated with this rescue\n
-        :return: list of quotes
-        :rtype: list
+        Contains all the quotes associated with this Rescue object.
+
+        Elements of the list are Quotation objects
+
+        Returns:
+            list: list of Quotation objects
         """
         return self._quotes
 
     @quotes.setter
-    def quotes(self, value):
+    def quotes(self, value) -> None:
         """
         Sets the value of the quotes property to whatever `value` is.
+
         This should not be set directly outside of case init, rather via `add_quote`
 
+        Args:
+            value (list): list of Quotation objects
 
-        :param value: value to set quotes to
-        :type value: list
-        :return: None
-        :rtype: None
+        Returns:
+            None
         """
         if isinstance(value, list):
             self._quotes = value
@@ -288,18 +326,21 @@ class Rescue(object):
 
     def add_quote(self, message: str, author: str or None = None) -> None:
         """
-        Appends a quote to the rescue object\n
-        :param message: quoted text to make a quotation
-        :type message: str
-        :param author: IRC nickname of whoever the quotation is of
-        :type author: str
-        :return: None
-        :rtype: None
+        Helper method, adds a `Quotation` object to the list.
+
+        Use this method to add a Quotation to the Rescue
+
+        Args:
+            message (str): Message to quote
+            author (str): IRC nickname of who is being quoted, if any. Otherwise Defaults to Mecha.
+
+        Returns:
+            None
         """
         if author:
             self.quotes.append(Quotation(author=author, message=message))
         else:
-            self.quotes += Quotation(message=message)
+            self.quotes.append(Quotation(message=message))
 
     # TODO: to/from json
     # TODO: track changes
