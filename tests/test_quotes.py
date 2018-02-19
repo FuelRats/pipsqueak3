@@ -12,11 +12,19 @@ This module is built on top of the Pydle system.
 """
 from unittest import TestCase, expectedFailure
 
+from Modules.rat_rescue import Quotes
 
-@expectedFailure
+
+
 class TestQuotes(TestCase):
+
+    def setUp(self):
+        pass
+
     def test_message(self):
-        self.fail()
+        expectedMessage = "some test message"
+        quote = Quotes(message=expectedMessage)
+        self.assertEqual(expectedMessage, quote.message)
 
     def test_message_setter(self):
         self.fail()
