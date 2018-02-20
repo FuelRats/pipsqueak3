@@ -12,6 +12,7 @@ This module is built on top of the Pydle system.
 """
 from datetime import datetime
 from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
 from Modules.rat_rescue import Rescue
 
@@ -146,16 +147,15 @@ class TestRescue(TestCase):
         self.assertEqual("foo", self.rescue.quotes[0].message)
         self.assertEqual("unit_test[BOT]", self.rescue.quotes[0].author)
 
-    def test_change_context_manager(self):
+    @patch('tests.test_rescue.Rescue.updated_at')
+    def test_change_context_manager(self, mock_updated_at: MagicMock):
         """
         Verifies the `Rescue.change` context manager functions as expected.
         Currently that is simply to update the `Rescue.updated_at` is updated.
         Returns:
 
         """
-        self.assertAlmostEqual(datetime.utcnow(), self.rescue.updated_at)
+        origin = self.rescue.updated_at
         with self.rescue.change():
             pass
-        # this makes a possibly fatal assumption that the test executes fast enough that `datetime.utcnow()` returns
-        # the same value as it did during the update...
-        self.assertAlmostEqual(datetime.utcnow(), self.rescue.updated_at)
+        self.assertNotEqual(origin, self.rescue.updated_at)
