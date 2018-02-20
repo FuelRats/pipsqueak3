@@ -24,7 +24,8 @@ Before opening a PR, rebase onto develop so your PR can be merged fast-forward o
 
 ## Testing Documentation
 
-Use docstrings and comments to document how your features function.
+Use docstrings and comments to document how your features function and why.
+Docstrings should be formatted to the flavour of [Google](https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments)
 Further, all new features must include Unit Tests.
 
 PRs for new features without **meaningful** Unit Tests will _**NOT**_
@@ -33,4 +34,5 @@ be accepted.
 If you are fixing an existing feature, the relevant UTs should not break.
 ### Code Coverage
 At least 85% of your introduced code must be covered by tests, the more the merrier.
-The module you touch should not fall below 85% coverage
+The module you touch should not fall below 85% coverage, and should cover all meaningful portions of the contribution.
+If your tests are not covering enough, we will request you revisit your testing before we will considering merging.
