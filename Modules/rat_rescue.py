@@ -11,6 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
+from contextlib import contextmanager
 from datetime import datetime
 
 import config
@@ -372,9 +373,69 @@ class Rescue(object):
             None
         """
         if author:
+            # set the author of the quote
             self.quotes.append(Quotation(author=author, message=message))
         else:
+            # otherwise use default
             self.quotes.append(Quotation(message=message))
+
+    @property
+    def updated_at(self):
+        """
+        Last time the rescue object was changed
+
+        Returns:
+            datetime
+        """
+
+        return self._updatedAt
+
+    @updated_at.setter
+    def updated_at(self, value):
+        """
+        Updates `Rescue.updated_at` property
+
+        Args:
+            value (datetime): new last modified datetime
+
+        Raises:
+            TypeError: invalid `value` type.
+            ValueError: `value` is earlier than creation date.
+
+        Returns:
+
+        """
+        if not isinstance(value, datetime):
+            raise TypeError(f"Expected datetime, got {type(value)}")
+        elif value < self.created_at:
+            raise ValueError(f"{value} is older than the cases creation date!")
+        else:
+            self._updatedAt = value
+
+    @contextmanager
+    def change(self):
+        """
+        Convenience method for making safe attribute changes.
+
+        FIXME: currently just ensures rescue.updated_at is updated.
+        TODO: replace with Board context manager once its implemented
+        TODO: replace current context manager with a dummy once the Board context manager is a thing.
+        TODO: implement API integration (probably in the board Contextmanager
+
+        Returns:
+            contextManager
+
+
+        Examples:
+            ```
+
+            with rescue.change:
+                rescue.client = foo
+
+            ```
+        """
+        self.updated_at = datetime.utcnow()
+        yield
 
     # TODO: to/from json
     # TODO: track changes
