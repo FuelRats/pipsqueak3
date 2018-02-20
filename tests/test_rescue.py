@@ -154,12 +154,12 @@ class TestRescue(TestCase):
         Returns:
 
         """
-        self.assertEqual(datetime.utcnow(), self.rescue.updated_at)
+        self.assertAlmostEqual(datetime.utcnow(), self.rescue.updated_at)
         with self.rescue.change():
             pass
         # this makes a possibly fatal assumption that the test executes fast enough that `datetime.utcnow()` returns
         # the same value as it did during the update...
-        self.assertEqual(datetime.utcnow(), self.rescue.updated_at)
+        self.assertAlmostEqual(datetime.utcnow(), self.rescue.updated_at)
 
     def test_get_board_index(self):
         """
