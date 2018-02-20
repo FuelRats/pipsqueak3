@@ -148,7 +148,7 @@ class Rescue(object):
     A rescue
     """
 
-    def __init__(self, case_id: str, client: str, system: str, created_at: datetime = datetime.utcnow(),
+    def __init__(self, case_id: str, client: str, system: str, created_at: datetime = None,
                  updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
                  epic=False, code_red=False, successful=False, title='', first_limpet=None):
         """
@@ -170,8 +170,8 @@ class Rescue(object):
             title (str): name of operation, if applicable
             first_limpet (str): Id of the rat that got the first limpet
         """
-        self._createdAt: datetime = created_at
-        self._updatedAt: datetime = updated_at
+        self._createdAt: datetime = created_at if created_at else datetime.utcnow()
+        self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
         self._id: str = case_id
         self._client: str = client
         self._irc_nick: str = self._client.replace(" ", "_")
@@ -384,8 +384,11 @@ class Rescue(object):
         Convenience method for making safe attribute changes.
 
         FIXME: currently just ensures rescue.updated_at is updated.
+
         TODO: replace with Board context manager once its implemented
+
         TODO: replace current context manager with a dummy once the Board context manager is a thing.
+
         TODO: implement API integration (probably in the board Contextmanager
 
         Returns:
@@ -395,7 +398,7 @@ class Rescue(object):
         Examples:
             ```
 
-            with rescue.change:
+            with rescue.change():
                 rescue.client = foo
 
             ```

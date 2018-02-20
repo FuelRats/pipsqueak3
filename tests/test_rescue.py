@@ -22,7 +22,7 @@ class TestRescue(TestCase):
     """
 
     def setUp(self):
-        self.time = datetime.utcnow()
+        self.time = datetime(2017, 12, 24, 23, 59, 49)
         self.system = "firestone"
         self.case_id = "some_id"
         self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system, created_at=self.time)
@@ -145,3 +145,17 @@ class TestRescue(TestCase):
         # now verify that something is what we wanted to write
         self.assertEqual("foo", self.rescue.quotes[0].message)
         self.assertEqual("unit_test[BOT]", self.rescue.quotes[0].author)
+
+    def test_change_context_manager(self):
+        """
+        Verifies the `Rescue.change` context manager functions as expected.
+        Currently that is simply to update the `Rescue.updated_at` is updated.
+        Returns:
+
+        """
+        self.assertEqual(datetime.utcnow(), self.rescue.updated_at)
+        with self.rescue.change():
+            pass
+        # this makes a possibly fatal assumption that the test executes fast enough that `datetime.utcnow()` returns
+        # the same value as it did during the update...
+        self.assertEqual(datetime.utcnow(), self.rescue.updated_at)
