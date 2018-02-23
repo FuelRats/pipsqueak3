@@ -149,7 +149,7 @@ class Rescue(object):
 
     def __init__(self, case_id: str, client: str, system: str, created_at: datetime = datetime.utcnow(),
                  updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
-                 epic=False, code_red=False, successful=False, title='', first_limpet=None):
+                 epic=False, code_red=False, successful=False, title='', first_limpet=None, board_index: int = None):
         """
         creates a unique rescue
 
@@ -168,6 +168,7 @@ class Rescue(object):
             successful (bool): is the case marked as a success
             title (str): name of operation, if applicable
             first_limpet (str): Id of the rat that got the first limpet
+            board_index (int): index position on the board, if any.
         """
         self._createdAt: datetime = created_at
         self._updatedAt: datetime = updated_at
@@ -184,6 +185,34 @@ class Rescue(object):
         self._successful: bool = successful
         self._title: str = title
         self._firstLimpet: str = first_limpet
+        self._board_index = None
+
+    @property
+    def board_index(self) -> int or None:
+        """
+        The position on the rescue board this rescue holds, if any.
+
+        Returns:
+            int: if the board is attached to a case, otherwise None
+        """
+        return self.board_index
+
+    @board_index.setter
+    def board_index(self, value: int or None) -> None:
+        """
+        Sets the Rescue's board index
+
+        Args:
+            value (int or None): index position
+
+        Returns:
+            None
+        """
+        if isinstance(value, int) or value is None:
+            self._board_index = value
+        else:
+            raise TypeError(f"expected int or None, got {type(value)}")
+
 
     @property
     def case_id(self) -> str:
