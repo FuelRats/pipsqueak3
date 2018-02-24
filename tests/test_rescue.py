@@ -12,6 +12,7 @@ This module is built on top of the Pydle system.
 """
 from datetime import datetime
 from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
 from Modules.rat_rescue import Rescue
 
@@ -199,3 +200,4 @@ class TestRescue(TestCase):
             with self.subTest(value=value):
                 with self.assertRaises(TypeError):
                     self.rescue.board_index = value
+
