@@ -185,7 +185,7 @@ class Rescue(object):
         self._successful: bool = successful
         self._title: str = title
         self._firstLimpet: str = first_limpet
-        self._board_index = None
+        self._board_index = board_index
 
     @property
     def board_index(self) -> int or None:
@@ -195,12 +195,14 @@ class Rescue(object):
         Returns:
             int: if the board is attached to a case, otherwise None
         """
-        return self.board_index
+        return self._board_index
 
     @board_index.setter
     def board_index(self, value: int or None) -> None:
         """
         Sets the Rescue's board index
+
+        Set to None if the rescue is not attached to the board.
 
         Args:
             value (int or None): index position
@@ -208,11 +210,14 @@ class Rescue(object):
         Returns:
             None
         """
+        # negative board indexes should not be possible, right?
         if isinstance(value, int) or value is None:
-            self._board_index = value
+            if value is None or value >= 0:
+                self._board_index = value
+            else:
+                raise ValueError("Value must be greater than or equal to zero, or None.")
         else:
             raise TypeError(f"expected int or None, got {type(value)}")
-
 
     @property
     def case_id(self) -> str:
