@@ -24,6 +24,7 @@ class TestRescue(TestCase):
 
     def setUp(self):
         self.time = datetime(2017, 12, 24, 23, 59, 49)
+        self.updated_at = datetime(2017, 12, 24, 23, 59, 52)
         self.system = "firestone"
         self.case_id = "some_id"
         self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system, created_at=self.time,
@@ -64,6 +65,50 @@ class TestRescue(TestCase):
         """
         with self.assertRaises(AttributeError):
             self.rescue.created_at = datetime.utcnow()
+
+    def test_updated_at_initial(self):
+        """
+        Verify `Rescue.updated_at` was initialized correctly.
+
+        Returns:
+
+        """
+        self.assertEqual(self.updated_at, self.rescue.updated_at)
+
+    def test_updated_at_settable_correctly(self):
+        """
+        Verifies `Rescue.updated_at` can be set properly
+
+        Returns:
+
+        """
+        my_time = datetime.now()
+        self.rescue.updated_at = my_time
+        self.assertEqual(my_time, self.rescue.updated_at)
+
+    def test_updated_at_value_error(self):
+        """
+        Verifies `Rescue.updated_at` returns a `ValueError` if a bad date is given.
+
+        Returns:
+
+        """
+        with self.assertRaises(ValueError):
+            self.rescue.updated_at = datetime(2012, 1, 1, 1, 1, 1)
+
+    def test_updated_at_type_error(self):
+        """
+        Verifies `Rescue.updated_at` raises a `TypeError` when someone throws garbage at it
+
+        Returns:
+
+        """
+        garbage = [12, "foo", [], {}, False, None]
+        for value in garbage:
+            with self.subTest(value=value):
+                with self.assertRaises(TypeError):
+                    self.rescue.updated_at = value
+
 
     def test_system_initial_set(self):
         """
@@ -137,7 +182,7 @@ class TestRescue(TestCase):
             with self.assertRaises(ValueError):
                 self.rescue.quotes = name
 
-    def test_add_quote(self):
+    def test_add_quote_with_name(self):
         # verify the list was empty
         self.assertEqual(self.rescue.quotes, [])
         # add ourselves a quote
@@ -147,6 +192,17 @@ class TestRescue(TestCase):
         # now verify that something is what we wanted to write
         self.assertEqual("foo", self.rescue.quotes[0].message)
         self.assertEqual("unit_test[BOT]", self.rescue.quotes[0].author)
+
+    def test_add_quote_mecha(self):
+        # verify the list was empty
+        self.assertEqual(self.rescue.quotes, [])
+        # add ourselves a quote
+        self.rescue.add_quote(message="foo")
+        # verify something got written to the rescue property
+        self.assertEqual(1, len(self.rescue.quotes))
+        # now verify that something is what we wanted to write
+        self.assertEqual("foo", self.rescue.quotes[0].message)
+        self.assertEqual("Mecha", self.rescue.quotes[0].author)
 
     @patch('tests.test_rescue.Rescue.updated_at')
     def test_change_context_manager(self, mock_updated_at: MagicMock):
