@@ -159,3 +159,31 @@ class TestRescue(TestCase):
         with self.rescue.change():
             pass
         self.assertNotEqual(origin, self.rescue.updated_at)
+
+    def test_set_board_index_correctly(self):
+        """
+        Verifies `Rescue.board_index` is settable
+
+        Returns:
+        """
+        self.rescue.board_index = 24
+        self.assertEqual(24, self.rescue.board_index)
+
+    def test_set_board_index_incorrectly(self):
+        """
+        verifies attempts to set `Rescue.board_index` to things other than ints, or below zero,
+        Fail with the correct errors.
+        Returns:
+
+        """
+        bad_values_type = ["foo", [], {}]
+        bad_values_ints = [-42, -2]
+        for value in bad_values_ints:
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    self.rescue.board_index = value
+
+        for value in bad_values_type:
+            with self.subTest(value=value):
+                with self.assertRaises(TypeError):
+                    self.rescue.board_index = value
