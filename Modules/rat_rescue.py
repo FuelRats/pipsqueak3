@@ -145,16 +145,18 @@ class Quotation(object):
 
 class Rescue(object):
     """
-    A rescue
+    A unique rescue
     """
 
-    def __init__(self, case_id: str, client: str, system: str, created_at: datetime = None,
-                 updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
-                 epic=False, code_red=False, successful=False, title='', first_limpet=None, board_index: int = None):
+    def __init__(self, case_id: str, client: str, system: str, irc_nickname:str, created_at: datetime = None, updated_at: datetime = None,
+                 unidentified_rats=None, active=True, quotes: list = None, is_open=True, epic=False, code_red=False,
+                 successful=False, title: str='', first_limpet: str or None=None, board_index: int = None,
+                 mark_for_deletion: list or None=None, lang_id: str="EN"):
         """
         creates a unique rescue
 
         Args:
+
             case_id (str): API id of rescue
             client (str): Commander name of the Commander rescued
             system (str): System name the Commander is stranded in (WILL BE CAST TO UPPER CASE)
@@ -170,6 +172,10 @@ class Rescue(object):
             title (str): name of operation, if applicable
             first_limpet (str): Id of the rat that got the first limpet
             board_index (int): index position on the board, if any.
+            mark_for_deletion (dict): the markForDeltion object for the API, if any.
+             - will default to open and not MD'ed
+            lang_id (str): language ID of the client, defaults to english.
+            irc_nickname (str): clients IRC nickname, may deffer from their commander name.
         """
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
         self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
@@ -187,6 +193,14 @@ class Rescue(object):
         self._title: str = title
         self._firstLimpet: str = first_limpet
         self._board_index = board_index
+        self._mark_for_deletion = mark_for_deletion if mark_for_deletion else {
+            "marked": False,
+            "reason": None,
+            "reporter": "Noone."
+        }
+        self._board_index = board_index
+        self._lang_id = lang_id
+        self._irc_nickname = irc_nickname
 
     @property
     def board_index(self) -> int or None:
