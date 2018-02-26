@@ -28,7 +28,7 @@ class TestRescue(TestCase):
         self.system = "firestone"
         self.case_id = "some_id"
         self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system, created_at=self.time,
-                             updated_at=self.updated_at)
+                             updated_at=self.updated_at, irc_nickname="stranded_commander")
 
     def test_client_property_exists(self):
         """
@@ -108,7 +108,6 @@ class TestRescue(TestCase):
             with self.subTest(value=value):
                 with self.assertRaises(TypeError):
                     self.rescue.updated_at = value
-
 
     def test_system_initial_set(self):
         """
