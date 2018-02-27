@@ -575,7 +575,10 @@ class Rescue(object):
 
     @title.setter
     def title(self, value):
-        pass
+        if not value or isinstance(value, str):
+            self._title = value
+        else:
+            raise TypeError(f"expected type None or str, got {type(value)}")
 
     @contextmanager
     def change(self):
