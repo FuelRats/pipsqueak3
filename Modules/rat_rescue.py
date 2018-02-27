@@ -516,6 +516,25 @@ class Rescue(object):
         """
         return self._epic
 
+    @property
+    def code_red(self) -> bool:
+        """
+        Code Red status for the Rescue
+
+        Returns:
+            bool
+        """
+        return self._codeRed
+
+    @code_red.setter
+    def code_red(self, value: bool):
+        if isinstance(value, bool):
+            self._codeRed = value
+        else:
+            raise TypeError(f"expected type bool, got {type(value)}")
+
+
+
     @contextmanager
     def change(self):
         """
