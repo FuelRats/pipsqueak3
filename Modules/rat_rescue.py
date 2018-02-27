@@ -471,6 +471,38 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type str, got {type(value)}")
 
+    @property
+    def is_open(self) -> bool:
+        """
+        Bool storing the Rescue's open status.
+
+        - this cannot be named `Rescue.open` as it would shadow the name from the outer scope (bad)
+
+        Returns:
+            bool: is case open?
+
+        """
+        return self._open
+
+    @is_open.setter
+    def is_open(self, value: bool) -> None:
+        """
+        Set the Rescue's open status
+
+        Args:
+            value (bool): value to set
+
+        Returns:
+            None
+
+        Raises:
+            TypeError: value was not a boolean
+        """
+        if isinstance(value, bool):
+            self._open = value
+        else:
+            raise TypeError(f"expected type bool, got {type(value)}")
+
 
 
 
