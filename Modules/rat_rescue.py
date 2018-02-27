@@ -182,7 +182,7 @@ class Rescue(object):
         self._id: str = case_id
         self._client: str = client
         self._irc_nick: str = irc_nickname
-        self._unidentifiedRats = unidentified_rats
+        self._unidentifiedRats = unidentified_rats if unidentified_rats else []
         self._system: str = system.upper()
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
