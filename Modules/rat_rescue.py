@@ -559,7 +559,8 @@ class Rescue(object):
         """
         if isinstance(value, bool):
             self._successful = value
-        raise TypeError(f"expected type bool, got {type(value)}")
+        else:
+            raise TypeError(f"expected type bool, got {type(value)}")
 
     @property
     def title(self) -> str or None:
