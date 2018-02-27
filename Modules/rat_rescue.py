@@ -533,7 +533,49 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
+    @property
+    def successful(self) -> bool:
+        """
+        Success status for Rescue.
 
+        Returns:
+            bool
+        """
+        return self._successful
+
+    @successful.setter
+    def successful(self, value: bool) -> None:
+        """
+        sets the success state for the rescue
+
+        Args:
+            value (bool): success status
+
+        Returns:
+            None
+
+        Raises:
+            TypeError: bad `value` type
+        """
+        if isinstance(value, bool):
+            self._successful = value
+        raise TypeError(f"expected type bool, got {type(value)}")
+
+    @property
+    def title(self) -> str or None:
+        """
+        The rescues operation title, if any
+
+        Returns:
+            str: operation name if set
+
+            None: no name set.
+        """
+        return self._title
+
+    @title.setter
+    def title(self, value):
+        pass
 
     @contextmanager
     def change(self):
