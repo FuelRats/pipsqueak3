@@ -150,8 +150,8 @@ class Rescue(object):
 
     def __init__(self, case_id: str, client: str, system: str, irc_nickname: str, created_at: datetime = None,
                  updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
-                 epic=False, code_red=False, successful=False, title: str='', first_limpet: str or None=None,
-                 board_index: int = None, mark_for_deletion: list or None=None, lang_id: str="EN"):
+                 epic=False, code_red=False, successful=False, title: str = '', first_limpet: str or None = None,
+                 board_index: int = None, mark_for_deletion: list or None = None, lang_id: str = "EN"):
         """
         creates a unique rescue
 
@@ -503,8 +503,18 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
+    @property
+    def epic(self) -> bool:
+        """
+        Epic status of the rescue.
 
+        Returns:
+            bool
 
+        Notes:
+            This property is **READ ONLY** (for now)
+        """
+        return self._epic
 
     @contextmanager
     def change(self):
