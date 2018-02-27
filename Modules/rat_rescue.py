@@ -592,6 +592,41 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type None or str, got {type(value)}")
 
+    @property
+    def mark_for_deletion(self) -> dict:
+        """
+        Mark for deletion object as used by the API
+
+        Returns:
+            dict
+        """
+        return self._mark_for_deletion
+
+    @mark_for_deletion.setter
+    def mark_for_deletion(self, value) -> None:
+        """
+        Sets the Md object
+
+        Args:
+            value (dict): value to set the MD object to.
+
+        Returns:
+            None
+
+        Raises:
+            TypeError: bad value type
+            ValueError: value failed validation
+        """
+        if isinstance(value, dict):
+            # checks to ensure the required fields are present and we have no extras
+            if "marked" in value and "reason" in value and "reporter" in value and len(value) == 3:
+                self._mark_for_deletion = value
+            else:
+                log.debug(f"data of value is: {value}")
+                raise ValueError("required fields missing and/or garbage data present!")
+        else:
+            raise TypeError(f"expected type dict, got type {type(value)}")
+
     @contextmanager
     def change(self):
         """
