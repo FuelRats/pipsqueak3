@@ -574,7 +574,19 @@ class Rescue(object):
         return self._title
 
     @title.setter
-    def title(self, value):
+    def title(self, value: str or None) -> None:
+        """
+        Set the operations title.
+
+        Args:
+            value (str or None): Operation name.
+
+        Returns:
+            None
+
+        Raises:
+            TypeError: bad value type
+        """
         if not value or isinstance(value, str):
             self._title = value
         else:
