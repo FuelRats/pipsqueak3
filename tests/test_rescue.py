@@ -243,3 +243,32 @@ class TestRescue(TestCase):
             with self.subTest(value=value):
                 with self.assertRaises(TypeError):
                     self.rescue.board_index = value
+
+    def test_unidentified_rats_properly(self):
+        """
+        Verifies `Rescue.unidentified_rats` can be written to with good data
+
+        Returns:
+
+        """
+        # verify it was empty to begin with (default)
+        self.assertEqual(self.rescue.unidentified_rats, [])
+        # lets make some names
+        names = ["UNIT_TEST[BOT]", "flying_potato", "random_person"]
+        # set the property
+        self.rescue.unidentified_rats = names
+        # verify the property.
+        self.assertEqual(self.rescue.unidentified_rats, names)
+
+    def test_unidentified_rats_bad_types(self):
+        """
+        Verifies the correct exception is raised when someone throws garbage at `Rescue.unidentified_rats`
+
+        Returns:
+
+        """
+        garbage = [None, "foo", {}, 12, 22.3]
+        for piece in garbage:
+            with self.subTest(piece=piece):
+                with self.assertRaises(TypeError):
+                    self.rescue.unidentified_rats = piece
