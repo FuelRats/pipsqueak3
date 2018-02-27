@@ -17,7 +17,7 @@ def strip_name(nickname: str) -> str:
     """
     This function accepts one input `nickname` and returns the input string minus any tags.
 
-    An IRC tag is anything starting with "`[`", and it is assumed anything after a tag is also a tag.
+    An IRC tag is anything starting with "`[`". Further, anything following a `[` is truncated.
 
     Args:
         nickname (str): raw nickname to strip tags
