@@ -148,10 +148,10 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: str, client: str, system: str, irc_nickname:str, created_at: datetime = None, updated_at: datetime = None,
-                 unidentified_rats=None, active=True, quotes: list = None, is_open=True, epic=False, code_red=False,
-                 successful=False, title: str='', first_limpet: str or None=None, board_index: int = None,
-                 mark_for_deletion: list or None=None, lang_id: str="EN"):
+    def __init__(self, case_id: str, client: str, system: str, irc_nickname: str, created_at: datetime = None,
+                 updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
+                 epic=False, code_red=False, successful=False, title: str='', first_limpet: str or None=None,
+                 board_index: int = None, mark_for_deletion: list or None=None, lang_id: str="EN"):
         """
         creates a unique rescue
 
@@ -181,7 +181,7 @@ class Rescue(object):
         self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
         self._id: str = case_id
         self._client: str = client
-        self._irc_nick: str = self._client.replace(" ", "_")
+        self._irc_nick: str = irc_nickname
         self._unidentifiedRats = unidentified_rats
         self._system: str = system.upper()
         self._active: bool = active
@@ -200,7 +200,31 @@ class Rescue(object):
         }
         self._board_index = board_index
         self._lang_id = lang_id
-        self._irc_nickname = irc_nickname
+
+    @property
+    def first_limpet(self) -> str:
+        """
+        The ratID of the rat that got the first limpet
+
+        Returns:
+            str : ratid
+        """
+        return self._firstLimpet
+
+    @first_limpet.setter
+    def first_limpet(self, value) -> None:
+        """
+        Set the value of the first limpet rat
+        Args:
+            value (str): rat id of the first-limpet rat.
+
+        Returns:
+            None
+        """
+        if isinstance(value, str):
+            self._firstLimpet = value
+        else:
+            raise TypeError(f"expected string, got type {type(value)}")
 
     @property
     def board_index(self) -> int or None:
@@ -426,6 +450,30 @@ class Rescue(object):
         else:
             self._updatedAt = value
 
+    @property
+    def unidentified_rats(self) -> list:
+        """
+        List of unidentified rats by their IRC nicknames
+
+        Returns:
+            list: unidentified rats by IRC nickname
+        """
+        return self._unidentifiedRats
+
+    @unidentified_rats.setter
+    def unidentified_rats(self, value):
+        if isinstance(value, list):
+            for name in value:
+                if isinstance(name, str):
+                    self._unidentifiedRats.append(name)
+                else:
+                    raise TypeError(f"Element '{name}' expected to be of type str, got {type(name)}")
+        else:
+            raise TypeError(f"expected type str, got {type(value)}")
+
+
+
+
     @contextmanager
     def change(self):
         """
@@ -451,8 +499,8 @@ class Rescue(object):
 
             ```
         """
-        self.updated_at = datetime.utcnow()
         yield
+        self.updated_at = datetime.utcnow()
 
     # TODO: to/from json
     # TODO: track changes
