@@ -284,3 +284,31 @@ class TestRescue(TestCase):
             with self.subTest(piece=piece):
                 with self.assertRaises(TypeError):
                     self.rescue.unidentified_rats = piece
+
+    def test_is_open_properly(self):
+        """
+        Verifies `Rescue.is_open` is readable and settable when thrown good parameters
+
+        Returns:
+
+        """
+        # check default state
+        self.assertTrue(self.rescue.is_open)
+
+        data = [True, False]
+        for value in data:
+            with self.subTest(value=value):
+                self.rescue.is_open = value
+
+    def test_is_open_bad_types(self):
+        """
+        Verifies `Rescue.is_open` raises correct exceptions when its given garbage
+
+        Returns:
+
+        """
+        garbage = [None, "foo", {}, 12, 22.3]
+        for piece in garbage:
+            with self.subTest(piece=piece):
+                with self.assertRaises(TypeError):
+                    self.rescue.is_open = piece
