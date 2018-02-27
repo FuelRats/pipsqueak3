@@ -299,6 +299,7 @@ class TestRescue(TestCase):
         for value in data:
             with self.subTest(value=value):
                 self.rescue.is_open = value
+                self.assertEqual(self.rescue.is_open, value)
 
     def test_is_open_bad_types(self):
         """
@@ -312,3 +313,42 @@ class TestRescue(TestCase):
             with self.subTest(piece=piece):
                 with self.assertRaises(TypeError):
                     self.rescue.is_open = piece
+
+    def test_epic_readable(self):
+        """
+        Verifies  `Rescue.epic` is readable.
+
+        Returns:
+
+        """
+        # check default state
+        self.assertFalse(self.rescue.epic)
+
+    def test_code_red_properly(self):
+        """
+        Verifies `Rescue.is_open` is readable and settable when thrown good parameters
+
+        Returns:
+
+        """
+        # check default state
+        self.assertFalse(self.rescue.code_red)
+
+        data = [True, False]
+        for value in data:
+            with self.subTest(value=value):
+                self.rescue.code_red = value
+                self.assertEqual(self.rescue.code_red, value)
+
+    def test_code_red_bad_types(self):
+        """
+        Verifies `Rescue.is_open` raises correct exceptions when its given garbage
+
+        Returns:
+
+        """
+        garbage = [None, "foo", {}, 12, 22.3]
+        for piece in garbage:
+            with self.subTest(piece=piece):
+                with self.assertRaises(TypeError):
+                    self.rescue.code_red = piece
