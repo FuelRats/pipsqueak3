@@ -21,6 +21,57 @@ from Modules.trigger import Trigger
 log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
 
+class Rat(object):
+    """
+    A unique rat.
+
+    Attributes:
+        uuid (UUID): API Id of rat
+        name (str) : name of the registered rat.
+
+    """
+    def __init__(self, uuid: UUID, name: str):
+        """
+        Creates a new rat
+
+        Args:
+            uuid (UUID):
+            name (str): rat's name
+
+
+        """
+        self._uuid = uuid
+        self._name = name
+
+    @property
+    def uuid(self):
+        return self._uuid
+
+    @uuid.setter
+    def uuid(self, value):
+        if isinstance(value, str):
+            log.debug(f"value was a string with data '{value}'")
+            uuid = UUID(value)
+            log.debug("parsed value into a valid UUID.")
+            self._uuid = uuid
+        elif isinstance(value, UUID):
+            self._uuid = value
+
+        else:
+            raise TypeError(f"expected type None or type str, got {type(value)}")
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        if isinstance(value, str):
+            self._name = value
+        else:
+            raise TypeError(f"expected str, got {type(value)}")
+
+
 class Quotation(object):
     """
     A quotes object, element of Rescue
@@ -152,7 +203,8 @@ class Rescue(object):
     def __init__(self, case_id: str, client: str, system: str, irc_nickname: str, created_at: datetime = None,
                  updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
                  epic=False, code_red=False, successful=False, title: str = '', first_limpet: str or None = None,
-                 board_index: int = None, mark_for_deletion: list or None = None, lang_id: str = "EN", rats: list=None):
+                 board_index: int = None, mark_for_deletion: list or None = None, lang_id: str = "EN",
+                 rats: list = None):
         """
         creates a unique rescue
 
