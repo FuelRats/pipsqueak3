@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
+from uuid import UUID
 
 import config
 from Modules.trigger import Trigger
@@ -151,7 +152,7 @@ class Rescue(object):
     def __init__(self, case_id: str, client: str, system: str, irc_nickname: str, created_at: datetime = None,
                  updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
                  epic=False, code_red=False, successful=False, title: str = '', first_limpet: str or None = None,
-                 board_index: int = None, mark_for_deletion: list or None = None, lang_id: str = "EN"):
+                 board_index: int = None, mark_for_deletion: list or None = None, lang_id: str = "EN", rats: list=None):
         """
         creates a unique rescue
 
@@ -176,7 +177,9 @@ class Rescue(object):
              - will default to open and not MD'ed
             lang_id (str): language ID of the client, defaults to english.
             irc_nickname (str): clients IRC nickname, may deffer from their commander name.
+            rats (list): identified rats assigned to rescue.
         """
+        self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
         self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
         self._id: str = case_id
@@ -627,6 +630,53 @@ class Rescue(object):
                 raise ValueError("required fields missing and/or garbage data present!")
         else:
             raise TypeError(f"expected type dict, got type {type(value)}")
+
+    @property
+    def rats(self) -> list:
+        """
+        Identified rats assigned to rescue
+
+        Returns:
+            list: identified rats by UUID
+        """
+        return self._rats
+
+    @rats.setter
+    def rats(self, value):
+        """
+        Sets the rats property directly, it is recommended to use the helper methods to add/remove rats.
+
+        Args:
+            value (list): new value for `rats`
+
+        Returns:
+
+        """
+        if isinstance(value, list):
+            self._rats = value
+
+        else:
+            raise TypeError(f"expected type list got {type(value)}")
+
+    def add_rat(self, rat: UUID or str):
+        """
+        Adds a rat to the rescue.
+
+        Args:
+            rat (UUID): rat to add
+
+        Returns:
+
+        """
+        if isinstance(rat, str):
+            log.debug(f"value was a string with data '{rat}'")
+            uuid = UUID(rat)
+            log.debug("parsed value into a valid UUID.")
+            self._rats.append(uuid)
+        elif isinstance(rat, UUID):
+            self._rats.append(rat)
+        else:
+            raise TypeError(f"Expected either type str or type UUID. got {type(rat)}")
 
     @contextmanager
     def change(self):
