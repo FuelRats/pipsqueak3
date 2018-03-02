@@ -445,3 +445,23 @@ class TestRat(TestCase):
         """
         found_rat = Rats.get_rat(uuid=self.some_id)
         self.assertEqual(self.my_rat, found_rat)
+
+    def test_name_good_type(self):
+        """
+        Verifies `Rats.name` can be set when given good data
+        """
+        good_names = ["foo", "bar22", "potato"]
+        for name in good_names:
+            with self.subTest(name=name):
+                self.my_rat.name = name
+                self.assertEqual(self.my_rat.name, name)
+
+    def test_name_bad_type(self):
+        """
+        Verifies `Rats.name` raises a type error when someone throws garbage at it.
+        """
+        bad_names = [42, -0.02, None, [], {}, self.some_id]
+        for name in bad_names:
+            with self.subTest(name=name):
+                with self.assertRaises(TypeError):
+                    self.my_rat.name = bad_names
