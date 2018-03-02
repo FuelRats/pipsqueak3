@@ -24,12 +24,13 @@ log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 class Rat(object):
     """
     A unique rat.
-
-    Attributes:
-        uuid (UUID): API Id of rat
-        name (str) : name of the registered rat.
-
     """
+
+    cache_by_id = {}
+    """Cache of rat objects by their UUID"""
+    cache_by_name = {}
+    """Cache of rat objects by ratname (str)"""
+
     def __init__(self, uuid: UUID, name: str):
         """
         Creates a new rat
@@ -45,10 +46,25 @@ class Rat(object):
 
     @property
     def uuid(self):
+        """
+        API id of the rat
+
+        Returns:
+            UUID
+        """
         return self._uuid
 
     @uuid.setter
-    def uuid(self, value):
+    def uuid(self, value) -> None:
+        """
+        Set the UUID of the rat. accepts a uuid encoded string, or a uuid object.
+
+        Args:
+            value (UUID): new uuid for rat
+
+        Returns:
+            None
+        """
         if isinstance(value, str):
             log.debug(f"value was a string with data '{value}'")
             uuid = UUID(value)
@@ -61,11 +77,26 @@ class Rat(object):
             raise TypeError(f"expected type None or type str, got {type(value)}")
 
     @property
-    def name(self):
+    def name(self) -> str:
+        """
+        Rat's registered name
+
+        Returns:
+            str
+        """
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
+        """
+        Sets the rat's registered name
+
+        Args:
+            value (str): name
+
+        Returns:
+            None
+        """
         if isinstance(value, str):
             self._name = value
         else:
