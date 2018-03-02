@@ -142,6 +142,17 @@ class Rat(object):
                 # no such rat in cache
                 return None
 
+    @classmethod
+    def flush(cls) -> None:
+        """
+        Flushes the caches.
+
+        Returns:
+            None
+        """
+        cls.cache_by_id = {}
+        cls.cache_by_name = {}
+
 
 class Quotation(object):
     """
