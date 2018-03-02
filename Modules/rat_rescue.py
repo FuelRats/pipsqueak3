@@ -31,7 +31,7 @@ class Rat(object):
     cache_by_name = {}
     """Cache of rat objects by ratname (str)"""
 
-    def __init__(self, uuid: UUID, name: str):
+    def __init__(self, uuid: UUID, name: str=None):
         """
         Creates a new rat
 
@@ -41,8 +41,13 @@ class Rat(object):
 
 
         """
+        # set our properties
         self._uuid = uuid
         self._name = name
+        # and update the cache
+        if name:
+            Rat.cache_by_name[name] = self
+        Rat.cache_by_id[uuid] = self
 
     @property
     def uuid(self):
@@ -282,9 +287,9 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: str, client: str, system: str, irc_nickname: str, created_at: datetime = None,
+    def __init__(self, case_id: UUID, client: str, system: str, irc_nickname: str, created_at: datetime = None,
                  updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
-                 epic=False, code_red=False, successful=False, title: str = '', first_limpet: str or None = None,
+                 epic=False, code_red=False, successful=False, title: str = '', first_limpet: UUID or None = None,
                  board_index: int = None, mark_for_deletion: list or None = None, lang_id: str = "EN",
                  rats: list = None):
         """
@@ -305,18 +310,18 @@ class Rescue(object):
             code_red (bool): is the case marked as a Code Red
             successful (bool): is the case marked as a success
             title (str): name of operation, if applicable
-            first_limpet (str): Id of the rat that got the first limpet
+            first_limpet (UUID): Id of the rat that got the first limpet
             board_index (int): index position on the board, if any.
             mark_for_deletion (dict): the markForDeltion object for the API, if any.
              - will default to open and not MD'ed
             lang_id (str): language ID of the client, defaults to english.
             irc_nickname (str): clients IRC nickname, may deffer from their commander name.
-            rats (list): identified rats assigned to rescue.
+            rats (list): identified (Rat)s assigned to rescue.
         """
         self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
         self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
-        self._id: str = case_id
+        self._id: UUID = case_id
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentifiedRats = unidentified_rats if unidentified_rats else []
@@ -328,7 +333,7 @@ class Rescue(object):
         self._codeRed: bool = code_red
         self._successful: bool = successful
         self._title: str = title
-        self._firstLimpet: str = first_limpet
+        self._firstLimpet: UUID = first_limpet
         self._board_index = board_index
         self._mark_for_deletion = mark_for_deletion if mark_for_deletion else {
             "marked": False,
@@ -339,7 +344,7 @@ class Rescue(object):
         self._lang_id = lang_id
 
     @property
-    def first_limpet(self) -> str:
+    def first_limpet(self) -> UUID:
         """
         The ratID of the rat that got the first limpet
 
@@ -358,7 +363,7 @@ class Rescue(object):
         Returns:
             None
         """
-        if isinstance(value, str):
+        if isinstance(value, UUID):
             self._firstLimpet = value
         else:
             raise TypeError(f"expected string, got type {type(value)}")
@@ -396,7 +401,7 @@ class Rescue(object):
             raise TypeError(f"expected int or None, got {type(value)}")
 
     @property
-    def case_id(self) -> str:
+    def case_id(self) -> UUID:
         """
         The API Id of the rescue.
 
@@ -806,7 +811,7 @@ class Rescue(object):
             log.debug(f"value was a string with data '{rat}'")
             uuid = UUID(rat)
             log.debug("parsed value into a valid UUID.")
-            self._rats.append(uuid)
+            self._rats.append(Rat(uuid=uuid))
         elif isinstance(rat, UUID):
             self._rats.append(rat)
         else:
