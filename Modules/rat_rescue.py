@@ -21,15 +21,20 @@ from Modules.trigger import Trigger
 log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
 
-class Rat(object):
+class Rats(object):
     """
-    A unique rat.
+    This class keeps track of known rats as they are used and stores them in a class cache.
+
+    Instances of this class are used to represent a unique, individual rat.
+
+    Creation of a `Rats` object will automatically add the created rat to the cache,
+    allowing convenience method `Rats.get_rat` to return the instance when called.
     """
 
     cache_by_id = {}
     """Cache of rat objects by their UUID"""
     cache_by_name = {}
-    """Cache of rat objects by ratname (str)"""
+    """Cache of rat objects by rat name (str)"""
 
     def __init__(self, uuid: UUID, name: str=None):
         """
@@ -46,8 +51,8 @@ class Rat(object):
         self._name = name
         # and update the cache
         if name:
-            Rat.cache_by_name[name] = self
-        Rat.cache_by_id[uuid] = self
+            Rats.cache_by_name[name] = self
+        Rats.cache_by_id[uuid] = self
 
     @property
     def uuid(self):
@@ -108,7 +113,7 @@ class Rat(object):
             raise TypeError(f"expected str, got {type(value)}")
 
     @classmethod
-    def get_rat(cls, name: str = None, uuid: UUID = None) -> 'Rat' or None:
+    def get_rat(cls, name: str = None, uuid: UUID = None) -> 'Rats' or None:
         """
         Finds a rat either by name or by uuid.
 
@@ -119,7 +124,7 @@ class Rat(object):
             uuid (UUID): uuid to search for
 
         Returns:
-            Rat
+            Rats
         """
         if not name and not uuid:
             raise ValueError("expected either a name or a uuid to search for. got neither.")
@@ -811,7 +816,7 @@ class Rescue(object):
             log.debug(f"value was a string with data '{rat}'")
             uuid = UUID(rat)
             log.debug("parsed value into a valid UUID.")
-            self._rats.append(Rat(uuid=uuid))
+            self._rats.append(Rats(uuid=uuid))
         elif isinstance(rat, UUID):
             self._rats.append(rat)
         else:
