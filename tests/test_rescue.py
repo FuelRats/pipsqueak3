@@ -13,8 +13,9 @@ This module is built on top of the Pydle system.
 from datetime import datetime
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
+from uuid import UUID
 
-from Modules.rat_rescue import Rescue
+from Modules.rat_rescue import Rescue, Rats
 
 
 class TestRescue(TestCase):
@@ -382,3 +383,65 @@ class TestRescue(TestCase):
                 with self.assertRaises(TypeError):
                     self.rescue.successful = piece
 
+
+class TestRat(TestCase):
+    """
+    Test suite for `Rescue.Rats`
+    """
+
+    def setUp(self):
+        """
+        Setup operations to run before every test
+        Returns:
+
+        """
+        # purge the cache
+        Rats.flush()
+        # generate a uuid
+        self.some_id = UUID("ffffffff-ffff-ffff-ffff-ffffffffffff")
+
+        # make a rat
+        self.my_rat = Rats(uuid=self.some_id, name="UNIT_TEST")
+
+    def test_new_instance(self):
+        """
+        Verifies creating a new instance of `Rats` functions as expected
+
+        Returns:
+
+        """
+        # generate a uuid
+        some_id = UUID("ffffffff-ffff-ffff-ffff-ffffffffffff")
+
+        # make a rat
+        my_rat = self.my_rat
+        # verify its properties
+        self.assertEqual("UNIT_TEST", my_rat.name)
+        self.assertEqual(some_id, my_rat.uuid)
+
+        # verify the caches got touched. (function verified in different test)
+        self.assertNotEqual({}, my_rat.cache_by_name)
+        self.assertNotEqual({}, my_rat.cache_by_id)
+
+    def test_update_cache_on_new_instance(self):
+        """
+        Verifies both caches got correctly updated when a new Rat is instantiated.
+        """
+
+        # verify the keys exist and store the expected data
+        self.assertEqual(Rats.cache_by_id[self.some_id], self.my_rat)
+        self.assertEqual(Rats.cache_by_name["UNIT_TEST"], self.my_rat)
+
+    def test_find_rat_by_name_existing(self):
+        """
+        Verifies that cached rats can be found by name
+        """
+        found_rat = Rats.get_rat(name="UNIT_TEST")
+        self.assertEqual(found_rat, self.my_rat)
+
+    def test_find_rat_by_uuid_existing(self):
+        """
+        Verify that cached rats can be found by uuid
+        """
+        found_rat = Rats.get_rat(uuid=self.some_id)
+        self.assertEqual(self.my_rat, found_rat)
