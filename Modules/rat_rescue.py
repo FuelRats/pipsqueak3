@@ -102,6 +102,46 @@ class Rat(object):
         else:
             raise TypeError(f"expected str, got {type(value)}")
 
+    @classmethod
+    def get_rat(cls, name: str = None, uuid: UUID = None) -> 'Rat' or None:
+        """
+        Finds a rat either by name or by uuid.
+
+        Will also accept both, and only return if the rat name matches its uuid entry.
+
+        Args:
+            name (str): name to search for
+            uuid (UUID): uuid to search for
+
+        Returns:
+            Rat
+        """
+        if not name and not uuid:
+            raise ValueError("expected either a name or a uuid to search for. got neither.")
+        else:
+            try:
+                if name and not uuid:
+                    # we are just looking by a name
+                    log.debug(f"searching for name '{name}'...")
+                    return cls.cache_by_name[name]
+                elif uuid and not name:
+                    # just looking by a ID
+                    log.debug(f"looking for uuid {uuid}")
+                    return cls.cache_by_id[uuid]
+                elif uuid and name:
+                    # we want an exact match.
+                    by_name = cls.cache_by_name[name]
+                    by_id = cls.cache_by_id[uuid]
+                    if by_id == by_name:
+                        return by_id
+                    else:
+                        # its not a match.
+                        log.debug(f"{by_id} does not match {by_name}!")
+                        return None
+            except IndexError:
+                # no such rat in cache
+                return None
+
 
 class Quotation(object):
     """
