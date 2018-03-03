@@ -11,7 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 from datetime import datetime
-from unittest import TestCase
+from unittest import TestCase, expectedFailure
 from unittest.mock import patch, MagicMock
 from uuid import UUID
 
@@ -453,3 +453,26 @@ class TestRat(TestCase):
             with self.subTest(name=name):
                 with self.assertRaises(TypeError):
                     self.my_rat.name = bad_names
+
+    # TODO: fix this
+    @expectedFailure
+    def test_uuid_good_type(self):
+        """
+        Verifies `Rats.uuid` can me set when given good data.
+        """
+        good_id = [UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"]
+        expected = [UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")]
+        for val, exp in good_id, expected:
+            with self.subTest(val=val):
+                self.my_rat.uuid = exp
+                self.assertEqual(exp, self.my_rat.uuid)
+
+    def test_uuid_bad_types(self):
+        """
+        Verifies `Rats.uuid` raises a TypeError when someone throws garbage at it.
+        """
+        bad_types = [42, -0.02, None, [], {}]
+        for name in bad_types:
+            with self.subTest(name=name):
+                with self.assertRaises(TypeError):
+                    self.my_rat.uuid = bad_types
