@@ -274,18 +274,6 @@ class Quotation(object):
         self._updated_at = datetime.utcnow()
         self._last_author = event_trigger.nickname
 
-    @classmethod
-    def from_json(cls, data: dict) -> list:
-        """
-        Parses a Rescue dictionary for quotes
-        Args:
-            data (dict):
-
-        Returns: list of Quotation objects
-
-        """
-        pass
-
 
 class Rescue(object):
     """
