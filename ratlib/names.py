@@ -15,9 +15,11 @@ This module is built on top of the Pydle system.
 
 def strip_name(nickname: str) -> str:
     """
-    This function accepts one input `nickname` and returns the input string minus any tags.
+    This function accepts one input `nickname` and returns the input string
+    minus any tags.
 
-    An IRC tag is anything starting with "`[`". Further, anything following a `[` is truncated.
+    An IRC tag is anything starting with "`[`". Further, anything following a
+    `[` is truncated.
 
     Args:
         nickname (str): raw nickname to strip tags
