@@ -35,7 +35,7 @@ class Trigger(object):
         self.identified = identified
 
     @classmethod
-    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str)\
+    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str) \
             -> 'Trigger':
         """
         Creates a `Trigger` object from a user dictionary as used by pydle.
@@ -56,7 +56,7 @@ class Trigger(object):
                    identified=user["identified"])
 
     @property
-    def channel(self)->str or None:
+    def channel(self) -> str or None:
         """
         The channel the trigger came from.
 
@@ -78,4 +78,3 @@ class Trigger(object):
         """
         await self.bot.message(self.channel if self.channel else self.nickname,
                                msg)
-
