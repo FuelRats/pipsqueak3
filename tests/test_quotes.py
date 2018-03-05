@@ -84,9 +84,9 @@ class TestQuotes(TestCase):
 
     def test_updated_at_invalid(self):
         """
-        Verifies writing garbage to `Quotation.updated_at` raises expected Error.
-        :return:
-        :rtype:
+        Verifies writing garbage to `Quotation.updated_at` raises expected
+        Error when garbage is thrown at it
+
         """
         quote = Quotation("foobar")
         bad_values = [12, False, ["foo"], "bar", None]
@@ -110,11 +110,11 @@ class TestQuotes(TestCase):
 
     def test_modify(self):
         """
-        Verifies a quote can be changed correctly, that the correct fields are set\n
-        :return:
-        :rtype:
+        Verifies a quote can be changed correctly, that the correct fields are
+         set
         """
-        trigger = Trigger(mock_bot, nickname="unit_test[BOT]", target="#unit_tests", ident="mechasqueak3",
+        trigger = Trigger(mock_bot, nickname="unit_test[BOT]",
+                          target="#unit_tests", ident="mechasqueak3",
                           hostname="techrat.fuelrats.com")
         quote = Quotation("foo")
         quote.modify(trigger, message="bar")

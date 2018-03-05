@@ -67,7 +67,8 @@ class Rats(object):
     @uuid.setter
     def uuid(self, value) -> None:
         """
-        Set the UUID of the rat. accepts a uuid encoded string, or a uuid object.
+        Set the UUID of the rat.
+        accepts a uuid encoded string, or a uuid object.
 
         Args:
             value (UUID): new uuid for rat
@@ -84,7 +85,8 @@ class Rats(object):
             self._uuid = value
 
         else:
-            raise TypeError(f"expected type None or type str, got {type(value)}")
+            raise TypeError(f"expected type None or type str, got "
+                            f"{type(value)}")
 
     @property
     def name(self) -> str:
@@ -117,7 +119,8 @@ class Rats(object):
         """
         Finds a rat either by name or by uuid.
 
-        Will also accept both, and only return if the rat name matches its uuid entry.
+        Will also accept both, and only return if the rat name matches its
+        uuid entry.
 
         Args:
             name (str): name to search for
@@ -127,7 +130,8 @@ class Rats(object):
             Rats
         """
         if not name and not uuid:
-            raise ValueError("expected either a name or a uuid to search for. got neither.")
+            raise ValueError("expected either a name or a uuid to search for. "
+                             "got neither.")
         else:
             try:
                 if name and not uuid:
@@ -169,7 +173,8 @@ class Quotation(object):
     A quotes object, element of Rescue
     """
 
-    def __init__(self, message: str, author="Mecha", created_at=datetime.utcnow(), updated_at=datetime.utcnow(),
+    def __init__(self, message: str, author="Mecha",
+                 created_at=datetime.utcnow(), updated_at=datetime.utcnow(),
                  last_author="Mecha"):
         """
         Creates a new Quotation object\n
@@ -773,7 +778,8 @@ class Rescue(object):
         """
         if isinstance(value, dict):
             # checks to ensure only the required fields are present
-            if "marked" in value and "reason" in value and "reporter" in value and len(value) == 3:
+            if "marked" in value and "reason" in value and "reporter" in value\
+                    and len(value) == 3:
                 self._mark_for_deletion = value
             else:
                 log.debug(f"data of value is: {value}")
