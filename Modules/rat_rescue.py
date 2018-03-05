@@ -359,7 +359,7 @@ class Rescue(object):
         if isinstance(value, UUID):
             self._firstLimpet = value
         else:
-            raise TypeError(f"expected string, got type {type(value)}")
+            raise TypeError(f"expected UUID, got type {type(value)}")
 
     @property
     def board_index(self) -> int or None:
