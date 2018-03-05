@@ -35,8 +35,8 @@ class Trigger(object):
         self.identified = identified
 
     @classmethod
-    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str) \
-            -> 'Trigger':
+    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str,
+                      target: str) -> 'Trigger':
         """
         Creates a `Trigger` object from a user dictionary as used by pydle.
 
