@@ -466,18 +466,19 @@ class TestRat(TestCase):
                 with self.assertRaises(TypeError):
                     self.my_rat.name = bad_names
 
-    # TODO: fix this
-    @expectedFailure
     def test_uuid_good_type(self):
         """
         Verifies `Rats.uuid` can me set when given good data.
         """
-        good_id = [UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"]
-        expected = [UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")]
-        for val, exp in good_id, expected:
+        good_id = [UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                   "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"]
+        for val in good_id:
             with self.subTest(val=val):
-                self.my_rat.uuid = exp
-                self.assertEqual(exp, self.my_rat.uuid)
+                self.my_rat.uuid = val
+                try:
+                    self.assertEqual(val, self.my_rat.uuid)
+                except AssertionError:
+                    self.assertEqual(UUID(val), self.my_rat.uuid)
 
     def test_uuid_bad_types(self):
         """
