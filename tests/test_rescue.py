@@ -28,8 +28,10 @@ class TestRescue(TestCase):
         self.updated_at = datetime(2017, 12, 24, 23, 59, 52)
         self.system = "firestone"
         self.case_id = "some_id"
-        self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system, created_at=self.time,
-                             updated_at=self.updated_at, irc_nickname="stranded_commander")
+        self.rescue = Rescue(self.case_id, "stranded_commander",
+                             system=self.system, created_at=self.time,
+                             updated_at=self.updated_at,
+                             irc_nickname="stranded_commander")
 
     def test_client_property_exists(self):
         """
@@ -89,7 +91,8 @@ class TestRescue(TestCase):
 
     def test_updated_at_value_error(self):
         """
-        Verifies `Rescue.updated_at` returns a `ValueError` if a bad date is given.
+        Verifies `Rescue.updated_at` returns a `ValueError` if a bad date is
+         given.
 
         Returns:
 
@@ -99,7 +102,8 @@ class TestRescue(TestCase):
 
     def test_updated_at_type_error(self):
         """
-        Verifies `Rescue.updated_at` raises a `TypeError` when someone throws garbage at it
+        Verifies `Rescue.updated_at` raises a `TypeError` when someone throws
+        garbage at it
 
         Returns:
 
@@ -155,8 +159,8 @@ class TestRescue(TestCase):
 
     def test_get_quotes(self):
         """
-        Verifies the default settings for `Rescue.quotes` property are set correctly
-        And confirms the property is readable.\n
+        Verifies the default settings for `Rescue.quotes` property are set
+        correctly And confirms the property is readable.\n
         :return:
         :rtype:
         """
@@ -164,7 +168,9 @@ class TestRescue(TestCase):
 
     def test_write_quotes_correctly(self):
         """
-        Verifies the `Rescue.quotes` property can be written to when given a list
+        Verifies the `Rescue.quotes` property can be written to when given a
+        list
+
         :return:
         :rtype:
         """
@@ -173,7 +179,9 @@ class TestRescue(TestCase):
 
     def test_write_quotes_incorrectly(self):
         """
-        Verifies `Rescue.quotes` cannot be set to wierd things that are not lists
+        Verifies `Rescue.quotes` cannot be set to wierd things that are not
+         lists
+
         :return:
         :rtype:
         """
@@ -228,8 +236,8 @@ class TestRescue(TestCase):
 
     def test_set_board_index_incorrectly(self):
         """
-        verifies attempts to set `Rescue.board_index` to things other than ints, or below zero,
-        Fail with the correct errors.
+        verifies attempts to set `Rescue.board_index` to things other than
+        ints, or below zero, Fail with the correct errors.
         Returns:
 
         """
@@ -263,7 +271,8 @@ class TestRescue(TestCase):
 
     def test_unidentified_rats_bad_types(self):
         """
-        Verifies the correct exception is raised when someone throws garbage at `Rescue.unidentified_rats`
+        Verifies the correct exception is raised when someone throws garbage
+        at `Rescue.unidentified_rats`
 
         Returns:
 
@@ -276,7 +285,8 @@ class TestRescue(TestCase):
 
     def test_is_open_properly(self):
         """
-        Verifies `Rescue.is_open` is readable and settable when thrown good parameters
+        Verifies `Rescue.is_open` is readable and settable when thrown good
+        parameters
 
         Returns:
 
@@ -292,7 +302,8 @@ class TestRescue(TestCase):
 
     def test_is_open_bad_types(self):
         """
-        Verifies `Rescue.is_open` raises correct exceptions when its given garbage
+        Verifies `Rescue.is_open` raises correct exceptions when its given
+        garbage
 
         Returns:
 
@@ -315,7 +326,8 @@ class TestRescue(TestCase):
 
     def test_code_red_properly(self):
         """
-        Verifies `Rescue.code_red` is readable and settable when thrown good parameters
+        Verifies `Rescue.code_red` is readable and settable when thrown good
+        parameters
 
         Returns:
 
@@ -331,7 +343,8 @@ class TestRescue(TestCase):
 
     def test_code_red_bad_types(self):
         """
-        Verifies `Rescue.code_red` raises correct exceptions when its given garbage
+        Verifies `Rescue.code_red` raises correct exceptions when its given
+         garbage
 
         Returns:
 
@@ -344,7 +357,8 @@ class TestRescue(TestCase):
 
     def test_successful_correctly(self):
         """
-        Verifies `Rescue.successful` is readable and settable when thrown good parameters
+        Verifies `Rescue.successful` is readable and settable when thrown good
+         parameters
 
         Returns:
 
@@ -360,7 +374,8 @@ class TestRescue(TestCase):
 
     def test_successful_bad_types(self):
         """
-        Verifies `Rescue.successful` raises correct exceptions when its given garbage
+        Verifies `Rescue.successful` raises correct exceptions when its given
+        garbage
 
         Returns:
 
@@ -413,7 +428,8 @@ class TestRat(TestCase):
 
     def test_update_cache_on_new_instance(self):
         """
-        Verifies both caches got correctly updated when a new Rat is instantiated.
+        Verifies both caches got correctly updated when a new Rat is
+         instantiated.
         """
 
         # verify the keys exist and store the expected data
@@ -446,7 +462,8 @@ class TestRat(TestCase):
 
     def test_name_bad_type(self):
         """
-        Verifies `Rats.name` raises a type error when someone throws garbage at it.
+        Verifies `Rats.name` raises a type error when someone throws garbage
+         at it.
         """
         bad_names = [42, -0.02, None, [], {}, self.some_id]
         for name in bad_names:
@@ -470,7 +487,8 @@ class TestRat(TestCase):
 
     def test_uuid_bad_types(self):
         """
-        Verifies `Rats.uuid` raises a TypeError when someone throws garbage at it.
+        Verifies `Rats.uuid` raises a TypeError when someone throws garbage
+        at it.
         """
         bad_types = [42, -0.02, None, [], {}]
         for name in bad_types:

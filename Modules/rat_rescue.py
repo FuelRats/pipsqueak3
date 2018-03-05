@@ -280,10 +280,14 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: UUID, client: str, system: str, irc_nickname: str, created_at: datetime = None,
-                 updated_at: datetime = None, unidentified_rats=None, active=True, quotes: list = None, is_open=True,
-                 epic=False, code_red=False, successful=False, title: str = '', first_limpet: UUID or None = None,
-                 board_index: int = None, mark_for_deletion: list or None = None, lang_id: str = "EN",
+    def __init__(self, case_id: UUID, client: str, system: str,
+                 irc_nickname: str, created_at: datetime = None,
+                 updated_at: datetime = None, unidentified_rats=None,
+                 active=True, quotes: list = None, is_open=True,
+                 epic=False, code_red=False, successful=False, title: str = '',
+                 first_limpet: UUID or None = None,
+                 board_index: int = None,
+                 mark_for_deletion: list or None = None, lang_id: str = "EN",
                  rats: list = None):
         """
         creates a unique rescue
@@ -292,10 +296,13 @@ class Rescue(object):
 
             case_id (str): API id of rescue
             client (str): Commander name of the Commander rescued
-            system (str): System name the Commander is stranded in (WILL BE CAST TO UPPER CASE)
-            created_at (datetime): time the case was first created **( READONLY )**
+            system (str): System name the Commander is stranded in
+            (WILL BE CAST TO UPPER CASE)
+            created_at (datetime): time the case was first created
+            **( READONLY )**
             updated_at (datetime): last tme the case was modified
-            unidentified_rats (list): list of unidentified rats responding to rescue **(nicknames)**
+            unidentified_rats (list): list of unidentified rats responding to
+             rescue **(nicknames)**
             active (bool): marks whether the case is active or not
             quotes (list): list of Quotation objects associated with rescue
             is_open (bool): is the case marked as open
@@ -305,15 +312,19 @@ class Rescue(object):
             title (str): name of operation, if applicable
             first_limpet (UUID): Id of the rat that got the first limpet
             board_index (int): index position on the board, if any.
-            mark_for_deletion (dict): the markForDeltion object for the API, if any.
+            mark_for_deletion (dict): the markForDeltion object for the API,
+            if any.
              - will default to open and not MD'ed
             lang_id (str): language ID of the client, defaults to english.
-            irc_nickname (str): clients IRC nickname, may deffer from their commander name.
+            irc_nickname (str): clients IRC nickname, may deffer from their
+            commander name.
             rats (list): identified (Rat)s assigned to rescue.
         """
         self._rats = rats if rats else []
-        self._createdAt: datetime = created_at if created_at else datetime.utcnow()
-        self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
+        self._createdAt: datetime = created_at if created_at else \
+            datetime.utcnow()
+        self._updatedAt: datetime = updated_at if updated_at else \
+            datetime.utcnow()
         self._id: UUID = case_id
         self._client: str = client
         self._irc_nick: str = irc_nickname
@@ -389,7 +400,8 @@ class Rescue(object):
             if value is None or value >= 0:
                 self._board_index = value
             else:
-                raise ValueError("Value must be greater than or equal to zero, or None.")
+                raise ValueError("Value must be greater than or equal to zero,"
+                                 " or None.")
         else:
             raise TypeError(f"expected int or None, got {type(value)}")
 
@@ -469,7 +481,8 @@ class Rescue(object):
             None
 
         Notes:
-            this method will cast `value` to upper case, as to comply with Fuelrats Api v2.1
+            this method will cast `value` to upper case, as to comply with
+            Fuelrats Api v2.1
         """
 
         # for API v2.1 compatibility reasons we cast to upper case
@@ -478,8 +491,9 @@ class Rescue(object):
     @property
     def active(self) -> bool:
         """
-        marker indicating whether a case is active or not. this has no direct effect on bot functionality,
-        rather its primary function is case management.
+        marker indicating whether a case is active or not. this has no direct
+         effect on bot functionality,rather its primary function is case
+         management.
 
         Returns:
             bool: Active state
@@ -519,7 +533,8 @@ class Rescue(object):
         """
         Sets the value of the quotes property to whatever `value` is.
 
-        This should not be set directly outside of case init, rather via `add_quote`
+        This should not be set directly outside of case init, rather via
+        `add_quote`
 
         Args:
             value (list): list of Quotation objects
@@ -540,7 +555,8 @@ class Rescue(object):
 
         Args:
             message (str): Message to quote
-            author (str): IRC nickname of who is being quoted, if any. Otherwise Defaults to Mecha.
+            author (str): IRC nickname of who is being quoted, if any.
+            Otherwise Defaults to Mecha.
 
         Returns:
             None
@@ -602,7 +618,8 @@ class Rescue(object):
                 if isinstance(name, str):
                     self._unidentifiedRats.append(name)
                 else:
-                    raise TypeError(f"Element '{name}' expected to be of type str, got {type(name)}")
+                    raise TypeError(f"Element '{name}' expected to be of type "
+                                    f"str, got {type(name)}")
         else:
             raise TypeError(f"expected type str, got {type(value)}")
 
@@ -611,7 +628,8 @@ class Rescue(object):
         """
         Bool storing the Rescue's open status.
 
-        - this cannot be named `Rescue.open` as it would shadow the name from the outer scope (bad)
+        - this cannot be named `Rescue.open` as it would shadow the name from
+        the outer scope (bad)
 
         Returns:
             bool: is case open?
@@ -754,12 +772,13 @@ class Rescue(object):
             ValueError: value failed validation
         """
         if isinstance(value, dict):
-            # checks to ensure the required fields are present and we have no extras
+            # checks to ensure only the required fields are present
             if "marked" in value and "reason" in value and "reporter" in value and len(value) == 3:
                 self._mark_for_deletion = value
             else:
                 log.debug(f"data of value is: {value}")
-                raise ValueError("required fields missing and/or garbage data present!")
+                raise ValueError("required fields missing and/or garbage "
+                                 "data present!")
         else:
             raise TypeError(f"expected type dict, got type {type(value)}")
 
@@ -776,7 +795,8 @@ class Rescue(object):
     @rats.setter
     def rats(self, value):
         """
-        Sets the rats property directly, it is recommended to use the helper methods to add/remove rats.
+        Sets the rats property directly, it is recommended to use the helper
+        methods to add/remove rats.
 
         Args:
             value (list): new value for `rats`
@@ -808,7 +828,8 @@ class Rescue(object):
         elif isinstance(rat, UUID):
             self._rats.append(rat)
         else:
-            raise TypeError(f"Expected either type str or type UUID. got {type(rat)}")
+            raise TypeError(f"Expected either type str or type UUID. got "
+                            f"{type(rat)}")
 
     @contextmanager
     def change(self):
