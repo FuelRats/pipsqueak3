@@ -2,31 +2,27 @@ import pydle
 
 
 class Trigger(object):
-    """Object to hold information on the user who invoked a command (and where they did it)."""
+    """Object to hold information on the user who invoked a command (and where
+    they did it)."""
 
-    def __init__(self, bot: pydle.BasicClient, nickname: str, target: str, ident: str, hostname: str,
-                 realname: str = "", away: str = None, account: str = None, identified: bool = False):
+    def __init__(self, bot: pydle.BasicClient, nickname: str, target: str,
+                 ident: str, hostname: str, realname: str = "",
+                 away: str = None, account: str = None,
+                 identified: bool = False):
         """
-        Object to hold information on the user who invoked a command (and where they did it).\n
-        :param bot: Pydle instance
-        :type bot: Pydle
-        :param nickname: irc nickname of the triggering user
-        :type nickname: str
-        :param target: target: The message target (usually a channel or, if it was sent in a query window, the bot's
-            nick)
-        :type target: str
-        :param ident: Triggering user's identity
-        :type ident: str
-        :param hostname: triggering users hostname
-        :type hostname: str
-        :param realname: users defined realname
-        :type realname: str
-        :param away: Away message
-        :type away: str
-        :param account: ???
-        :type account: str
-        :param identified: is the user identified with nickserv?
-        :type identified: bool
+        Object to hold information on the user who invoked a command
+
+        Args:
+            bot (Pydle): Mecha bot instance
+            nickname (str): irc nickname of the triggering user
+            target (str): The message target (usually a channel or, if it was
+            sent in a query window: the bot's nick)
+            ident (str): Triggering user's identity
+            hostname (str): triggering users hostname
+            realname (str): users defined realname
+            away (str): away message
+            account (str): ???
+            identified (bool): is the user identified via NS?
         """
         self.bot = bot
         self.nickname = nickname

@@ -114,7 +114,8 @@ class PermissionTests(unittest.TestCase):
 
     @async_test
     async def test_restricted_command_not_identified(self):
-        await Commands.trigger("!restricted", "authorized_but_not_identified", "#somechannel")
+        await Commands.trigger("!restricted", "authorized_but_not_identified",
+                               "#somechannel")
         self.assertIn({
             "target": "#somechannel",
             "message": permissions.OVERSEER.denied_message
