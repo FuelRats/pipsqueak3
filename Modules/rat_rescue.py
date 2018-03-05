@@ -23,12 +23,14 @@ log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
 class Rats(object):
     """
-    This class keeps track of known rats as they are used and stores them in a class cache.
+    This class keeps track of known rats as they are used and stores them in a
+    class cache.
 
     Instances of this class are used to represent a unique, individual rat.
 
-    Creation of a `Rats` object will automatically add the created rat to the cache,
-    allowing convenience method `Rats.get_rat` to return the instance when called.
+    Creation of a `Rats` object will automatically add the created rat to the
+    cache, allowing convenience method `Rats.get_rat` to return the instance
+    when called.
     """
 
     cache_by_id = {}
@@ -846,7 +848,8 @@ class Rescue(object):
 
         TODO: replace with Board context manager once its implemented
 
-        TODO: replace current context manager with a dummy once the Board context manager is a thing.
+        TODO: replace current context manager with a dummy once the Board
+            context manager is a thing.
 
         TODO: implement API integration (probably in the board Contextmanager
 
