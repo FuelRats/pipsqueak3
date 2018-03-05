@@ -20,10 +20,14 @@ log = logging.getLogger(f"{config.Logging.base_logger}.Permissions")
 
 
 class Permission:
-    def __init__(self, level: int, vhost: str, deny_message: str="Access denied."):
+    """
+    A permission level
+    """
+    def __init__(self, level: int, vhost: str,
+                 deny_message: str="Access denied."):
         """
         Permission required to execute a command
-        :param level: Relitive permissions level
+        :param level: Relative permissions level
         :param vhost: associated vhost
         :param deny_message: message to display if user level < level required
         :return:
@@ -84,13 +88,21 @@ _by_vhost = {
 }
 
 
-def require_permission(permission: Permission, override_message: str or None = None):
+def require_permission(permission: Permission,
+                       override_message: str or None=None):
     """
     Require an IRC command to be invoked by an authorized user.
 
     Anything lower than the specified permission will be rejected.
-    :param permission: Minimum Permissions level required to invoke command
-    :param override_message: Message to display rather than the default if the challenge fails
+
+    Args:
+        permission (Permission): Minimum Permissions level required to invoke
+            command
+        override_message (str): Message to display rather than the default if
+            the challenge fails
+
+    Returns:
+
     """
 
     def real_decorator(func):
@@ -103,13 +115,16 @@ def require_permission(permission: Permission, override_message: str or None = N
             if trigger.identified and trigger.hostname in _by_vhost.keys() \
                     and _by_vhost[trigger.hostname] >= permission:
                 try:
-                    # This works if we're the bottommost decorator (calling the command function directly)
+                    # This works if we're the bottommost decorator
+                    # (calling the command function directly)
                     return await func(bot, trigger)
                 except TypeError:
-                    # Otherwise, we're giving all the things to the underlying wrapper (be it from parametrize or sth)
+                    # Otherwise, we're giving all the things to the underlying
+                    #  wrapper (be it from parametrize or sth)
                     return await func(bot, trigger, words, words_eol)
             else:
-                await trigger.reply(override_message if override_message else permission.denied_message)
+                await trigger.reply(override_message if override_message
+                                    else permission.denied_message)
 
         return guarded
     return real_decorator
