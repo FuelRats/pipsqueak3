@@ -87,7 +87,7 @@ class RatBoard(object):
         if index is not None:
             try:
                 return self._rescues[index]
-            except IndexError:
+            except KeyError:
                 return None
         if client:
             for key in self._rescues:
@@ -95,7 +95,8 @@ class RatBoard(object):
                 if rescue.client == client:
                     return rescue
         elif api_id:
-            for rescue in self._rescues:
+            for key in self._rescues:
+                rescue = self._rescues[key]
                 if rescue.case_id == api_id:
                     return rescue
 
