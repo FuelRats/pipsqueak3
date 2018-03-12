@@ -90,7 +90,8 @@ class RatBoard(object):
             except IndexError:
                 return None
         if client:
-            for rescue in self._rescues:
+            for key in self._rescues:
+                rescue = self._rescues[key]
                 if rescue.client == client:
                     return rescue
         elif api_id:
@@ -100,7 +101,7 @@ class RatBoard(object):
 
         return None
 
-    def create(self, rescue: Rescue, overwrite: bool = False) -> None:
+    def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """
         Accept a Rescue object and attach it to the board
 
@@ -150,6 +151,7 @@ class RatBoard(object):
         Returns:
             True
         """
+        pass
 
     def flush(self, safe_word: str= "") -> None:
         """
@@ -168,5 +170,5 @@ class RatBoard(object):
             LOG.warning("Boom.")
 
         else:
-            LOG.critical("something attempted to flush the board without specififying the safe "
+            LOG.critical("something attempted to flush the board without specifying the safe "
                          "word!")
