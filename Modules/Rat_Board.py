@@ -1,6 +1,8 @@
 """
 Rat_Board.py - Rescue board
 
+Handles Tracking individual Rescues from creation to completion
+
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
 
@@ -61,7 +63,7 @@ class RatBoard(object):
             handler (): WS API handler
         """
         self.handler = handler
-        self.rescues = {}
+        self._rescues = {}
         """Rescue objects tracked by this board"""
 
     def search(self, index: int = None, client: str = None, api_id: UUID = None) -> Rescue or None:
@@ -84,15 +86,15 @@ class RatBoard(object):
         """
         if index is not None:
             try:
-                return self.rescues[index]
+                return self._rescues[index]
             except IndexError:
                 return None
         if client:
-            for rescue in self.rescues:
+            for rescue in self._rescues:
                 if rescue.client == client:
                     return rescue
         elif api_id:
-            for rescue in self.rescues:
+            for rescue in self._rescues:
                 if rescue.case_id == api_id:
                     return rescue
 
@@ -115,10 +117,10 @@ class RatBoard(object):
         # if the rescue already has a board index defined
         if rescue.board_index:
             # check if the board index is not in use, or the overwrite flag is set
-            if overwrite or rescue.board_index not in self.rescues:
+            if overwrite or rescue.board_index not in self._rescues:
                 # TODO: check this logic via unit tests
                 # write the key,value
-                self.rescues[rescue.board_index] = rescue
+                self._rescues[rescue.board_index] = rescue
             else:
                 raise IndexNotFreeError(
                     f"Index {rescue.board_index} is in use. If you want to overwrite this you must"
@@ -148,3 +150,23 @@ class RatBoard(object):
         Returns:
             True
         """
+
+    def flush(self, safe_word: str= "") -> None:
+        """
+        Flush all tracked cases. 
+        
+        Args:
+            safe_word (str): if you really want to flush the board, set this to "burn burn burn!"
+
+        Returns:
+            None
+        """
+        # hopefully this will make developers think this call through.
+        if safe_word == "burn burn burn!":
+            LOG.warning("Flushing the Dispatch Board, fire in the hole!")
+            self._rescues = {}
+            LOG.warning("Boom.")
+
+        else:
+            LOG.critical("something attempted to flush the board without specififying the safe "
+                         "word!")
