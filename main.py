@@ -20,7 +20,9 @@ from config import IRC, Logging
 # setup logging stuff
 
 # create a log formatter
+
 log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}", style='{')
+
 # get Mecha's root logger
 log = logging.getLogger(Logging.base_logger)
 # Create a file handler for the logger
@@ -77,9 +79,12 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data {message}")
+
+        log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data"
+                 f"{message}")
         if user == IRC.presence:
-            # don't do this and the bot can get into an infinite self-stimulated positive feedback loop.
+            # don't do this and the bot can get into an infinite
+            # self-stimulated positive feedback loop.
             log.debug("received message from myself ignoring!.")
             return None
 
@@ -96,6 +101,7 @@ async def cmd_ping(bot, trigger):
     """
     # self.message(channel, f"{sender if sender is not None else ''} Potatoes are awesome!")
     log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user '{trigger.nickname}'")
+
     await trigger.reply(f"{trigger.nickname} pong!")
 
 
@@ -112,7 +118,9 @@ if __name__ == "__main__":
         log.info(f"connecting to {IRC.server}:{IRC.port}")
         pool.connect(client, IRC.server, IRC.port, tls=IRC.tls)
     except Exception as ex:
+
         log.error(f"unable to connect to {IRC.server}:{IRC.port} due to an error.")
+
         log.error(ex)
         from sys import exit
         exit(42)

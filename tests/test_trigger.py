@@ -16,6 +16,7 @@ class TriggerTests(unittest.TestCase):
 
     def test_create_manual_query(self):
         trigger = Trigger(self.bot, "test_nick", "not_a_channel", "test_ident", "test.vhost")
+
         self.assertIsNone(trigger.channel)
 
     def test_create_from_user_channel(self):
@@ -53,7 +54,9 @@ class TriggerTests(unittest.TestCase):
 
     @async_test
     async def test_reply_query(self):
+
         trigger = Trigger(self.bot, "test_nick", "not_a_channel", "test_ident", "test.vhost")
+
         await trigger.reply("Exceedingly smart test message.")
         self.assertIn({
             "target": "test_nick",
