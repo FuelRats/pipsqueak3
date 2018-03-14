@@ -450,6 +450,24 @@ class TestRat(TestCase):
         found_rat = Rats.get_rat(uuid=self.some_id)
         self.assertEqual(self.my_rat, found_rat)
 
+    @expectedFailure
+    def test_find_rat_bad_type(self):
+        """
+        Verifies that attempting to throw garbage at Rats.search() raises the proper exception
+        """
+        garbage = ['foo', -42, 42, 0, False, True]
+        for piece in garbage:
+            self.fail("Not implemented yet, as the functionality doesn't exist!")
+            with self.subTest(piece=piece):
+                pass
+
+    def test_find_rat_defaults(self):
+        """
+        Verifies a ValueError is raised when someone calls `Rats.get_rat` with default params
+        """
+        with self.assertRaises(ValueError):
+            Rats.get_rat()
+
     def test_name_good_type(self):
         """
         Verifies `Rats.name` can be set when given good data
