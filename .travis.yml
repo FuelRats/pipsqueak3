@@ -6,6 +6,10 @@ install:
   - pip install -r requirements.txt
 cache: pip
 
+before_script: # code climate stuff
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+
 script:
   - python -m unittest discover -v -s tests
 
@@ -15,3 +19,9 @@ notifications:
       - http://orthanc.localecho.net/cgi-bin/webhook.py
     on_success: always
     on_failure: always
+
+# for codecoverage on codeclimate.com
+env:
+  global:
+    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
+    - CC_TEST_REPORTER_ID=[token]
