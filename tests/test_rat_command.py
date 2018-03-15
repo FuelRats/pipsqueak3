@@ -15,14 +15,15 @@ This module is built on top of the Pydle system.
 """
 
 import unittest
+from aiounittest import async_test
 from unittest import mock
 
 import pydle
-from aiounittest import async_test
 
-from Modules.rat_command import Commands, CommandNotFoundException, \
-    NameCollisionException, InvalidCommandException, \
-    CommandException
+
+
+from Modules.rat_command import Commands, CommandNotFoundException,  \
+    NameCollisionException,InvalidCommandException, \CommandException
 from tests.mock_bot import MockBot
 
 
@@ -77,7 +78,6 @@ class RatCommandTests(unittest.TestCase):
                     return bot, channel, sender
             self.assertIsNotNone(
                 Commands.get_command(command.strip(Commands.prefix)))
-
     def test_command_decorator_list(self):
         aliases = ['potato', 'cannon', 'Fodder', 'fireball']
         trigger_alias = [f"{Commands.prefix}{name}" for name in aliases]
@@ -106,7 +106,6 @@ class RatCommandTests(unittest.TestCase):
         test verifying it is not possible to register a command twice.
         this prevents oddities where commands are bound but the bind is
         overwritten....
-        :return:
         """
         alias = ['potato', 'cannon', 'Fodder', 'fireball']
         # TODO: move these common lists to setup_class
