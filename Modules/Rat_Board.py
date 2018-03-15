@@ -95,10 +95,10 @@ class RatBoard(object):
                 if rescue.client == client:
                     return rescue
         elif api_id:
-            for key in self._rescues:
-                rescue = self._rescues[key]
-                if rescue.case_id == api_id:
-                    return rescue
+            for rescue in self._rescues.items():
+                LOG.debug(f"comparing rescue={rescue}")
+                if rescue[1].case_id == api_id:
+                    return rescue[1]
 
         return None
 
