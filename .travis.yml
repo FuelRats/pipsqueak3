@@ -17,7 +17,7 @@ script:
 
 after_script: #report the results back to code climate
   - coverage xml
-  - ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $TRAVIS_TEST_RESULT --id token
+  - ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $TRAVIS_TEST_RESULT
 notifications:
   webhooks:
     urls:
@@ -28,4 +28,4 @@ notifications:
 # for codecoverage on codeclimate.com
 env:
   global:
-    - CC_TEST_REPORTER_ID=token
+    - CC_TEST_REPORTER_ID=$token
