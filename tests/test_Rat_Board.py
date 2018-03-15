@@ -101,6 +101,11 @@ class RatBoardTests(TestCase):
         with self.subTest(arg=passphrase):
             self.board.flush(safe_word=passphrase)
 
+            self.assertEqual(self.board._rescues, {})
+
         with self.subTest(arg=None):
             with self.assertRaises(ValueError):
                 self.board.flush()
+
+            # verify it didn't flush anyways.
+            self.assertNotEqual(self.board._rescues, {})
