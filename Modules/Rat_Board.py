@@ -157,27 +157,10 @@ class RatBoard(object):
         """
         self._rescues.pop(rescue.board_index)
 
-    def flush(self, safe_word: str= "") -> None:
+    def flush(self) -> None:
         """
-        Flush all tracked cases. 
-        
-        Args:
-            safe_word (str): if you really want to flush the board, set this to "burn burn burn!"
-
-        Raises:
-            ValueError: If this method is called without the required safe word.
-
-        Returns:
-            None
+        Flush all tracked cases.
         """
-        # hopefully this will make developers think this call through.
-        if safe_word == "burn burn burn!":
-            LOG.warning("Flushing the Dispatch Board, fire in the hole!")
-            self._rescues = {}
-            LOG.warning("Boom.")
-
-        else:
-            LOG.critical("something attempted to flush the board without specifying the safe "
-                         "word!")
-            raise ValueError("something attempted to flush the board without specifying the safe "
-                             "word!")
+        LOG.warning("Flushing the Dispatch Board, fire in the hole!")
+        self._rescues = {}
+        LOG.warning("Boom.")
