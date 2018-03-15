@@ -89,7 +89,7 @@ class RatBoardTests(TestCase):
 
     def test_clear_board(self) -> None:
         """
-        Verifies `rescue.clearBoard` functions as expected.
+        Verifies `RatBoard.clearBoard` functions as expected.
         """
         # make sure we have something on the board
         self.board.append(self.some_rescue)
@@ -100,3 +100,14 @@ class RatBoardTests(TestCase):
         self.board.clear_board()
 
         self.assertEqual(self.board._rescues, {})
+
+    def test_remove(self):
+        """
+        Verfies `RatBoard.remove()` correctly removes cases.
+        """
+        with self.subTest(conditon="existing"):
+            # add the case
+            self.board.append(self.some_rescue)
+            self.assertNotEqual(self.board._rescues, {})
+            self.board.remove(self.some_rescue)
+            self.assertEqual(self.board._rescues, {})
