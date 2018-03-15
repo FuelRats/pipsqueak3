@@ -87,9 +87,9 @@ class RatBoardTests(TestCase):
             found = self.board.search(index=42)
             self.assertIsNone(found)
 
-    def test_flush(self) -> None:
+    def test_clear_board(self) -> None:
         """
-        Verifies `rescue.flush` functions as expected.
+        Verifies `rescue.clearBoard` functions as expected.
         """
         # make sure we have something on the board
         self.board.append(self.some_rescue)
@@ -97,6 +97,6 @@ class RatBoardTests(TestCase):
         self.assertNotEqual(self.board._rescues, {})
         # if it is this test will prove nothing
 
-        self.board.flush()
+        self.board.clearBoard()
 
         self.assertEqual(self.board._rescues, {})
