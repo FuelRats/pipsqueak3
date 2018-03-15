@@ -21,6 +21,8 @@ class Platforms(Enum):
     PC = "PC"
     XB = "XB"
     PS = "PS"
+    DEFAULT = None
+    """No platform"""
 
 
 def strip_name(nickname: str) -> str:
