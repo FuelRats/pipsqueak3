@@ -11,6 +11,16 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+from enum import Enum
+
+
+class Platforms(Enum):
+    """
+    Stores the different platforms we care about
+    """
+    PC = "PC"
+    XB = "XB"
+    PS = "PS"
 
 
 def strip_name(nickname: str) -> str:
