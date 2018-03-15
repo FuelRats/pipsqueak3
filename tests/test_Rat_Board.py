@@ -111,3 +111,7 @@ class RatBoardTests(TestCase):
             self.assertNotEqual(self.board._rescues, {})
             self.board.remove(self.some_rescue)
             self.assertEqual(self.board._rescues, {})
+
+        with self.subTest(condition="not existing"):
+            with self.assertRaises(KeyError):
+                self.board.remove(self.some_rescue)
