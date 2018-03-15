@@ -455,39 +455,18 @@ class TestRat(TestCase):
         found_rat = Rats.get_rat(name="UNIT_TEST")
         self.assertEqual(found_rat, self.my_rat)
 
-    def test_find_rat_by_uuid_existing(self):
-        """
-        Verify that cached rats can be found by uuid
-        """
-        found_rat = Rats.get_rat(uuid=self.some_id)
-        self.assertEqual(self.my_rat, found_rat)
 
-    def test_find_rat_by_uuid_and_name_existing(self):
-        """
-        Verify that cached rats can be found exactly by uuid and name
-        """
-        my_uuid = uuid4()
-        my_rat = Rats(my_uuid, "foo")
-        found = Rats.get_rat(name="foo", uuid=my_uuid)
-        self.assertEqual(my_rat, found)
-
-    @expectedFailure
     def test_find_rat_bad_type(self):
         """
         Verifies that attempting to throw garbage at Rats.search() raises the proper exception
         """
         garbage = ['foo', -42, 42, 0, False, True]
         for piece in garbage:
-            self.fail("Not implemented yet, as the functionality doesn't exist!")
+            # self.fail("Not implemented yet, as the functionality doesn't exist!")
             with self.subTest(piece=piece):
-                pass
-
-    def test_find_rat_defaults(self):
-        """
-        Verifies a ValueError is raised when someone calls `Rats.get_rat` with default params
-        """
-        with self.assertRaises(ValueError):
-            Rats.get_rat()
+                with self.assertRaises(TypeError):
+                    Rats.get_rat(name=piece)
+                    Rats.get_rat(name="foo", platform=piece)
 
     def test_name_good_type(self):
         """

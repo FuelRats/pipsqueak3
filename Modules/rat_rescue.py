@@ -17,6 +17,7 @@ from uuid import UUID
 
 import config
 from Modules.trigger import Trigger
+from ratlib.names import Platforms
 
 log = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
@@ -38,17 +39,17 @@ class Rats(object):
     cache_by_name = {}
     """Cache of rat objects by rat name (str)"""
 
-    def __init__(self, uuid: UUID, name: str=None):
+    def __init__(self, uuid: UUID, name: str=None, platform :Platforms=Platforms.DEFAULT):
         """
         Creates a new rat
 
         Args:
             uuid (UUID):
             name (str): rat's name
-
-
+            platform (Platforms): rat's platform
         """
         # set our properties
+        self._platform = None
         self._uuid = uuid
         self._name = name
         # and update the cache
@@ -116,8 +117,19 @@ class Rats(object):
         else:
             raise TypeError(f"expected str, got {type(value)}")
 
+    @property
+    def platform(self):
+        return self._platform
+
+    @platform.setter
+    def platform(self, value):
+        if isinstance(value, Platforms):
+            self._platform = value
+        else:
+            raise TypeError(f"Expected a {Platforms} object, got type {type(value)}")
+
     @classmethod
-    def get_rat(cls, name: str = None, uuid: UUID = None) -> 'Rats' or None:
+    def get_rat(cls, name: str, platform: Platforms=Platforms.DEFAULT) -> 'Rats' or None:
         """
         Finds a rat either by name or by uuid.
 
@@ -126,39 +138,29 @@ class Rats(object):
 
         Args:
             name (str): name to search for
-            uuid (UUID): uuid to search for
+            platform (Platforms): platform to narrow search results by, if any.
+                - defaults to any platform (first match)
 
         Returns:
-            Rats
-
-        Raises:
-            ValueError: no arguments provided
-            ValueError: unknown arguments provided (this should be unreachable)
+            Rats - found rat
         """
-        if not name and not uuid:
-            raise ValueError("expected either a name or a uuid to search for. "
-                             "got neither.")
+        if not isinstance(name, str) or not isinstance(platform, Platforms):
+            raise TypeError("invalid types given.")
+
+        found: Rats = None
+
+        try:
+            found = Rats.cache_by_name[name]
+        except KeyError:
+            # no such rat in cache
+            return None
         else:
-            try:
-                if name and not uuid:
-                    # we are just looking by a name
-                    log.debug(f"searching for name '{name}'...")
-                    return cls.cache_by_name[name]
-                elif uuid and not name:
-                    # just looking by a ID
-                    log.debug(f"looking for uuid {uuid}")
-                    return cls.cache_by_id[uuid]
-                elif uuid and name:
-                    # we want an exact match.
-                    by_name = cls.cache_by_name[name]
-                    by_id = cls.cache_by_id[uuid]
-                    if by_id == by_name:
-                        return by_id
-                else:
-                    assert ValueError("unknown combination of paramaters. # FIXME!")
-            except IndexError:
-                # no such rat in cache
-                return None
+            # we found a rat
+            if platform == Platforms.DEFAULT:
+                # no platform check
+                return found
+            else:
+                return found if found.platform == platform else None
 
     @classmethod
     def flush(cls) -> None:
