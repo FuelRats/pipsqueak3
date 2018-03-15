@@ -86,3 +86,21 @@ class RatBoardTests(TestCase):
         with self.subTest(exists=False):
             found = self.board.search(index=42)
             self.assertIsNone(found)
+
+    def test_flush(self) -> None:
+        """
+        Verifies `rescue.flush` functions as expected.
+        """
+        # make sure we have something on the board
+        self.board.append(self.some_rescue)
+
+        self.assertNotEqual(self.board._rescues, {})
+        # if it is this test will prove nothing
+
+        passphrase = "burn burn burn!"
+        with self.subTest(arg=passphrase):
+            self.board.flush(safe_word=passphrase)
+
+        with self.subTest(arg=None):
+            with self.assertRaises(ValueError):
+                self.board.flush()
