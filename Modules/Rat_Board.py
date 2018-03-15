@@ -142,7 +142,7 @@ class RatBoard(object):
         # TODO: implement modify(), until then its marked nocover.
         return False  # PRAGMA: NOCOVER
 
-    def remove(self, rescue: Rescue) -> bool:
+    def remove(self, rescue: Rescue) -> None:
         """
         Removes a case from the board
 
@@ -150,9 +150,12 @@ class RatBoard(object):
             rescue (Rescue): Rescue to remove
 
         Returns:
-            True
+            None
+
+        Raises:
+            KeyError: rescue was not on the board.
         """
-        pass
+        self._rescues.pop(rescue.board_index)
 
     def flush(self, safe_word: str= "") -> None:
         """
@@ -160,6 +163,9 @@ class RatBoard(object):
         
         Args:
             safe_word (str): if you really want to flush the board, set this to "burn burn burn!"
+
+        Raises:
+            ValueError: If this method is called without the required safe word.
 
         Returns:
             None
@@ -173,3 +179,5 @@ class RatBoard(object):
         else:
             LOG.critical("something attempted to flush the board without specifying the safe "
                          "word!")
+            raise ValueError("something attempted to flush the board without specifying the safe "
+                             "word!")
