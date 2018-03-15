@@ -15,11 +15,10 @@ This module is built on top of the Pydle system.
 """
 
 import unittest
+from aiounittest import async_test
 from unittest import mock
 
 import pydle
-from aiounittest import async_test
-
 
 from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, \
     InvalidCommandException, CommandException
@@ -45,13 +44,7 @@ class RatCommandTests(unittest.TestCase):
 
     def test_get_unknown_command(self):
         """
-<<<<<<< HEAD
         Verifies that Commands.get_command() returns None if a command is not found
-=======
-        Verifies that Commands.get_command() returns None if a command is not
-        found
->>>>>>> oldRepo/feature/mecha3/rescue_board
-        :return:
         """
         unknown_names = ["foo", "bar", "meatbag", "limpet"]
 
@@ -68,11 +61,7 @@ class RatCommandTests(unittest.TestCase):
     @async_test
     async def test_command_decorator_single(self):
         """
-<<<<<<< HEAD
-        Tests if the `Commands.command` decorator can handle string registrations
-=======
         Verify`Commands.command` decorator can handle string registrations
->>>>>>> oldRepo/feature/mecha3/rescue_board
         """
         # bunch of commands to test
         alias = ['potato', 'cannon', 'Fodder', "fireball"]
@@ -85,7 +74,6 @@ class RatCommandTests(unittest.TestCase):
                     # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
                     return bot, channel, sender
             self.assertIsNotNone(Commands.get_command(command.strip(Commands.prefix)))
-
 
     def test_command_decorator_list(self):
         aliases = ['potato', 'cannon', 'Fodder', 'fireball']
