@@ -16,7 +16,8 @@ script:
   - coverage run -m unittest discover -v -s tests
 
 after_script: #report the results back to code climate
-  - ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $TRAVIS_TEST_RESULT
+  - coverage xml
+  - ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $TRAVIS_TEST_RESULT --id token
 notifications:
   webhooks:
     urls:
