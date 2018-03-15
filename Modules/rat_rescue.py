@@ -130,6 +130,10 @@ class Rats(object):
 
         Returns:
             Rats
+
+        Raises:
+            ValueError: no arguments provided
+            ValueError: unknown arguments provided (this should be unreachable)
         """
         if not name and not uuid:
             raise ValueError("expected either a name or a uuid to search for. "
@@ -150,10 +154,8 @@ class Rats(object):
                     by_id = cls.cache_by_id[uuid]
                     if by_id == by_name:
                         return by_id
-                    else:
-                        # its not a match.
-                        log.debug(f"{by_id} does not match {by_name}!")
-                        return None
+                else:
+                    assert ValueError("unknown combination of paramaters. # FIXME!")
             except IndexError:
                 # no such rat in cache
                 return None

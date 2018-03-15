@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 from datetime import datetime
 from unittest import TestCase, expectedFailure
 from unittest.mock import patch, MagicMock
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from Modules.rat_rescue import Rescue, Rats
 
@@ -461,6 +461,15 @@ class TestRat(TestCase):
         """
         found_rat = Rats.get_rat(uuid=self.some_id)
         self.assertEqual(self.my_rat, found_rat)
+
+    def test_find_rat_by_uuid_and_name_existing(self):
+        """
+        Verify that cached rats can be found exactly by uuid and name
+        """
+        my_uuid = uuid4()
+        my_rat = Rats(my_uuid, "foo")
+        found = Rats.get_rat(name="foo", uuid=my_uuid)
+        self.assertEqual(my_rat, found)
 
     @expectedFailure
     def test_find_rat_bad_type(self):
