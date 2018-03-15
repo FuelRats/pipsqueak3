@@ -139,8 +139,8 @@ class RatBoard(object):
             True IF rescue exists and was replaced
             False if rescue does not exist or was not modified.
         """
-        # TODO: implement modify()
-        return False
+        # TODO: implement modify(), until then its marked nocover.
+        return False  # PRAGMA: NOCOVER
 
     def remove(self, rescue: Rescue) -> bool:
         """
