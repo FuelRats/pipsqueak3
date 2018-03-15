@@ -157,7 +157,7 @@ class RatBoard(object):
         """
         self._rescues.pop(rescue.board_index)
 
-    def flush(self) -> None:
+    def clearBoard(self) -> None:
         """
         Flush all tracked cases.
         """
