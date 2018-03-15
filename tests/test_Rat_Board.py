@@ -97,6 +97,6 @@ class RatBoardTests(TestCase):
         self.assertNotEqual(self.board._rescues, {})
         # if it is this test will prove nothing
 
-        self.board.clearBoard()
+        self.board.clear_board()
 
         self.assertEqual(self.board._rescues, {})

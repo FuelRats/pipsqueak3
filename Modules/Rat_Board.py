@@ -157,9 +157,9 @@ class RatBoard(object):
         """
         self._rescues.pop(rescue.board_index)
 
-    def clearBoard(self) -> None:
+    def clear_board(self) -> None:
         """
-        Flush all tracked cases.
+        Clears all tracked cases.
         """
         LOG.warning("Flushing the Dispatch Board, fire in the hole!")
         self._rescues = {}
