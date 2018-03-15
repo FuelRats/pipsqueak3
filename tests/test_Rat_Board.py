@@ -97,15 +97,6 @@ class RatBoardTests(TestCase):
         self.assertNotEqual(self.board._rescues, {})
         # if it is this test will prove nothing
 
-        passphrase = "burn burn burn!"
-        with self.subTest(arg=passphrase):
-            self.board.flush(safe_word=passphrase)
+        self.board.flush()
 
-            self.assertEqual(self.board._rescues, {})
-
-        with self.subTest(arg=None):
-            with self.assertRaises(ValueError):
-                self.board.flush()
-
-            # verify it didn't flush anyways.
-            self.assertNotEqual(self.board._rescues, {})
+        self.assertEqual(self.board._rescues, {})
