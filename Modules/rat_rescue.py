@@ -16,7 +16,7 @@ from datetime import datetime
 from uuid import UUID
 
 import config
-from Modules.Rats import Rats
+from Modules.rats import Rats
 from Modules.trigger import Trigger
 
 LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
