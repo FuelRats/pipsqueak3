@@ -15,7 +15,9 @@ from unittest import TestCase, expectedFailure
 from unittest.mock import patch, MagicMock
 from uuid import UUID, uuid4
 
-from Modules.rat_rescue import Rescue, Rats
+from Modules.rat_rescue import Rescue
+from Modules.Rats import Rats
+from ratlib.names import Platforms
 
 
 class TestRescue(TestCase):
@@ -404,7 +406,7 @@ class TestRat(TestCase):
         self.some_id = UUID("ffffffff-ffff-ffff-ffff-ffffffffffff")
 
         # make a rat
-        self.my_rat = Rats(uuid=self.some_id, name="UNIT_TEST")
+        self.my_rat = Rats(uuid=self.some_id, name="UNIT_TEST", platform=Platforms.PC)
 
     def test_new_instance(self):
         """
@@ -443,6 +445,13 @@ class TestRat(TestCase):
         found_rat = Rats.get_rat(name="UNIT_TEST")
         self.assertEqual(found_rat, self.my_rat)
 
+    def test_find_rat_incorrect_platform(self):
+        """
+        Verifies that `Rats.get_rat` called with a specific platform that does not match
+            the stored platform returns None
+        """
+        found_rat = Rats.get_rat(name="UNIT_TEST", platform=Platforms.XB)
+        self.assertIsNone(found_rat)
 
     def test_find_rat_bad_type(self):
         """
