@@ -84,23 +84,26 @@ class RatBoard(object):
         Raises:
             ValueError: command invoked without params, or all params are None
         """
+
+        # lets check if we have an index, which may be zero
+        found: Rescue = None
         if index is not None:
             try:
-                return self._rescues[index]
+                found = self._rescues[index]
             except KeyError:
-                return None
+                pass
         if client:
             for key in self._rescues:
                 rescue = self._rescues[key]
                 if rescue.client == client:
-                    return rescue
+                    found = rescue
         elif api_id:
             for rescue in self._rescues.items():
                 LOG.debug(f"comparing rescue={rescue}")
                 if rescue[1].case_id == api_id:
-                    return rescue[1]
+                    found = rescue[1]
 
-        return None
+        return found
 
     def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """
