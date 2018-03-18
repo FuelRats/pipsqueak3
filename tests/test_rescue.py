@@ -16,6 +16,7 @@ from unittest.mock import patch, MagicMock
 from uuid import uuid4
 
 from Modules.rat_rescue import Rescue
+from Modules.rats import Rats
 
 
 class TestRescue(TestCase):
@@ -418,3 +419,22 @@ class TestRescue(TestCase):
                 with self.subTest(piece=piece):
                     with self.assertRaises(TypeError):
                         self.rescue.title = piece
+
+    def test_rats_good_data(self):
+        """
+        Verfifies the `Rescue.rats` property behaves as expected
+        """
+        self.assertEqual(self.rescue.rats, [])
+        data = [Rats(uuid4(), "unit_Test"), Rats(uuid4(), "icarus")]
+        self.rescue.rats = data
+        self.assertEqual(self.rescue.rats, data)
+
+    def test_rats_bad_types(self):
+        """
+        Verifies the proper exception is raised when `Rescue.rats` is given garbage params
+        """
+        garbage = [{}, -1, 0, .2, (2, 3), uuid4()]
+        for piece in garbage:
+            with self.subTest(piece=piece):
+                with self.assertRaises(TypeError):
+                    self.rescue.rats = piece
