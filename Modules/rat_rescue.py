@@ -380,7 +380,7 @@ class Rescue(object):
                 if isinstance(name, str):
                     self._unidentifiedRats.append(name)
                 else:
-                    raise TypeError(f"Element '{name}' expected to be of type "
+                    raise TypeError(f"Element '{name}' expected to be of type str"
                                     f"str, got {type(name)}")
         else:
             raise TypeError(f"expected type str, got {type(value)}")
@@ -503,7 +503,7 @@ class Rescue(object):
         Raises:
             TypeError: bad value type
         """
-        if not value or isinstance(value, str):
+        if value is None or isinstance(value, str):
             self._title = value
         else:
             raise TypeError(f"expected type None or str, got {type(value)}")
