@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 from datetime import datetime
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
+from uuid import uuid4
 
 from Modules.rat_rescue import Rescue
 
@@ -385,4 +386,23 @@ class TestRescue(TestCase):
                 with self.assertRaises(TypeError):
                     self.rescue.successful = piece
 
+    def test_title(self):
+        """
+        Verifies `Rescue.title` behaves as expected
+        """
 
+        with self.subTest(condition="good"):
+            if self.rescue.title:
+                self.rescue.title = None
+                self.assertIsNone(self.rescue.title)
+
+            title = "foobar express"
+            self.rescue.title = title
+            self.assertEqual(self.rescue.title, title)
+
+        with self.subTest(condition="garbage"):
+            garbage = [[], {}, 42, 22., 0, uuid4()]
+            for piece in garbage:
+                with self.subTest(piece=piece):
+                    with self.assertRaises(TypeError):
+                        self.rescue.title = piece
