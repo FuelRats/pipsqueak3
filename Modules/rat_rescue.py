@@ -573,15 +573,18 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    def add_rat(self, rat: UUID or str):
+    def add_rat(self, rat: UUID or str) -> None:
         """
         Adds a rat to the rescue.
+
+        this method will attempt to coerce the input into a UUID and may fail in
+            spectacular fashion
 
         Args:
             rat (UUID): rat to add
 
         Returns:
-
+            None
         """
         if isinstance(rat, str):
             LOG.debug(f"value was a string with data '{rat}'")
