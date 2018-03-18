@@ -105,19 +105,34 @@ class Rescue(object):
         return self._firstLimpet
 
     @first_limpet.setter
-    def first_limpet(self, value) -> None:
+    def first_limpet(self, value: UUID) -> None:
         """
         Set the value of the first limpet rat
+
+        If the value is not a UUID, this method will attempt to coerce it into one.
+
         Args:
-            value (str): rat id of the first-limpet rat.
+            value (UUID): rat id of the first-limpet rat.
 
         Returns:
             None
+
+        Raises:
+            ValueError: The value was not a UUID and could not be parsed into a valid one.
         """
         if isinstance(value, UUID):
             self._firstLimpet = value
         else:
-            raise TypeError(f"expected UUID, got type {type(value)}")
+            # the value wasn't a uuid, but lets try and coerce it into one.
+            try:
+                # try parse
+                guid = UUID(value)
+            except (ValueError, AttributeError):
+                # the attempt failed
+                raise TypeError(f"expected UUID, got type {type(value)}")
+            else:
+                # the attempt succeeded, lets assign it.
+                self._firstLimpet = guid
 
     @property
     def board_index(self) -> int or None:

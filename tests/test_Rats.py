@@ -1,6 +1,7 @@
 from unittest import TestCase
-from uuid import UUID
+from uuid import UUID, uuid4
 
+from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from ratlib.names import Platforms
 
@@ -80,6 +81,35 @@ class TestRat(TestCase):
                 with self.assertRaises(TypeError):
                     Rats.get_rat(name=piece)
                     Rats.get_rat(name="foo", platform=piece)
+
+    def test_first_limpet(self):
+        """
+        Verifies `Rescue.first_limpet` behaves as expected.
+        """
+        rescue = Rescue(None, "UNIT_TEST", "FOOBAR", "unit_test")
+        with self.subTest(mode="default"):
+            # verify default state
+            self.assertIsNone(rescue.first_limpet)
+
+        guid = uuid4()
+
+        with self.subTest(mode="uuid", guid=guid):
+            rescue.first_limpet = guid
+            self.assertEqual(rescue.first_limpet, guid)
+
+        #reset for next subtest
+        rescue._firstLimpet = None
+        guid_str = str(guid)
+        with self.subTest(mode="good string", guid=guid_str):
+            rescue.first_limpet = guid_str
+            self.assertEqual(rescue.first_limpet, guid)
+
+        rescue._firstLimpet = None
+        garbage = [[],{}, "foo","bar",-2]
+        for piece in garbage:
+            with self.subTest(mode="garbage", piece=piece):
+                with self.assertRaises(TypeError):
+                    rescue.first_limpet = piece
 
     def test_name_good_type(self):
         """
