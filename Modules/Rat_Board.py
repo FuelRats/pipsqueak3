@@ -112,7 +112,7 @@ class RatBoard(object):
         """
         for index, rescue in self._rescues.items():
             if rescue.case_id == guid:
-                rescue rescue
+                return rescue
 
     def search(self, index: int = None, client: str = None, api_id: UUID = None) -> Rescue or None:
         """
