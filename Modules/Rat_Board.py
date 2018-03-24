@@ -166,4 +166,3 @@ class RatBoard(object):
         """
         LOG.warning("Flushing the Dispatch Board, fire in the hole!")
         self._rescues = {}
-        LOG.warning("Boom.")
