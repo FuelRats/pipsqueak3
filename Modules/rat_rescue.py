@@ -18,6 +18,7 @@ from uuid import UUID
 import config
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
+from ratlib.names import Platforms
 
 LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
@@ -27,20 +28,18 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: UUID, client: str, system: str,
-                 irc_nickname: str, created_at: datetime = None,
-                 updated_at: datetime = None, unidentified_rats=None,
-                 active=True, quotes: list = None, is_open=True,
-                 epic=False, code_red=False, successful=False, title: str = '',
-                 first_limpet: UUID or None = None,
-                 board_index: int = None,
-                 mark_for_deletion: list or None = None, lang_id: str = "EN",
-                 rats: list = None):
+    def __init__(self, case_id: UUID, client: str, system: str, irc_nickname: str,
+                 board: 'RatBoard' = None, created_at: datetime = None, updated_at: datetime = None,
+                 unidentified_rats=None, active=True, quotes: list = None, is_open=True, epic=False,
+                 code_red=False, successful=False, title: str = '',
+                 first_limpet: UUID or None = None, board_index: int = None,
+                 mark_for_deletion: list or None = None, lang_id: str = "EN", rats: list = None):
         """
         creates a unique rescue
 
         Args:
 
+            board (RatBoard): RatBoard instance this rescue is attached to, if any.
             case_id (str): API id of rescue
             client (str): Commander name of the Commander rescued
             system (str): System name the Commander is stranded in
@@ -67,15 +66,15 @@ class Rescue(object):
             commander name.
             rats (list): identified (Rat)s assigned to rescue.
         """
+        self._platform: Platforms = Platforms.DEFAULT
+        self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else []
-        self._createdAt: datetime = created_at if created_at else \
-            datetime.utcnow()
-        self._updatedAt: datetime = updated_at if updated_at else \
-            datetime.utcnow()
+        self._createdAt: datetime = created_at if created_at else datetime.utcnow()
+        self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
         self._id: UUID = case_id
         self._client: str = client
         self._irc_nick: str = irc_nickname
-        self._unidentifiedRats = unidentified_rats if unidentified_rats else []
+        self._unidentified_rats = unidentified_rats if unidentified_rats else []
         self._system: str = system.upper()
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
@@ -93,6 +92,18 @@ class Rescue(object):
         }
         self._board_index = board_index
         self._lang_id = lang_id
+
+    @property
+    def platform(self):
+        """The Rescue's platform"""
+        return self._platform
+
+    @platform.setter
+    def platform(self, value):
+        if isinstance(value, Platforms):
+            self._platform = value
+        else:
+            raise TypeError(f"expected a Platforms, got type {type(value)}")
 
     @property
     def first_limpet(self) -> UUID:
@@ -371,14 +382,14 @@ class Rescue(object):
         Returns:
             list: unidentified rats by IRC nickname
         """
-        return self._unidentifiedRats
+        return self._unidentified_rats
 
     @unidentified_rats.setter
     def unidentified_rats(self, value):
         if isinstance(value, list):
             for name in value:
                 if isinstance(name, str):
-                    self._unidentifiedRats.append(name)
+                    self._unidentified_rats.append(name)
                 else:
                     raise TypeError(f"Element '{name}' expected to be of type str"
                                     f"str, got {type(name)}")
@@ -573,29 +584,56 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    def add_rat(self, rat: UUID or str) -> None:
+    def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rats = None) -> None:
         """
-        Adds a rat to the rescue.
+        Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
+        be raised as exceptions.
 
-        this method will attempt to coerce the input into a UUID and may fail in
+        this method will attempt to coerce `guid:str` into a UUID and may fail in
             spectacular fashion
 
         Args:
-            rat (UUID): rat to add
-
+            rat (Rats): Existing Rat object to assign.
+            name (str): name of a rat to add
+            guid (UUID or str): api uuid of the rat, used if the rat is not found in the cache
+                - if this is a string it will be type coerced into a UUID
         Returns:
-            None
+            None:
+
+        Raises:
+            ValueError: guid was of type `str` and could not be coerced.
+            ValueError: Attempted to assign a Rat that does not have a UUID.
+
+        Examples:
+            ```python
+
+            ```
         """
-        if isinstance(rat, str):
-            LOG.debug(f"value was a string with data '{rat}'")
-            uuid = UUID(rat)
-            LOG.debug("parsed value into a valid UUID.")
-            self._rats.append(Rats(uuid=uuid))
-        elif isinstance(rat, UUID):
-            self._rats.append(rat)
+        if isinstance(rat, Rats):
+            # we already have a rat object, lets verify it has an ID and assign it.
+            if rat.uuid is not None:
+                self.rats.append(rat)
+                return
+            else:
+                raise ValueError("Assigned rat does not have a known API ID")
+
+        if isinstance(name, str):
+            # lets check if we already have this rat in the cache
+            found = Rats.get_rat(name, self.platform)
+            if found:
+                self.rats.append(found)
+                return
+
+
         else:
-            raise TypeError(f"Expected either type str or type UUID. got "
-                            f"{type(rat)}")
+            # lets make a new Rat!
+            if self.rat_board:  # PRAGMA: NOCOVER
+                raise NotImplementedError  # TODO fetch rat from API
+            # TODO: fetch rats from API handler, use that data to make a new Rats instance
+
+            rat = Rats(name=name, uuid=guid)
+            self.rats.append(rat)
+
 
     @contextmanager
     def change(self):

@@ -29,10 +29,9 @@ class TestRescue(TestCase):
         self.updated_at = datetime(2017, 12, 24, 23, 59, 52)
         self.system = "firestone"
         self.case_id = "some_id"
-        self.rescue = Rescue(self.case_id, "stranded_commander",
-                             system=self.system, created_at=self.time,
-                             updated_at=self.updated_at,
-                             irc_nickname="stranded_commander")
+        self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system,
+                             irc_nickname="stranded_commander", created_at=self.time,
+                             updated_at=self.updated_at)
 
     def test_client_property_exists(self):
         """
@@ -438,3 +437,24 @@ class TestRescue(TestCase):
             with self.subTest(piece=piece):
                 with self.assertRaises(TypeError):
                     self.rescue.rats = piece
+
+    def test_add_rat_by_rat_boject(self):
+        """
+        Verifies `Rescue.add_rat` can add a rat given a `Rats` object
+        """
+        rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
+        rats = [Rats(x, y) for x, y in rats_raw]
+
+        for rat in rats:
+            with self.subTest(rat=rat):
+                self.rescue.add_rat(rat=rat)
+                self.assertIn(rat, self.rescue._rats)
+
+    def test_add_rat_by_uuid(self):
+        """
+        Verifies `Rescue.add_rat` can add a rat given a guid and a name
+        """
+        rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
+        for guid,name in rats_raw:
+            with self.subTest(guid=guid, name=name):
+                self.rescue.add_rat(guid)
