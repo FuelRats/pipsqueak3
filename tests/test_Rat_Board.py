@@ -90,6 +90,45 @@ class RatBoardTests(TestCase):
             found = self.board.search(index=42)
             self.assertIsNone(found)
 
+    def test_find_by_client_name(self):
+        """
+        Verifies an existing rescue can be found via `RescueBoard.find_by_name`
+        """
+        self.board.append(self.some_rescue)
+        with self.subTest(condition="existing"):
+            found = self.board.find_by_name(self.some_rescue.client)
+            self.assertIsNotNone(found)
+
+        with self.subTest(condition="not found"):
+            found = self.board.find_by_name("foobar")
+            self.assertIsNone(found)
+
+    def test_find_by_case_number(self):
+        """
+        Verifies an existing rescue can be found via `RescueBoard.find_by_index`
+        """
+        self.board.append(self.some_rescue)
+        with self.subTest(condition="existing"):
+            found = self.board.find_by_index(self.some_rescue.board_index)
+            self.assertIsNotNone(found)
+
+        with self.subTest(condition="not found"):
+            found = self.board.find_by_index(9001)
+            self.assertIsNone(found)
+
+    def test_find_by_uuid_offline(self):
+        """
+        Verifies an existing rescue can be found by uuid, without consulting the API
+        """
+        self.board.append(self.some_rescue)
+        with self.subTest(condition="existing"):
+            found = self.board.find_by_uuid(self.some_rescue.case_id)
+            self.assertIsNotNone(found)
+
+        with self.subTest(condition="not found"):
+            found = self.board.find_by_uuid(uuid4())
+            self.assertIsNone(found)
+
     def test_clear_board(self) -> None:
         """
         Verifies `RatBoard.clearBoard` functions as expected.
