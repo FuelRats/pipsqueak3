@@ -1,7 +1,7 @@
 """
 Unittest file for the Rat_Board module.
 """
-from unittest import TestCase
+from unittest import TestCase, expectedFailure
 from uuid import uuid4
 
 from Modules.Rat_Board import RatBoard, IndexNotFreeError
@@ -48,6 +48,7 @@ class RatBoardTests(TestCase):
         self.board.append(rescue=my_rescue, overwrite=True)
         self.assertEqual(self.board._rescues[-42], my_rescue)
 
+    @expectedFailure
     def test_search_by_index(self):
         """
         Verifies `a case can be found via `RescueBoard.search(index=x)`
@@ -61,6 +62,7 @@ class RatBoardTests(TestCase):
             found = self.board.search(index=42)
             self.assertIsNone(found)
 
+    @expectedFailure
     def test_search_by_client(self):
         """
         Verifies a case can be found via `RescueBoard.search(name="foo")`
@@ -74,6 +76,7 @@ class RatBoardTests(TestCase):
             found = self.board.search(index=42)
             self.assertIsNone(found)
 
+    @expectedFailure
     def test_search_by_api_id(self):
         """
         Verifies a case can be found via `RescueBoard.search(api_id = UUID)`
