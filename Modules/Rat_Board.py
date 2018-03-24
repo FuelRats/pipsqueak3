@@ -66,7 +66,7 @@ class RatBoard(object):
         self._rescues = {}
         """Rescue objects tracked by this board"""
 
-    def find_index(self, index: int) -> Rescue or None:
+    def find_by_index(self, index: int) -> Rescue or None:
         """
         Searches for and returns a Rescue at a given `index` position, should it exist
         Args:
@@ -83,7 +83,20 @@ class RatBoard(object):
             # the key doesn't exist, therefore no rescue at that index.
             pass
         else:
+            # we found something
             return found
+
+    def find_by_name(self, client:str) -> Rescue or None:
+        """
+        Searches for and returns a Rescue for a given client, should it exist.
+
+        Returns:
+            Rescue: found rescue
+            None:   no such rescue
+        """
+        for index, rescue in self._rescues.items():
+            if rescue.client == client:
+                return rescue
 
     def search(self, index: int = None, client: str = None, api_id: UUID = None) -> Rescue or None:
         """
