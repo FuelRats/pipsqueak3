@@ -86,7 +86,7 @@ class RatBoard(object):
             # we found something
             return found
 
-    def find_by_name(self, client:str) -> Rescue or None:
+    def find_by_name(self, client: str) -> Rescue or None:
         """
         Searches for and returns a Rescue for a given client, should it exist.
 
@@ -97,6 +97,22 @@ class RatBoard(object):
         for index, rescue in self._rescues.items():
             if rescue.client == client:
                 return rescue
+
+    def find_by_uuid(self, guid: UUID) -> Rescue or None:
+        """
+        Searches for and returns a rescue by api ID, should it exist.
+
+        Args:
+            guid (UUID): uuid to search for
+
+        Returns:
+            Rescue: found rescue
+            None:   no rescue found
+
+        """
+        for index, rescue in self._rescues.items():
+            if rescue.case_id == guid:
+                rescue rescue
 
     def search(self, index: int = None, client: str = None, api_id: UUID = None) -> Rescue or None:
         """
