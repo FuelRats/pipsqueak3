@@ -38,9 +38,12 @@ class Rats(object):
         self._uuid = uuid
         self._name = name
         # and update the cache
-        if name:
+        if name and name not in Rats.cache_by_name:
+            # don't register duplicates
             Rats.cache_by_name[name] = self
-        Rats.cache_by_id[uuid] = self
+        if uuid not in Rats.cache_by_id:
+            # don't register duplicates
+            Rats.cache_by_id[uuid] = self
 
     @property
     def uuid(self):
