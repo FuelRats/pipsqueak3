@@ -17,6 +17,7 @@ from uuid import uuid4
 
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
+from ratlib.names import Platforms
 
 
 class TestRescue(TestCase):
@@ -468,5 +469,27 @@ class TestRescue(TestCase):
         self.assertTrue(self.rescue == self.rescue)
 
     def test_eq_false_branch(self):
+        """
+        Verifies Rescue.__eq__ functions as expected when comparing two rescues
+             - verifies the false branch
+        """
         foo = Rescue(uuid4(), "snafu", "firestone", "snafu")
         self.assertFalse(self.rescue == foo)
+
+    def test_platform_valid(self):
+        """
+        Verfiies Rescue.platform setter and getter function as expected when given valid data
+        """
+        platforms = [Platforms.PC, Platforms.PS, Platforms.XB, Platforms.DEFAULT]
+        for platform in platforms:
+            with self.subTest(platform=platform):
+                self.rescue.platform = platform
+                self.assertEqual(self.rescue.platform, platform)
+                self.assertEqual(self.rescue._platform, self.rescue.platform)
+
+    def test_platform_invalid(self):
+        garbage = ["pc", None, 42, 12.2, []]
+        for piece in garbage:
+            with self.subTest(piece=piece):
+                with self.assertRaises(TypeError):
+                    self.rescue.platform = piece
