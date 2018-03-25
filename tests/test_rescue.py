@@ -458,3 +458,15 @@ class TestRescue(TestCase):
         for guid,name in rats_raw:
             with self.subTest(guid=guid, name=name):
                 self.rescue.add_rat(guid)
+
+    def test_eq_true_branch(self):
+        """
+        Verifies Rescue.__eq__ functions as expected when comparing two rescues
+         - verifies the true branch
+        """
+        # is this total overkill?
+        self.assertTrue(self.rescue == self.rescue)
+
+    def test_eq_false_branch(self):
+        foo = Rescue(uuid4(), "snafu", "firestone", "snafu")
+        self.assertFalse(self.rescue == foo)
