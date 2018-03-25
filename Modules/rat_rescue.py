@@ -129,7 +129,7 @@ class Rescue(object):
                 assert self.rats == other.rats
                 assert self._irc_nick == other._irc_nick  # TODO: implement property
             except AssertionError as ex:
-                raise ex
+                LOG.error(f"assertion failed: {ex}")
                 # if at least one of the above statements is false.
                 return False
             else:
