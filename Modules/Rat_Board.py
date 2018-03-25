@@ -80,6 +80,7 @@ class RatBoard(object):
             raise TypeError
         else:
             for rescue in self._rescues.values():
+                LOG.debug(f"checking rescue {rescue} against {item}")
                 if rescue == item:
                     return True
             return False
@@ -112,9 +113,10 @@ class RatBoard(object):
             Rescue: found rescue
             None:   no such rescue
         """
-        for index, rescue in self._rescues.items():
+        for rescue in self._rescues.values():
             if rescue.client == client:
                 return rescue
+        return None
 
     def find_by_uuid(self, guid: UUID) -> Rescue or None:
         """
@@ -128,9 +130,10 @@ class RatBoard(object):
             None:   no rescue found
 
         """
-        for index, rescue in self._rescues.items():
+        for rescue in self._rescues.values():
             if rescue.case_id == guid:
                 return rescue
+        return None
 
     def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """

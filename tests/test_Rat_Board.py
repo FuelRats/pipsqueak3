@@ -115,3 +115,19 @@ class RatBoardTests(TestCase):
         with self.subTest(condition="not existing"):
             with self.assertRaises(KeyError):
                 self.board.remove(self.some_rescue)
+
+    def test_contains_existing(self):
+        """
+        Verifies `RatBoard.__contains__` returns true when the desired rescue exists on a given
+            board
+        """
+        # add a case
+        self.board.append(self.some_rescue)
+        self.assertTrue(self.some_rescue in self.board)
+
+    def test_contains_non_existing(self):
+        """
+        Verifies `Ratboard.__contains__` returns false when the desired rescue does not exist
+            on the given board
+        """
+        self.assertFalse(self.some_rescue in self.board)
