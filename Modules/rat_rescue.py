@@ -114,7 +114,7 @@ class Rescue(object):
                 assert self.client == other.client
                 assert self.rats == other.rats
                 assert self.platform == other.platform
-                assert self.first_limpet == other.platform
+                assert self.first_limpet == other.first_limpet
                 assert self.created_at == other.created_at
                 assert self.updated_at == other.updated_at
                 assert self.system == other.system
@@ -128,7 +128,8 @@ class Rescue(object):
                 assert self._lang_id == other._lang_id  # TODO: implement property
                 assert self.rats == other.rats
                 assert self._irc_nick == other._irc_nick  # TODO: implement property
-            except AssertionError:
+            except AssertionError as ex:
+                raise ex
                 # if at least one of the above statements is false.
                 return False
             else:
