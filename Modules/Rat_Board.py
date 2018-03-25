@@ -114,26 +114,6 @@ class RatBoard(object):
             if rescue.case_id == guid:
                 return rescue
 
-    def search(self, index: int = None, client: str = None, api_id: UUID = None) -> Rescue or None:
-        """
-        Searches for and returns a rescue for a given Index / client name / api id, should it exist
-            Will match the first found case matching at least one of the parameters.
-
-        At least one of the parameters must not be None.
-
-        Args:
-            index (int): Rescue at given board index, may be None
-            client (str): client's commander name / irc nickname, may be None
-            api_id (UUID): api id of rescue, may be None
-
-        Returns:
-            Rescue: Found rescue on the board, otherwise None
-
-        Raises:
-            ValueError: command invoked without params, or all params are None
-        """
-        raise NotImplementedError
-
     def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """
         Accept a Rescue object and attach it to the board
