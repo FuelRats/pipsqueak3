@@ -48,48 +48,6 @@ class RatBoardTests(TestCase):
         self.board.append(rescue=my_rescue, overwrite=True)
         self.assertEqual(self.board._rescues[-42], my_rescue)
 
-    @expectedFailure
-    def test_search_by_index(self):
-        """
-        Verifies `a case can be found via `RescueBoard.search(index=x)`
-        """
-        with self.subTest(exists=True):
-            self.board.append(rescue=self.some_rescue)
-            found = self.board.search(index=-42)
-            self.assertEqual(found, self.some_rescue)
-
-        with self.subTest(exists=False):
-            found = self.board.search(index=42)
-            self.assertIsNone(found)
-
-    @expectedFailure
-    def test_search_by_client(self):
-        """
-        Verifies a case can be found via `RescueBoard.search(name="foo")`
-        """
-        with self.subTest(exists=True):
-            self.board.append(rescue=self.some_rescue)
-            found = self.board.search(client=self.some_rescue.client)
-            self.assertEqual(found, self.some_rescue)
-
-        with self.subTest(exists=False):
-            found = self.board.search(index=42)
-            self.assertIsNone(found)
-
-    @expectedFailure
-    def test_search_by_api_id(self):
-        """
-        Verifies a case can be found via `RescueBoard.search(api_id = UUID)`
-        """
-        with self.subTest(exists=True):
-            self.board.append(rescue=self.some_rescue)
-            found = self.board.search(api_id=self.some_rescue.case_id)
-            self.assertEqual(found, self.some_rescue)
-
-        with self.subTest(exists=False):
-            found = self.board.search(index=42)
-            self.assertIsNone(found)
-
     def test_find_by_client_name(self):
         """
         Verifies an existing rescue can be found via `RescueBoard.find_by_name`
