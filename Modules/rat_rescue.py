@@ -43,12 +43,12 @@ class Rescue(object):
             case_id (str): API id of rescue
             client (str): Commander name of the Commander rescued
             system (str): System name the Commander is stranded in
-            (WILL BE CAST TO UPPER CASE)
+                (WILL BE CAST TO UPPER CASE)
             created_at (datetime): time the case was first created
-            **( READONLY )**
+                **( READONLY )**
             updated_at (datetime): last tme the case was modified
             unidentified_rats (list): list of unidentified rats responding to
-             rescue **(nicknames)**
+                rescue **(nicknames)**
             active (bool): marks whether the case is active or not
             quotes (list): list of Quotation objects associated with rescue
             is_open (bool): is the case marked as open
@@ -59,8 +59,8 @@ class Rescue(object):
             first_limpet (UUID): Id of the rat that got the first limpet
             board_index (int): index position on the board, if any.
             mark_for_deletion (dict): the markForDeltion object for the API,
-            if any.
-             - will default to open and not MD'ed
+                if any.
+                - will default to open and not MD'ed
             lang_id (str): language ID of the client, defaults to english.
             irc_nickname (str): clients IRC nickname, may deffer from their
             commander name.
@@ -92,6 +92,39 @@ class Rescue(object):
         }
         self._board_index = board_index
         self._lang_id = lang_id
+
+    def __eq__(self, other) -> bool:
+        """
+        Verify `other` is equal to the elf.
+
+        Args:
+            other (Rescue): Rescue to compare against
+
+        Returns:
+            bool: is equivalent
+        """
+        if not isinstance(other, Rescue):
+            # instance type check
+            raise TypeError(f"other was of type {type(other)} expected instance of Rescue")
+        else:
+            # check equality
+            try:
+                assert self.case_id == other.case_id
+                assert self.board_index == other.board_index
+                assert self.client == other.client
+                assert self.rats == other.rats
+                assert self.platform == other.platform
+                assert self.first_limpet == other.platform
+                assert self.created_at == other.created_at
+                assert self.updated_at == other.updated_at
+                assert self.system == other.system
+                assert self.
+            except AssertionError:
+                # if at least one of the above statements is false.
+                return False
+            else:
+                # no error, the two instances are equal.
+                return True
 
     @property
     def platform(self):
