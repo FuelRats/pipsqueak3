@@ -63,7 +63,7 @@ class Rescue(object):
                 - will default to open and not MD'ed
             lang_id (str): language ID of the client, defaults to english.
             irc_nickname (str): clients IRC nickname, may deffer from their
-            commander name.
+                commander name.
             rats (list): identified (Rat)s assigned to rescue.
         """
         self._platform: Platforms = Platforms.DEFAULT
@@ -118,7 +118,16 @@ class Rescue(object):
                 assert self.created_at == other.created_at
                 assert self.updated_at == other.updated_at
                 assert self.system == other.system
-                assert self.
+                assert self.unidentified_rats == other.unidentified_rats
+                assert self.active == other.active
+                assert self.code_red == other.code_red
+                assert self.successful == other.successful
+                assert self.title == other.title
+                assert self.first_limpet == other.first_limpet
+                assert self.mark_for_deletion == other.mark_for_deletion
+                assert self._lang_id == other._lang_id  # TODO: implement property
+                assert self.rats == other.rats
+                assert self._irc_nick == other._irc_nick  # TODO: implement property
             except AssertionError:
                 # if at least one of the above statements is false.
                 return False
