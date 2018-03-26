@@ -68,7 +68,17 @@ class RatBoard(object):
 
     def __contains__(self, other: Rescue) -> bool:
         """
-        Checks if a rescue exists on this RescueBoard
+        Checks if a rescue exists on this
+
+        First, this method will check if the `other` object has a uuid that matches an existing
+            rescue on the board. If
+
+        If the uuid is not known, it will check the `other` objects key attributes against all
+            tracked rescues to try and find a match
+
+            Key attributes are:
+                - client
+                - created_at
 
         Args:
             other (Rescue):
@@ -83,8 +93,15 @@ class RatBoard(object):
                 LOG.debug(f"checking rescue {rescue} against {other}...\n"
                           f"client {rescue.client} == {other.client} &&  "
                           f"createdAt {rescue.created_at} == {other.created_at}")
-                if rescue.client == other.client and rescue.created_at == other.created_at:
+
+                # if the IDs match then we know they are the same case.
+                if rescue.case_id == other.case_id:
                     return True
+
+                # check if the key attributes are equal
+                elif rescue.client == other.client and rescue.created_at == other.created_at:
+                    return True
+            # no matches
             return False
 
     def find_by_index(self, index: int) -> Rescue or None:
