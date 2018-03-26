@@ -108,33 +108,31 @@ class Rescue(object):
             raise TypeError(f"other was of type {type(other)} expected instance of Rescue")
         else:
             # check equality
-            try:
-                assert self.case_id == other.case_id
-                assert self.board_index == other.board_index
-                assert self.client == other.client
-                assert self.rats == other.rats
-                assert self.platform == other.platform
-                assert self.first_limpet == other.first_limpet
-                assert self.created_at == other.created_at
-                assert self.updated_at == other.updated_at
-                assert self.system == other.system
-                assert self.unidentified_rats == other.unidentified_rats
-                assert self.active == other.active
-                assert self.code_red == other.code_red
-                assert self.successful == other.successful
-                assert self.title == other.title
-                assert self.first_limpet == other.first_limpet
-                assert self.mark_for_deletion == other.mark_for_deletion
-                assert self._lang_id == other._lang_id  # TODO: implement property
-                assert self.rats == other.rats
-                assert self._irc_nick == other._irc_nick  # TODO: implement property
-            except AssertionError as ex:
-                LOG.error(f"assertion failed: {ex}")
-                # if at least one of the above statements is false.
-                return False
-            else:
-                # no error, the two instances are equal.
-                return True
+
+            conditions = [
+                self.case_id == other.case_id,
+                self.board_index == other.board_index,
+                self.client == other.client,
+                self.rats == other.rats,
+                self.platform == other.platform,
+                self.first_limpet == other.first_limpet,
+                self.created_at == other.created_at,
+                self.updated_at == other.updated_at,
+                self.system == other.system,
+                self.unidentified_rats == other.unidentified_rats,
+                self.active == other.active,
+                self.code_red == other.code_red,
+                self.successful == other.successful,
+                self.title == other.title,
+                self.first_limpet == other.first_limpet,
+                self.mark_for_deletion == other.mark_for_deletion,
+                self._lang_id == other._lang_id,  # TODO: implement property
+                self.rats == other.rats,
+                self._irc_nick == other._irc_nick  # TODO: implement property
+            ]
+
+            return all(conditions)
+
 
     @property
     def platform(self):
