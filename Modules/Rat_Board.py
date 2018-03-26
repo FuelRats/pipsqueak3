@@ -66,22 +66,24 @@ class RatBoard(object):
         self._rescues = {}
         """Rescue objects tracked by this board"""
 
-    def __contains__(self, item: Rescue) -> bool:
+    def __contains__(self, other: Rescue) -> bool:
         """
         Checks if a rescue exists on this RescueBoard
 
         Args:
-            item (Rescue):
+            other (Rescue):
 
         Returns:
             bool: if item exists
         """
-        if not isinstance(item, Rescue):
+        if not isinstance(other, Rescue):
             raise TypeError
         else:
             for rescue in self._rescues.values():
-                LOG.debug(f"checking rescue {rescue} against {item}")
-                if rescue == item:
+                LOG.debug(f"checking rescue {rescue} against {other}...\n"
+                          f"client {rescue.client} == {other.client} &&  "
+                          f"createdAt {rescue.created_at} == {other.created_at}")
+                if rescue.client == other.client and rescue.created_at == other.created_at:
                     return True
             return False
 
