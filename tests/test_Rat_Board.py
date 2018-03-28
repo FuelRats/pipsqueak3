@@ -116,14 +116,48 @@ class RatBoardTests(TestCase):
             with self.assertRaises(KeyError):
                 self.board.remove(self.some_rescue)
 
-    def test_contains_existing(self):
+    def test_contains_existing_by_uuid(self):
         """
-        Verifies `RatBoard.__contains__` returns true when the desired rescue exists on a given
-            board
+        Verifies `RatBoard.__contains__` returns true when the a case with the same api UUID
+        is known and tracked by the board
+
+        Notes:
+            This branch should only verify a rescue exists *with the same uuid*,
+            it should do no further checks.
         """
         # add a case
         self.board.append(self.some_rescue)
-        self.assertTrue(self.some_rescue in self.board)
+        # make our assertion
+        self.assertTrue(
+            # spawn a case with the same uuid, and make our check
+            Rescue(self.some_rescue.case_id, "nope", "i have no idea!", "nope") in self.board)
+
+    @expectedFailure
+    def test_contains_by_key_attributes(self):
+        """
+        Verifies `RatBoard.__contains__` returns true when a case with matching **key attributes**
+        is known and tracked by the board.
+
+        Notes:
+            This branch checks for key attributes, even if the UUIDs don't match.
+            This is necessary as cases do not have a UUID when created locally, and Mecha
+            needs to be able to differentiate when an API created rescue is already on its board.
+
+        See Also:
+            `RatBoard.__contains__` documentation
+        """
+        guid = uuid4()
+        name = self.some_rescue.client
+        createdAt = self.some_rescue.created_at
+        system = "Alpha Centuri".upper()
+        my_rescue = Rescue(guid, client=name,
+                           irc_nickname=name,
+                           created_at=createdAt,
+                           system=system)
+        # this won't work yet because it depends on RatBoard.append to assign cases indexies.
+        self.board.append(my_rescue)
+
+        self.assertTrue(my_rescue in self.board)
 
     def test_contains_non_existing(self):
         """
@@ -131,3 +165,19 @@ class RatBoardTests(TestCase):
             on the given board
         """
         self.assertFalse(self.some_rescue in self.board)
+
+    def test_next_free_index(self):
+        """Verifies RatBoard.<name> returns the first index that is not currently in use"""
+        # check if no cases are on the board, the first index is zero
+        self.assertEqual(self.board.next_free_index(), 0)
+
+        my_rescue = self.some_rescue
+        my_rescue.board_index = 0
+        self.board.append(my_rescue)
+
+        my_other_rescue = Rescue(uuid4(), "foo", "BAR", "halp", board_index=1)
+        # my_other_rescue.board_index = 1
+
+        self.board.append(my_other_rescue, overwrite=True)
+
+        self.assertEqual(self.board.next_free_index(), 2)
