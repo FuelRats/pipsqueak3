@@ -205,11 +205,12 @@ class RatBoard(object):
 
         # we need to give it one
         else:
-            while self._last_index in self._rescues and self._last_index <= 30:
-                # I really hope we won't see the day that 30 cases are on the board at the same time
+            #itterate _last_index until we get a unused value.
+            while self._last_index in self._rescues:
                 self._last_index += 1
 
             rescue.board_index = self._last_index
+            self._rescues[rescue.board_index] = rescue
 
     def modify(self, rescue: Rescue) -> bool:
         """

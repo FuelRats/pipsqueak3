@@ -29,7 +29,7 @@ class RatBoardTests(TestCase):
         self.board.append(rescue=self.some_rescue)
         self.assertEqual(self.board._rescues[-42], self.some_rescue)
 
-    def test_def_rescue_creation_existing_bad_index(self):
+    def test_rescue_creation_existing_bad_index(self):
         """
         Verifies a rescue cannot be added when its defined index is already in use.
         """
@@ -38,6 +38,21 @@ class RatBoardTests(TestCase):
         # and try to add it again
         with self.assertRaises(IndexNotFreeError):
             self.board.append(rescue=self.some_rescue)
+
+    def test_rescue_Creation_without_index(self):
+        """
+        Verifies a Rescue can be added without a defined index.
+            the board should give our rescue one.
+        """
+        guid = uuid4()
+        name = "SicklyTadPole"
+        my_rescue = Rescue(guid, name, "NLTT 48288", name)
+
+        self.board.append(my_rescue)
+
+        found = self.board.find_by_uuid(guid)
+        self.assertIsNotNone(found)
+        self.assertEqual(found.client, name)
 
     def test_rescue_creation_with_overwrite(self):
         """
