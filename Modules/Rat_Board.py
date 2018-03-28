@@ -54,7 +54,11 @@ class RatBoard(object):
     """
     A rescue board
     """
+    # i dread the day where we need to upp this limit.
 
+    indexies = set(range(30))
+
+    """set of indexies that can be used"""
     def __init__(self, handler=None):
         """
         Create a new Rescue Board.
@@ -63,8 +67,11 @@ class RatBoard(object):
             handler (): WS API handler
         """
         self.handler = handler
+        """API handler used by the board"""
         self._rescues = {}
         """Rescue objects tracked by this board"""
+        self._last_index: int = None
+        """Last index used by the board during case creation"""
 
     def __contains__(self, other: Rescue) -> bool:
         """
@@ -103,6 +110,21 @@ class RatBoard(object):
                     return True
             # no matches
             return False
+
+    def next_free_index(self) -> int:
+        """
+        Helper method that returns the next free case index
+
+        Returns:
+            int: next free board index
+        """
+        consumed = set(self._rescues.keys())
+
+        # subtract the used keys from the list of possible keys
+        free = RatBoard.indexies - consumed
+        # convert it to a list to access the first element, because sets can't be indexed >.>
+        # this might not be the best approach, but it should work.
+        return list(free)[0]
 
     def find_by_index(self, index: int) -> Rescue or None:
         """
@@ -160,7 +182,8 @@ class RatBoard(object):
 
         Args:
             rescue (Rescue): Rescue object to attach
-            overwrite(bool) : **overwrite** existing keys, if necessary
+            overwrite(bool) : **overwrite** existing keys, if necessary.
+                requires `rescue` to have a `board_index` set, otherwise it does nothing.
 
         Returns:
             None
@@ -169,7 +192,7 @@ class RatBoard(object):
             IndexNotFreeError: Attempt to write a rescue to a key that is already set.
         """
         # if the rescue already has a board index defined
-        if rescue.board_index:
+        if rescue.board_index is not None:
             # check if the board index is not in use, or the overwrite flag is set
             if overwrite or rescue.board_index not in self._rescues:
                 # TODO: check this logic via unit tests
@@ -179,6 +202,14 @@ class RatBoard(object):
                 raise IndexNotFreeError(
                     f"Index {rescue.board_index} is in use. If you want to overwrite this you must"
                     f"set the `overwrite` flag.")
+
+        # we need to give it one
+        else:
+            while self._last_index in self._rescues and self._last_index <= 30:
+                # I really hope we won't see the day that 30 cases are on the board at the same time
+                self._last_index += 1
+
+            rescue.board_index = self._last_index
 
     def modify(self, rescue: Rescue) -> bool:
         """
