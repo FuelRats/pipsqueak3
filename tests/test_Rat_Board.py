@@ -147,7 +147,6 @@ class RatBoardTests(TestCase):
             # spawn a case with the same uuid, and make our check
             Rescue(self.some_rescue.case_id, "nope", "i have no idea!", "nope") in self.board)
 
-    @expectedFailure
     def test_contains_by_key_attributes(self):
         """
         Verifies `RatBoard.__contains__` returns true when a case with matching **key attributes**
