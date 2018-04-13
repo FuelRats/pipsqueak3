@@ -5,6 +5,8 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install coverage
+  - pip install pytest
+  - pip install pytest-cov
 cache: pip
 
 before_script: # code climate init
