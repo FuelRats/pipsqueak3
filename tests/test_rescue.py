@@ -499,12 +499,12 @@ class TestRescue(TestCase):
 
 
 @pytest.fixture
-def RescueFixture() -> Rescue:
+def Rescue_fx() -> Rescue:
     return Rescue(uuid4(), "snafu", "ki", "snafu")
 
 
 @pytest.fixture
-def RatNoID_Fixture():
+def RatNoID_fx():
     """
     Returns: (Rescue): Rescue test fixture without an api ID
 
@@ -515,7 +515,7 @@ def RatNoID_Fixture():
 @pytest.fixture(params=[("myPcRat", Platforms.PC),
                         ("someXrat", Platforms.XB),
                         ("psRatToTheRescue", Platforms.PS)])
-def RatGood_Fixture(request) -> Rats:
+def RatGood_fx(request) -> Rats:
     """
     Testing fixture containing good and registered rats
     """
@@ -529,21 +529,21 @@ class TestRescuePyTests(object):
     container for pytest specific tests
     """
 
-    def test_add_rats_bad_id(self, RatNoID_Fixture, RescueFixture):
+    def test_add_rats_bad_id(self, RatNoID_fx, Rescue_fx):
         """
         Verifies attempting to add a rat that does not have a API id fails as expected
         """
         with pytest.raises(ValueError, message="Assigned rat does not have a known API ID"):
-            RescueFixture.add_rat(rat=RatNoID_Fixture)
-            assert RatNoID_Fixture not in RescueFixture.rats
+            Rescue_fx.add_rat(rat=RatNoID_fx)
+            assert RatNoID_fx not in RatNoID_fx.rats
 
-    def test_add_rats_ok(self, RatGood_Fixture, RescueFixture):
+    def test_add_rats_ok(self, RatGood_fx, Rescue_fx):
         """
         Verifies adding a existing rat with a UUID works
         Args:
-            RatGood_Fixture (): Good Rat object Test Fixture
-            RescueFixture ():  Rescue object Test Fixture
+            RatGood_fx (Rats): Good Rat object Test Fixture
+            Rescue_fx (Rescue):  Rescue object Test Fixture
         """
-        # RescueFixture:Rescue
-        RescueFixture.add_rat(rat=RatGood_Fixture)
-        assert RatGood_Fixture in RescueFixture.rats
+        # Rescue_fx:Rescue
+        Rescue_fx.add_rat(rat=RatGood_fx)
+        assert RatGood_fx in Rescue_fx.rats
