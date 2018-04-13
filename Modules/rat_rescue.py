@@ -126,12 +126,26 @@ class Rescue(object):
                 self.title == other.title,
                 self.first_limpet == other.first_limpet,
                 self.mark_for_deletion == other.mark_for_deletion,
-                self._lang_id == other._lang_id,  # TODO: implement property
+                self.lang_id == other.lang_id,
                 self.rats == other.rats,
-                self._irc_nick == other._irc_nick  # TODO: implement property
+                self.irc_nickname == other.irc_nickname
             ]
 
             return all(conditions)
+
+
+
+    @property
+    def irc_nickname(self)->str:
+        return self._irc_nick
+
+    @irc_nickname.setter
+    def irc_nickname(self, value):
+        if isinstance(value, str):
+            self._irc_nick = value
+        else:
+            raise ValueError
+
     @property
     def lang_id(self) -> str:
         return self._lang_id
