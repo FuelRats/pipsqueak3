@@ -15,6 +15,8 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock
 from uuid import uuid4
 
+import pytest
+
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from ratlib.names import Platforms
@@ -429,6 +431,7 @@ class TestRescue(TestCase):
         self.rescue.rats = data
         self.assertEqual(self.rescue.rats, data)
 
+
     def test_rats_bad_types(self):
         """
         Verifies the proper exception is raised when `Rescue.rats` is given garbage params
@@ -493,3 +496,54 @@ class TestRescue(TestCase):
             with self.subTest(piece=piece):
                 with self.assertRaises(TypeError):
                     self.rescue.platform = piece
+
+
+@pytest.fixture
+def RescueFixture() -> Rescue:
+    return Rescue(uuid4(), "snafu", "ki", "snafu")
+
+
+@pytest.fixture
+def RatNoID_Fixture():
+    """
+    Returns: (Rescue): Rescue test fixture without an api ID
+
+    """
+    return Rats(None, "noIdRat")
+
+
+@pytest.fixture(params=[("myPcRat", Platforms.PC),
+                        ("someXrat", Platforms.XB),
+                        ("psRatToTheRescue", Platforms.PS)])
+def RatGood_Fixture(request) -> Rats:
+    """
+    Testing fixture containing good and registered rats
+    """
+    params = request.param
+    myRat = Rats(uuid4(), name=params[0], platform=params[1])
+    return myRat
+
+
+class TestRescuePyTests(object):
+    """
+    container for pytest specific tests
+    """
+
+    def test_add_rats_bad_id(self, RatNoID_Fixture, RescueFixture):
+        """
+        Verifies attempting to add a rat that does not have a API id fails as expected
+        """
+        with pytest.raises(ValueError, message="Assigned rat does not have a known API ID"):
+            RescueFixture.add_rat(rat=RatNoID_Fixture)
+            assert RatNoID_Fixture not in RescueFixture.rats
+
+    def test_add_rats_ok(self, RatGood_Fixture, RescueFixture):
+        """
+        Verifies adding a existing rat with a UUID works
+        Args:
+            RatGood_Fixture (): Good Rat object Test Fixture
+            RescueFixture ():  Rescue object Test Fixture
+        """
+        # RescueFixture:Rescue
+        RescueFixture.add_rat(rat=RatGood_Fixture)
+        assert RatGood_Fixture in RescueFixture.rats
