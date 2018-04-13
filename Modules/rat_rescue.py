@@ -659,12 +659,17 @@ class Rescue(object):
                 raise ValueError("Assigned rat does not have a known API ID")
 
         if isinstance(name, str):
-            # lets check if we already have this rat in the cache
-            found = Rats.get_rat(name, self.platform)
-            if found:
-                self.rats.append(found)
+            # lets check if we already have this rat in the cache (platform, any)
+            found = (Rats.get_rat(name, self.platform), Rats.get_rat(name))
+            if found[0]:
+                self.rats.append(found[0])
                 return
-
+            elif found[1]:
+                # a generic match (not platform specific) was found
+                # TODO throw a warning so the invoking method can handle this condition
+                LOG.warning("A match was found, but it was not the right platform!")
+                self.rats.append(found[1])
+                return
 
         else:
             # lets make a new Rat!
