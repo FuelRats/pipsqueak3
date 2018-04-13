@@ -133,18 +133,31 @@ class Rescue(object):
 
             return all(conditions)
 
-
-
     @property
     def irc_nickname(self)->str:
+        """
+        The client's irc nickname
+
+        Returns:
+            str : nickname
+        """
         return self._irc_nick
 
     @irc_nickname.setter
-    def irc_nickname(self, value):
+    def irc_nickname(self, value: str) -> None:
+        """
+        Sets the client's irc nickname
+
+        Args:
+            value (str): new nickname
+
+        Raises:
+             TypeError : value was not a string.
+        """
         if isinstance(value, str):
             self._irc_nick = value
         else:
-            raise ValueError
+            raise TypeError
 
     @property
     def lang_id(self) -> str:

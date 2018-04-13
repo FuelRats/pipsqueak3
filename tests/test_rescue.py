@@ -517,6 +517,16 @@ def RescueSoP_fx(request) -> Rescue:
 
 
 @pytest.fixture
+def RescuePlain_fx() -> Rescue:
+    """
+    A plain initialized Rescue without parametrization
+
+    Returns:
+        Rescue : Plain initialized Rescue
+    """
+    return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST")
+
+@pytest.fixture
 def RatNoID_fx():
     """
     Returns: (Rescue): Rescue test fixture without an api ID
@@ -566,3 +576,28 @@ class TestRescuePyTests(object):
     def test_add_rat_from_cache(self, RatGood_fx: Rats, RescueSoP_fx: Rescue):
         RescueSoP_fx.add_rat(RatGood_fx.name)
         assert RatGood_fx in RescueSoP_fx.rats
+
+    @pytest.mark.parametrize("garbage", [(None,), (42,), (-2.2,), (uuid4(),)])
+    def test_lang_id_garbage(self, garbage, RescuePlain_fx: Rescue):
+        """
+        Verifies throwing garbage types at Rescue.lang_id results in a TypeError
+        Args:
+            garbage (): Garbage to throw
+            RescuePlain_fx (Rescue): Plain rescue Fixture
+        """
+        with pytest.raises(TypeError):
+            RescuePlain_fx.irc_nickname = garbage
+
+    @pytest.mark.parametrize("test_input", ["foo", "bar", "en-us", "RU-RU"])
+    def test_lang_id_strings(self, test_input, RescuePlain_fx: Rescue):
+        """
+        Verifies the lang id can be set when passed a string
+
+        Args:
+            test_input (str): values to test
+            RescuePlain_fx (Rescue): Rescue fixture
+
+        """
+
+        RescuePlain_fx.irc_nickname = test_input
+        assert RescuePlain_fx.irc_nickname == test_input
