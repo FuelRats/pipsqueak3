@@ -11,7 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 from datetime import datetime
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 from unittest.mock import patch, MagicMock
 from uuid import uuid4
 
@@ -215,7 +215,7 @@ class TestRescue(TestCase):
         self.assertEqual("foo", self.rescue.quotes[0].message)
         self.assertEqual("Mecha", self.rescue.quotes[0].author)
 
-    @expectedFailure
+    # @expectedFailure
     @patch('tests.test_rescue.Rescue.updated_at')
     def test_change_context_manager(self, mock_updated_at: MagicMock):
         """
@@ -228,9 +228,6 @@ class TestRescue(TestCase):
         with self.rescue.change():
             pass
         self.assertNotEqual(origin, self.rescue.updated_at)
-        # this makes a possibly fatal assumption that the test executes fast enough that `datetime.utcnow()` returns
-        # the same value as it did during the update...
-        self.assertAlmostEqual(datetime.utcnow(), self.rescue.updated_at)
 
     def test_get_board_index(self):
         """
@@ -499,9 +496,24 @@ class TestRescue(TestCase):
                     self.rescue.platform = piece
 
 
-@pytest.fixture
-def Rescue_fx() -> Rescue:
-    return Rescue(uuid4(), "snafu", "ki", "snafu")
+@pytest.fixture(params=[("pcClient", Platforms.PC, "firestone"),
+                        ("xxXclient", Platforms.XB, "sol"),
+                        ("psCoolKid", Platforms.PS, "NLTT 48288")],
+                )
+def RescueSoP_fx(request) -> Rescue:
+    """
+    A Rescue fixture providing Rescue objects for the 3 supported platforms
+
+    Args:
+        request (): Provided by fixture Parametrization
+
+    Returns:
+        Rescue : Rescue objects
+    """
+    params = request.param
+    myRescue = Rescue(uuid4(), client=params[0], system=params[2], irc_nickname=params[0])
+    myRescue.platform = params[1]
+    return myRescue
 
 
 @pytest.fixture
@@ -515,7 +527,8 @@ def RatNoID_fx():
 
 @pytest.fixture(params=[("myPcRat", Platforms.PC),
                         ("someXrat", Platforms.XB),
-                        ("psRatToTheRescue", Platforms.PS)])
+                        ("psRatToTheRescue", Platforms.PS)],
+                scope='module')
 def RatGood_fx(request) -> Rats:
     """
     Testing fixture containing good and registered rats
@@ -530,21 +543,26 @@ class TestRescuePyTests(object):
     container for pytest specific tests
     """
 
-    def test_add_rats_bad_id(self, RatNoID_fx, Rescue_fx):
+    def test_add_rats_bad_id(self, RatNoID_fx, RescueSoP_fx):
         """
         Verifies attempting to add a rat that does not have a API id fails as expected
         """
         with pytest.raises(ValueError, message="Assigned rat does not have a known API ID"):
-            Rescue_fx.add_rat(rat=RatNoID_fx)
-            assert RatNoID_fx not in RatNoID_fx.rats
+            RescueSoP_fx.add_rat(rat=RatNoID_fx)
 
-    def test_add_rats_ok(self, RatGood_fx, Rescue_fx):
+        assert RatNoID_fx not in RescueSoP_fx.rats
+
+    def test_add_rats_ok(self, RatGood_fx, RescueSoP_fx):
         """
         Verifies adding a existing rat with a UUID works
         Args:
             RatGood_fx (Rats): Good Rat object Test Fixture
-            Rescue_fx (Rescue):  Rescue object Test Fixture
+            RescueSoP_fx (Rescue):  Rescue object Test Fixture
         """
-        # Rescue_fx:Rescue
-        Rescue_fx.add_rat(rat=RatGood_fx)
-        assert RatGood_fx in Rescue_fx.rats
+        # RescueSoP_fx:Rescue
+        RescueSoP_fx.add_rat(rat=RatGood_fx)
+        assert RatGood_fx in RescueSoP_fx.rats
+
+    def test_add_rat_from_cache(self, RatGood_fx: Rats, RescueSoP_fx: Rescue):
+        RescueSoP_fx.add_rat(RatGood_fx.name)
+        assert RatGood_fx in RescueSoP_fx.rats
