@@ -132,7 +132,16 @@ class Rescue(object):
             ]
 
             return all(conditions)
+    @property
+    def lang_id(self) -> str:
+        return self._lang_id
 
+    @lang_id.setter
+    def lang_id(self, value):
+        if isinstance(value, str):
+            self._lang_id = value
+        else:
+            raise TypeError
 
     @property
     def platform(self):
