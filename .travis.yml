@@ -4,14 +4,29 @@ python:
 
 install:
   - pip install -r requirements.txt
+  - pip install coverage
+  - pip install pytest
+  - pip install pytest-cov
 cache: pip
 
-script:
-  - python -m unittest discover -v -s tests
+before_script: # code climate init
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 
+script:
+  - pytest -v --cov --cov-report xml
+
+after_script: #report the results back to code climate
+  - ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $TRAVIS_TEST_RESULT
 notifications:
   webhooks:
     urls:
       - http://orthanc.localecho.net/cgi-bin/webhook.py
     on_success: always
     on_failure: always
+
+# for codecoverage on codeclimate.com
+env:
+  global:
+    - CC_TEST_REPORTER_ID=$token
