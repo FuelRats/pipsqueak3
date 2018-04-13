@@ -15,15 +15,13 @@ This module is built on top of the Pydle system.
 """
 
 import unittest
-from aiounittest import async_test
 from unittest import mock
 
 import pydle
+from aiounittest import async_test
 
-
-
-from Modules.rat_command import Commands, CommandNotFoundException,  \
-    NameCollisionException,InvalidCommandException, \CommandException
+from Modules.rat_command import Commands, CommandNotFoundException, \
+    NameCollisionException, InvalidCommandException, CommandException
 from tests.mock_bot import MockBot
 
 
