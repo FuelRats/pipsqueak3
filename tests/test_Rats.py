@@ -1,6 +1,8 @@
 from unittest import TestCase
 from uuid import UUID, uuid4
 
+import pytest
+
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from ratlib.names import Platforms
@@ -156,3 +158,15 @@ class TestRat(TestCase):
             with self.subTest(name=name):
                 with self.assertRaises(TypeError):
                     self.my_rat.uuid = bad_types
+
+
+class TestRatsPyTest(object):
+    @pytest.mark.parametrize("platform", [
+        Platforms.XB,
+        Platforms.PC,
+        Platforms.PS,
+        Platforms.DEFAULT
+    ])
+    def test_rat_platforms(self, platform: Platforms):
+        my_rat = Rats(uuid=uuid4(), name="foo", platform=platform)
+        assert platform == my_rat.platform

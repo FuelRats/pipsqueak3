@@ -34,7 +34,7 @@ class Rats(object):
             platform (Platforms): rat's platform
         """
         # set our properties
-        self._platform = None
+        self._platform = platform
         self._uuid = uuid
         self._name = name
         # and update the cache
