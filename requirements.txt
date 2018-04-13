@@ -1,2 +1,4 @@
 -e git://github.com/Shizmob/pydle.git@asyncio#egg=pydle
+pytest
+pytest-cov
 aiounittest
