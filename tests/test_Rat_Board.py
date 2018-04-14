@@ -233,3 +233,14 @@ class TestRatBoardPyTest(object):
         RescueSoP_fx._id = None
 
         assert RescueSoP_fx in RatBoard_fx
+
+    @pytest.mark.parametrize("garbage", [None, 42, -2.2, uuid4(), []])
+    def test_rescue_setter_garbage(self, RatBoard_fx: RatBoard, garbage):
+        """
+        Tests Ratboard.rescue
+        Args:
+            RatBoard_fx (RatBoard):  Ratboard fixture
+            garbage (): Garbage to throw at property
+        """
+        with pytest.raises(TypeError):
+            RatBoard_fx.rescues = garbage
