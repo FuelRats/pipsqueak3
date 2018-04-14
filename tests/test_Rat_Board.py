@@ -1,8 +1,10 @@
 """
 Unittest file for the Rat_Board module.
 """
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 from uuid import uuid4
+
+import pytest
 
 from Modules.Rat_Board import RatBoard, IndexNotFreeError
 from Modules.rat_rescue import Rescue
@@ -27,7 +29,7 @@ class RatBoardTests(TestCase):
         """
         # spawn a new rescue with a ID
         self.board.append(rescue=self.some_rescue)
-        self.assertEqual(self.board._rescues[-42], self.some_rescue)
+        self.assertEqual(self.board.rescues[-42], self.some_rescue)
 
     def test_rescue_creation_existing_bad_index(self):
         """
@@ -61,7 +63,7 @@ class RatBoardTests(TestCase):
         self.board.append(rescue=self.some_rescue)
         my_rescue = Rescue(uuid4(), "foo", "bar", "foo", board_index=-42)
         self.board.append(rescue=my_rescue, overwrite=True)
-        self.assertEqual(self.board._rescues[-42], my_rescue)
+        self.assertEqual(self.board.rescues[-42], my_rescue)
 
     def test_find_by_client_name(self):
         """
@@ -109,27 +111,28 @@ class RatBoardTests(TestCase):
         # make sure we have something on the board
         self.board.append(self.some_rescue)
 
-        self.assertNotEqual(self.board._rescues, {})
+        self.assertNotEqual(self.board.rescues, {})
         # if it is this test will prove nothing
 
         self.board.clear_board()
 
-        self.assertEqual(self.board._rescues, {})
+        self.assertEqual(self.board.rescues, {})
 
-    def test_remove(self):
-        """
-        Verfies `RatBoard.remove()` correctly removes cases.
-        """
-        with self.subTest(conditon="existing"):
-            # add the case
-            self.board.append(self.some_rescue)
-            self.assertNotEqual(self.board._rescues, {})
-            self.board.remove(self.some_rescue)
-            self.assertEqual(self.board._rescues, {})
-
-        with self.subTest(condition="not existing"):
-            with self.assertRaises(KeyError):
-                self.board.remove(self.some_rescue)
+    # moved to PyTest module
+    # def test_remove(self):
+    #     """
+    #     Verfies `RatBoard.remove()` correctly removes cases.
+    #     """
+    #     with self.subTest(conditon="existing"):
+    #         # add the case
+    #         self.board.append(self.some_rescue)
+    #         self.assertNotEqual(self.board.rescues, {})
+    #         self.board.remove(self.some_rescue)
+    #         self.assertEqual(self.board.rescues, {})
+    #
+    #     with self.subTest(condition="not existing"):
+    #         with self.assertRaises(KeyError):
+    #             self.board.remove(self.some_rescue)
 
     def test_contains_existing_by_uuid(self):
         """
@@ -195,3 +198,16 @@ class RatBoardTests(TestCase):
         self.board.append(my_other_rescue, overwrite=True)
 
         self.assertEqual(self.board.next_free_index(), 2)
+
+
+class TestRatBoardPyTest(object):
+    """
+    Container for pyTest style tests for the RatBoard
+    """
+
+    def test_remove(self, RescuePlain_fx: Rescue, RatBoard_fx: RatBoard):
+        # append a rescue to the board
+        RatBoard_fx.rescues[RescuePlain_fx.board_index] = RescuePlain_fx
+        # and attempt to remove it
+        RatBoard_fx.remove(rescue=RescuePlain_fx)
+        assert RescuePlain_fx.board_index not in RatBoard_fx.rescues
