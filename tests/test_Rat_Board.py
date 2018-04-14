@@ -150,31 +150,6 @@ class RatBoardTests(TestCase):
             # spawn a case with the same uuid, and make our check
             Rescue(self.some_rescue.case_id, "nope", "i have no idea!", "nope") in self.board)
 
-    def test_contains_by_key_attributes(self):
-        """
-        Verifies `RatBoard.__contains__` returns true when a case with matching **key attributes**
-        is known and tracked by the board.
-
-        Notes:
-            This branch checks for key attributes, even if the UUIDs don't match.
-            This is necessary as cases do not have a UUID when created locally, and Mecha
-            needs to be able to differentiate when an API created rescue is already on its board.
-
-        See Also:
-            `RatBoard.__contains__` documentation
-        """
-        guid = uuid4()
-        name = self.some_rescue.client
-        createdAt = self.some_rescue.created_at
-        system = "Alpha Centuri".upper()
-        my_rescue = Rescue(guid, client=name,
-                           irc_nickname=name,
-                           created_at=createdAt,
-                           system=system)
-        # this won't work yet because it depends on RatBoard.append to assign cases indexies.
-        self.board.append(my_rescue)
-
-        self.assertTrue(my_rescue in self.board)
 
     def test_contains_non_existing(self):
         """
@@ -212,3 +187,20 @@ class TestRatBoardPyTest(object):
         await RatBoard_fx.remove(rescue=RescueSoP_fx)
 
         assert RescueSoP_fx.board_index not in RatBoard_fx.rescues
+
+    def test_contains_by_key_attributes(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
+        """
+        Verifies `Ratboard.__contains__` returns true when looking for a case by
+            key attributes only
+
+        Args:
+            RescueSoP_fx (Rescue): rescue fixture
+            RatBoard_fx (RatBoard): RatBoard fixture
+        """
+        # add our rescue to the board
+        RatBoard_fx.append(rescue=RescueSoP_fx)
+
+        # overwrite our local rescue objects id
+        RescueSoP_fx._id = None
+
+        assert RescueSoP_fx in RatBoard_fx
