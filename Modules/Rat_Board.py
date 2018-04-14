@@ -248,10 +248,30 @@ class RatBoard(object):
             True IF rescue exists and was replaced
             False if rescue does not exist or was not modified.
         """
-        # TODO: implement modify(), until then its marked nocover.
-        return False  # PRAGMA: NOCOVER
 
-    def remove(self, rescue: Rescue) -> None:
+        result = False
+
+        # find the case in question
+        found = self.find_by_index(rescue.board_index)
+        # check if its equal to what we already have
+        if found == rescue:
+            result = False
+        else:
+            # its not what we already have
+
+            # lets check if we have a API handler
+            if self.handler is not None:
+                # if so, let it know we changed the rescue
+                # PRAGMA : NOCOVER
+                # FIXME: change to match API Handler interface, once it exists
+                await self.handler.update_rescue(rescue)
+
+            self.append(rescue=rescue, overwrite=True)
+            result = True
+
+        return result
+
+    async def remove(self, rescue: Rescue) -> None:
         """
         Removes a case from the board
 
@@ -264,8 +284,11 @@ class RatBoard(object):
         Raises:
             KeyError: rescue was not on the board.
         """
-        self.rescues.pop(rescue.board_index)
+        if self.handler is not None:
+            # FIXME: Do stuff with the API handler, once we know what the interface looks like.
+            await self.handler.update_rescue(rescue)
 
+        self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
         """
