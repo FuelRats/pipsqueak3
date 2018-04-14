@@ -590,3 +590,54 @@ class TestRescuePyTests(object):
         garbage = [12, -42.2, None]
         with pytest.raises(ValueError):
             RescuePlain_fx.unidentified_rats = garbage
+
+    @pytest.mark.parametrize("reason,reporter,marked", [
+        ("some reason", "UNIT_TEST[BOT]", True),
+        ("Totally not md", "Potato", False),
+        (None, None, True),
+        (None, None, False)
+    ])
+    def test_mark_for_deletion_setter_good_data(self, reason: str or None, reporter: str or None,
+                                                marked: bool, RescuePlain_fx: Rescue):
+        """
+        Verifies setting the mark for deletion property succeeds when the data is valid
+
+        Args:
+            RescuePlain_fx (): plain rescue fixture
+            reason (str): md reason
+            reporter(str) md reporter
+        """
+
+        myMdStructure = {
+            "marked": marked,
+            "reason": reason,
+            "reporter": reporter
+        }
+        RescuePlain_fx.mark_for_deletion = myMdStructure
+        assert myMdStructure == RescuePlain_fx.mark_for_deletion
+
+    @pytest.mark.parametrize("reason,reporter,marked", [
+        ("some reason", 42, True),
+        (-2.1, "Potato", False),
+        (None, None, 0),
+        (True, None, False)
+    ])
+    def test_mark_for_deletion_setter_bad_data(self, reason: str or None, reporter: str or None,
+                                               marked: bool, RescuePlain_fx: Rescue):
+        """
+        Verifies setting the mark for deletion property succeeds when the data is valid
+
+        Args:
+            RescuePlain_fx (): plain rescue fixture
+            reason (str): md reason
+            reporter(str) md reporter
+        """
+
+        myMdStructure = {
+            "marked": marked,
+            "reason": reason,
+            "reporter": reporter
+        }
+        with pytest.raises(ValueError):
+            RescuePlain_fx.mark_for_deletion = myMdStructure
+            assert myMdStructure != RescuePlain_fx.mark_for_deletion
