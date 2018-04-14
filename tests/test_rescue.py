@@ -633,11 +633,11 @@ class TestRescuePyTests(object):
             reporter(str) md reporter
         """
 
-        myMdStructure = {
+        my_md_structure = {
             "marked": marked,
             "reason": reason,
             "reporter": reporter
         }
         with pytest.raises(ValueError):
-            RescuePlain_fx.mark_for_deletion = myMdStructure
-            assert myMdStructure != RescuePlain_fx.mark_for_deletion
+            RescuePlain_fx.mark_for_deletion = my_md_structure
+            assert my_md_structure != RescuePlain_fx.mark_for_deletion
