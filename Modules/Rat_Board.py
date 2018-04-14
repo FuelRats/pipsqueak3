@@ -96,7 +96,7 @@ class RatBoard(object):
         if not isinstance(other, Rescue):
             raise TypeError
         else:
-            for rescue in self._rescues.values():
+            for rescue in self.rescues.values():
                 LOG.debug(f"checking rescue {rescue} against {other}...\n"
                           f"client {rescue.client} == {other.client} &&  "
                           f"createdAt {rescue.created_at} == {other.created_at}")
@@ -111,6 +111,31 @@ class RatBoard(object):
             # no matches
             return False
 
+    @property
+    def rescues(self) -> dict:
+        """
+        Rescues tracked by the board
+
+        Returns:
+            dict: rescues by board index
+        """
+        return self._rescues
+
+    @rescues.setter
+    def rescues(self, value) -> None:
+        """
+        Set the tracked rescues
+        Args:
+            value (dict):
+
+        Returns:
+            None
+        """
+        if isinstance(value, dict):
+            self._rescues = value
+        else:
+            raise TypeError
+
     def next_free_index(self) -> int:
         """
         Helper method that returns the next free case index
@@ -118,7 +143,7 @@ class RatBoard(object):
         Returns:
             int: next free board index
         """
-        consumed = set(self._rescues.keys())
+        consumed = set(self.rescues.keys())
 
         # subtract the used keys from the list of possible keys
         free = RatBoard.indexies - consumed
@@ -129,6 +154,7 @@ class RatBoard(object):
     def find_by_index(self, index: int) -> Rescue or None:
         """
         Searches for and returns a Rescue at a given `index` position, should it exist
+
         Args:
             index (int): case number to return
 
@@ -138,7 +164,7 @@ class RatBoard(object):
 
         """
         try:
-            found = self._rescues[index]
+            found = self.rescues[index]
         except KeyError:
             # the key doesn't exist, therefore no rescue at that index.
             pass
@@ -154,7 +180,7 @@ class RatBoard(object):
             Rescue: found rescue
             None:   no such rescue
         """
-        for rescue in self._rescues.values():
+        for rescue in self.rescues.values():
             if rescue.client == client:
                 return rescue
         return None
@@ -171,7 +197,7 @@ class RatBoard(object):
             None:   no rescue found
 
         """
-        for rescue in self._rescues.values():
+        for rescue in self.rescues.values():
             if rescue.case_id == guid:
                 return rescue
         return None
@@ -194,9 +220,9 @@ class RatBoard(object):
         # if the rescue already has a board index defined
         if rescue.board_index is not None:
             # check if the board index is not in use, or the overwrite flag is set
-            if overwrite or rescue.board_index not in self._rescues:
+            if overwrite or rescue.board_index not in self.rescues:
                 # write the key,value
-                self._rescues[rescue.board_index] = rescue
+                self.rescues[rescue.board_index] = rescue
             else:
                 raise IndexNotFreeError(
                     f"Index {rescue.board_index} is in use. If you want to overwrite this you must"
@@ -205,11 +231,11 @@ class RatBoard(object):
         # we need to give it one
         else:
             #  iterate _last_index until we get a unused value.
-            while self._last_index in self._rescues:
+            while self._last_index in self.rescues:
                 self._last_index += 1
 
             rescue.board_index = self._last_index
-            self._rescues[rescue.board_index] = rescue
+            self.rescues[rescue.board_index] = rescue
 
     async def modify(self, rescue: Rescue) -> bool:
         """
@@ -225,7 +251,7 @@ class RatBoard(object):
         # TODO: implement modify(), until then its marked nocover.
         return False  # PRAGMA: NOCOVER
 
-    async def remove(self, rescue: Rescue) -> None:
+    def remove(self, rescue: Rescue) -> None:
         """
         Removes a case from the board
 
@@ -238,11 +264,12 @@ class RatBoard(object):
         Raises:
             KeyError: rescue was not on the board.
         """
-        await self._rescues.pop(rescue.board_index)
+        self.rescues.pop(rescue.board_index)
+
 
     def clear_board(self) -> None:
         """
         Clears all tracked cases.
         """
         LOG.warning("Flushing the Dispatch Board, fire in the hole!")
-        self._rescues = {}
+        self.rescues = {}
