@@ -1,6 +1,7 @@
 """
 Unittest file for the Rat_Board module.
 """
+from copy import deepcopy
 from unittest import TestCase
 from uuid import uuid4
 
@@ -8,6 +9,7 @@ import pytest
 
 from Modules.Rat_Board import RatBoard, IndexNotFreeError
 from Modules.rat_rescue import Rescue
+from ratlib.names import Platforms
 
 
 class RatBoardTests(TestCase):
@@ -187,6 +189,24 @@ class TestRatBoardPyTest(object):
         await RatBoard_fx.remove(rescue=RescueSoP_fx)
 
         assert RescueSoP_fx.board_index not in RatBoard_fx.rescues
+
+    @pytest.mark.asyncio
+    async def test_modify_with_net_change(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
+        # make a deep copy of the fixture so we can edit it without tainting the board reference
+        myRescue: Rescue = deepcopy(RescueSoP_fx)
+        # append our rescue to the board
+        RatBoard_fx.rescues[RescueSoP_fx.board_index] = RescueSoP_fx
+
+        # make a change, ensure a change actually occured.
+        myRescue.platform = Platforms.PC if myRescue.platform is not Platforms.PC else Platforms.XB
+        result = await RatBoard_fx.modify(rescue=myRescue)
+        # check status OK
+        assert result is True
+        # check that a change occured
+        assert RatBoard_fx.rescues[RescueSoP_fx.board_index] == myRescue
+
+        # double check
+        assert RatBoard_fx.rescues[RescueSoP_fx.board_index] != RescueSoP_fx
 
     def test_contains_by_key_attributes(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
         """

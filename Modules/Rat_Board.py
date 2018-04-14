@@ -284,7 +284,8 @@ class RatBoard(object):
         Raises:
             KeyError: rescue was not on the board.
         """
-        if self.handler is not None:  # PRAGMA : NOCOVER
+        if self.handler is not None:
+            #  PRAGMA : NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
 
