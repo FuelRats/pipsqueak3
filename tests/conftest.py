@@ -15,6 +15,7 @@ from uuid import uuid4
 
 import pytest
 
+from Modules.Rat_Board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from ratlib.names import Platforms
@@ -48,7 +49,7 @@ def RescuePlain_fx() -> Rescue:
     Returns:
         Rescue : Plain initialized Rescue
     """
-    return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST")
+    return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST",board_index=42)
 
 
 @pytest.fixture
@@ -71,3 +72,14 @@ def RatGood_fx(request) -> Rats:
     params = request.param
     myRat = Rats(uuid4(), name=params[0], platform=params[1])
     return myRat
+
+
+@pytest.fixture
+def RatBoard_fx() -> RatBoard:
+    """
+    Provides a RatBoard object
+
+    Returns:
+        RatBoard: initialized ratboard object
+    """
+    return RatBoard()
