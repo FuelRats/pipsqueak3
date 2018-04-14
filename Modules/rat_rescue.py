@@ -88,7 +88,7 @@ class Rescue(object):
         self._mark_for_deletion = mark_for_deletion if mark_for_deletion else {
             "marked": False,
             "reason": None,
-            "reporter": "Noone."
+            "reporter": None
         }
         self._board_index = board_index
         self._lang_id = lang_id
@@ -635,11 +635,22 @@ class Rescue(object):
         if isinstance(value, dict):
             # checks to ensure only the required fields are present
             if "marked" in value and "reason" in value and "reporter" in value and len(value) == 3:
-                self._mark_for_deletion = value
+                # now sanity check the values
+                conditions = {
+                    isinstance(value["marked"], bool),
+                    isinstance(value["reason"], str) or value["reason"] is None,
+                    isinstance(value["reporter"], str) or value["reporter"] is None,
+                }
+                if all(conditions):
+                    self._mark_for_deletion = value
+
+                else:
+                    # at least one of the values was not valid
+                    raise ValueError("Data validation failed. at least one key contains invalid"
+                                     "data.")
             else:
                 LOG.debug(f"data of value is: {value}")
-                raise ValueError("required fields missing and/or keys "
-                                 "data present!")
+                raise ValueError("required fields missing and/or keys!")
         else:
             raise TypeError(f"expected type dict, got type {type(value)}")
 
