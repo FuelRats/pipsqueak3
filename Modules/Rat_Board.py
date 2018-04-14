@@ -195,7 +195,6 @@ class RatBoard(object):
         if rescue.board_index is not None:
             # check if the board index is not in use, or the overwrite flag is set
             if overwrite or rescue.board_index not in self._rescues:
-                # TODO: check this logic via unit tests
                 # write the key,value
                 self._rescues[rescue.board_index] = rescue
             else:
@@ -205,14 +204,14 @@ class RatBoard(object):
 
         # we need to give it one
         else:
-            #itterate _last_index until we get a unused value.
+            #  iterate _last_index until we get a unused value.
             while self._last_index in self._rescues:
                 self._last_index += 1
 
             rescue.board_index = self._last_index
             self._rescues[rescue.board_index] = rescue
 
-    def modify(self, rescue: Rescue) -> bool:
+    async def modify(self, rescue: Rescue) -> bool:
         """
         Modify an existing Rescue on the board
 
@@ -226,7 +225,7 @@ class RatBoard(object):
         # TODO: implement modify(), until then its marked nocover.
         return False  # PRAGMA: NOCOVER
 
-    def remove(self, rescue: Rescue) -> None:
+    async def remove(self, rescue: Rescue) -> None:
         """
         Removes a case from the board
 
@@ -239,7 +238,7 @@ class RatBoard(object):
         Raises:
             KeyError: rescue was not on the board.
         """
-        self._rescues.pop(rescue.board_index)
+        await self._rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
         """
