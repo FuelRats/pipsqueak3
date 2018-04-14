@@ -21,9 +21,9 @@ from Modules.rats import Rats
 from ratlib.names import Platforms
 
 
-@pytest.fixture(params=[("pcClient", Platforms.PC, "firestone"),
-                        ("xxXclient", Platforms.XB, "sol"),
-                        ("psCoolKid", Platforms.PS, "NLTT 48288")],
+@pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
+                        ("xxXclient", Platforms.XB, "sol", 2),
+                        ("psCoolKid", Platforms.PS, "NLTT 48288", 33)],
                 )
 def RescueSoP_fx(request) -> Rescue:
     """
@@ -36,7 +36,8 @@ def RescueSoP_fx(request) -> Rescue:
         Rescue : Rescue objects
     """
     params = request.param
-    myRescue = Rescue(uuid4(), client=params[0], system=params[2], irc_nickname=params[0])
+    myRescue = Rescue(uuid4(), client=params[0], system=params[2], irc_nickname=params[0],
+                      board_index=params[3])
     myRescue.platform = params[1]
     return myRescue
 
