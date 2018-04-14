@@ -208,6 +208,15 @@ class TestRatBoardPyTest(object):
         # double check
         assert RatBoard_fx.rescues[RescueSoP_fx.board_index] != RescueSoP_fx
 
+    @pytest.mark.asyncio
+    async def test_modify_no_net_change(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
+        # append rescue to board
+        RatBoard_fx.rescues[RescueSoP_fx.board_index] = RescueSoP_fx
+
+        result = await RatBoard_fx.modify(rescue=RescueSoP_fx)
+        # verify we got the correct output state
+        assert result is False
+
     def test_contains_by_key_attributes(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
         """
         Verifies `Ratboard.__contains__` returns true when looking for a case by
