@@ -255,17 +255,19 @@ class RatBoard(object):
         found = self.find_by_index(rescue.board_index)
         # check if its equal to what we already have
         if found == rescue:
+            LOG.debug("a call was made to modify, yet the rescue was not changed!")
             result = False
         else:
             # its not what we already have
 
             # lets check if we have a API handler
             if self.handler is not None:
+                LOG.debug("Rescue has been modified, making a call to the API")
                 # if so, let it know we changed the rescue
-                # PRAGMA : NOCOVER
                 # FIXME: change to match API Handler interface, once it exists
                 await self.handler.update_rescue(rescue)
 
+            LOG.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.case_id}...")
             self.append(rescue=rescue, overwrite=True)
             result = True
 
@@ -285,15 +287,45 @@ class RatBoard(object):
             KeyError: rescue was not on the board.
         """
         if self.handler is not None:
-            #  PRAGMA : NOCOVER
+            LOG.debug(f"Calling API to remove case by id {rescue.case_id}")
+            #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
-
+        LOG.debug(f"removing case #{rescue.board_index} (@{rescue.case_id}) from the board.")
         self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
         """
         Clears all tracked cases.
+
+        This method causes Mecha to forget any and all open cases it was tracking, but **does not
+            clear them on the API.**
+
+        useful for flushing the board prior to re-retrieving cases from the API
         """
         LOG.warning("Flushing the Dispatch Board, fire in the hole!")
         self.rescues = {}
+
+    async def retrieve_open_cases_from_api(self) -> None:
+        """
+        Async method for fetching all **open** cases from the API and appending them to
+            the boards `rescue` property for tracking.
+
+        Returns:
+            None
+
+        Raises:
+            RescueBoardException: no API handler registered for this case.
+        """
+        # verify we have an API handler registered
+        if self.handler is not None:
+            LOG.debug("a API handler is registered, attempting to fetch open cases")
+            # FIXME:  modify call to match API handler interface once it is implemented
+            self.rescues = await self.handler.get_rescues("open")
+
+        else:
+            # we don't have a registered API handler, this call cannot succeed,
+            LOG.exception("no API handler is registered, this call will fail!")
+
+            # TODO: replace this exception with something more specific?
+            raise RescueBoardException("no API handler registered!")
