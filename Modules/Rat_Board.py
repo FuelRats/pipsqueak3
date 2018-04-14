@@ -102,7 +102,7 @@ class RatBoard(object):
                           f"createdAt {rescue.created_at} == {other.created_at}")
 
                 # if the IDs match then we know they are the same case.
-                if rescue.case_id == other.case_id:
+                if other.case_id is not None and rescue.case_id == other.case_id:
                     return True
 
                 # check if the key attributes are equal
@@ -284,7 +284,7 @@ class RatBoard(object):
         Raises:
             KeyError: rescue was not on the board.
         """
-        if self.handler is not None:
+        if self.handler is not None:  # PRAGMA : NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
 
