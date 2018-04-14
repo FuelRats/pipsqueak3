@@ -33,7 +33,7 @@ class Rescue(object):
                  unidentified_rats=None, active=True, quotes: list = None, is_open=True, epic=False,
                  code_red=False, successful=False, title: str = '',
                  first_limpet: UUID or None = None, board_index: int = None,
-                 mark_for_deletion: list or None = None, lang_id: str = "EN", rats: list = None):
+                 mark_for_deletion: dict or None = None, lang_id: str = "EN", rats: list = None):
         """
         creates a unique rescue
 
@@ -128,7 +128,7 @@ class Rescue(object):
                 self.mark_for_deletion == other.mark_for_deletion,
                 self.lang_id == other.lang_id,
                 self.rats == other.rats,
-                self.irc_nickname == other.irc_nickname
+                self.irc_nickname == other.irc_nickname,
             ]
 
             return all(conditions)
@@ -462,14 +462,25 @@ class Rescue(object):
         return self._unidentified_rats
 
     @unidentified_rats.setter
-    def unidentified_rats(self, value):
+    def unidentified_rats(self, value) -> None:
+        """
+        Sets the value of unidentified_rats
+
+        Args:
+            value (list): list of strings
+
+        Raises:
+            ValueError: value contained illegal types
+            TypeError: value was of an illegal type
+
+        """
         if isinstance(value, list):
             for name in value:
                 if isinstance(name, str):
                     self._unidentified_rats.append(name)
                 else:
-                    raise TypeError(f"Element '{name}' expected to be of type str"
-                                    f"str, got {type(name)}")
+                    raise ValueError(f"Element '{name}' expected to be of type str"
+                                     f"str, got {type(name)}")
         else:
             raise TypeError(f"expected type str, got {type(value)}")
 
@@ -623,12 +634,11 @@ class Rescue(object):
         """
         if isinstance(value, dict):
             # checks to ensure only the required fields are present
-            if "marked" in value and "reason" in value and "reporter" in value\
-                    and len(value) == 3:
+            if "marked" in value and "reason" in value and "reporter" in value and len(value) == 3:
                 self._mark_for_deletion = value
             else:
                 LOG.debug(f"data of value is: {value}")
-                raise ValueError("required fields missing and/or garbage "
+                raise ValueError("required fields missing and/or keys "
                                  "data present!")
         else:
             raise TypeError(f"expected type dict, got type {type(value)}")
