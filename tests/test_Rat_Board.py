@@ -205,9 +205,9 @@ class TestRatBoardPyTest(object):
     Container for pyTest style tests for the RatBoard
     """
 
-    def test_remove(self, RescuePlain_fx: Rescue, RatBoard_fx: RatBoard):
+    def test_remove(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
         # append a rescue to the board
-        RatBoard_fx.rescues[RescuePlain_fx.board_index] = RescuePlain_fx
+        RatBoard_fx.rescues[RescueSoP_fx.board_index] = RescueSoP_fx
         # and attempt to remove it
-        RatBoard_fx.remove(rescue=RescuePlain_fx)
-        assert RescuePlain_fx.board_index not in RatBoard_fx.rescues
+        RatBoard_fx.remove(rescue=RescueSoP_fx)
+        assert RescueSoP_fx.board_index not in RatBoard_fx.rescues
