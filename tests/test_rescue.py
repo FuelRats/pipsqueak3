@@ -429,7 +429,6 @@ class TestRescue(TestCase):
         self.rescue.rats = data
         self.assertEqual(self.rescue.rats, data)
 
-
     def test_rats_bad_types(self):
         """
         Verifies the proper exception is raised when `Rescue.rats` is given garbage params
@@ -468,6 +467,14 @@ class TestRescue(TestCase):
         """
         # is this total overkill?
         self.assertTrue(self.rescue == self.rescue)
+
+    def test_eq_bad_type(self):
+        """
+        Verifies Rescue.__eq__ raises a type error when attempting to compare something
+            other than a rescue.
+        """
+        with self.assertRaises(TypeError):
+            self.assertTrue(self.rescue == "foobar")
 
     def test_eq_false_branch(self):
         """
@@ -626,3 +633,12 @@ class TestRescuePyTests(object):
 
         RescuePlain_fx.lang_id = test_input
         assert RescuePlain_fx.lang_id == test_input
+
+    def test_set_unidentified_rats_garbage_in_list(self, RescuePlain_fx: Rescue):
+        """
+        Verifies a ValueError is raised if the list passed to Rats.unidentified_Rats contains
+            illegal values
+        """
+        garbage = [12, -42.2, None]
+        with pytest.raises(ValueError):
+            RescuePlain_fx.unidentified_rats = garbage
