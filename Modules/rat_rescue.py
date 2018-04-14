@@ -161,10 +161,21 @@ class Rescue(object):
 
     @property
     def lang_id(self) -> str:
+        """
+        The language ID the client reported upon entering
+        Returns:
+            str: clients language ID
+        """
         return self._lang_id
 
     @lang_id.setter
-    def lang_id(self, value):
+    def lang_id(self, value) -> None:
+        """
+        Sets the client's language
+
+        Args:
+            value (str): new lagnuage code
+        """
         if isinstance(value, str):
             self._lang_id = value
         else:
@@ -176,7 +187,13 @@ class Rescue(object):
         return self._platform
 
     @platform.setter
-    def platform(self, value):
+    def platform(self, value) -> None:
+        """
+        Set the client's platform
+
+        Args:
+            value (Platforms): new platform
+        """
         if isinstance(value, Platforms):
             self._platform = value
         else:
