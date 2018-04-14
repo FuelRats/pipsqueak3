@@ -204,10 +204,11 @@ class TestRatBoardPyTest(object):
     """
     Container for pyTest style tests for the RatBoard
     """
-
-    def test_remove(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
+    @pytest.mark.asyncio
+    async def test_remove(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
         # append a rescue to the board
         RatBoard_fx.rescues[RescueSoP_fx.board_index] = RescueSoP_fx
         # and attempt to remove it
-        RatBoard_fx.remove(rescue=RescueSoP_fx)
+        await RatBoard_fx.remove(rescue=RescueSoP_fx)
+
         assert RescueSoP_fx.board_index not in RatBoard_fx.rescues
