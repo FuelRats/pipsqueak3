@@ -170,3 +170,20 @@ class TestRatsPyTest(object):
     def test_rat_platforms(self, platform: Platforms):
         my_rat = Rats(uuid=uuid4(), name="foo", platform=platform)
         assert platform == my_rat.platform
+
+    @pytest.mark.parametrize("garbage", [
+        None,
+        (None,),
+        [],
+        {}
+    ])
+    def test_platform_garbage(self, garbage):
+        """
+        Verifies a TypeError is raised when attempting to set Rats.platform to garbage
+
+        Args:
+            garbage ():
+        """
+        my_rat = Rats(None, "potato", Platforms.PC)
+        with pytest.raises(TypeError):
+            my_rat.platform = garbage
