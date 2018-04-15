@@ -142,11 +142,7 @@ class Rats(object):
             return None
         else:
             # we found a rat
-            if platform == Platforms.DEFAULT:
-                # no platform check
-                return found
-            else:
-                return found if found.platform == platform else None
+            return found if (found.platform == platform or platform == Platforms.DEFAULT) else None
 
     @classmethod
     def flush(cls) -> None:
