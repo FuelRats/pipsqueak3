@@ -1,3 +1,18 @@
+"""
+rats.py - Rats object
+
+Handles the rats cache and provides facilities for managing rats.
+
+Copyright (c) 2018 The Fuel Rats Mischief,
+All rights reserved.
+
+Licensed under the BSD 3-Clause License.
+
+See LICENSE.md
+
+This module is built on top of the Pydle system.
+"""
+
 import logging
 from uuid import UUID
 
@@ -106,11 +121,23 @@ class Rats(object):
             raise TypeError(f"expected str, got {type(value)}")
 
     @property
-    def platform(self):
+    def platform(self) -> Platforms:
+        """
+        The Rats platform
+
+        Returns:
+            Platforms: The platform the rat is registered on
+        """
         return self._platform
 
     @platform.setter
-    def platform(self, value):
+    def platform(self, value: Platforms) -> None:
+        """
+        Sets the platform for a given rat
+
+        Args:
+            value (Platforms): new platform
+        """
         if isinstance(value, Platforms):
             self._platform = value
         else:
