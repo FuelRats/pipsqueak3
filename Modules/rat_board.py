@@ -1,5 +1,5 @@
 """
-Rat_Board.py - Rescue board
+rat_board.py - Rescue board
 
 Handles Tracking individual Rescues from creation to completion
 
