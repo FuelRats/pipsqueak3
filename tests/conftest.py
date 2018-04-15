@@ -15,7 +15,7 @@ from uuid import uuid4
 
 import pytest
 
-from Modules.Rat_Board import RatBoard
+from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from ratlib.names import Platforms

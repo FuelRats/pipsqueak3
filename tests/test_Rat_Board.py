@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from Modules.Rat_Board import RatBoard, IndexNotFreeError
+from Modules.rat_board import RatBoard, IndexNotFreeError
 from Modules.rat_rescue import Rescue
 from ratlib.names import Platforms
 
