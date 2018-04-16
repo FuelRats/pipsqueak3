@@ -288,3 +288,17 @@ class TestRatBoardPyTest(object):
 
         # verify it raised the case limit.
         assert 11 == config.RatBoard.CASE_LIMIT
+
+    def test_regen_index(self, RatBoard_fx: RatBoard, monkeypatch):
+        """Verifies the behavior of """
+        # patch the case limit to minimize collateral
+        monkeypatch.setattr("config.RatBoard.CASE_LIMIT", 1)
+        # make a copy of the fixture, so we don't taint other tests (this is preemptive)
+        myBoard = deepcopy(RatBoard_fx)
+
+        myBoard.indexies = {0,1}
+
+        config.RatBoard.CASE_LIMIT = 42
+        myBoard.regen_index()
+
+        assert 42 == len(myBoard.indexies)
