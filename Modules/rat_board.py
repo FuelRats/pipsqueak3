@@ -15,6 +15,7 @@ This module is built on top of the Pydle system.
 import logging
 from uuid import UUID
 
+import config
 from Modules.rat_rescue import Rescue
 from config import Logging
 
@@ -56,8 +57,7 @@ class RatBoard(object):
     """
     # i dread the day where we need to upp this limit.
 
-    indexies = set(range(30))
-
+    indexies = set(range(config.RatBoard.CASE_LIMIT))
     """set of indexies that can be used"""
     def __init__(self, handler=None):
         """
@@ -231,11 +231,7 @@ class RatBoard(object):
 
         # we need to give it one
         else:
-            #  iterate _last_index until we get a unused value.
-            while self._last_index in self.rescues:
-                self._last_index += 1
-
-            rescue.board_index = self._last_index
+            rescue.board_index = self.next_free_index()
             self.rescues[rescue.board_index] = rescue
 
     async def modify(self, rescue: Rescue) -> bool:
