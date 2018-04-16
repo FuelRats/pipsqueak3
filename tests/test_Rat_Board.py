@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from Modules.rat_board import RatBoard, IndexNotFreeError
+from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
 from Modules.rat_rescue import Rescue
 from ratlib.names import Platforms
 
@@ -213,9 +213,9 @@ class TestRatBoardPyTest(object):
         # append rescue to board
         RatBoard_fx.rescues[RescueSoP_fx.board_index] = RescueSoP_fx
 
-        result = await RatBoard_fx.modify(rescue=RescueSoP_fx)
-        # verify we got the correct output state
-        assert result is False
+        with pytest.raises(RescueNotChangedException):
+            await RatBoard_fx.modify(rescue=RescueSoP_fx)
+
 
     def test_contains_by_key_attributes(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
         """

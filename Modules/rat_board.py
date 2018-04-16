@@ -160,6 +160,7 @@ class RatBoard(object):
 
         Returns:
             Rescue: rescue found
+
             None: no rescue found
 
         """
@@ -246,17 +247,22 @@ class RatBoard(object):
 
         Returns:
             True IF rescue exists and was replaced
-            False if rescue does not exist or was not modified.
-        """
+            False if rescue does not exist.
 
-        result = False
+        Raises:
+            RescueNotChangedException: rescue was not actually changed
+        """
 
         # find the case in question
         found = self.find_by_index(rescue.board_index)
-        # check if its equal to what we already have
-        if found == rescue:
-            LOG.debug("a call was made to modify, yet the rescue was not changed!")
+
+        if found is None:
+            # we did not find a rescue to modify
             result = False
+        # check if its equal to what we already have
+        elif found == rescue:
+            LOG.debug("a call was made to modify, yet the rescue was not changed!")
+            raise RescueNotChangedException
         else:
             # its not what we already have
 
