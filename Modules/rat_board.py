@@ -160,12 +160,11 @@ class RatBoard(object):
         # this might not be the best approach, but it should work.
         return list(free)[0]
 
-    @classmethod
-    def regen_index(cls):
+    def regen_index(self):
         """
         Regenerate the list of possible case numbers
         """
-        cls.indexies = set(range(config.RatBoard.CASE_LIMIT))
+        self.indexies = set(range(config.RatBoard.CASE_LIMIT))
 
     def find_by_index(self, index: int) -> Rescue or None:
         """
