@@ -244,3 +244,25 @@ class TestRatBoardPyTest(object):
         """
         with pytest.raises(TypeError):
             RatBoard_fx.rescues = garbage
+
+    @pytest.mark.parametrize("index", [i for i in range(0, 5)])
+    def test_next_free_index_free(self, index: int, RatBoard_fx: RatBoard, monkeypatch):
+        """Verifies ratboard.next_free_index returns a free index when there are free available"""
+
+        # patch the case limit so its easier to verify
+        monkeypatch.setattr("config.RatBoard.CASE_LIMIT", 6)
+        # make a copy of the fixture, so we don't taint other tests (this is preemptive)
+        myBoard = deepcopy(RatBoard_fx)
+        myBoard.regen_index()
+
+        # write the key
+        myBoard.rescues[index] = None
+
+        # and the previous keys
+        keys = range(0, index)
+        for i in keys:
+            myBoard.rescues[i] = None
+
+        nextFree = myBoard.next_free_index()
+
+        assert index + 1 == nextFree
