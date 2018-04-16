@@ -146,7 +146,7 @@ class RatBoard(object):
         consumed = set(self.rescues.keys())
 
         # subtract the used keys from the list of possible keys
-        free = RatBoard.indexies - consumed
+        free = self.indexies - consumed
 
         if len(free) == 0:
             # we somehow hit the limit, we need to up it.
