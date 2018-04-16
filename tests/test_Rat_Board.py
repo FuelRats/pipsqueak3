@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytest
 
+import config
 from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
 from Modules.rat_rescue import Rescue
 from ratlib.names import Platforms
@@ -266,3 +267,24 @@ class TestRatBoardPyTest(object):
         nextFree = myBoard.next_free_index()
 
         assert index + 1 == nextFree
+
+    def test_next_free_no_free(self, RatBoard_fx: RatBoard, monkeypatch):
+        """
+        Verifies ratboard.next_free_index dynamically resizes its maximum pool,
+            when necessary
+        """
+        # patch the case limit so its easier to verify
+        monkeypatch.setattr("config.RatBoard.CASE_LIMIT", 1)
+        # make a copy of the fixture, so we don't taint other tests (this is preemptive)
+        myBoard = deepcopy(RatBoard_fx)
+        myBoard.regen_index()
+
+        myBoard.rescues[0] = None
+
+        nextFree = myBoard.next_free_index()
+
+        # verify it actually returns a case
+        assert 1 == nextFree
+
+        # verify it raised the case limit.
+        assert 11 == config.RatBoard.CASE_LIMIT
