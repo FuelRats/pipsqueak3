@@ -147,9 +147,25 @@ class RatBoard(object):
 
         # subtract the used keys from the list of possible keys
         free = RatBoard.indexies - consumed
+
+        if len(free) == 0:
+            # we somehow hit the limit, we need to up it.
+            config.RatBoard.CASE_LIMIT += 10
+            LOG.warning(f"maximum case limit reached! increasing runtime limit to "
+                        f"{config.RatBoard.CASE_LIMIT}")
+
+            self.regen_index()
+            return self.next_free_index()
         # convert it to a list to access the first element, because sets can't be indexed >.>
         # this might not be the best approach, but it should work.
         return list(free)[0]
+
+    @classmethod
+    def regen_index(cls):
+        """
+        Regenerate the list of possible case numbers
+        """
+        cls.indexies = set(range(config.RatBoard.CASE_LIMIT))
 
     def find_by_index(self, index: int) -> Rescue or None:
         """
