@@ -7,7 +7,6 @@ from uuid import uuid4
 
 import pytest
 
-import config
 from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
 from Modules.rat_rescue import Rescue
 from ratlib.names import Platforms
@@ -161,21 +160,6 @@ class RatBoardTests(TestCase):
         """
         self.assertFalse(self.some_rescue in self.board)
 
-    def test_next_free_index(self):
-        """Verifies RatBoard.<name> returns the first index that is not currently in use"""
-        # check if no cases are on the board, the first index is zero
-        self.assertEqual(self.board.next_free_index(), 0)
-
-        my_rescue = self.some_rescue
-        my_rescue.board_index = 0
-        self.board.append(my_rescue)
-
-        my_other_rescue = Rescue(uuid4(), "foo", "BAR", "halp", board_index=1)
-        # my_other_rescue.board_index = 1
-
-        self.board.append(my_other_rescue, overwrite=True)
-
-        self.assertEqual(self.board.next_free_index(), 2)
 
 
 class TestRatBoardPyTest(object):
@@ -246,15 +230,14 @@ class TestRatBoardPyTest(object):
         with pytest.raises(TypeError):
             RatBoard_fx.rescues = garbage
 
+
     @pytest.mark.parametrize("index", [i for i in range(0, 5)])
-    def test_next_free_index_free(self, index: int, RatBoard_fx: RatBoard, monkeypatch):
+    def test_next_free_index_free(self, index: int, RatBoard_fx: RatBoard):
         """Verifies ratboard.next_free_index returns a free index when there are free available"""
 
-        # patch the case limit so its easier to verify
-        monkeypatch.setattr("config.RatBoard.CASE_LIMIT", 6)
         # make a copy of the fixture, so we don't taint other tests (this is preemptive)
         myBoard = deepcopy(RatBoard_fx)
-        myBoard.regen_index()
+        # myBoard.regen_index()
 
         # write the key
         myBoard.rescues[index] = None
@@ -268,37 +251,17 @@ class TestRatBoardPyTest(object):
 
         assert index + 1 == nextFree
 
-    def test_next_free_no_free(self, RatBoard_fx: RatBoard, monkeypatch):
-        """
-        Verifies ratboard.next_free_index dynamically resizes its maximum pool,
-            when necessary
-        """
-        # patch the case limit so its easier to verify
-        monkeypatch.setattr("config.RatBoard.CASE_LIMIT", 1)
-        # make a copy of the fixture, so we don't taint other tests (this is preemptive)
+    @pytest.mark.parametrize("keys,expected",( ([0, 1, 2, 4], 3), ([0, 2, 3], 1)))
+    def test_next_free_mixed_board(self, keys: list, expected: int, RatBoard_fx: RatBoard):
+        #local duplicate of the fixture
         myBoard = deepcopy(RatBoard_fx)
-        myBoard.regen_index()
 
-        myBoard.rescues[0] = None
+        # populate rescues dict
+        for i in keys:
+            myBoard.rescues[i] = None
 
+        # roll the tested method
         nextFree = myBoard.next_free_index()
 
-        # verify it actually returns a case
-        assert 1 == nextFree
-
-        # verify it raised the case limit.
-        assert 11 == config.RatBoard.CASE_LIMIT
-
-    def test_regen_index(self, RatBoard_fx: RatBoard, monkeypatch):
-        """Verifies the behavior of """
-        # patch the case limit to minimize collateral
-        monkeypatch.setattr("config.RatBoard.CASE_LIMIT", 1)
-        # make a copy of the fixture, so we don't taint other tests (this is preemptive)
-        myBoard = deepcopy(RatBoard_fx)
-
-        myBoard.indexies = {0,1}
-
-        config.RatBoard.CASE_LIMIT = 42
-        myBoard.regen_index()
-
-        assert 42 == len(myBoard.indexies)
+        # and verify its functionality
+        assert expected == nextFree
