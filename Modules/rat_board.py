@@ -55,10 +55,7 @@ class RatBoard(object):
     """
     A rescue board
     """
-    # i dread the day where we need to upp this limit.
 
-    indexies = set(range(config.RatBoard.CASE_LIMIT))
-    """set of indexies that can be used"""
     def __init__(self, handler=None):
         """
         Create a new Rescue Board.
@@ -143,29 +140,15 @@ class RatBoard(object):
         Returns:
             int: next free board index
         """
-        consumed = set(self.rescues.keys())
 
-        # subtract the used keys from the list of possible keys
-        free = self.indexies - consumed
+        index = 0
+        free = False
 
-        if len(free) == 0:
-            # we somehow hit the limit, we need to up it.
-            config.RatBoard.CASE_LIMIT += 10
-            LOG.warning(f"maximum case limit reached! increasing runtime limit to "
-                        f"{config.RatBoard.CASE_LIMIT}")
+        while not free:
+            free = index not in self.rescues
+            index += 1 if not free else 0
 
-            self.regen_index()
-            return self.next_free_index()
-        # convert it to a list to access the first element, because sets can't be indexed >.>
-        # this might not be the best approach, but it should work.
-        return list(free)[0]
-
-    def regen_index(self):
-        """
-        Regenerate the list of possible case numbers
-        """
-        self.indexies = set(range(config.RatBoard.CASE_LIMIT))
-
+        return index
     def find_by_index(self, index: int) -> Rescue or None:
         """
         Searches for and returns a Rescue at a given `index` position, should it exist
