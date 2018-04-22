@@ -389,7 +389,7 @@ class Rescue(object):
         Returns:
             bool: Active state
         """
-        return True if self.status == Status.INACTIVE else False
+        return False if self.status == Status.INACTIVE else True
 
     @active.setter
     def active(self, value:bool) -> None:
