@@ -111,17 +111,10 @@ def require_permission(permission: Permission,
         # TODO implement require_permission wrapper.
 
         @wraps(func)
-        async def guarded(bot, trigger, words, words_eol):
+        async def guarded(bot, trigger):
             if trigger.identified and trigger.hostname in _by_vhost.keys() \
                     and _by_vhost[trigger.hostname] >= permission:
-                try:
-                    # This works if we're the bottommost decorator
-                    # (calling the command function directly)
-                    return await func(bot, trigger)
-                except TypeError:
-                    # Otherwise, we're giving all the things to the underlying
-                    #  wrapper (be it from parametrize or sth)
-                    return await func(bot, trigger, words, words_eol)
+                return await func(bot, trigger)
             else:
                 await trigger.reply(override_message if override_message
                                     else permission.denied_message)

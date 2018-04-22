@@ -116,7 +116,7 @@ class Commands:
             else:
                 raise CommandNotFoundException(f"Unable to find command {words[0]}")
 
-        return await cmd(cls.bot, trigger, words, words_eol)
+        return await cmd(cls.bot, trigger)
 
     @classmethod
     def _register(cls, func, names: list or str) -> bool:
@@ -157,16 +157,8 @@ class Commands:
     def command(cls, *aliases):
         def real_decorator(func):
             @wraps(func)
-            async def wrapper(bot, trigger, words, words_eol):
-                cls.log.debug("inside wrapper")
-                try:
-                    # This works if we're the bottommost decorator (calling the command function
-                    # directly)
-                    return await func(bot, trigger)
-                except TypeError:
-                    # Otherwise, we're giving all the things to the underlying wrapper (be it from
-                    # parametrize or sth)
-                    return await func(bot, trigger, words, words_eol)
+            async def wrapper(bot, trigger):
+                return await func(bot, trigger)
 
             # we want to register the wrapper, not the underlying function
             cls.log.debug(f"registering command with aliases: {aliases}...")
@@ -188,11 +180,8 @@ class Commands:
             regex (str): Regular expression to match the command.
         """
         def decorator(coro):
-            async def wrapper(bot, trigger, words, words_eol):
-                try:
-                    return await coro(bot, trigger)
-                except TypeError:
-                    return await coro(bot, trigger, words, words_eol)
+            async def wrapper(bot, trigger):
+                return await coro(bot, trigger)
 
             cls._rules[re.compile(regex, re.IGNORECASE)] = wrapper
             log.info(f"New rule matching '{regex}' was created.")
