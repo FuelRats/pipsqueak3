@@ -173,26 +173,17 @@ class Commands:
 
     @classmethod
     def command(cls, *aliases):
-        # stuff that occurs here executes when the wrapped command is first
-        # computed use this space for command registration
-
         def real_decorator(func):
-            # this also only executes during intial wrap
-            # methinks this is where command reg should occur?
-            cls.log.debug("inside real_decorator")
-            cls.log.debug(f"Congratulations.  You decorated a function that "
-                          f"does something with {aliases}")
-
             @wraps(func)
             async def wrapper(bot, trigger, words, words_eol):
                 cls.log.debug("inside wrapper")
                 try:
-                    # This works if we're the bottommost decorator
-                    # (calling the command function directly)
+                    # This works if we're the bottommost decorator (calling the command function
+                    # directly)
                     return await func(bot, trigger)
                 except TypeError:
-                    # Otherwise, we're giving all the things to the underlying
-                    #  wrapper (be it from parametrize or sth)
+                    # Otherwise, we're giving all the things to the underlying wrapper (be it from
+                    # parametrize or sth)
                     return await func(bot, trigger, words, words_eol)
 
             # we want to register the wrapper, not the underlying function
