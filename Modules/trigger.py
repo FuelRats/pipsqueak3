@@ -1,3 +1,5 @@
+from typing import List
+
 import pydle
 
 
@@ -7,14 +9,18 @@ class Trigger(object):
     command was invoked.
     """
 
-    def __init__(self, bot: pydle.BasicClient, nickname: str, target: str, ident: str,
-                 hostname: str, realname: str = None, away: str = None, account: str = None,
-                 identified: bool = False):
+    def __init__(self, bot: pydle.BasicClient, words: List[str], words_eol: List[str],
+                 nickname: str, target: str, ident: str, hostname: str, realname: str = None,
+                 away: str = None, account: str = None, identified: bool = False):
         """
         Initializes a new `Trigger` object with the provided info.
 
         Arguments:
             bot (pydle.BasicClient): This bot's instance.
+            words ([str]): List of all the words of the message which invoked the command. Does not
+                include the command prefix char.
+            words_eol ([str]): Same as *words* above, but each element including the word and
+                everything up to the end of the message.
             nickname (str): IRC nickname of the triggering user.
             target (str): The message target (a channel or the bot's nick, if it was sent in a query
                 window).
@@ -27,6 +33,8 @@ class Trigger(object):
             identified (bool): Whether or not the user is identified with NickServ.
         """
         self.bot = bot
+        self.words = words
+        self.words_eol = words_eol
         self.nickname = nickname
         self.target = target
         self.ident = ident
@@ -36,8 +44,11 @@ class Trigger(object):
         self.account = account
         self.identified = identified
 
+
+
     @classmethod
-    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str) -> 'Trigger':
+    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str, words: List[str],
+                      words_eol: List[str] = None) -> 'Trigger':
         """
         Creates a `Trigger` object from a user dictionary as used by pydle.
 
@@ -45,16 +56,19 @@ class Trigger(object):
             bot (pydle.BasicClient): This bot's instance.
             nickname (str): Command sender's nickname.
             target (str): The message target (usually a channel or, if it was sent in a query
-            window, the bot's nick).
+                window, the bot's nick).
+            words ([str]): List of all the words of the message which invoked the command. Does not
+                include the command prefix char.
+            words_eol ([str]): Same as *words* above, but each element including the word and
+                everything up to the end of the message.
 
         Returns:
             Trigger: Object constructed from the provided info.
         """
         user = bot.users[nickname]
-        return cls(bot, user["nickname"], target,
-                   ident=user["username"], hostname=user["hostname"],
-                   away=user["away_message"], account=user["account"],
-                   identified=user["identified"])
+        return cls(bot, words=words, words_eol=words_eol, nickname=user["nickname"], target=target,
+                   ident=user["username"], hostname=user["hostname"], away=user["away_message"],
+                   account=user["account"], identified=user["identified"])
 
     @property
     def channel(self) -> str or None:

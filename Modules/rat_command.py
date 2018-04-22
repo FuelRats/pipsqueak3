@@ -122,7 +122,7 @@ class Commands:
                 else:
                     words.append(word)
 
-            trigger = Trigger.from_bot_user(cls.bot, sender, channel)
+            trigger = Trigger.from_bot_user(cls.bot, sender, channel, words, words_eol)
 
             cls.log.debug(f"words={words}\ncommand={words[0]}\n"
                           f"args={words[1:]}")
