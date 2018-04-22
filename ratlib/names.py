@@ -25,6 +25,15 @@ class Platforms(Enum):
     """No platform"""
 
 
+class Status(Enum):
+    """Rescue status enum"""
+    OPEN = 0
+    """The rescue is currently open"""
+    CLOSED = 1
+    """The rescue is currently closed"""
+    INACTIVE = 2
+    """The rescue is open, but is marked inactive"""
+
 def strip_name(nickname: str) -> str:
     """
     This function accepts one input `nickname` and returns the input string
