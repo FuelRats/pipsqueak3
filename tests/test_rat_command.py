@@ -42,24 +42,6 @@ class RatCommandTests(unittest.TestCase):
         Commands._flush()
         super().setUp()
 
-    def test_get_unknown_command(self):
-        """
-        Verifies that Commands.get_command() returns None if a command is not
-        found
-        :return:
-        """
-        unknown_names = ["foo", "bar", "meatbag", "limpet"]
-
-        @Commands.command("fuel")
-        async def potato(*args):
-            return True
-
-        for name in unknown_names:
-            with self.subTest(name=name):
-                self.assertIsNone(Commands.get_command(name))
-        with self.subTest(name="fuel"):
-            self.assertIsNotNone(Commands.get_command("fuel"))
-
     @async_test
     async def test_command_decorator_single(self):
         """
@@ -67,28 +49,27 @@ class RatCommandTests(unittest.TestCase):
         """
         # bunch of commands to test
         alias = ['potato', 'cannon', 'Fodder', "fireball"]
-        commands = [f"{Commands.prefix}{name}" for name in alias]
 
-        for command in commands:
+        for command in alias:
             with self.subTest(command=command):
-                @Commands.command(command.strip(Commands.prefix))
+                @Commands.command(command)
                 async def potato(bot: pydle.Client, channel: str, sender: str):
                     # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
                     return bot, channel, sender
-            self.assertIsNotNone(
-                Commands.get_command(command.strip(Commands.prefix)))
+
+            assert command in Commands._registered_commands.keys()
+
     def test_command_decorator_list(self):
         aliases = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}" for name in aliases]
 
         # register the command
         @Commands.command(*aliases)
         async def potato(bot: pydle.Client, channel: str, sender: str):
             return bot, channel, sender
 
-        for name in trigger_alias:
+        for name in aliases:
             with self.subTest(name=name):
-                self.assertIsNotNone(Commands.get_command(name))
+                assert name in Commands._registered_commands.keys()
 
     @async_test
     async def test_invalid_command(self):
@@ -144,36 +125,6 @@ class RatCommandTests(unittest.TestCase):
                 self.assertEqual(input_sender, out_sender)
                 self.assertEqual(input_channel, out_channel)
                 self.assertIsNotNone(out_bot)
-
-    @async_test
-    async def test_ignored_message(self):
-        """
-        Tests if Commands.trigger correctly ignores messages not containing
-        the prefix.
-        :return:
-        """
-        words = ['potato', 'cannon', 'Fodder', 'fireball',
-                 "what is going on here!", ".!potato"]
-        for word in words:
-            with self.subTest(word=word):
-                self.assertIsNone(await Commands.trigger(
-                    message=word, sender="unit_test[BOT]",
-                    channel="unit_tests"))
-
-    @async_test
-    async def test_null_message(self):
-        """
-        Verifies the correct exception is raised when a null message is sent
-        :return:
-        """
-        words = ["", None, '']
-        for word in words:
-            with self.subTest(word=word):
-                with self.assertRaises(InvalidCommandException):
-                    await Commands.trigger(
-                        message=word,
-                        sender="unit_test[BOT]",
-                        channel="unit_tests")
 
     @mock.patch("Modules.rat_command.Commands.bot")
     @async_test
