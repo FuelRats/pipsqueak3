@@ -174,6 +174,7 @@ class Commands:
         :return: None
         """
         cls._registered_commands = {}
+        cls._rules = {}
 
     @classmethod
     def command(cls, *aliases):
