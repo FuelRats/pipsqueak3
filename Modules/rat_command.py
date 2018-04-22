@@ -15,6 +15,8 @@ This module is built on top of the Pydle system.
 from functools import wraps
 import logging
 
+import re
+
 from Modules.trigger import Trigger
 import config
 
@@ -69,6 +71,7 @@ class Commands:
     ####
     # commands registered with @command will populate this dict
     _registered_commands = {}
+    _rules = {}
 
     ####
     # character/s that must prefix a message for it to be parsed as a command.
@@ -194,6 +197,20 @@ class Commands:
 
             return wrapper
         return real_decorator
+
+    @classmethod
+    def rule(cls, regex: str):
+        def decorator(coro):
+            async def wrapper(bot, trigger, words, words_eol):
+                try:
+                    return await coro(bot, trigger)
+                except TypeError:
+                    return await coro(bot, trigger, words, words_eol)
+
+            cls._rules[re.compile(regex, re.IGNORECASE)] = wrapper
+            log.info(f"New rule matching '{regex}'.")
+            return wrapper
+        return decorator
 
     @classmethod
     def get_command(cls, name: str):
