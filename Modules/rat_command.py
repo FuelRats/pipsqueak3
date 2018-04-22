@@ -127,16 +127,17 @@ class Commands:
 
             trigger = Trigger.from_bot_user(cls.bot, sender, channel, words, words_eol)
 
-            cls.log.debug(f"words={words}\ncommand={words[0]}\n"
-                          f"args={words[1:]}")
-            if words[0] not in cls._registered_commands:
-                cls.log.error(f"unable to find command.{words[0]}")
-                raise CommandNotFoundException(f"Unable to find command "
-                                               f"{words[0]}")
+            if words[0] in cls._registered_commands.keys():
+                cmd = cls._registered_commands[words[0]]
             else:
-                cls.log.debug("found command, invoking...")
-                cmd = cls.get_command(words[0])
-                return await cmd(cls.bot, trigger, words, words_eol)
+                for key, value in cls._rules.items():
+                    if key.match(words[0]) is not None:
+                        cmd = value
+                        break;
+                else:
+                    raise CommandNotFoundException(f"Unable to find command {words[0]}")
+
+            return await cmd(cls.bot, trigger, words, words_eol)
 
     @classmethod
     def _register(cls, func, names: list or str) -> bool:
