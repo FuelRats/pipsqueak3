@@ -142,7 +142,7 @@ class Rescue(object):
         return self._status
 
     @status.setter
-    def status(self, value:status):
+    def status(self, value: status):
         """
         Set the value of the status enum
 
@@ -392,7 +392,7 @@ class Rescue(object):
         return False if self.status == Status.INACTIVE else True
 
     @active.setter
-    def active(self, value:bool) -> None:
+    def active(self, value: bool) -> None:
         """
         setter for `Rescue.active`
 
@@ -537,10 +537,7 @@ class Rescue(object):
             bool: is case open?
 
         """
-        if self.status is Status.CLOSED:
-            return False
-        else:
-            return True
+        return False if self.status is Status.CLOSED else True
 
     @open.setter
     def open(self, value: bool) -> None:
