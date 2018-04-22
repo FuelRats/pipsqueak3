@@ -8,7 +8,7 @@ class Trigger(object):
     """
 
     def __init__(self, bot: pydle.BasicClient, nickname: str, target: str, ident: str,
-                 hostname: str, realname: str = "", away: str = None, account: str = None,
+                 hostname: str, realname: str = None, away: str = None, account: str = None,
                  identified: bool = False):
         """
         Initializes a new `Trigger` object with the provided info.

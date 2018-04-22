@@ -24,7 +24,7 @@ class TriggerTests(unittest.TestCase):
 
         self.assertEqual(trigger.nickname, self.bot.users["unit_test"]["nickname"])
         self.assertEqual(trigger.ident, self.bot.users["unit_test"]["username"])
-        self.assertEqual(trigger.realname, None)
+        self.assertIsNone(trigger.realname)
         self.assertEqual(trigger.hostname, self.bot.users["unit_test"]["hostname"])
         self.assertEqual(trigger.away, self.bot.users["unit_test"]["away_message"])
         self.assertEqual(trigger.account, self.bot.users["unit_test"]["account"])
@@ -36,7 +36,7 @@ class TriggerTests(unittest.TestCase):
 
         self.assertEqual(trigger.nickname, self.bot.users["unit_test[BOT]"]["nickname"])
         self.assertEqual(trigger.ident, self.bot.users["unit_test[BOT]"]["username"])
-        self.assertEqual(trigger.realname, None)
+        self.assertIsNone(trigger.realname)
         self.assertEqual(trigger.hostname, self.bot.users["unit_test[BOT]"]["hostname"])
         self.assertEqual(trigger.away, self.bot.users["unit_test[BOT]"]["away_message"])
         self.assertEqual(trigger.account, self.bot.users["unit_test[BOT]"]["account"])
