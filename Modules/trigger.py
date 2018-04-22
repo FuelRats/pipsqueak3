@@ -2,27 +2,29 @@ import pydle
 
 
 class Trigger(object):
-    """Object to hold information on the user who invoked a command (and where
-    they did it)."""
+    """
+    Object to hold information on the user who invoked a command as well as where and how the
+    command was invoked.
+    """
 
-    def __init__(self, bot: pydle.BasicClient, nickname: str, target: str,
-                 ident: str, hostname: str, realname: str = "",
-                 away: str = None, account: str = None,
+    def __init__(self, bot: pydle.BasicClient, nickname: str, target: str, ident: str,
+                 hostname: str, realname: str = "", away: str = None, account: str = None,
                  identified: bool = False):
         """
-        Object to hold information on the user who invoked a command
+        Initializes a new `Trigger` object with the provided info.
 
-        Args:
-            bot (Pydle): Mecha bot instance
-            nickname (str): irc nickname of the triggering user
-            target (str): The message target (usually a channel or, if it was
-            sent in a query window: the bot's nick)
-            ident (str): Triggering user's identity
-            hostname (str): triggering users hostname
-            realname (str): users defined realname
-            away (str): away message
-            account (str): ???
-            identified (bool): is the user identified via NS?
+        Arguments:
+            bot (pydle.BasicClient): This bot's instance.
+            nickname (str): IRC nickname of the triggering user.
+            target (str): The message target (a channel or the bot's nick, if it was sent in a query
+                window).
+            ident (str): Indent of the triggering user (aka username).
+            hostname (str): Hostname from which the triggering user is connecting, or their vhost.
+            realname (str): Realname defined by the user.
+            away (str): The user's away message if they are marked away, None if they are not.
+            account (str): Who the user is logged in as. Should be their NickServ username / main
+                nickname.
+            identified (bool): Whether or not the user is identified with NickServ.
         """
         self.bot = bot
         self.nickname = nickname
@@ -35,19 +37,18 @@ class Trigger(object):
         self.identified = identified
 
     @classmethod
-    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str,
-                      target: str) -> 'Trigger':
+    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str) -> 'Trigger':
         """
         Creates a `Trigger` object from a user dictionary as used by pydle.
 
-        Args:
-            bot (pydle.BasicClient): instance of the bot
+        Arguments:
+            bot (pydle.BasicClient): This bot's instance.
             nickname (str): Command sender's nickname.
-            target (str): The message target  (usually a channel or, if it was
-                sent in a query window, the bot's nick)
+            target (str): The message target (usually a channel or, if it was sent in a query
+            window, the bot's nick).
 
         Returns:
-            Trigger
+            Trigger: Object constructed from the provided info.
         """
         user = bot.users[nickname]
         return cls(bot, user["nickname"], target,
@@ -58,23 +59,15 @@ class Trigger(object):
     @property
     def channel(self) -> str or None:
         """
-        The channel the trigger came from.
-
-        Returns:
-            str : channel, if it exists
+        If the message was sent in a channel, this will be its name and `None` otherwise.
         """
         return self.target if self.bot.is_channel(self.target) else None
 
     async def reply(self, msg: str):
         """
-        Sends a message in the same channel or query window as the command was
-        sent.
+        Sends a message in the same channel or query window as the command was sent.
 
-        Args:
-            msg (str): message to send
-
-        Returns:
-
+        Arguments:
+            msg (str): Message to send.
         """
-        await self.bot.message(self.channel if self.channel else self.nickname,
-                               msg)
+        await self.bot.message(self.channel if self.channel else self.nickname, msg)
