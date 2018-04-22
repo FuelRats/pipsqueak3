@@ -17,6 +17,7 @@ This module is built on top of the Pydle system.
 import unittest
 from unittest import mock
 
+import asyncio
 import pydle
 from aiounittest import async_test
 
@@ -203,3 +204,20 @@ class RatCommandTests(unittest.TestCase):
         for item in foo:
             with self.subTest(item=item):
                 self.assertFalse(Commands._register(item, ['foo']))
+
+    @async_test
+    async def test_rule(self):
+        """Verifies that the rule decorator works as expected."""
+        underlying = mock.MagicMock()
+        Commands.rule("banan(a|e)")(asyncio.coroutine(underlying))
+
+        with self.subTest("matching"):
+            await Commands.trigger("!banana", "unit_test", "#mordor")
+            assert underlying.called
+
+        underlying.reset_mock()
+
+        with self.subTest("not matching"):
+            with self.assertRaises(CommandNotFoundException):
+                await Commands.trigger("!banan", "unit_test", "theOneWithTheHills")
+            assert not underlying.called
