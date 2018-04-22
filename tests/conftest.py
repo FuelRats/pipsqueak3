@@ -36,8 +36,7 @@ def RescueSoP_fx(request) -> Rescue:
         Rescue : Rescue objects
     """
     params = request.param
-    myRescue = Rescue(uuid4(), client=params[0], system=params[2], irc_nickname=params[0],
-                      board_index=params[3])
+    myRescue = Rescue(uuid4(), client=params[0], system=params[2], irc_nickname=params[0], board_index=params[3])
     myRescue.platform = params[1]
     return myRescue
 
@@ -50,7 +49,7 @@ def RescuePlain_fx() -> Rescue:
     Returns:
         Rescue : Plain initialized Rescue
     """
-    return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST",board_index=42)
+    return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST", board_index=42)
 
 
 @pytest.fixture

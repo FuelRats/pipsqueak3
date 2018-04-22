@@ -32,9 +32,8 @@ class TestRescue(TestCase):
         self.updated_at = datetime(2017, 12, 24, 23, 59, 52)
         self.system = "firestone"
         self.case_id = "some_id"
-        self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system,
-                             irc_nickname="stranded_commander", created_at=self.time,
-                             updated_at=self.updated_at,board_index=42)
+        self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system, irc_nickname="stranded_commander",
+                             created_at=self.time, updated_at=self.updated_at, board_index=42)
 
     def test_client_property_exists(self):
         """
@@ -298,20 +297,20 @@ class TestRescue(TestCase):
 
     def test_is_open_properly(self):
         """
-        Verifies `Rescue.is_open` is readable and settable when thrown good
+        Verifies `Rescue.open` is readable and settable when thrown good
         parameters
 
         Returns:
 
         """
         # check default state
-        self.assertTrue(self.rescue.is_open)
+        self.assertTrue(self.rescue.open)
 
         data = [True, False]
         for value in data:
             with self.subTest(value=value):
-                self.rescue.is_open = value
-                self.assertEqual(self.rescue.is_open, value)
+                self.rescue.open = value
+                self.assertEqual(self.rescue.open, value)
 
     def test_is_open_bad_types(self):
         """
@@ -325,7 +324,7 @@ class TestRescue(TestCase):
         for piece in garbage:
             with self.subTest(piece=piece):
                 with self.assertRaises(TypeError):
-                    self.rescue.is_open = piece
+                    self.rescue.open = piece
 
     def test_epic_readable(self):
         """
@@ -368,36 +367,6 @@ class TestRescue(TestCase):
                 with self.assertRaises(TypeError):
                     self.rescue.code_red = piece
 
-    def test_successful_correctly(self):
-        """
-        Verifies `Rescue.successful` is readable and settable when thrown good
-         parameters
-
-        Returns:
-
-        """
-        # check default state
-        self.assertFalse(self.rescue.successful)
-
-        data = [True, False]
-        for value in data:
-            with self.subTest(value=value):
-                self.rescue.successful = value
-                self.assertEqual(self.rescue.successful, value)
-
-    def test_successful_bad_types(self):
-        """
-        Verifies `Rescue.successful` raises correct exceptions when its given
-        garbage
-
-        Returns:
-
-        """
-        garbage = [None, "foo", {}, 12, 22.3]
-        for piece in garbage:
-            with self.subTest(piece=piece):
-                with self.assertRaises(TypeError):
-                    self.rescue.successful = piece
 
     def test_title(self):
         """

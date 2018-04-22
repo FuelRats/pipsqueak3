@@ -18,7 +18,7 @@ from uuid import UUID
 import config
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
-from ratlib.names import Platforms
+from ratlib.names import Platforms, Status
 
 LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
@@ -28,17 +28,18 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: UUID, client: str, system: str, irc_nickname: str,
-                 board: 'RatBoard' = None, created_at: datetime = None, updated_at: datetime = None,
-                 unidentified_rats=None, active=True, quotes: list = None, is_open=True, epic=False,
-                 code_red=False, successful=False, title: str = '',
-                 first_limpet: UUID or None = None, board_index: int = None,
-                 mark_for_deletion: dict or None = None, lang_id: str = "EN", rats: list = None):
+    def __init__(self, case_id: UUID, client: str, system: str, irc_nickname: str, board: 'RatBoard' = None,
+                 created_at: datetime = None, updated_at: datetime = None, unidentified_rats=None, active=True,
+                 quotes: list = None, epic=False, title: str = '', first_limpet: UUID or None = None,
+                 board_index: int = None, mark_for_deletion: dict or None = None, lang_id: str = "EN",
+                 rats: list = None, status: Status = Status.OPEN, code_red=False):
         """
         creates a unique rescue
 
         Args:
 
+            code_red (bool): is the client on emergency oxygen
+            status (Status): status attribute for the rescue
             board (RatBoard): RatBoard instance this rescue is attached to, if any.
             case_id (str): API id of rescue
             client (str): Commander name of the Commander rescued
@@ -51,10 +52,7 @@ class Rescue(object):
                 rescue **(nicknames)**
             active (bool): marks whether the case is active or not
             quotes (list): list of Quotation objects associated with rescue
-            is_open (bool): is the case marked as open
             epic (bool): is the case marked as an epic
-            code_red (bool): is the case marked as a Code Red
-            successful (bool): is the case marked as a success
             title (str): name of operation, if applicable
             first_limpet (UUID): Id of the rat that got the first limpet
             board_index (int): index position on the board, if any.
@@ -78,10 +76,9 @@ class Rescue(object):
         self._system: str = system.upper()
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
-        self._open: bool = is_open
         self._epic: bool = epic
         self._codeRed: bool = code_red
-        self._successful: bool = successful
+        self._outcome: None = None
         self._title: str = title
         self._firstLimpet: UUID = first_limpet
         self._board_index = board_index
@@ -92,6 +89,7 @@ class Rescue(object):
         }
         self._board_index = board_index
         self._lang_id = lang_id
+        self._status = status
 
     def __eq__(self, other) -> bool:
         """
@@ -122,7 +120,7 @@ class Rescue(object):
                 self.unidentified_rats == other.unidentified_rats,
                 self.active == other.active,
                 self.code_red == other.code_red,
-                self.successful == other.successful,
+                self.outcome == other.outcome,
                 self.title == other.title,
                 self.first_limpet == other.first_limpet,
                 self.mark_for_deletion == other.mark_for_deletion,
@@ -132,6 +130,32 @@ class Rescue(object):
             ]
 
             return all(conditions)
+
+    @property
+    def status(self)->Status:
+        """
+        Status enum for the rescue
+
+        Returns:
+            Status
+        """
+        return self._status
+
+    @status.setter
+    def status(self, value:status):
+        """
+        Set the value of the status enum
+
+        Args:
+            value (Status): new status enum
+
+        Raises:
+            TypeError: invalid `value` type
+        """
+        if isinstance(value, Status):
+            self._status = value
+        else:
+            raise TypeError
 
     @property
     def irc_nickname(self)->str:
@@ -365,10 +389,10 @@ class Rescue(object):
         Returns:
             bool: Active state
         """
-        return self._active
+        return True if self.status == Status.INACTIVE else False
 
     @active.setter
-    def active(self, value) -> None:
+    def active(self, value:bool) -> None:
         """
         setter for `Rescue.active`
 
@@ -379,7 +403,10 @@ class Rescue(object):
             None
         """
         if isinstance(value, bool):
-            self._active = value
+            if value:
+                self.status = Status.OPEN
+            else:
+                self.status = Status.INACTIVE
         else:
             raise ValueError(f"expected bool, got type {type(value)}")
 
@@ -502,23 +529,23 @@ class Rescue(object):
             raise TypeError(f"expected type str, got {type(value)}")
 
     @property
-    def is_open(self) -> bool:
+    def open(self) -> bool:
         """
-        Bool storing the Rescue's open status.
-
-        - this cannot be named `Rescue.open` as it would shadow the name from
-        the outer scope (bad)
+        Helper method for determining if a case is considered open or not
 
         Returns:
             bool: is case open?
 
         """
-        return self._open
+        if self.status is Status.CLOSED:
+            return False
+        else:
+            return True
 
-    @is_open.setter
-    def is_open(self, value: bool) -> None:
+    @open.setter
+    def open(self, value: bool) -> None:
         """
-        Set the Rescue's open status
+        helper method for setting the Rescue's open status
 
         Args:
             value (bool): value to set
@@ -530,7 +557,10 @@ class Rescue(object):
             TypeError: value was not a boolean
         """
         if isinstance(value, bool):
-            self._open = value
+            if value:
+                self.status = Status.OPEN
+            else:
+                self.status = Status.CLOSED
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
@@ -565,33 +595,15 @@ class Rescue(object):
             raise TypeError(f"expected type bool, got {type(value)}")
 
     @property
-    def successful(self) -> bool:
+    def outcome(self) -> None:
         """
         Success status for Rescue.
 
         Returns:
             bool
         """
-        return self._successful
+        return self._outcome
 
-    @successful.setter
-    def successful(self, value: bool) -> None:
-        """
-        sets the success state for the rescue
-
-        Args:
-            value (bool): success status
-
-        Returns:
-            None
-
-        Raises:
-            TypeError: bad `value` type
-        """
-        if isinstance(value, bool):
-            self._successful = value
-        else:
-            raise TypeError(f"expected type bool, got {type(value)}")
 
     @property
     def title(self) -> str or None:
