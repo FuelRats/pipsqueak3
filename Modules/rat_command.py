@@ -17,6 +17,8 @@ import logging
 
 import re
 
+from pydle import BasicClient
+
 from Modules.trigger import Trigger
 import config
 
@@ -58,21 +60,17 @@ class Commands:
     Handles command registration and execution
     """
 
-    ####
     # logger facility
     log = logging.getLogger(f"{config.Logging.base_logger}.commands")
-    ####
     # commands registered with @command will populate this dict
     _registered_commands = {}
     _rules = {}
 
-    ####
     # character/s that must prefix a message for it to be parsed as a command.
     prefix = '!'
 
-    ####
-    # Pydle bot instance. #FIXME set value during MechaClient init!
-    bot = None
+    # Pydle bot instance.
+    bot: BasicClient = None
 
     @classmethod
     async def trigger(cls, message: str, sender: str, channel: str):
@@ -83,54 +81,42 @@ class Commands:
         :param channel: channel of triggering message
         :return: bool command
         """
-        log.debug("trigger called!")
-        if cls._registered_commands is None:
-            cls.log.critical(
-                " registered commands dict somehow was set to None")
-            raise CommandException("registered_commands is None!")
-        if not cls.bot:
+        if cls.bot is None:
             # someone didn't set me.
-            raise CommandException(f"cls.bot is not set. (value = {cls.bot}")
+            raise CommandException(f"Bot client has not been created or not handed to Commands.")
 
         cls.log.debug(f"triggered! message is {message}")
 
-        if not message:
-            raise InvalidCommandException(f"Command required, got {message}")
-        elif not message.startswith(cls.prefix):
-            log.debug(f"ignoring message{message} as it does not start with "
-                      f"my prefix.")
-            return None
-        else:
-            # remove command prefix
-            raw_command: str = message.lstrip(cls.prefix)
+        # remove command prefix
+        raw_command: str = message.lstrip(cls.prefix)
 
-            words = []
-            words_eol = []
-            remaining = raw_command
-            while True:
-                words_eol.append(remaining)
-                try:
-                    word, remaining = remaining.split(maxsplit=1)
-                except ValueError:
-                    # we couldn't split -> only one word left
-                    words.append(remaining)
-                    break
-                else:
-                    words.append(word)
-
-            trigger = Trigger.from_bot_user(cls.bot, sender, channel, words, words_eol)
-
-            if words[0] in cls._registered_commands.keys():
-                cmd = cls._registered_commands[words[0]]
+        words = []
+        words_eol = []
+        remaining = raw_command
+        while True:
+            words_eol.append(remaining)
+            try:
+                word, remaining = remaining.split(maxsplit=1)
+            except ValueError:
+                # we couldn't split -> only one word left
+                words.append(remaining)
+                break
             else:
-                for key, value in cls._rules.items():
-                    if key.match(words[0]) is not None:
-                        cmd = value
-                        break;
-                else:
-                    raise CommandNotFoundException(f"Unable to find command {words[0]}")
+                words.append(word)
 
-            return await cmd(cls.bot, trigger, words, words_eol)
+        trigger = Trigger.from_bot_user(cls.bot, sender, channel, words, words_eol)
+
+        if words[0] in cls._registered_commands.keys():
+            cmd = cls._registered_commands[words[0]]
+        else:
+            for key, value in cls._rules.items():
+                if key.match(words[0]) is not None:
+                    cmd = value
+                    break
+            else:
+                raise CommandNotFoundException(f"Unable to find command {words[0]}")
+
+        return await cmd(cls.bot, trigger, words, words_eol)
 
     @classmethod
     def _register(cls, func, names: list or str) -> bool:
@@ -151,8 +137,7 @@ class Commands:
             for alias in names:
                 if alias in cls._registered_commands:
                     # command already registered
-                    raise NameCollisionException(f"attempted to re-register"
-                                                 f" command(s) {alias}")
+                    raise NameCollisionException(f"attempted to re-register command(s) {alias}")
                 else:
                     formed_dict = {alias: func}
                     cls._registered_commands.update(formed_dict)
@@ -164,7 +149,6 @@ class Commands:
         """
         Flushes registered commands
         Probably useless outside testing...
-        :return: None
         """
         cls._registered_commands = {}
         cls._rules = {}
@@ -214,14 +198,3 @@ class Commands:
             log.info(f"New rule matching '{regex}' was created.")
             return wrapper
         return decorator
-
-    @classmethod
-    def get_command(cls, name: str):
-        # remove the prefix.
-        name = name.strip(cls.prefix)
-        # see if its a command
-        if name in cls._registered_commands:
-            cls.log.debug("command found!")
-            return cls._registered_commands[name]
-        else:
-            return None
