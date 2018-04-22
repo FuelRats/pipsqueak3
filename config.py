@@ -62,3 +62,11 @@ class Commands:
     ####
     # Mecha's trigger prefix
     trigger = "!"
+
+
+class RatBoard:
+    """
+    Configuration options for the RatBoard
+    """
+    CASE_LIMIT = 30
+    """Default limit to board indexies, may be dynamically re-sized during runtime."""
