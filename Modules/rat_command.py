@@ -202,6 +202,14 @@ class Commands:
 
     @classmethod
     def rule(cls, regex: str):
+        """
+        Decorator to have the underlying coroutine be called when two conditions apply:
+        1. No conventional command was found for the incoming message.
+        2. The command matches the here provided regular expression.
+
+        Arguments:
+            regex (str): Regular expression to match the command.
+        """
         def decorator(coro):
             async def wrapper(bot, trigger, words, words_eol):
                 try:
@@ -210,7 +218,7 @@ class Commands:
                     return await coro(bot, trigger, words, words_eol)
 
             cls._rules[re.compile(regex, re.IGNORECASE)] = wrapper
-            log.info(f"New rule matching '{regex}'.")
+            log.info(f"New rule matching '{regex}' was created.")
             return wrapper
         return decorator
 
