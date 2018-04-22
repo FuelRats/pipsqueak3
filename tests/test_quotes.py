@@ -114,7 +114,7 @@ class TestQuotes(TestCase):
         Verifies a quote can be changed correctly, that the correct fields are
          set
         """
-        trigger = Trigger(mock_bot, nickname="unit_test[BOT]",
+        trigger = Trigger(mock_bot, [], [], nickname="unit_test[BOT]",
                           target="#unit_tests", ident="mechasqueak3",
                           hostname="techrat.fuelrats.com")
         quote = Quotation("foo")
