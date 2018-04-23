@@ -21,8 +21,8 @@ import asyncio
 import pydle
 from aiounittest import async_test
 
-from Modules.rat_command import Commands, CommandNotFoundException, \
-    NameCollisionException, InvalidCommandException, CommandException
+from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException,\
+    CommandException
 from tests.mock_bot import MockBot
 
 
