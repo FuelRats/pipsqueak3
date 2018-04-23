@@ -1,11 +1,6 @@
 import pytest
 
 from Modules.trigger import Trigger
-from tests.mock_bot import MockBot
-
-@pytest.fixture
-def bot():
-    return MockBot()
 
 def test_create_manual_channel(bot):
     trigger = Trigger(bot, ["don't", "care"], ["don't care", "care"], "test_nick", "#somechannel",
