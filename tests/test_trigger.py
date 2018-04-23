@@ -1,5 +1,4 @@
 import pytest
-from aiounittest import async_test
 
 from Modules.trigger import Trigger
 from tests.mock_bot import MockBot
@@ -50,7 +49,7 @@ def test_create_from_user_query(bot):
     assert trigger.account == bot.users["unit_test[BOT]"]["account"]
     assert trigger.identified == bot.users["unit_test[BOT]"]["identified"]
 
-@async_test
+@pytest.mark.asyncio
 async def test_reply_channel(bot):
     trigger = Trigger(bot, ["some", "thing"], ["some thing", "thing"],
                       "test_nick", "#somechannel", "test_ident", "test.vhost")
@@ -60,7 +59,7 @@ async def test_reply_channel(bot):
         "message": "Exceedingly smart test message."
     } in bot.sent_messages
 
-@async_test
+@pytest.mark.asyncio
 async def test_reply_query(bot):
     trigger = Trigger(bot, ["some", "thing"], ["some thing", "thing"],
                       "test_nick", "not_a_channel", "test_ident", "test.vhost")
