@@ -19,6 +19,7 @@ from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from ratlib.names import Platforms
+from tests.mock_bot import MockBot
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -84,3 +85,7 @@ def RatBoard_fx() -> RatBoard:
         RatBoard: initialized ratboard object
     """
     return RatBoard()
+
+@pytest.fixture
+def bot():
+    return MockBot()
