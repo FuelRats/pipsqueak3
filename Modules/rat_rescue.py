@@ -28,10 +28,14 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: UUID, client: str, system: str, irc_nickname: str, board: 'RatBoard' = None,
-                 created_at: datetime = None, updated_at: datetime = None, unidentified_rats=None, active=True,
-                 quotes: list = None, epic=False, title: str = '', first_limpet: UUID or None = None,
-                 board_index: int = None, mark_for_deletion: dict or None = None, lang_id: str = "EN",
+    def __init__(self, case_id: UUID, client: str, system: str, irc_nickname: str,
+                 board: 'RatBoard' = None,
+                 created_at: datetime = None,
+                 updated_at: datetime = None, unidentified_rats=None, active=True,
+                 quotes: list = None, epic=False, title: str = '',
+                 first_limpet: UUID or None = None,
+                 board_index: int = None, mark_for_deletion: dict or None = None,
+                 lang_id: str = "EN",
                  rats: list = None, status: Status = Status.OPEN, code_red=False):
         """
         creates a unique rescue
