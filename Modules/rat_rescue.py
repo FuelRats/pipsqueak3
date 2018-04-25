@@ -537,7 +537,7 @@ class Rescue(object):
             bool: is case open?
 
         """
-        return False if self.status is Status.CLOSED else True
+        return self.status is not Status.CLOSED
 
     @open.setter
     def open(self, value: bool) -> None:
