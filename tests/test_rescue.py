@@ -10,6 +10,7 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
+from copy import deepcopy
 from datetime import datetime
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
@@ -610,3 +611,23 @@ class TestRescuePyTests(object):
         with pytest.raises(ValueError):
             RescuePlain_fx.mark_for_deletion = my_md_structure
             assert my_md_structure != RescuePlain_fx.mark_for_deletion
+
+    @pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
+    def test_mark_for_deletion_setter_bad_types(self, garbage, RescuePlain_fx: Rescue):
+        """Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError"""
+        myRescue = deepcopy(RescuePlain_fx)
+
+        with pytest.raises(TypeError):
+            myRescue.mark_for_deletion = garbage
+
+    @pytest.mark.parametrize("garbage", [
+        {'reason': 42, 'marked': True, 'reporter': "UNIT_TEST"},
+        {'reason': None, "marked": 1, 'reporter': "UNIT_TEST"},
+        {'reason': None, "marked": False, "reporter": 21}
+    ])
+    def test_mark_for_deletion_setter_malformed_data(self, garbage, RescuePlain_fx: Rescue):
+        """Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError"""
+        myRescue = deepcopy(RescuePlain_fx)
+
+        with pytest.raises(ValueError):
+            myRescue.mark_for_deletion = garbage
