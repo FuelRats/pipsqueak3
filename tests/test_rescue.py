@@ -483,7 +483,7 @@ class TestRescuePyTests(object):
     @pytest.mark.asyncio
     async def test_add_rat_from_cache(self, RatGood_fx: Rats, RescueSoP_fx: Rescue):
         await RescueSoP_fx.add_rat(RatGood_fx.name)
-        assert RatGood_fx in RescueSoP_fx.rats
+        assert RatGood_fx == RescueSoP_fx.rats[0]
 
     @pytest.mark.parametrize("garbage", [(None,), (42,), (-2.2,), (uuid4(),)])
     def test_irc_nickname_garbage(self, garbage, RescuePlain_fx: Rescue):

@@ -11,7 +11,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import pytest
 
@@ -62,16 +62,16 @@ def RatNoID_fx():
     return Rats(None, "noIdRat")
 
 
-@pytest.fixture(params=[("myPcRat", Platforms.PC),
-                        ("someXrat", Platforms.XB),
-                        ("psRatToTheRescue", Platforms.PS)],
-                scope='module')
+@pytest.fixture(params=[("myPcRat", Platforms.PC, UUID("dead4ac0-0000-0000-0000-00000000beef")),
+                        ("someXrat", Platforms.XB, UUID("FEED000-FAC1-0000-0000900000D15EA5E")),
+                        ("psRatToTheRescue", Platforms.PS, UUID("FEE1DEA-DFAC-0000-000001BADB001FEED"))],
+                )
 def RatGood_fx(request) -> Rats:
     """
     Testing fixture containing good and registered rats
     """
     params = request.param
-    myRat = Rats(uuid4(), name=params[0], platform=params[1])
+    myRat = Rats(params[2], name=params[0], platform=params[1])
     return myRat
 
 

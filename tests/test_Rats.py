@@ -1,3 +1,4 @@
+from copy import deepcopy
 from unittest import TestCase
 from uuid import UUID, uuid4
 
@@ -180,7 +181,7 @@ class TestRatsPyTest(object):
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("garbage", [22.1, -42, 42, 0, False, True])
-    async def test_find_rat_bad_type(self, garbage):
+    async def test_find_rat_by_name_bad_type(self, garbage):
         """
         Verifies that attempting to throw garbage at Rats.search() raises the proper exception
         """
@@ -191,9 +192,30 @@ class TestRatsPyTest(object):
             await Rats.get_rat_by_name(name="foo", platform=garbage)
 
     @pytest.mark.asyncio
-    async def test_find_rat_not_in_cache_and_no_API(self):
+    async def test_find_rat_by_name_not_in_cache_and_no_API(self):
         """
         Verifies the functionality of Rats.get_rat_by_nickname when the rat is not in the cache
         """
         result = await Rats.get_rat_by_name(name="somenamethatdoesnotexist")
         assert result is None
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("garbage", [22.1, -42, 42, 0, False, True])
+    async def test_get_rat_by_uuid_garbage(self, garbage):
+        with pytest.raises(TypeError):
+            await Rats.get_rat_by_uuid(uuid=garbage)
+
+    @pytest.mark.asyncio
+    async def test_get_rat_by_uuid_cache_miss(self):
+        """Verifies Rats.get_rat_by_uuid returns None upon cache miss and no API connection"""
+        uuid = uuid4()
+        assert await Rats.get_rat_by_uuid(uuid) is None
+
+    @pytest.mark.asyncio
+    async def test_get_rat_by_uuid_cache_hit(self, RatGood_fx: Rats):
+        """Verifies Rats.get_rat_by_uuid returns the correct rat on cache hit"""
+        mine = RatGood_fx
+        found = await Rats.get_rat_by_uuid(mine.uuid)
+        assert found is not None
+        assert found == mine
+
