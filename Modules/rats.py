@@ -62,6 +62,23 @@ class Rats(object):
             # don't register duplicates
             Rats.cache_by_id[uuid] = self
 
+    def __eq__(self, other: 'Rats')->bool:
+        """
+        Compare two Rats objects for equality
+
+        Args:
+            other (Rats): other object to compare
+
+        Returns:
+            bool: equal if uuid, platform, and name match
+        """
+        conditions = {
+            self.platform == other.platform,
+            self.uuid == other.uuid,
+            self.name == other.name
+        }
+        return all(conditions)
+
     @property
     def uuid(self):
         """
@@ -200,7 +217,7 @@ class Rats(object):
             found = None
             if uuid in cls.cache_by_id:
                 found = cls.cache_by_id[uuid]
-            else:
+            elif cls.apiHandler is not None:
                 found = await cls.apiHandler.someApiCall(uuid=uuid)
 
             return found
