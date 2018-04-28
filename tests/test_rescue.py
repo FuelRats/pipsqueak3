@@ -368,7 +368,6 @@ class TestRescue(TestCase):
                 with self.assertRaises(TypeError):
                     self.rescue.code_red = piece
 
-
     def test_title(self):
         """
         Verifies `Rescue.title` behaves as expected
@@ -409,24 +408,12 @@ class TestRescue(TestCase):
                 with self.assertRaises(TypeError):
                     self.rescue.rats = piece
 
-    def test_add_rat_by_rat_boject(self):
-        """
-        Verifies `Rescue.add_rat` can add a rat given a `Rats` object
-        """
-        rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
-        rats = [Rats(x, y) for x, y in rats_raw]
-
-        for rat in rats:
-            with self.subTest(rat=rat):
-                self.rescue.add_rat(rat=rat)
-                self.assertIn(rat, self.rescue._rats)
-
     def test_add_rat_by_uuid(self):
         """
         Verifies `Rescue.add_rat` can add a rat given a guid and a name
         """
         rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
-        for guid,name in rats_raw:
+        for guid, name in rats_raw:
             with self.subTest(guid=guid, name=name):
                 self.rescue.add_rat(guid)
 
@@ -478,16 +465,18 @@ class TestRescuePyTests(object):
     container for pytest specific tests
     """
 
-    def test_add_rats_bad_id(self, RatNoID_fx, RescueSoP_fx):
+    @pytest.mark.asyncio
+    async def test_add_rats_bad_id(self, RatNoID_fx, RescueSoP_fx):
         """
         Verifies attempting to add a rat that does not have a API id fails as expected
         """
         with pytest.raises(ValueError, message="Assigned rat does not have a known API ID"):
-            RescueSoP_fx.add_rat(rat=RatNoID_fx)
+            await RescueSoP_fx.add_rat(rat=RatNoID_fx)
 
         assert RatNoID_fx not in RescueSoP_fx.rats
 
-    def test_add_rats_ok(self, RatGood_fx, RescueSoP_fx):
+    @pytest.mark.asyncio
+    async def test_add_rats_ok(self, RatGood_fx, RescueSoP_fx):
         """
         Verifies adding a existing rat with a UUID works
         Args:
@@ -495,11 +484,12 @@ class TestRescuePyTests(object):
             RescueSoP_fx (Rescue):  Rescue object Test Fixture
         """
         # RescueSoP_fx:Rescue
-        RescueSoP_fx.add_rat(rat=RatGood_fx)
+        await RescueSoP_fx.add_rat(rat=RatGood_fx)
         assert RatGood_fx in RescueSoP_fx.rats
 
-    def test_add_rat_from_cache(self, RatGood_fx: Rats, RescueSoP_fx: Rescue):
-        RescueSoP_fx.add_rat(RatGood_fx.name)
+    @pytest.mark.asyncio
+    async def test_add_rat_from_cache(self, RatGood_fx: Rats, RescueSoP_fx: Rescue):
+        await RescueSoP_fx.add_rat(RatGood_fx.name)
         assert RatGood_fx in RescueSoP_fx.rats
 
     @pytest.mark.parametrize("garbage", [(None,), (42,), (-2.2,), (uuid4(),)])
@@ -631,3 +621,20 @@ class TestRescuePyTests(object):
 
         with pytest.raises(ValueError):
             myRescue.mark_for_deletion = garbage
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
+    async def test_add_rat_by_rat_object(self, uuid: uuid4, name: str, RescuePlain_fx: Rescue):
+        """
+        Verifies `Rescue.add_rat` can add a rat given a `Rats` object
+        """
+        # rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
+        # rats = [Rats(x, y) for x, y in rats_raw]
+
+        myRescue = deepcopy(RescuePlain_fx)
+
+        rat = Rats(uuid=uuid, name=name)
+
+        await myRescue.add_rat(rat=rat)
+
+        assert rat in myRescue.rats

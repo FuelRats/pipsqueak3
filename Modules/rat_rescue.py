@@ -712,7 +712,7 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rats = None) -> None:
+    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rats = None) -> None:
         """
         Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
         be raised as exceptions.
@@ -747,7 +747,7 @@ class Rescue(object):
 
         if isinstance(name, str):
             # lets check if we already have this rat in the cache (platform, any)
-            found = (Rats.get_rat(name, self.platform), Rats.get_rat(name))
+            found = (await Rats.get_rat_by_name(name, self.platform), await Rats.get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
                 return
