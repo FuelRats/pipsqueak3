@@ -758,14 +758,14 @@ class Rescue(object):
                 self.rats.append(found[1])
                 return
 
-        else:
-            # lets make a new Rat!
-            if self.rat_board:  # PRAGMA: NOCOVER
-                raise NotImplementedError  # TODO fetch rat from API
-            # TODO: fetch rats from API handler, use that data to make a new Rats instance
+            else:
+                # lets make a new Rat!
+                if self.rat_board:  # PRAGMA: NOCOVER
+                    raise NotImplementedError  # TODO fetch rat from API
+                # TODO: fetch rats from API handler, use that data to make a new Rats instance
 
-            rat = Rats(name=name, uuid=guid)
-            self.rats.append(rat)
+                rat = Rats(name=name, uuid=guid)
+                self.rats.append(rat)
 
 
     @contextmanager
