@@ -1,4 +1,3 @@
-from copy import deepcopy
 from unittest import TestCase
 from uuid import UUID, uuid4
 
@@ -57,23 +56,6 @@ class TestRat(TestCase):
         # verify the keys exist and store the expected data
         self.assertEqual(Rats.cache_by_id[self.some_id], self.my_rat)
         self.assertEqual(Rats.cache_by_name["UNIT_TEST"], self.my_rat)
-
-    @pytest.mark.asyncio
-    async def test_find_rat_by_name_existing(self):
-        """
-        Verifies that cached rats can be found by name
-        """
-        found_rat = await Rats.get_rat_by_name(name="UNIT_TEST")
-        assert self.my_rat == found_rat
-
-    @pytest.mark.asyncio
-    async def test_find_rat_incorrect_platform(self):
-        """
-        Verifies that `Rats.get_rat_by_name` called with a specific platform that does not match
-            the stored platform returns None
-        """
-        found_rat = await Rats.get_rat_by_name(name="UNIT_TEST", platform=Platforms.XB)
-        self.assertIsNone(found_rat)
 
     def test_first_limpet(self):
         """
@@ -219,3 +201,24 @@ class TestRatsPyTest(object):
         assert found is not None
         assert found == mine
 
+
+    @pytest.mark.asyncio
+    async def test_find_rat_by_name_existing(self, RatGood_fx: Rats):
+        """
+        Verifies that cached rats can be found by name
+        """
+        found_rat = await Rats.get_rat_by_name(name=RatGood_fx.name)
+        assert RatGood_fx == found_rat
+
+    @pytest.mark.asyncio
+    async def test_find_rat_incorrect_platform(self):
+        """
+        Verifies that `Rats.get_rat_by_name` called with a specific platform that does not match
+            the stored platform returns None
+        """
+        Rats(name="UNIT_TEST", uuid=None, platform=Platforms.PC)
+
+        found_rat = await Rats.get_rat_by_name(name="UNIT_TEST", platform=Platforms.XB)
+
+        assert found_rat is None
+        # pytest.fail("not awaited!")
