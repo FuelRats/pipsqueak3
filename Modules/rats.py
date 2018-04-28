@@ -218,7 +218,7 @@ class Rats(object):
             if uuid in cls.cache_by_id:
                 found = cls.cache_by_id[uuid]
             elif cls.apiHandler is not None:  # pragma: no cover
-                found = await cls.apiHandler.someApiCall(uuid=uuid)
+                found = await cls.apiHandler.get_rat_by_id(id=uuid)
 
             return found
 
