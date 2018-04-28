@@ -57,32 +57,22 @@ class TestRat(TestCase):
         self.assertEqual(Rats.cache_by_id[self.some_id], self.my_rat)
         self.assertEqual(Rats.cache_by_name["UNIT_TEST"], self.my_rat)
 
-    def test_find_rat_by_name_existing(self):
+    @pytest.mark.asyncio
+    async def test_find_rat_by_name_existing(self):
         """
         Verifies that cached rats can be found by name
         """
-        found_rat = Rats.get_rat(name="UNIT_TEST")
-        self.assertEqual(found_rat, self.my_rat)
+        found_rat = await Rats.get_rat_by_name(name="UNIT_TEST")
+        assert self.my_rat == found_rat
 
-    def test_find_rat_incorrect_platform(self):
+    @pytest.mark.asyncio
+    async def test_find_rat_incorrect_platform(self):
         """
-        Verifies that `Rats.get_rat` called with a specific platform that does not match
+        Verifies that `Rats.get_rat_by_name` called with a specific platform that does not match
             the stored platform returns None
         """
-        found_rat = Rats.get_rat(name="UNIT_TEST", platform=Platforms.XB)
+        found_rat = await Rats.get_rat_by_name(name="UNIT_TEST", platform=Platforms.XB)
         self.assertIsNone(found_rat)
-
-    def test_find_rat_bad_type(self):
-        """
-        Verifies that attempting to throw garbage at Rats.search() raises the proper exception
-        """
-        garbage = ['foo', -42, 42, 0, False, True]
-        for piece in garbage:
-            # self.fail("Not implemented yet, as the functionality doesn't exist!")
-            with self.subTest(piece=piece):
-                with self.assertRaises(TypeError):
-                    Rats.get_rat(name=piece)
-                    Rats.get_rat(name="foo", platform=piece)
 
     def test_first_limpet(self):
         """
@@ -99,7 +89,7 @@ class TestRat(TestCase):
             rescue.first_limpet = guid
             self.assertEqual(rescue.first_limpet, guid)
 
-        #reset for next subtest
+        # reset for next subtest
         rescue._firstLimpet = None
         guid_str = str(guid)
         with self.subTest(mode="good string", guid=guid_str):
@@ -107,7 +97,7 @@ class TestRat(TestCase):
             self.assertEqual(rescue.first_limpet, guid)
 
         rescue._firstLimpet = None
-        garbage = [[],{}, "foo","bar",-2]
+        garbage = [[], {}, "foo", "bar", -2]
         for piece in garbage:
             with self.subTest(mode="garbage", piece=piece):
                 with self.assertRaises(TypeError):
@@ -187,3 +177,15 @@ class TestRatsPyTest(object):
         my_rat = Rats(None, "potato", Platforms.PC)
         with pytest.raises(TypeError):
             my_rat.platform = garbage
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("garbage", [22.1, -42, 42, 0, False, True])
+    async def test_find_rat_bad_type(self, garbage):
+        """
+        Verifies that attempting to throw garbage at Rats.search() raises the proper exception
+        """
+        with pytest.raises(TypeError):
+            await Rats.get_rat_by_name(name=garbage)
+
+        with pytest.raises(TypeError):
+            await Rats.get_rat_by_name(name="foo", platform=garbage)

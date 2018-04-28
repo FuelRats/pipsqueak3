@@ -16,6 +16,8 @@ This module is built on top of the Pydle system.
 import logging
 from uuid import UUID
 
+from pydle import BasicClient
+
 import config
 from ratlib.names import Platforms
 
@@ -30,7 +32,7 @@ class Rats(object):
     Instances of this class are used to represent a unique, individual rat.
 
     Creation of a `Rats` object will automatically add the created rat to the
-    cache, allowing convenience method `Rats.get_rat` to return the instance
+    cache, allowing convenience method `Rats.get_rat_by_name` to return the instance
     when called.
     """
 
@@ -38,6 +40,8 @@ class Rats(object):
     """Cache of rat objects by their UUID"""
     cache_by_name = {}
     """Cache of rat objects by rat name (str)"""
+    apiHandler = None
+    """API handler"""
 
     def __init__(self, uuid: UUID, name: str = None, platform: Platforms = Platforms.DEFAULT):
         """
@@ -144,9 +148,11 @@ class Rats(object):
             raise TypeError(f"Expected a {Platforms} object, got type {type(value)}")
 
     @classmethod
-    def get_rat(cls, name: str, platform: Platforms = Platforms.DEFAULT) -> 'Rats' or None:
+    async def get_rat_by_name(cls, name: str,
+                              platform: Platforms = Platforms.DEFAULT,
+                              bot=None) -> 'Rats' or None:
         """
-        Finds a rat either by name or by uuid.
+        Finds a rat by name and optionally by platform
 
         Will also accept both, and only return if the rat name matches its
         uuid entry.
@@ -162,11 +168,16 @@ class Rats(object):
         if not isinstance(name, str) or not isinstance(platform, Platforms):
             raise TypeError("invalid types given.")
 
+        # initialize before use
+        found = None
+
         try:
             found = Rats.cache_by_name[name]
         except KeyError:
             # no such rat in cache
-            return None
+            if cls.apiHandler is not None:
+                found = await cls.apiHandler.someApiCall(name=name)
+            return found
         else:
             # we found a rat
             return found if (found.platform == platform or platform == Platforms.DEFAULT) else None
