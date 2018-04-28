@@ -189,3 +189,11 @@ class TestRatsPyTest(object):
 
         with pytest.raises(TypeError):
             await Rats.get_rat_by_name(name="foo", platform=garbage)
+
+    @pytest.mark.asyncio
+    async def test_find_rat_not_in_cache_and_no_API(self):
+        """
+        Verifies the functionality of Rats.get_rat_by_nickname when the rat is not in the cache
+        """
+        result = await Rats.get_rat_by_name(name="somenamethatdoesnotexist")
+        assert result is None
