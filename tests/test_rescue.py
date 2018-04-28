@@ -408,14 +408,7 @@ class TestRescue(TestCase):
                 with self.assertRaises(TypeError):
                     self.rescue.rats = piece
 
-    def test_add_rat_by_uuid(self):
-        """
-        Verifies `Rescue.add_rat` can add a rat given a guid and a name
-        """
-        rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
-        for guid, name in rats_raw:
-            with self.subTest(guid=guid, name=name):
-                self.rescue.add_rat(guid)
+
 
     def test_eq_true_branch(self):
         """
@@ -638,3 +631,16 @@ class TestRescuePyTests(object):
         await myRescue.add_rat(rat=rat)
 
         assert rat in myRescue.rats
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
+    async def test_add_rat_by_uuid(self, uuid: uuid4, name: str, RescuePlain_fx: Rescue):
+        """
+        Verifies `Rescue.add_rat` can add a rat given a guid and a name
+        """
+        myRescue = deepcopy(RescuePlain_fx)
+
+        await myRescue.add_rat(name=name, guid=uuid)
+
+        assert name in Rats.cache_by_name
+
