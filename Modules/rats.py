@@ -177,6 +177,7 @@ class Rats(object):
             # no such rat in cache
             if cls.apiHandler is not None:
                 found = await cls.apiHandler.someApiCall(name=name)
+                # FIXME: replace SomeApiCall with the actual call once we have the interface
             return found
         else:
             # we found a rat
