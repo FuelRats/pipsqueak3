@@ -201,6 +201,9 @@ class TestRatsPyTest(object):
         assert found is not None
         assert found == mine
 
+    def test_rat_eq_true(self, RatGood_fx: Rats):
+        """Verifies Rats.__eq__ functions correctly against equal objects"""
+        assert RatGood_fx == RatGood_fx
 
     @pytest.mark.asyncio
     async def test_find_rat_by_name_existing(self, RatGood_fx: Rats):
