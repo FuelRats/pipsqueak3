@@ -16,8 +16,6 @@ This module is built on top of the Pydle system.
 import logging
 from uuid import UUID
 
-from pydle import BasicClient
-
 import config
 from ratlib.names import Platforms
 
@@ -182,6 +180,30 @@ class Rats(object):
         else:
             # we found a rat
             return found if (found.platform == platform or platform == Platforms.DEFAULT) else None
+
+    @classmethod
+    async def get_rat_by_uuid(cls, uuid: UUID) -> 'Rats' or None:
+        """
+        Finds a rat by their UUID.
+
+        This method will first check the local cache and, in the event of a cache miss, will make an API call.
+
+        Args:
+            uuid (UUID): api uuid to find a rat for
+
+        Returns:
+            Rats: found Rescue
+        """
+        if not isinstance(uuid, UUID):
+            raise TypeError
+        else:
+            found = None
+            if uuid in cls.cache_by_id:
+                found = cls.cache_by_id[uuid]
+            else:
+                found = await cls.apiHandler.someApiCall(uuid=uuid)
+
+            return found
 
     @classmethod
     def flush(cls) -> None:
