@@ -191,7 +191,7 @@ class Rats(object):
         except KeyError:
             # no such rat in cache
             if cls.apiHandler is not None:
-                found = await cls.apiHandler.someApiCall(name=name)
+                found = await cls.apiHandler.someApiCall(name=name)  # pragma: no cover
                 # FIXME: replace SomeApiCall with the actual call once we have the interface
             return found
         else:
@@ -217,7 +217,7 @@ class Rats(object):
             found = None
             if uuid in cls.cache_by_id:
                 found = cls.cache_by_id[uuid]
-            elif cls.apiHandler is not None:
+            elif cls.apiHandler is not None:  # pragma: no cover
                 found = await cls.apiHandler.someApiCall(uuid=uuid)
 
             return found
