@@ -203,7 +203,8 @@ class Rats(object):
         """
         Finds a rat by their UUID.
 
-        This method will first check the local cache and, in the event of a cache miss, will make an API call.
+        This method will first check the local cache and, in the event of a cache miss, will make an
+            API call.
 
         Args:
             uuid (UUID): api uuid to find a rat for
