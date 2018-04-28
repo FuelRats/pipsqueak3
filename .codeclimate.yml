@@ -5,3 +5,6 @@ engines:
       languages:
         python:
           python_version: 3
+plugins:
+  pep8:
+    enabled: true
