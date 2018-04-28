@@ -165,7 +165,7 @@ class Rats(object):
     @classmethod
     async def get_rat_by_name(cls, name: str,
                               platform: Platforms = Platforms.DEFAULT,
-                              bot=None) -> 'Rats' or None:
+                              ) -> 'Rats' or None:
         """
         Finds a rat by name and optionally by platform
 
