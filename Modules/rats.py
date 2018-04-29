@@ -38,7 +38,7 @@ class Rats(object):
     """Cache of rat objects by their UUID"""
     cache_by_name = {}
     """Cache of rat objects by rat name (str)"""
-    apiHandler = None
+    api_handler = None
     """API handler"""
 
     def __init__(self, uuid: UUID, name: str = None, platform: Platforms = Platforms.DEFAULT):
@@ -190,8 +190,8 @@ class Rats(object):
             found = Rats.cache_by_name[name]
         except KeyError:
             # no such rat in cache
-            if cls.apiHandler is not None:
-                found = await cls.apiHandler.someApiCall(name=name)  # pragma: no cover
+            if cls.api_handler is not None:
+                found = await cls.api_handler.someApiCall(name=name)  # pragma: no cover
                 # FIXME: replace SomeApiCall with the actual call once we have the interface
             return found
         else:
@@ -218,8 +218,8 @@ class Rats(object):
             found = None
             if uuid in cls.cache_by_id:
                 found = cls.cache_by_id[uuid]
-            elif cls.apiHandler is not None:  # pragma: no cover
-                found = await cls.apiHandler.get_rat_by_id(id=uuid)
+            elif cls.api_handler is not None:  # pragma: no cover
+                found = await cls.api_handler.get_rat_by_id(id=uuid)
 
             return found
 
