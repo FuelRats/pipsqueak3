@@ -40,7 +40,7 @@ class Rescue(object):
                  active=True,
                  quotes: list = None,
                  epic=False,
-                 title: Union(str, None)= None,
+                 title: Union[str, None]= None,
                  first_limpet: UUID or None = None,
                  board_index: int = None,
                  mark_for_deletion: dict or None = None,
