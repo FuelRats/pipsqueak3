@@ -94,7 +94,7 @@ class Rescue(object):
         self._epic: bool = epic
         self._codeRed: bool = code_red
         self._outcome: None = None
-        self._title: Union(str, None) = title
+        self._title: Union[str, None] = title
         self._firstLimpet: UUID = first_limpet
         self._board_index = board_index
         self._mark_for_deletion = mark_for_deletion if mark_for_deletion else {
