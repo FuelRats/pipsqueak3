@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
+from typing import Union
 from uuid import UUID
 
 import config
@@ -28,15 +29,25 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: UUID, client: str, system: str, irc_nickname: str,
+    def __init__(self, case_id: UUID,
+                 client: str,
+                 system: str,
+                 irc_nickname: str,
                  board: 'RatBoard' = None,
                  created_at: datetime = None,
-                 updated_at: datetime = None, unidentified_rats=None, active=True,
-                 quotes: list = None, epic=False, title: str = '',
+                 updated_at: datetime = None,
+                 unidentified_rats=None,
+                 active=True,
+                 quotes: list = None,
+                 epic=False,
+                 title: Union(str, None)= None,
                  first_limpet: UUID or None = None,
-                 board_index: int = None, mark_for_deletion: dict or None = None,
+                 board_index: int = None,
+                 mark_for_deletion: dict or None = None,
                  lang_id: str = "EN",
-                 rats: list = None, status: Status = Status.OPEN, code_red=False):
+                 rats: list = None,
+                 status: Status = Status.OPEN,
+                 code_red=False):
         """
         creates a unique rescue
 
@@ -83,7 +94,7 @@ class Rescue(object):
         self._epic: bool = epic
         self._codeRed: bool = code_red
         self._outcome: None = None
-        self._title: str = title
+        self._title: Union(str, None) = title
         self._firstLimpet: UUID = first_limpet
         self._board_index = board_index
         self._mark_for_deletion = mark_for_deletion if mark_for_deletion else {
