@@ -33,19 +33,32 @@ class Trigger(object):
                 nickname.
             identified (bool): Whether or not the user is identified with NickServ.
         """
-        self.bot = bot
-        self.words = words
-        self.words_eol = words_eol
-        self.nickname = nickname
-        self.target = target
-        self.ident = ident
-        self.hostname = hostname
-        self.realname = realname
-        self.away = away
-        self.account = account
-        self.identified = identified
+        self._bot = bot
+        self._words = words
+        self._words_eol = words_eol
+        self._nickname = nickname
+        self._target = target
+        self._ident = ident
+        self._hostname = hostname
+        self._realname = realname
+        self._away = away
+        self._account = account
+        self._identified = identified
 
         self._hash = None
+        self._immutable = True
+
+    bot = property(lambda self: self._bot)
+    words = property(lambda self: self._words)
+    words_eol = property(lambda self: self._words_eol)
+    nickname = property(lambda self: self._nickname)
+    target = property(lambda self: self._target)
+    ident = property(lambda self: self._ident)
+    hostname = property(lambda self: self._hostname)
+    realname = property(lambda self: self._realname)
+    away = property(lambda self: self._away)
+    account = property(lambda self: self._account)
+    identified = property(lambda self: self._identified)
 
     @classmethod
     def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str, words: List[str],
@@ -89,8 +102,8 @@ class Trigger(object):
 
     def __hash__(self):
         if self._hash is None:
-            attrs = (self.words_eol[0], self.nickname, self.target, self.ident, self.hostname,
-                     self.realname, self.away, self.account)
+            attrs = (self._words_eol[0], self._nickname, self._target, self._ident, self._hostname,
+                     self._realname, self._away, self._account)
 
             offset = sys.hash_info.width
             interval = offset // len(attrs)
