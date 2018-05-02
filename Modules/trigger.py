@@ -100,6 +100,19 @@ class Trigger(object):
         """
         await self.bot.message(self.channel if self.channel else self.nickname, msg)
 
+    def __eq__(self, other):
+        if self is other:
+            return True
+        elif isinstance(other, Trigger):
+            for name, value in Trigger.__dict__.items():
+                if isinstance(value, property):
+                    if getattr(self, name) != getattr(other, name):
+                        return False
+            else:
+                return True
+        else:
+            return super().__eq__(other)
+
     def __hash__(self):
         if self._hash is None:
             attrs = (self._words_eol[0], self._nickname, self._target, self._ident, self._hostname,
