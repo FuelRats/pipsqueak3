@@ -1,61 +1,65 @@
-import unittest
-
-from aiounittest import async_test
+import pytest
 
 from Modules.trigger import Trigger
-from tests.mock_bot import MockBot
 
+def test_create_manual_channel(bot_fx):
+    trigger = Trigger(bot_fx, ["don't", "care"], ["don't care", "care"], "test_nick", "#somechannel",
+                      "test_ident", "test.vhost")
+    assert trigger.channel == "#somechannel"
 
-class TriggerTests(unittest.TestCase):
-    def setUp(self):
-        self.bot = MockBot()
+def test_create_manual_query(bot_fx):
+    trigger = Trigger(bot_fx, ["don't", "care"], ["don't care", "care"], "test_nick", "not_a_channel",
+                      "test_ident", "test.vhost")
+    assert trigger.channel is None
 
-    def test_create_manual_channel(self):
-        trigger = Trigger(self.bot, "test_nick", "#somechannel", "test_ident", "test.vhost")
-        self.assertEqual("#somechannel", trigger.channel)
+def test_create_from_user_channel(bot_fx):
+    trigger = Trigger.from_bot_user(bot_fx, "unit_test", "#somechannel",
+                                    ["some", "thing"], ["some thing", "thing"])
+    assert trigger.channel == "#somechannel"
 
-    def test_create_manual_query(self):
-        trigger = Trigger(self.bot, "test_nick", "not_a_channel", "test_ident", "test.vhost")
-        self.assertIsNone(trigger.channel)
+    assert trigger.words == ["some", "thing"]
+    assert trigger.words_eol == ["some thing", "thing"]
 
-    def test_create_from_user_channel(self):
-        trigger = Trigger.from_bot_user(self.bot, "unit_test", "#somechannel")
-        self.assertEqual(trigger.channel, "#somechannel")
+    assert trigger.nickname == bot_fx.users["unit_test"]["nickname"]
+    assert trigger.ident == bot_fx.users["unit_test"]["username"]
+    assert trigger.realname is None
+    assert trigger.hostname == bot_fx.users["unit_test"]["hostname"]
+    assert trigger.away == bot_fx.users["unit_test"]["away_message"]
+    assert trigger.account == bot_fx.users["unit_test"]["account"]
+    assert trigger.identified == bot_fx.users["unit_test"]["identified"]
 
-        self.assertEqual(trigger.nickname, self.bot.users["unit_test"]["nickname"])
-        self.assertEqual(trigger.ident, self.bot.users["unit_test"]["username"])
-        self.assertEqual(trigger.realname, "")
-        self.assertEqual(trigger.hostname, self.bot.users["unit_test"]["hostname"])
-        self.assertEqual(trigger.away, self.bot.users["unit_test"]["away_message"])
-        self.assertEqual(trigger.account, self.bot.users["unit_test"]["account"])
-        self.assertEqual(trigger.identified, self.bot.users["unit_test"]["identified"])
+def test_create_from_user_query(bot_fx):
+    trigger = Trigger.from_bot_user(bot_fx, "unit_test[BOT]", "not_a_channel",
+                                    ["some", "thing"], ["some thing", "thing"])
+    assert trigger.channel is None
 
-    def test_create_from_user_query(self):
-        trigger = Trigger.from_bot_user(self.bot, "unit_test[BOT]", "not_a_channel")
-        self.assertIsNone(trigger.channel)
+    assert trigger.words == ["some", "thing"]
+    assert trigger.words_eol == ["some thing", "thing"]
 
-        self.assertEqual(trigger.nickname, self.bot.users["unit_test[BOT]"]["nickname"])
-        self.assertEqual(trigger.ident, self.bot.users["unit_test[BOT]"]["username"])
-        self.assertEqual(trigger.realname, "")
-        self.assertEqual(trigger.hostname, self.bot.users["unit_test[BOT]"]["hostname"])
-        self.assertEqual(trigger.away, self.bot.users["unit_test[BOT]"]["away_message"])
-        self.assertEqual(trigger.account, self.bot.users["unit_test[BOT]"]["account"])
-        self.assertEqual(trigger.identified, self.bot.users["unit_test[BOT]"]["identified"])
+    assert trigger.nickname == bot_fx.users["unit_test[BOT]"]["nickname"]
+    assert trigger.ident == bot_fx.users["unit_test[BOT]"]["username"]
+    assert trigger.realname is None
+    assert trigger.hostname == bot_fx.users["unit_test[BOT]"]["hostname"]
+    assert trigger.away == bot_fx.users["unit_test[BOT]"]["away_message"]
+    assert trigger.account == bot_fx.users["unit_test[BOT]"]["account"]
+    assert trigger.identified == bot_fx.users["unit_test[BOT]"]["identified"]
 
-    @async_test
-    async def test_reply_channel(self):
-        trigger = Trigger(self.bot, "test_nick", "#somechannel", "test_ident", "test.vhost")
-        await trigger.reply("Exceedingly smart test message.")
-        self.assertIn({
-            "target": "#somechannel",
-            "message": "Exceedingly smart test message."
-        }, self.bot.sent_messages)
+@pytest.mark.asyncio
+async def test_reply_channel(bot_fx):
+    trigger = Trigger(bot_fx, ["some", "thing"], ["some thing", "thing"],
+                      "test_nick", "#somechannel", "test_ident", "test.vhost")
+    await trigger.reply("Exceedingly smart test message.")
+    assert {
+        "target": "#somechannel",
+        "message": "Exceedingly smart test message."
+    } in bot_fx.sent_messages
 
-    @async_test
-    async def test_reply_query(self):
-        trigger = Trigger(self.bot, "test_nick", "not_a_channel", "test_ident", "test.vhost")
-        await trigger.reply("Exceedingly smart test message.")
-        self.assertIn({
-            "target": "test_nick",
-            "message": "Exceedingly smart test message."
-        }, self.bot.sent_messages)
+@pytest.mark.asyncio
+async def test_reply_query(bot_fx):
+    trigger = Trigger(bot_fx, ["some", "thing"], ["some thing", "thing"],
+                      "test_nick", "not_a_channel", "test_ident", "test.vhost")
+    await trigger.reply("Exceedingly smart test message.")
+    assert {
+        "target": "test_nick",
+        "message": "Exceedingly smart test message."
+    } in bot_fx.sent_messages
