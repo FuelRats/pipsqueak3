@@ -14,6 +14,8 @@ This module is built on top of the Pydle system.
 import logging
 from functools import wraps
 
+import sys
+
 import config
 
 log = logging.getLogger(f"{config.Logging.base_logger}.Permissions")
@@ -33,9 +35,13 @@ class Permission:
         :return:
         """
         log.debug(f"created new Permission object with permission level")
-        self.level = level
-        self.vhost = vhost
-        self.denied_message = deny_message
+        self._level = level
+        self._vhost = vhost
+        self._denied_message = deny_message
+
+    level = property(lambda self: self._level)
+    vhost = property(lambda self: self._vhost)
+    denied_message = property(lambda self: self._denied_message)
 
     def __eq__(self, other: 'Permission') -> bool:
         return self.level == other.level
@@ -54,6 +60,19 @@ class Permission:
 
     def __gt__(self, other: 'Permission') -> bool:
         return self.level > other.level
+
+    def __hash__(self):
+        if self._hash is None:
+            attrs = (self._level, self._vhost, self._denied_message)
+
+            offset = sys.hash_info.width
+            interval = offset // len(attrs)
+            self._hash = 0
+            for attr in attrs:
+                offset -= interval
+                self._hash |= hash(attr) << offset
+
+        return self._hash
 
 
 # the uninitiated
