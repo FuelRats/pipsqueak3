@@ -1,6 +1,7 @@
 from typing import List
 
 import pydle
+import sys
 
 
 class Trigger(object):
@@ -44,6 +45,8 @@ class Trigger(object):
         self.account = account
         self.identified = identified
 
+        self._hash = None
+
     @classmethod
     def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str, words: List[str],
                       words_eol: List[str] = None) -> 'Trigger':
@@ -83,3 +86,17 @@ class Trigger(object):
             msg (str): Message to send.
         """
         await self.bot.message(self.channel if self.channel else self.nickname, msg)
+
+    def __hash__(self):
+        if self._hash is None:
+            attrs = (self.words_eol[0], self.nickname, self.target, self.ident, self.hostname,
+                     self.realname, self.away, self.account)
+
+            offset = sys.hash_info.width
+            interval = offset // len(attrs)
+            self._hash = 0
+            for attr in attrs:
+                offset -= interval
+                self._hash |= hash(attr) << offset
+
+        return self._hash
