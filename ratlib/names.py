@@ -34,6 +34,7 @@ class Status(Enum):
     INACTIVE = 2
     """The rescue is open, but is marked inactive"""
 
+
 def strip_name(nickname: str) -> str:
     """
     This function accepts one input `nickname` and returns the input string
@@ -50,4 +51,3 @@ def strip_name(nickname: str) -> str:
     """
     split_string = nickname.split("[")
     return split_string[0]
-

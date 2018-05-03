@@ -44,8 +44,6 @@ class Trigger(object):
         self.account = account
         self.identified = identified
 
-
-
     @classmethod
     def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str, words: List[str],
                       words_eol: List[str] = None) -> 'Trigger':

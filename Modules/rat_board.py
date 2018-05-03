@@ -13,6 +13,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
+from typing import Union
 from uuid import UUID
 
 import config
@@ -149,6 +150,7 @@ class RatBoard(object):
             index += 1 if not free else 0
 
         return index
+
     def find_by_index(self, index: int) -> Rescue or None:
         """
         Searches for and returns a Rescue at a given `index` position, should it exist
@@ -171,7 +173,7 @@ class RatBoard(object):
             # we found something
             return found
 
-    def find_by_name(self, client: str) -> Rescue or None:
+    def find_by_name(self, client: str) -> Union[Rescue, None]:
         """
         Searches for and returns a Rescue for a given client, should it exist.
 
