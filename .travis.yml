@@ -29,4 +29,4 @@ notifications:
 # for codecoverage on codeclimate.com
 env:
   global:
-    - CC_TEST_REPORTER_ID=$token
+    - CC_TEST_REPORTER_ID=c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
