@@ -14,6 +14,7 @@ This module is built on top of the Pydle system.
 
 """
 import unittest
+from itertools import product
 
 from aiounittest import async_test
 
@@ -120,3 +121,10 @@ class PermissionTests(unittest.TestCase):
             "target": "#somechannel",
             "message": permissions.OVERSEER.denied_message
         }, self.bot.sent_messages)
+
+    def test_hash(self):
+        for perm1, perm2 in product(permissions._by_vhost.values(), permissions._by_vhost.values()):
+            if perm1 == perm2:
+                assert hash(perm1) == hash(perm2)
+            else:
+                assert hash(perm1) != hash(perm2)
