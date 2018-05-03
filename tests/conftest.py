@@ -85,6 +85,7 @@ def RatBoard_fx() -> RatBoard:
     """
     return RatBoard()
 
+
 @pytest.fixture
 def bot_fx():
     return MockBot()

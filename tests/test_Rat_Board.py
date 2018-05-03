@@ -152,7 +152,6 @@ class RatBoardTests(TestCase):
             # spawn a case with the same uuid, and make our check
             Rescue(self.some_rescue.case_id, "nope", "i have no idea!", "nope") in self.board)
 
-
     def test_contains_non_existing(self):
         """
         Verifies `Ratboard.__contains__` returns false when the desired rescue does not exist
@@ -161,11 +160,11 @@ class RatBoardTests(TestCase):
         self.assertFalse(self.some_rescue in self.board)
 
 
-
 class TestRatBoardPyTest(object):
     """
     Container for pyTest style tests for the RatBoard
     """
+
     @pytest.mark.asyncio
     async def test_remove(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
         # append a rescue to the board
@@ -201,7 +200,6 @@ class TestRatBoardPyTest(object):
         with pytest.raises(RescueNotChangedException):
             await RatBoard_fx.modify(rescue=RescueSoP_fx)
 
-
     def test_contains_by_key_attributes(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
         """
         Verifies `Ratboard.__contains__` returns true when looking for a case by
@@ -230,7 +228,6 @@ class TestRatBoardPyTest(object):
         with pytest.raises(TypeError):
             RatBoard_fx.rescues = garbage
 
-
     @pytest.mark.parametrize("index", [i for i in range(0, 5)])
     def test_next_free_index_free(self, index: int, RatBoard_fx: RatBoard):
         """Verifies ratboard.next_free_index returns a free index when there are free available"""
@@ -251,9 +248,9 @@ class TestRatBoardPyTest(object):
 
         assert index + 1 == nextFree
 
-    @pytest.mark.parametrize("keys,expected",( ([0, 1, 2, 4], 3), ([0, 2, 3], 1)))
+    @pytest.mark.parametrize("keys,expected", (([0, 1, 2, 4], 3), ([0, 2, 3], 1)))
     def test_next_free_mixed_board(self, keys: list, expected: int, RatBoard_fx: RatBoard):
-        #local duplicate of the fixture
+        # local duplicate of the fixture
         myBoard = deepcopy(RatBoard_fx)
 
         # populate rescues dict

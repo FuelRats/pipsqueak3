@@ -1,7 +1,14 @@
-engines:
+plugins:
   duplication:
     enabled: true
     config:
       languages:
         python:
           python_version: 3
+
+  pep8:
+    enabled: true
+
+    checks:
+      E251:
+        enabled: false

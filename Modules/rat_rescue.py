@@ -147,7 +147,7 @@ class Rescue(object):
             return all(conditions)
 
     @property
-    def status(self)->Status:
+    def status(self) -> Status:
         """
         Status enum for the rescue
 
@@ -173,7 +173,7 @@ class Rescue(object):
             raise TypeError
 
     @property
-    def irc_nickname(self)->str:
+    def irc_nickname(self) -> str:
         """
         The client's irc nickname
 
@@ -616,7 +616,6 @@ class Rescue(object):
         """
         return self._outcome
 
-
     @property
     def title(self) -> str or None:
         """
@@ -777,7 +776,6 @@ class Rescue(object):
 
                 rat = Rats(name=name, uuid=guid)
                 self.rats.append(rat)
-
 
     @contextmanager
     def change(self):
