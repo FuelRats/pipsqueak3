@@ -1,7 +1,8 @@
+from functools import reduce
+from operator import xor
 from typing import List
 
 import pydle
-import sys
 
 
 class Trigger(object):
@@ -100,7 +101,7 @@ class Trigger(object):
         """
         await self.bot.message(self.channel if self.channel else self.nickname, msg)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if self is other:
             return True
         elif isinstance(other, Trigger):
@@ -113,16 +114,10 @@ class Trigger(object):
         else:
             return super().__eq__(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         if self._hash is None:
             attrs = (self._words_eol[0], self._nickname, self._target, self._ident, self._hostname,
                      self._realname, self._away, self._account)
-
-            offset = sys.hash_info.width
-            interval = offset // len(attrs)
-            self._hash = 0
-            for attr in attrs:
-                offset -= interval
-                self._hash |= hash(attr) << offset
+            self._hash = reduce(xor, map(hash, attrs))
 
         return self._hash
