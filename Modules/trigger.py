@@ -47,7 +47,6 @@ class Trigger(object):
         self._identified = identified
 
         self._hash = None
-        self._immutable = True
 
     bot = property(lambda self: self._bot)
     words = property(lambda self: self._words)
