@@ -104,7 +104,7 @@ class RatCommandTests(unittest.TestCase):
     @async_test
     async def test_call_command(self):
         """
-        Verifiy that found commands can be invoked via Commands.Trigger()
+        Verifiy that found commands can be invoked via Commands.CommandContext()
         :return:
         """
         aliases = ['potato', 'cannon', 'Fodder', 'fireball']

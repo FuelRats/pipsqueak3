@@ -1,20 +1,20 @@
 import pytest
 
-from Modules.trigger import Trigger
+from Modules.commandcontext import CommandContext
 
 def test_create_manual_channel(bot_fx):
-    trigger = Trigger(bot_fx, ["don't", "care"], ["don't care", "care"], "test_nick", "#somechannel",
+    trigger = CommandContext(bot_fx, ["don't", "care"], ["don't care", "care"], "test_nick", "#somechannel",
                       "test_ident", "test.vhost")
     assert trigger.channel == "#somechannel"
 
 def test_create_manual_query(bot_fx):
-    trigger = Trigger(bot_fx, ["don't", "care"], ["don't care", "care"], "test_nick", "not_a_channel",
+    trigger = CommandContext(bot_fx, ["don't", "care"], ["don't care", "care"], "test_nick", "not_a_channel",
                       "test_ident", "test.vhost")
     assert trigger.channel is None
 
 def test_create_from_user_channel(bot_fx):
-    trigger = Trigger.from_bot_user(bot_fx, "unit_test", "#somechannel",
-                                    ["some", "thing"], ["some thing", "thing"])
+    trigger = CommandContext.from_bot_user(bot_fx, "unit_test", "#somechannel",
+                                           ["some", "thing"], ["some thing", "thing"])
     assert trigger.channel == "#somechannel"
 
     assert trigger.words == ["some", "thing"]
@@ -29,8 +29,8 @@ def test_create_from_user_channel(bot_fx):
     assert trigger.identified == bot_fx.users["unit_test"]["identified"]
 
 def test_create_from_user_query(bot_fx):
-    trigger = Trigger.from_bot_user(bot_fx, "unit_test[BOT]", "not_a_channel",
-                                    ["some", "thing"], ["some thing", "thing"])
+    trigger = CommandContext.from_bot_user(bot_fx, "unit_test[BOT]", "not_a_channel",
+                                           ["some", "thing"], ["some thing", "thing"])
     assert trigger.channel is None
 
     assert trigger.words == ["some", "thing"]
@@ -46,7 +46,7 @@ def test_create_from_user_query(bot_fx):
 
 @pytest.mark.asyncio
 async def test_reply_channel(bot_fx):
-    trigger = Trigger(bot_fx, ["some", "thing"], ["some thing", "thing"],
+    trigger = CommandContext(bot_fx, ["some", "thing"], ["some thing", "thing"],
                       "test_nick", "#somechannel", "test_ident", "test.vhost")
     await trigger.reply("Exceedingly smart test message.")
     assert {
@@ -56,7 +56,7 @@ async def test_reply_channel(bot_fx):
 
 @pytest.mark.asyncio
 async def test_reply_query(bot_fx):
-    trigger = Trigger(bot_fx, ["some", "thing"], ["some thing", "thing"],
+    trigger = CommandContext(bot_fx, ["some", "thing"], ["some thing", "thing"],
                       "test_nick", "not_a_channel", "test_ident", "test.vhost")
     await trigger.reply("Exceedingly smart test message.")
     assert {

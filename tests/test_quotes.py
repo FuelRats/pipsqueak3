@@ -15,7 +15,7 @@ from unittest import TestCase, expectedFailure
 
 from Modules.rat_rescue import Rescue
 from Modules.rat_quotation import Quotation
-from Modules.trigger import Trigger
+from Modules.commandcontext import CommandContext
 from tests import mock_bot
 
 
@@ -114,9 +114,9 @@ class TestQuotes(TestCase):
         Verifies a quote can be changed correctly, that the correct fields are
          set
         """
-        trigger = Trigger(mock_bot, [], [], nickname="unit_test[BOT]",
-                          target="#unit_tests", ident="mechasqueak3",
-                          hostname="techrat.fuelrats.com")
+        trigger = CommandContext(mock_bot, [], [], nickname="unit_test[BOT]",
+                                 target="#unit_tests", ident="mechasqueak3",
+                                 hostname="techrat.fuelrats.com")
         quote = Quotation("foo")
         quote.modify(trigger, message="bar")
         self.assertEqual("bar", quote.message)

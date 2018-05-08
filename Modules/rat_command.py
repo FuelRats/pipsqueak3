@@ -19,7 +19,7 @@ import re
 
 from pydle import BasicClient
 
-from Modules.trigger import Trigger
+from Modules.commandcontext import CommandContext
 import config
 
 # set the logger for handlers
@@ -104,7 +104,7 @@ class Commands:
             else:
                 words.append(word)
 
-        trigger = Trigger.from_bot_user(cls.bot, sender, channel, words, words_eol)
+        trigger = CommandContext.from_bot_user(cls.bot, sender, channel, words, words_eol)
 
         if words[0] in cls._registered_commands.keys():
             cmd = cls._registered_commands[words[0]]

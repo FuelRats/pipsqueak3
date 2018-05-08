@@ -97,7 +97,7 @@ async def cmd_ping(bot, trigger):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param bot: Pydle instance.
-    :param trigger: `Trigger` object for the command call.
+    :param trigger: `CommandContext` object for the command call.
     """
     log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
                 f"'{trigger.nickname}'")

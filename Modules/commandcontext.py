@@ -3,17 +3,25 @@ from typing import List
 import pydle
 
 
-class Trigger(object):
+class CommandContext(object):
     """
     Object to hold information on the user who invoked a command as well as where and how the
     command was invoked.
     """
 
-    def __init__(self, bot: pydle.BasicClient, words: List[str], words_eol: List[str],
-                 nickname: str, target: str, ident: str, hostname: str, realname: str = None,
-                 away: str = None, account: str = None, identified: bool = False):
+    def __init__(self, bot: 'MechaClient',
+                 words: List[str],
+                 words_eol: List[str],
+                 nickname: str,
+                 target: str,
+                 ident: str,
+                 hostname: str,
+                 realname: str = None,
+                 away: str = None,
+                 account: str = None,
+                 identified: bool = False):
         """
-        Initializes a new `Trigger` object with the provided info.
+        Initializes a new `CommandContext` object with the provided info.
 
         Arguments:
             bot (pydle.BasicClient): This bot's instance.
@@ -46,7 +54,7 @@ class Trigger(object):
 
     @classmethod
     def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str, words: List[str],
-                      words_eol: List[str] = None) -> 'Trigger':
+                      words_eol: List[str] = None) -> 'CommandContext':
         """
         Creates a `Trigger` object from a user dictionary as used by pydle.
 
@@ -61,7 +69,7 @@ class Trigger(object):
                 everything up to the end of the message.
 
         Returns:
-            Trigger: Object constructed from the provided info.
+            CommandContext: Object constructed from the provided info.
         """
         user = bot.users[nickname]
         return cls(bot, words=words, words_eol=words_eol, nickname=user["nickname"], target=target,
