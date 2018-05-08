@@ -70,3 +70,6 @@ class RatBoard:
     """
     CASE_LIMIT = 30
     """Default limit to board indexies, may be dynamically re-sized during runtime."""
+
+class DataBaseManager:
+    default_file_name: str = "mecha3.db"
