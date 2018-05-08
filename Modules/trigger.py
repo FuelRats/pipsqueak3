@@ -112,7 +112,7 @@ class Trigger(object):
             else:
                 return True
         else:
-            return super().__eq__(other)
+            return False
 
     def __hash__(self) -> int:
         if self._hash is None:
