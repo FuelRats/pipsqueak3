@@ -18,6 +18,7 @@ import pytest
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
+from Modules.user import User
 from ratlib.names import Platforms
 from tests.mock_bot import MockBot
 
@@ -89,3 +90,8 @@ def RatBoard_fx() -> RatBoard:
 @pytest.fixture
 def bot_fx():
     return MockBot()
+
+
+@pytest.fixture
+def user_fx() -> User:
+    return User("myRealName", "rat.fuelrats.com", "Ducky", "Jethrow2207", None, False, None, False)
