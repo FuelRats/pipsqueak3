@@ -102,3 +102,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# owncloud files
+._sync_*.db*
+.owncloudsync.log
