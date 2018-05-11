@@ -1,5 +1,5 @@
 """
-user.py - Mechasqueak3 main program
+user.py - User objects main program
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
@@ -26,7 +26,19 @@ class User(object):
                  account,
                  identified: bool = False,
                  ):
-        """Create a new user"""
+        """
+        Create a new IRC User representation
+
+        Args:
+            realname (str): real name
+            hostname (str): hostmask
+            nickname (str):  nickname
+            username (str): username
+            target (str):  ?
+            away (bool): user's away status
+            account (?): ?
+            identified (bool): user identification status against IRC services
+        """
         self._realname: str = realname
         self._hostname: str = hostname
         self._nickname: str = nickname
@@ -48,24 +60,30 @@ class User(object):
 
     @property
     def nickname(self) -> str:
+        """nickname"""
         return self._nickname
 
     @property
     def username(self) -> str:
+        """username"""
         return self._nickname
 
     @property
     def identified(self) -> bool:
+        """is user identified?"""
         return self._identified
 
     @property
     def away(self) -> bool:
+        """is the user marked away?"""
         return self._away
 
     @property
-    def target(self):
+    def target(self) -> str:
+        """FIXME: no idea what this field is for"""
         return self._target
 
     @property
     def account(self):
+        # FIXME: no idea what this field is for
         return self._account
