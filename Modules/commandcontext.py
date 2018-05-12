@@ -1,3 +1,5 @@
+from functools import reduce
+from operator import xor
 from typing import List
 
 import pydle
@@ -40,17 +42,31 @@ class CommandContext(object):
                 nickname.
             identified (bool): Whether or not the user is identified with NickServ.
         """
-        self.bot = bot
-        self.words = words
-        self.words_eol = words_eol
-        self.nickname = nickname
-        self.target = target
-        self.ident = ident
-        self.hostname = hostname
-        self.realname = realname
-        self.away = away
-        self.account = account
-        self.identified = identified
+        self._bot = bot
+        self._words = words
+        self._words_eol = words_eol
+        self._nickname = nickname
+        self._target = target
+        self._ident = ident
+        self._hostname = hostname
+        self._realname = realname
+        self._away = away
+        self._account = account
+        self._identified = identified
+
+        self._hash = None
+
+    bot = property(lambda self: self._bot)
+    words = property(lambda self: self._words)
+    words_eol = property(lambda self: self._words_eol)
+    nickname = property(lambda self: self._nickname)
+    target = property(lambda self: self._target)
+    ident = property(lambda self: self._ident)
+    hostname = property(lambda self: self._hostname)
+    realname = property(lambda self: self._realname)
+    away = property(lambda self: self._away)
+    account = property(lambda self: self._account)
+    identified = property(lambda self: self._identified)
 
     @classmethod
     def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str, words: List[str],
@@ -91,3 +107,24 @@ class CommandContext(object):
             msg (str): Message to send.
         """
         await self.bot.message(self.channel if self.channel else self.nickname, msg)
+
+    def __eq__(self, other) -> bool:
+        if self is other:
+            return True
+        elif isinstance(other, Trigger):
+            for name, value in Trigger.__dict__.items():
+                if isinstance(value, property):
+                    if getattr(self, name) != getattr(other, name):
+                        return False
+            else:
+                return True
+        else:
+            return False
+
+    def __hash__(self) -> int:
+        if self._hash is None:
+            attrs = (self._words_eol[0], self._nickname, self._target, self._ident, self._hostname,
+                     self._realname, self._away, self._account)
+            self._hash = reduce(xor, map(hash, attrs))
+
+        return self._hash
