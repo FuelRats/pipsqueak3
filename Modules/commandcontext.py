@@ -111,8 +111,8 @@ class CommandContext(object):
     def __eq__(self, other) -> bool:
         if self is other:
             return True
-        elif isinstance(other, Trigger):
-            for name, value in Trigger.__dict__.items():
+        elif isinstance(other, CommandContext):
+            for name, value in CommandContext.__dict__.items():
                 if isinstance(value, property):
                     if getattr(self, name) != getattr(other, name):
                         return False
