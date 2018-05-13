@@ -11,7 +11,16 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+import logging
+from typing import Union
+
 from pydle import BasicClient
+
+import config
+from Modules import permissions
+from Modules.permissions import Permission
+
+LOG = logging.getLogger(f"{config.Logging.base_logger}.Permissions")
 
 
 class User(object):
@@ -37,6 +46,7 @@ class User(object):
             away (bool): user's away status
             account (?): ?
             identified (bool): user identification status against IRC services
+
         """
         self._realname: str = realname
         self._hostname: str = hostname
@@ -44,7 +54,19 @@ class User(object):
         self._username: str = username
         self._identified: bool = identified
         self._away: bool = away
-        self._account = account
+        self._account: str = account
+        self._permission_level: Union[None, Permission] = None
+        # sets the permission based on the hostmask
+        # which requires stripping the username and the leading period
+        try:
+            # FIXME: access to protected member
+            for key, value in permissions._by_vhost.items():
+                if hostname.endswith(key):
+                    self._permission_level = value
+        except KeyError:
+            # means the user didn't have  a valid hostmask, ignore it.
+            LOG.debug(f"no matching permission for hostname {hostname}")
+            pass
 
     @property
     def realname(self) -> str:
@@ -77,9 +99,19 @@ class User(object):
         return self._away
 
     @property
-    def account(self):
-        # FIXME: no idea what this field is for
+    def account(self) -> Union[str, None]:
+        """Users nickserv account, None if not identified"""
         return self._account
+
+    @property
+    def permission_level(self) -> Union[None, Permission]:
+        """
+        IRC permission level for the user,
+            this property is Derrived from the hostmask.
+        Returns:
+            Permission or None
+        """
+        return self._permission_level
 
     @classmethod
     async def from_bot(cls, bot: BasicClient, nickname: str) -> 'User':

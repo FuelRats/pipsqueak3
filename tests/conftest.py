@@ -94,4 +94,5 @@ def bot_fx():
 
 @pytest.fixture
 def user_fx() -> User:
-    return User("myRealName", "rat.fuelrats.com", "Ducky", "Jethrow2207", None, False, None, False)
+    return User("myRealName", "myRealName.rat.fuelrats.com", "Ducky", "myRealName", False, "Ducky",
+                False)
