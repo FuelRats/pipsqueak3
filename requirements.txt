@@ -1,5 +1,7 @@
 -e git://github.com/Shizmob/pydle.git@asyncio#egg=pydle
+pure-sasl
 pytest
 pytest-cov
 pytest-asyncio
 aiounittest
+IPython
