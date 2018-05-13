@@ -11,6 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+from pydle import BasicClient
 
 
 class User(object):
@@ -21,9 +22,8 @@ class User(object):
                  hostname: str,
                  nickname: str,
                  username: str,
-                 target,
                  away: bool,
-                 account,
+                 account: str,
                  identified: bool = False,
                  ):
         """
@@ -34,7 +34,6 @@ class User(object):
             hostname (str): hostmask
             nickname (str):  nickname
             username (str): username
-            target (str):  ?
             away (bool): user's away status
             account (?): ?
             identified (bool): user identification status against IRC services
@@ -45,7 +44,6 @@ class User(object):
         self._username: str = username
         self._identified: bool = identified
         self._away: bool = away
-        self._target = target
         self._account = account
 
     @property
@@ -79,11 +77,28 @@ class User(object):
         return self._away
 
     @property
-    def target(self) -> str:
-        """FIXME: no idea what this field is for"""
-        return self._target
-
-    @property
     def account(self):
         # FIXME: no idea what this field is for
         return self._account
+
+    @classmethod
+    async def from_bot(cls, bot: BasicClient, nickname: str) -> 'User':
+        """
+        Initalizes a new User from their IRC presence
+
+        Returns:
+            User: user created from IRC presence
+        """
+        # fetch the user data from their IRC observed presence
+        irc_user = await bot.whois(nickname)
+        # and create an instance
+        my_user = cls(realname=irc_user['realname'],
+                      username=irc_user["username"],
+                      hostname=irc_user["hostname"],
+                      nickname=irc_user["username"],
+                      away=irc_user["away"],
+                      account=irc_user["account"],
+                      identified=irc_user["identified"]
+                      )
+
+        return my_user
