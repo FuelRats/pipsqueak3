@@ -114,9 +114,7 @@ class TestQuotes(TestCase):
         Verifies a quote can be changed correctly, that the correct fields are
          set
         """
-        trigger = CommandContext(mock_bot, [], [], nickname="unit_test[BOT]",
-                                 target="#unit_tests", ident="mechasqueak3",
-                                 hostname="techrat.fuelrats.com")
+        trigger = CommandContext(mock_bot, [], [], None, target="#unit_tests")
         quote = Quotation("foo")
         quote.modify(trigger, message="bar")
         self.assertEqual("bar", quote.message)

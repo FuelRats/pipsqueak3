@@ -1,8 +1,10 @@
 from functools import reduce
 from operator import xor
-from typing import List
+from typing import List, Union
 
 import pydle
+
+from Modules.user import User
 
 
 class CommandContext(object):
@@ -11,66 +13,35 @@ class CommandContext(object):
     command was invoked.
     """
 
-    def __init__(self, bot: 'MechaClient',
-                 words: List[str],
-                 words_eol: List[str],
-                 nickname: str,
-                 target: str,
-                 ident: str,
-                 hostname: str,
-                 realname: str = None,
-                 away: str = None,
-                 account: str = None,
-                 identified: bool = False):
+    def __init__(self, bot: 'MechaClient', words: List[str], words_eol: List[str], user,
+                 target: str):
         """
         Initializes a new `CommandContext` object with the provided info.
 
         Arguments:
+            user ():
             bot (pydle.BasicClient): This bot's instance.
             words ([str]): List of all the words of the message which invoked the command. Does not
                 include the command prefix char.
             words_eol ([str]): Same as *words* above, but each element including the word and
                 everything up to the end of the message.
-            nickname (str): IRC nickname of the triggering user.
-            target (str): The message target (a channel or the bot's nick, if it was sent in a query
-                window).
-            ident (str): Indent of the triggering user (aka username).
-            hostname (str): Hostname from which the triggering user is connecting, or their vhost.
-            realname (str): Realname defined by the user.
-            away (str): The user's away message if they are marked away, None if they are not.
-            account (str): Who the user is logged in as. Should be their NickServ username / main
-                nickname.
-            identified (bool): Whether or not the user is identified with NickServ.
         """
         self._bot = bot
         self._words = words
         self._words_eol = words_eol
-        self._nickname = nickname
-        self._target = target
-        self._ident = ident
-        self._hostname = hostname
-        self._realname = realname
-        self._away = away
-        self._account = account
-        self._identified = identified
-
+        self._user = user
         self._hash = None
+        self._target = target
 
     bot = property(lambda self: self._bot)
     words = property(lambda self: self._words)
     words_eol = property(lambda self: self._words_eol)
-    nickname = property(lambda self: self._nickname)
-    target = property(lambda self: self._target)
-    ident = property(lambda self: self._ident)
-    hostname = property(lambda self: self._hostname)
-    realname = property(lambda self: self._realname)
-    away = property(lambda self: self._away)
-    account = property(lambda self: self._account)
-    identified = property(lambda self: self._identified)
+    user = property(lambda self: self._user)
 
     @classmethod
-    def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str, words: List[str],
-                      words_eol: List[str] = None) -> 'CommandContext':
+    async def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str,
+                            words: List[str],
+                            words_eol: List[str] = None) -> 'CommandContext':
         """
         Creates a `Trigger` object from a user dictionary as used by pydle.
 
@@ -87,17 +58,15 @@ class CommandContext(object):
         Returns:
             CommandContext: Object constructed from the provided info.
         """
-        user = bot.users[nickname]
-        return cls(bot, words=words, words_eol=words_eol, nickname=user["nickname"], target=target,
-                   ident=user["username"], hostname=user["hostname"], away=user["away_message"],
-                   account=user["account"], identified=user["identified"])
+        user = await User.from_bot(bot=bot, nickname=nickname)
+        return cls(bot, words=words, words_eol=words_eol, user=user, target=target)
 
     @property
-    def channel(self) -> str or None:
+    def channel(self) -> Union[str, None]:
         """
         If the message was sent in a channel, this will be its name and `None` otherwise.
         """
-        return self.target if self.bot.is_channel(self.target) else None
+        return self._target if self.bot.is_channel(self._target) else None
 
     async def reply(self, msg: str):
         """
@@ -106,7 +75,7 @@ class CommandContext(object):
         Arguments:
             msg (str): Message to send.
         """
-        await self.bot.message(self.channel if self.channel else self.nickname, msg)
+        await self.bot.message(self.channel if self.channel else self.user.nickname, msg)
 
     def __eq__(self, other) -> bool:
         if self is other:
@@ -123,8 +92,9 @@ class CommandContext(object):
 
     def __hash__(self) -> int:
         if self._hash is None:
-            attrs = (self._words_eol[0], self._nickname, self._target, self._ident, self._hostname,
-                     self._realname, self._away, self._account)
+            attrs = (self._words_eol[0], self.user.nickname, self.user.identified,
+                     self.user.hostname,
+                     self.user.realname, self.user.away, self.user.account)
             self._hash = reduce(xor, map(hash, attrs))
 
         return self._hash
