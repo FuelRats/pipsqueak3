@@ -104,7 +104,7 @@ class Commands:
             else:
                 words.append(word)
 
-        trigger = CommandContext.from_bot_user(cls.bot, sender, channel, words, words_eol)
+        trigger = await CommandContext.from_bot_user(cls.bot, sender, channel, words, words_eol)
 
         if words[0] in cls._registered_commands.keys():
             cmd = cls._registered_commands[words[0]]
