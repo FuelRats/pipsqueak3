@@ -60,8 +60,10 @@ class User(object):
         # which requires stripping the username and the leading period
         try:
             # FIXME: access to protected member
+            # loop over every known vhost
             for key, value in permissions._by_vhost.items():
-                if hostname.endswith(key):
+                # if a vhost matches, and the user is identified
+                if hostname.endswith(key) and identified is True:
                     self._permission_level = value
         except KeyError:
             # means the user didn't have  a valid hostmask, ignore it.
@@ -114,7 +116,7 @@ class User(object):
         return self._permission_level
 
     @classmethod
-    async def from_bot(cls, bot: BasicClient, nickname: str) -> 'User':
+    async def from_bot(cls, bot: BasicClient, nickname: str) -> Union['User', None]:
         """
         Initalizes a new User from their IRC presence
 
@@ -123,14 +125,18 @@ class User(object):
         """
         # fetch the user data from their IRC observed presence
         irc_user = await bot.whois(nickname)
-        # and create an instance
-        my_user = cls(realname=irc_user['realname'],
-                      username=irc_user["username"],
-                      hostname=irc_user["hostname"],
-                      nickname=irc_user["username"],
-                      away=irc_user["away"],
-                      account=irc_user["account"],
-                      identified=irc_user["identified"]
-                      )
+        my_user = None
+        if irc_user is None:
+            raise ValueError(f"unable to find nickname {nickname}")
+        else:
+            # and create an instance
+            my_user = cls(realname=irc_user['realname'],
+                          username=irc_user["username"],
+                          hostname=irc_user["hostname"],
+                          nickname=irc_user["username"],
+                          away=irc_user["away"],
+                          account=irc_user["account"],
+                          identified=irc_user["identified"]
+                          )
 
         return my_user

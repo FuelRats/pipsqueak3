@@ -14,14 +14,16 @@ This module is built on top of the Pydle system.
 
 """
 
+import asyncio
 import unittest
 from unittest import mock
 
-import asyncio
 import pydle
+import pytest
 from aiounittest import async_test
 
-from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException,\
+from Modules.commandcontext import CommandContext
+from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, \
     CommandException
 from tests.mock_bot import MockBot
 
@@ -101,31 +103,6 @@ class RatCommandTests(unittest.TestCase):
                     async def bar():
                         pass
 
-    @async_test
-    async def test_call_command(self):
-        """
-        Verifiy that found commands can be invoked via Commands.CommandContext()
-        :return:
-        """
-        aliases = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}" for name in aliases]
-        input_sender = "unit_test[BOT]"
-        input_channel = "#unit_testing"
-
-        @Commands.command(*aliases)
-        async def potato(bot, trigger):
-            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
-            return bot, trigger.channel, trigger.nickname
-
-        for command in trigger_alias:
-            with self.subTest(command=command):
-                out_bot, out_channel, out_sender = await Commands.trigger(
-                    message=command, sender=input_sender,
-                    channel=input_channel)
-                self.assertEqual(input_sender, out_sender)
-                self.assertEqual(input_channel, out_channel)
-                self.assertIsNotNone(out_bot)
-
     @mock.patch("Modules.rat_command.Commands.bot")
     @async_test
     async def test_null_bot(self, mock_bot):
@@ -172,3 +149,46 @@ class RatCommandTests(unittest.TestCase):
             with self.assertRaises(CommandNotFoundException):
                 await Commands.trigger("!banan", "unit_test", "theOneWithTheHills")
             assert not underlying.called
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
+@pytest.mark.parametrize("mock_data", ({'oper': False,
+                                        'idle': 0,
+                                        'away': False,
+                                        'away_message': None,
+                                        'username': 'theunkn0wn',
+                                        'hostname': 'theunkn0wn1.techrat.fuelrats.com',
+                                        'realname': 'unknown',
+                                        'identified': True,
+                                        'channels': {'~@#unkn0wndev'},
+                                        'server': 'irc.eu.fuelrats.com',
+                                        'server_info': 'Fuel Rats IRC Server',
+                                        'secure': True,
+                                        'account': 'theunkn0wn1[PC]'},))
+async def test_call_command(alias: str, monkeypatch, bot_fx, mock_data):
+    """
+    Verifiy that found commands can be invoked via Commands.CommandContext()
+    :return:
+    """
+
+    async def mock_whois(*args):
+        return mock_data
+
+    monkeypatch.setattr('Modules.rat_command.Commands.bot', bot_fx)
+    monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_whois)
+    trigger_alias = f"{Commands.prefix}{alias}"
+    input_sender = mock_data['username']
+    input_channel = "#unit_testing"
+
+    @Commands.command(alias)
+    async def potato(bot, trigger: CommandContext):
+        # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+        return bot, trigger.channel, trigger.user.nickname
+
+    out_bot, out_channel, out_sender = await Commands.trigger(
+        message=trigger_alias, sender=input_sender,
+        channel=input_channel)
+
+    assert input_sender == out_sender
+    assert input_channel == out_channel
