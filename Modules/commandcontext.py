@@ -33,10 +33,14 @@ class CommandContext(object):
         self._hash = None
         self._target = target
 
-    bot = property(lambda self: self._bot)
-    words = property(lambda self: self._words)
-    words_eol = property(lambda self: self._words_eol)
-    user = property(lambda self: self._user)
+    bot: 'MechaClient' = property(lambda self: self._bot)
+    """MechaClient instance"""
+    words: [str] = property(lambda self: self._words)
+    words_eol: list = property(lambda self: self._words_eol)
+    """words deliminated to EOL"""
+    user: User = property(lambda self: self._user)
+    """invoking IRC user"""
+
 
     @classmethod
     async def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str,
