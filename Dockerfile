@@ -1,18 +1,15 @@
 # Use an official Python runtime as a parent image
-FROM python:3.6.5-stretch
-
-
+FROM python:3.6.5-alpine
+# fetch git, as we will need it.
+RUN apk add --no-cache git
 # Copy the current directory contents into the container at /app
-ADD . /app
+ADD . /mechasqueak
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r /app/requirements.txt
+RUN pip install --trusted-host pypi.python.org -r /mechasqueak/requirements.txt
 
-# Make port 80 available to the world outside this container
-#EXPOSE 80
-
-# Set the working directory to /app
-WORKDIR /app
+# Set the working directory to /mechasqueak
+WORKDIR /mechasqueak
 
 # Run our tests when the container launches by default
 CMD ["pytest"]
