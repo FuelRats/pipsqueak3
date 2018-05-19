@@ -93,9 +93,6 @@ class Commands:
             raise CommandException(f"Bot client has not been created or not handed to Commands.")
 
             # command didn't start with prefix, ignore it
-        if not message.startswith(cls.prefix):
-            cls.log.debug(f"caught a command without prefix: {message}")
-            raise PrefixInvalidException(f"I got an unknown prefix!'")
         cls.log.debug(f"triggered! message is {message}")
 
         # remove command prefix and make lowercase

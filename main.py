@@ -86,6 +86,10 @@ class MechaClient(Client):
             log.debug("received message from myself ignoring!.")
             return None
 
+        if not str(message).startswith(Commands.prefix):
+            log.debug(f"caught a command without prefix. Ignoring.")
+            return None
+
         else:  # await command execution
             await Commands.trigger(message=message,
                                    sender=user,
