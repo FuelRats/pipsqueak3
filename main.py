@@ -11,16 +11,24 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from pydle import ClientPool, Client
-from Modules.rat_command import Commands
 import logging
+from uuid import uuid4
+
+from pydle import ClientPool, Client
+
+from Modules import permissions
+from Modules.commandcontext import CommandContext
+from Modules.permissions import require_permission
+from Modules.rat_command import Commands, CommandNotFoundException
 from config import IRC, Logging
+
+__version__ = "3.0a"
 
 ##########
 # setup logging stuff
 
 # create a log formatter
-log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
+log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}\t",
                                   style='{')
 # get Mecha's root logger
 log = logging.getLogger(Logging.base_logger)
@@ -51,8 +59,6 @@ class MechaClient(Client):
     MechaSqueak v3
     """
 
-    version = "3.0a"
-
     async def on_connect(self):
         """
         Called upon connection to the IRC server
@@ -66,6 +72,7 @@ class MechaClient(Client):
         log.debug("joined channels.")
         # call the super
         super().on_connect()
+
     #
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
@@ -78,8 +85,8 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data"
-                 f"{message}")
+        log.debug(f"trigger! Sender is {user}\t in channel {channel}\twith data"
+                  f"{message}")
         if user == IRC.presence:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
@@ -87,9 +94,27 @@ class MechaClient(Client):
             return None
 
         else:  # await command execution
-            await Commands.trigger(message=message,
-                                   sender=user,
-                                   channel=channel)
+            try:
+                await Commands.trigger(message=message,
+                                       sender=user,
+                                       channel=channel)
+            except CommandNotFoundException as ex:
+                log.exception(ex)
+
+            except Exception as ex:
+                # generate a uuid to attach to the error (to make it easier to find later)
+                uuid = uuid4()
+                # write a unique marker to the log file for easier searching
+                log.error(f"Error during command invocation. marker: {uuid}")
+                # write the actual exception, since it may be useful
+                log.exception(ex)
+
+                # and report state to the user
+                await self.message(channel if channel else user, f"An error has occured during "
+                                                                 f"command execution. Please let a "
+                                                                 f"techrat  know!"
+                                                                 f" -reference id "
+                                                                 f"{str(uuid)[:8]}")
 
 
 @Commands.command("ping")
@@ -104,6 +129,13 @@ async def cmd_ping(bot, trigger):
     await trigger.reply(f"{trigger.nickname} pong!")
 
 
+@require_permission(permissions.RAT)
+@Commands.command("version", "potato", "ver")
+async def cmd_version(bot, trigger: CommandContext):
+    """reports mecha's version"""
+    await trigger.reply(f"My version is {__version__}")
+
+
 # entry point
 if __name__ == "__main__":
     log.info("hello world!")
@@ -112,15 +144,19 @@ if __name__ == "__main__":
     log.debug("starting bot for server...")
     try:
         log.debug("spawning new bot instance...")
-        client = MechaClient(IRC.presence)
+        client = MechaClient(IRC.presence, sasl_username=IRC.Authentication.username,
+                             sasl_password=IRC.Authentication.password,
+                             sasl_identity='')
 
         log.info(f"connecting to {IRC.server}:{IRC.port}")
-        pool.connect(client, IRC.server, IRC.port, tls=IRC.tls)
+        pool.connect(client, IRC.server, IRC.port, tls=IRC.tls,
+                     )
     except Exception as ex:
         log.error(f"unable to connect to {IRC.server}:{IRC.port} "
                   f"due to an error.")
         log.error(ex)
         from sys import exit
+
         exit(42)
     else:
         # hand the bot instance to commands
