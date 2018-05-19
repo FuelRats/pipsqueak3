@@ -87,6 +87,7 @@ class MechaClient(Client):
             return None
 
         if not str(message).startswith(Commands.prefix):
+            # prevent bot from processing commands without the set prefix
             log.debug(f"caught a command without prefix. Ignoring.")
             return None
 
