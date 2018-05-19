@@ -85,6 +85,9 @@ class Commands:
             # someone didn't set me.
             raise CommandException(f"Bot client has not been created or not handed to Commands.")
 
+        # check for trigger
+        assert message.startswith(cls.prefix), f"message passed that did not contain prefix."
+
         cls.log.debug(f"triggered! message is {message}")
 
         # remove command prefix and make lowercase
@@ -130,7 +133,7 @@ class Commands:
             names = [names]  # idiot proofing
 
         # transform commands to lowercase
-        names = [x.lower() for x in names]
+        names = [lowered_name.lower() for lowered_name in names]
 
         if func is None or not callable(func):
             # command not callable
