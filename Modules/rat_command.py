@@ -55,6 +55,13 @@ class NameCollisionException(CommandException):
     pass
 
 
+class PrefixInvalidException(CommandException):
+    """
+    Someone used the wrong prefix for a command.
+    """
+    pass
+
+
 class Commands:
     """
     Handles command registration and execution
@@ -88,7 +95,7 @@ class Commands:
             # command didn't start with prefix, ignore it
         if not message.startswith(cls.prefix):
             cls.log.debug(f"caught a command without prefix: {message}")
-            return None
+            raise PrefixInvalidException(f"I got an unknown prefix!'")
         cls.log.debug(f"triggered! message is {message}")
 
         # remove command prefix and make lowercase
@@ -132,6 +139,9 @@ class Commands:
         """
         if isinstance(names, str):
             names = [names]  # idiot proofing
+
+        # transform commands to lowercase
+        names = [x.lower() for x in names]
 
         if func is None or not callable(func):
             # command not callable
