@@ -1,2 +1,2 @@
-# ignore python bytecode files
-*.pyc
+# Ignore generated files
+**/*.pyc
