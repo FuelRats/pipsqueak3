@@ -40,7 +40,8 @@ to run the irc bot itself, enter the following command into your terminal
 ```docker-compose up mecha3```
 
 ## Default executable state of the container
-By default, the mecha3 container will execute the test suite
+By default, the mecha3 container will execute the test suite.
+
 Running the container directly via
 ```docker run mecha3``` is identical to running the tests as described
     above.
