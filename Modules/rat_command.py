@@ -85,10 +85,14 @@ class Commands:
             # someone didn't set me.
             raise CommandException(f"Bot client has not been created or not handed to Commands.")
 
+            # command didn't start with prefix, ignore it
+        if not message.startswith(cls.prefix):
+            cls.log.debug(f"caught a command without prefix: {message}")
+            return None
         cls.log.debug(f"triggered! message is {message}")
 
-        # remove command prefix
-        raw_command: str = message.lstrip(cls.prefix)
+        # remove command prefix and make lowercase
+        raw_command: str = message.lstrip(cls.prefix).lower()
 
         words = []
         words_eol = []
