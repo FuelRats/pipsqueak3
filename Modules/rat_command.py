@@ -55,13 +55,6 @@ class NameCollisionException(CommandException):
     pass
 
 
-class PrefixInvalidException(CommandException):
-    """
-    Someone used the wrong prefix for a command.
-    """
-    pass
-
-
 class Commands:
     """
     Handles command registration and execution
