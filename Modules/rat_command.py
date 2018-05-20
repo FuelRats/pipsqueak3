@@ -133,7 +133,7 @@ class Commands:
             names = [names]  # idiot proofing
 
         # transform commands to lowercase
-        names = [lowered_name.lower() for lowered_name in names]
+        names = [name.lower() for name in names]
 
         if func is None or not callable(func):
             # command not callable
