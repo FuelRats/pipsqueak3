@@ -17,9 +17,10 @@ from uuid import uuid4
 from pydle import ClientPool, Client
 
 from Modules import permissions
-from Modules.commandcontext import CommandContext
+from Modules.context import Context
 from Modules.permissions import require_permission
 from Modules.rat_command import Commands, CommandNotFoundException
+from Modules.user import User
 from config import IRC, Logging
 
 __version__ = "3.0a"
@@ -77,7 +78,7 @@ class MechaClient(Client):
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
 
-    async def on_message(self, channel, user, message):
+    async def on_message(self, channel: str, user: str, message: str):
         """
         Triggered when a message is received
         :param channel: Channel the message arrived in
@@ -92,8 +93,10 @@ class MechaClient(Client):
             # self-stimulated positive feedback loop.
             log.debug("received message from myself ignoring!.")
             return None
-
         else:  # await command execution
+
+            invoking_user: User = User.from_bot(bot=self, nickname=user)
+
             try:
                 await Commands.trigger(message=message,
                                        sender=user,
@@ -122,7 +125,7 @@ async def cmd_ping(bot, trigger):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param bot: Pydle instance.
-    :param trigger: `CommandContext` object for the command call.
+    :param trigger: `Context` object for the command call.
     """
     log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
                 f"'{trigger.nickname}'")
@@ -131,7 +134,7 @@ async def cmd_ping(bot, trigger):
 
 @require_permission(permissions.RAT)
 @Commands.command("version", "potato", "ver")
-async def cmd_version(bot, trigger: CommandContext):
+async def cmd_version(bot, trigger: Context):
     """reports mecha's version"""
     await trigger.reply(f"My version is {__version__}")
 

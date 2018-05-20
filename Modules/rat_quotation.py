@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 
 import config
-from Modules.commandcontext import CommandContext
+from Modules.context import Context
 
 LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
 
@@ -134,12 +134,12 @@ class Quotation(object):
         else:
             raise ValueError(f"Expected string got {type(value)}")
 
-    def modify(self, event_trigger: CommandContext, message: str) -> None:
+    def modify(self, event_trigger: Context, message: str) -> None:
         """
         Helper method for modifying a quote
 
         Args:
-            event_trigger (CommandContext): Trigger object of invoking user
+            event_trigger (Context): Trigger object of invoking user
             message (str): message to set as quoted text
 
         Returns: None

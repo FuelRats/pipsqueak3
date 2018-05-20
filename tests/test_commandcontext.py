@@ -1,24 +1,24 @@
 import pytest
 
-from Modules.commandcontext import CommandContext
+from Modules.context import Context
 
 
 def test_create_manual_channel(bot_fx):
-    trigger = CommandContext(bot_fx, ["don't", "care"], ["don't care", "care"], None,
-                             target="#somechannel")
+    trigger = Context(bot_fx, ["don't", "care"], ["don't care", "care"], None,
+                      target="#somechannel")
     assert trigger.channel == "#somechannel"
 
 
 def test_create_manual_query(bot_fx):
-    trigger = CommandContext(bot_fx, ["don't", "care"], ["don't care", "care"], None,
-                             target="#somechannel")
+    trigger = Context(bot_fx, ["don't", "care"], ["don't care", "care"], None,
+                      target="#somechannel")
     assert trigger.channel is None
 
 
 @pytest.mark.asyncio
 async def test_create_from_user_channel(bot_fx):
-    trigger = await CommandContext.from_bot_user(bot_fx, "unit_test", "#somechannel",
-                                           ["some", "thing"], ["some thing", "thing"])
+    trigger = await Context.from_bot_user(bot_fx, "unit_test", "#somechannel",
+                                          ["some", "thing"], ["some thing", "thing"])
     assert trigger.channel == "#somechannel"
 
     assert trigger.words == ["some", "thing"]
@@ -35,8 +35,8 @@ async def test_create_from_user_channel(bot_fx):
 
 @pytest.mark.asyncio
 async def test_create_from_user_query(bot_fx):
-    trigger = await CommandContext.from_bot_user(bot_fx, "unit_test[BOT]", "not_a_channel",
-                                           ["some", "thing"], ["some thing", "thing"])
+    trigger = await Context.from_bot_user(bot_fx, "unit_test[BOT]", "not_a_channel",
+                                          ["some", "thing"], ["some thing", "thing"])
     assert trigger.channel is None
 
     assert trigger.words == ["some", "thing"]
@@ -53,7 +53,7 @@ async def test_create_from_user_query(bot_fx):
 
 @pytest.mark.asyncio
 async def test_reply_channel(bot_fx):
-    trigger = CommandContext(bot_fx, ["some", "thing"], ["some thing", "thing"], None)
+    trigger = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None)
     await trigger.reply("Exceedingly smart test message.")
     assert {
                "target": "#somechannel",
@@ -63,7 +63,7 @@ async def test_reply_channel(bot_fx):
 
 @pytest.mark.asyncio
 async def test_reply_query(bot_fx):
-    trigger = CommandContext(bot_fx, ["some", "thing"], ["some thing", "thing"], None)
+    trigger = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None)
     await trigger.reply("Exceedingly smart test message.")
     assert {
                "target": "test_nick",
@@ -72,9 +72,9 @@ async def test_reply_query(bot_fx):
 
 
 def test_trigger_eq(bot_fx):
-    trigger1 = CommandContext(bot_fx, ["some", "thing"], ["some thing", "thing"], None,
+    trigger1 = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None,
                               "#unit_test")
-    trigger2 = CommandContext(bot_fx, ["some", "thing"], ["some thing", "thing"], None,
+    trigger2 = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None,
                               "#unit_test")
 
     assert trigger1 == trigger1
@@ -85,9 +85,9 @@ def test_trigger_eq(bot_fx):
 
 
 def test_trigger_ne(bot_fx):
-    trigger1 = CommandContext(bot_fx, ["some", "thing"], ["some thing", "thing"], None,
+    trigger1 = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None,
                               "#unit_test")
-    trigger2 = CommandContext(bot_fx, ["some", "thing"], ["another thing", "thing"], None,
+    trigger2 = Context(bot_fx, ["some", "thing"], ["another thing", "thing"], None,
                               "#unit_test")
 
     assert trigger1 != trigger2
@@ -96,9 +96,9 @@ def test_trigger_ne(bot_fx):
 
 @pytest.mark.xfail
 def test_trigger_hash():
-    trigger1 = CommandContext(None, ["some", "thing"], ["some thing", "thing"], None, "#unit_test")
-    trigger2 = CommandContext(None, ["some", "thing"], ["some thing", "thing"], None, "#unit_test")
-    trigger3 = CommandContext(None, ["some", "thing"], ["another thing", "thing"], None,
+    trigger1 = Context(None, ["some", "thing"], ["some thing", "thing"], None, "#unit_test")
+    trigger2 = Context(None, ["some", "thing"], ["some thing", "thing"], None, "#unit_test")
+    trigger3 = Context(None, ["some", "thing"], ["another thing", "thing"], None,
                               "#unit_test")
 
     assert hash(trigger1) == hash(trigger2)

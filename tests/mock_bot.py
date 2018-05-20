@@ -10,6 +10,7 @@ class MockBot(object):
             "unit_test[BOT]": {
                 "nickname": "unit_test[BOT]",
                 "username": "unit_test",
+                "realname": "unit_test",
                 "hostname": "i.see.none",
                 "away": True,
                 "away_message": "Go away",

@@ -118,12 +118,13 @@ def require_permission(permission: Permission,
         # TODO implement require_permission wrapper.
 
         @wraps(func)
-        async def guarded(bot, trigger):
-            if trigger.identified and trigger.hostname in _by_vhost.keys() \
-                    and _by_vhost[trigger.hostname] >= permission:
-                return await func(bot, trigger)
+        async def guarded(bot, context: 'Context'):
+            log.debug(f"context = {context}")
+            if context.user.identified and context.user.hostname in _by_vhost.keys() \
+                    and _by_vhost[context.user.hostname] >= permission:
+                return await func(bot, context)
             else:
-                await trigger.reply(override_message if override_message
+                await context.reply(override_message if override_message
                                     else permission.denied_message)
 
         return guarded

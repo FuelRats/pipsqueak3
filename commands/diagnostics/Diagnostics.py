@@ -17,7 +17,7 @@ import IPython
 
 import config
 from Modules import permissions
-from Modules.commandcontext import CommandContext
+from Modules.context import Context
 from Modules.permissions import require_permission
 from Modules.rat_command import Commands
 
@@ -26,7 +26,7 @@ log = logging.getLogger(f'{config.Logging.base_logger}.handlers')
 
 @require_permission(permissions.TECHRAT)
 @Commands.command("debug-fetch")
-async def cmd_testNick(bot, trigger: CommandContext):
+async def cmd_testNick(bot, trigger: Context):
     """
     retrieves the invoking user from the bot's user listing and dumps it to the log file
     """
@@ -37,7 +37,7 @@ async def cmd_testNick(bot, trigger: CommandContext):
 
 @require_permission(permissions.TECHRAT)
 @Commands.command("debug-whois")
-async def cmd_whois(bot, trigger: CommandContext):
+async def cmd_whois(bot, trigger: Context):
     """
     Finds a specified user via a WHOIS command,
             and returns the data to the log file

@@ -22,9 +22,10 @@ import pydle
 import pytest
 from aiounittest import async_test
 
-from Modules.commandcontext import CommandContext
+from Modules.context import Context
 from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, \
     CommandException
+from Modules.user import User
 from tests.mock_bot import MockBot
 
 
@@ -168,7 +169,7 @@ class RatCommandTests(unittest.TestCase):
                                         'account': 'theunkn0wn1[PC]'},))
 async def test_call_command(alias: str, monkeypatch, bot_fx, mock_data):
     """
-    Verifiy that found commands can be invoked via Commands.CommandContext()
+    Verifiy that found commands can be invoked via Commands.Context()
     :return:
     """
 
@@ -178,17 +179,17 @@ async def test_call_command(alias: str, monkeypatch, bot_fx, mock_data):
     monkeypatch.setattr('Modules.rat_command.Commands.bot', bot_fx)
     monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_whois)
     trigger_alias = f"{Commands.prefix}{alias}"
-    input_sender = mock_data['username']
+    input_user = await User.from_bot(bot_fx, mock_data['username'])
     input_channel = "#unit_testing"
 
     @Commands.command(alias)
-    async def potato(bot, trigger: CommandContext):
+    async def potato(bot, trigger: Context):
         # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
         return bot, trigger.channel, trigger.user.nickname
 
     out_bot, out_channel, out_sender = await Commands.trigger(
-        message=trigger_alias, sender=input_sender,
+        message=trigger_alias, sender=input_user,
         channel=input_channel)
 
-    assert input_sender == out_sender
+    assert input_user.nickname == out_sender
     assert input_channel == out_channel

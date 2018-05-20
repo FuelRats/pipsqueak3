@@ -7,16 +7,16 @@ import pydle
 from Modules.user import User
 
 
-class CommandContext(object):
+class Context(object):
     """
     Object to hold information on the user who invoked a command as well as where and how the
     command was invoked.
     """
 
-    def __init__(self, bot: 'MechaClient', words: List[str], words_eol: List[str], user,
+    def __init__(self, bot: 'MechaClient', words: List[str], words_eol: List[str], user: User,
                  target: str):
         """
-        Initializes a new `CommandContext` object with the provided info.
+        Initializes a new `Context` object with the provided info.
 
         Arguments:
             user ():
@@ -45,7 +45,7 @@ class CommandContext(object):
     @classmethod
     async def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str,
                             words: List[str],
-                            words_eol: List[str] = None) -> 'CommandContext':
+                            words_eol: List[str] = None) -> 'Context':
         """
         Creates a `Trigger` object from a user dictionary as used by pydle.
 
@@ -60,7 +60,7 @@ class CommandContext(object):
                 everything up to the end of the message.
 
         Returns:
-            CommandContext: Object constructed from the provided info.
+            Context: Object constructed from the provided info.
         """
         user = await User.from_bot(bot=bot, nickname=nickname)
         return cls(bot, words=words, words_eol=words_eol, user=user, target=target)
@@ -84,8 +84,8 @@ class CommandContext(object):
     def __eq__(self, other) -> bool:
         if self is other:
             return True
-        elif isinstance(other, CommandContext):
-            for name, value in CommandContext.__dict__.items():
+        elif isinstance(other, Context):
+            for name, value in Context.__dict__.items():
                 if isinstance(value, property):
                     if getattr(self, name) != getattr(other, name):
                         return False
