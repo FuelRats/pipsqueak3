@@ -22,7 +22,6 @@ from Modules import permissions
 from Modules.permissions import require_permission
 from Modules.rat_command import Commands
 from Modules.user import User
-from tests.mock_bot import MockBot
 
 
 # registration is done in setUp
@@ -31,12 +30,20 @@ async def restricted(bot, trigger):
     await trigger.reply("Restricted command was executed.")
 
 
-class TestPermission(object):
-    def setup_module(self):
-        Commands._flush()
-        Commands.bot = self.bot = MockBot()
-        Commands.command("restricted")(restricted)
+@pytest.fixture
+def commands_patch_fx(monkeypatch, bot_fx):
+    """
+    Patches Commands.bot to use the bot fixture
 
+    Alsp cleans up the commands and registers the testing command
+    """
+    monkeypatch.setattr("Modules.rat_command.Commands.bot", bot_fx)
+    Commands._flush()
+    Commands.command("restricted")(restricted)
+
+
+@pytest.mark.usefixtures("commands_patch_fx")
+class TestPermission(object):
     def test_permission_greater(self):
         """
         Tests if Permission_a > Permission_b functions correctly.
@@ -90,42 +97,45 @@ class TestPermission(object):
         assert (permissions.RAT != permissions.TECHRAT)
         assert (permissions.DISPATCH != permissions.ORANGE)
 
-    @async_test
-    async def test_restricted_command_inferior(self):
+    @pytest.mark.asyncio
+    async def test_restricted_command_inferior(self, bot_fx):
+
         user = User("some_recruit", "recruit.fuelrats.com", "some_recruit", "some_recruit", False,
                     "some_recruit", identified=True)
-        await Commands.trigger("!restricted", await User.from_bot(self.bot, "some_recruit"),
+        await Commands.trigger("!restricted", await User.from_bot(bot_fx, "some_recruit"),
                                "#somechannel")
         assert {
                    "target": "#somechannel",
                    "message": permissions.OVERSEER.denied_message
-               } in self.bot.sent_messages
+               } in bot_fx.sent_messages
 
     @pytest.mark.asyncio
     async def test_restricted_command_exact(self, bot_fx):
-        await Commands.trigger("!restricted", await User.from_bot(bot_fx, "some_ov"),
+        user = await User.from_bot(bot_fx, "some_ov")
+        await Commands.trigger("!restricted", user,
                                "#somechannel")
         assert {
                    "target": "#somechannel",
                    "message": "Restricted command was executed."
                } in bot_fx.sent_messages
 
-    @async_test
-    async def test_restricted_command_superior(self):
-        await Commands.trigger("!restricted", "some_admin", "#somechannel")
-        self.assertIn({
+    @pytest.mark.asyncio
+    async def test_restricted_command_superior(self, bot_fx):
+        user = await User.from_bot(bot_fx, "some_admin")
+        await Commands.trigger("!restricted", user, "#somechannel")
+        assert {
             "target": "#somechannel",
             "message": "Restricted command was executed."
-        }, self.bot.sent_messages)
+        } in bot_fx.sent_messages
 
-    @async_test
-    async def test_restricted_command_not_identified(self):
-        await Commands.trigger("!restricted", "authorized_but_not_identified",
-                               "#somechannel")
-        self.assertIn({
+    @pytest.mark.asycio
+    async def test_restricted_command_not_identified(self, bot_fx):
+        user = await User.from_bot(bot_fx, "authorized_but_not_identified")
+        await Commands.trigger("!restricted", user, "#somechannel")
+        assert {
             "target": "#somechannel",
             "message": permissions.OVERSEER.denied_message
-        }, self.bot.sent_messages)
+        } in bot_fx.sent_messages
 
     def test_hash(self):
         for perm1, perm2 in product(permissions._by_vhost.values(), permissions._by_vhost.values()):

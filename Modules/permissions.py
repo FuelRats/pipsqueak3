@@ -120,8 +120,8 @@ def require_permission(permission: Permission,
         @wraps(func)
         async def guarded(bot, context: 'Context'):
             log.debug(f"context = {context}")
-            if context.user.identified and context.user.hostname in _by_vhost.keys() \
-                    and _by_vhost[context.user.hostname] >= permission:
+
+            if context.user.permission_level >= permission:
                 return await func(bot, context)
             else:
                 await context.reply(override_message if override_message
