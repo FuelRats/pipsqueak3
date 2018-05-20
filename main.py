@@ -21,6 +21,8 @@ from Modules.context import Context
 from Modules.permissions import require_permission
 from Modules.rat_command import Commands, CommandNotFoundException
 from Modules.user import User
+# noinspection PyUnresolvedReferences
+from commands.diagnostics import Diagnostics
 from config import IRC, Logging
 
 __version__ = "3.0a"
@@ -149,7 +151,7 @@ if __name__ == "__main__":
         log.debug("spawning new bot instance...")
         client = MechaClient(IRC.presence, sasl_username=IRC.Authentication.username,
                              sasl_password=IRC.Authentication.password,
-                             sasl_identity='')
+                             sasl_identity=IRC.Authentication.identity)
 
         log.info(f"connecting to {IRC.server}:{IRC.port}")
         pool.connect(client, IRC.server, IRC.port, tls=IRC.tls,
