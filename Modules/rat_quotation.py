@@ -147,4 +147,4 @@ class Quotation(object):
         """
         self._message = message
         self._updated_at = datetime.utcnow()
-        self._last_author = event_trigger.nickname
+        self._last_author = event_trigger.user.username

@@ -96,11 +96,11 @@ def test_trigger_ne(bot_fx):
     assert trigger2 != trigger1
 
 
-@pytest.mark.xfail
 def test_trigger_hash():
-    trigger1 = Context(None, ["some", "thing"], ["some thing", "thing"], None, "#unit_test")
-    trigger2 = Context(None, ["some", "thing"], ["some thing", "thing"], None, "#unit_test")
-    trigger3 = Context(None, ["some", "thing"], ["another thing", "thing"], None,
+    user = User("foo", "rat.fuelrats.com", "foo", False, None, "foo")
+    trigger1 = Context(None, ["some", "thing"], ["some thing", "thing"], user, "#unit_test")
+    trigger2 = Context(None, ["some", "thing"], ["some thing", "thing"], user, "#unit_test")
+    trigger3 = Context(None, ["some", "thing"], ["another thing", "thing"], user,
                               "#unit_test")
 
     assert hash(trigger1) == hash(trigger2)

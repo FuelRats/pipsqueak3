@@ -96,7 +96,7 @@ class Context(object):
 
     def __hash__(self) -> int:
         if self._hash is None:
-            attrs = (self._words_eol[0], self.user.nickname, self.user.identified,
+            attrs = (self._words_eol[0], self.user.identified,
                      self.user.hostname,
                      self.user.realname, self.user.away, self.user.account)
             self._hash = reduce(xor, map(hash, attrs))

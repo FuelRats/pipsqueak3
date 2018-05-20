@@ -11,12 +11,13 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import datetime
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 
-from Modules.rat_rescue import Rescue
-from Modules.rat_quotation import Quotation
+import pytest
+
 from Modules.context import Context
-from tests import mock_bot
+from Modules.rat_quotation import Quotation
+from Modules.user import User
 
 
 class TestQuotes(TestCase):
@@ -109,14 +110,17 @@ class TestQuotes(TestCase):
                 with self.assertRaises(ValueError):
                     quote.last_author = value
 
-    def test_modify(self):
-        """
-        Verifies a quote can be changed correctly, that the correct fields are
-         set
-        """
-        trigger = Context(mock_bot, [], [], None, target="#unit_tests")
-        quote = Quotation("foo")
-        quote.modify(trigger, message="bar")
-        self.assertEqual("bar", quote.message)
-        self.assertNotEqual(quote.created_at, quote.updated_at)
-        self.assertNotEqual(quote.author, quote.last_author)
+
+@pytest.mark.asyncio
+async def test_modify(bot_fx):
+    """
+    Verifies a quote can be changed correctly, that the correct fields are
+     set
+    """
+    user = await User.from_bot(bot_fx, "unit_test")
+    trigger = Context(bot_fx, [], [], user, target="#unit_tests")
+    quote = Quotation("foo")
+    quote.modify(trigger, message="bar")
+    assert "bar" == quote.message
+    assert quote.created_at != quote.updated_at
+    assert quote.author != quote.last_author

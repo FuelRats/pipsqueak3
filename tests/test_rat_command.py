@@ -151,45 +151,31 @@ class RatCommandTests(unittest.TestCase):
                 await Commands.trigger("!banan", "unit_test", "theOneWithTheHills")
             assert not underlying.called
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
-@pytest.mark.parametrize("mock_data", ({'oper': False,
-                                        'idle': 0,
-                                        'away': False,
-                                        'away_message': None,
-                                        'username': 'theunkn0wn',
-                                        'hostname': 'theunkn0wn1.techrat.fuelrats.com',
-                                        'realname': 'unknown',
-                                        'identified': True,
-                                        'channels': {'~@#unkn0wndev'},
-                                        'server': 'irc.eu.fuelrats.com',
-                                        'server_info': 'Fuel Rats IRC Server',
-                                        'secure': True,
-                                        'account': 'theunkn0wn1[PC]'},))
-async def test_call_command(alias: str, monkeypatch, bot_fx, mock_data):
+@pytest.mark.parametrize("alias", [user for user in MockBot.users])
+async def test_call_command(alias: str, monkeypatch, bot_fx):
     """
     Verifiy that found commands can be invoked via Commands.Context()
     :return:
     """
 
-    async def mock_whois(*args):
-        return mock_data
+    # async def mock_whois(*args):
+    #     return mock_data
 
     monkeypatch.setattr('Modules.rat_command.Commands.bot', bot_fx)
-    monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_whois)
+    # monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_whois)
     trigger_alias = f"{Commands.prefix}{alias}"
-    input_user = await User.from_bot(bot_fx, mock_data['username'])
+    input_user = await User.from_bot(bot_fx, alias)
     input_channel = "#unit_testing"
 
     @Commands.command(alias)
     async def potato(bot, trigger: Context):
         # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
-        return bot, trigger.channel, trigger.user.nickname
+        return bot, trigger.channel, trigger.user.username
 
     out_bot, out_channel, out_sender = await Commands.trigger(
         message=trigger_alias, sender=input_user,
         channel=input_channel)
 
-    assert input_user.nickname == out_sender
+    assert input_user.username == out_sender
     assert input_channel == out_channel
