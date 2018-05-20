@@ -32,6 +32,7 @@ class User(object):
                  nickname: str,
                  username: str,
                  away: bool,
+                 away_message: Union[str, None],
                  account: str,
                  identified: bool = False,
                  ):
@@ -44,6 +45,7 @@ class User(object):
             nickname (str):  nickname
             username (str): username
             away (bool): user's away status
+            away_message(str): user's away message
             account (?): ?
             identified (bool): user identification status against IRC services
 
@@ -56,6 +58,7 @@ class User(object):
         self._away: bool = away
         self._account: str = account
         self._permission_level: Union[None, Permission] = None
+        self._away_message: Union[str, None] = away_message
         # sets the permission based on the hostmask
         # which requires stripping the username and the leading period
         try:
@@ -88,7 +91,7 @@ class User(object):
     @property
     def username(self) -> str:
         """username"""
-        return self._nickname
+        return self._username
 
     @property
     def identified(self) -> bool:
@@ -100,6 +103,9 @@ class User(object):
         """is the user marked away?"""
         return self._away
 
+    @property
+    def away_message(self):
+        return self._away_message
     @property
     def account(self) -> Union[str, None]:
         """Users nickserv account, None if not identified"""
@@ -133,10 +139,11 @@ class User(object):
             my_user = cls(realname=irc_user['realname'],
                           username=irc_user["username"],
                           hostname=irc_user["hostname"],
-                          nickname=irc_user["username"],
+                          nickname=irc_user["nickname"],
                           away=irc_user["away"],
                           account=irc_user["account"],
-                          identified=irc_user["identified"]
+                          identified=irc_user["identified"],
+                          away_message=irc_user["away_message"]
                           )
 
         return my_user

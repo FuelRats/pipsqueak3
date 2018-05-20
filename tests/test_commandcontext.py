@@ -1,6 +1,7 @@
 import pytest
 
 from Modules.context import Context
+from Modules.user import User
 
 
 def test_create_manual_channel(bot_fx):
@@ -11,7 +12,7 @@ def test_create_manual_channel(bot_fx):
 
 def test_create_manual_query(bot_fx):
     trigger = Context(bot_fx, ["don't", "care"], ["don't care", "care"], None,
-                      target="#somechannel")
+                      target="somechannel")
     assert trigger.channel is None
 
 
@@ -25,10 +26,10 @@ async def test_create_from_user_channel(bot_fx):
     assert trigger.words_eol == ["some thing", "thing"]
 
     assert trigger.user.nickname == bot_fx.users["unit_test"]["nickname"]
-    assert trigger.user.ident == bot_fx.users["unit_test"]["username"]
-    assert trigger.user.realname is None
+    assert trigger.user.username == bot_fx.users["unit_test"]["username"]
+    assert trigger.user.realname == bot_fx.users["unit_test"]["realname"]
     assert trigger.user.hostname == bot_fx.users["unit_test"]["hostname"]
-    assert trigger.user.away == bot_fx.users["unit_test"]["away_message"]
+    assert trigger.user.away == bot_fx.users["unit_test"]["away"]
     assert trigger.user.account == bot_fx.users["unit_test"]["account"]
     assert trigger.user.identified == bot_fx.users["unit_test"]["identified"]
 
@@ -43,17 +44,18 @@ async def test_create_from_user_query(bot_fx):
     assert trigger.words_eol == ["some thing", "thing"]
 
     assert trigger.user.nickname == bot_fx.users["unit_test[BOT]"]["nickname"]
-    assert trigger.user.ident == bot_fx.users["unit_test[BOT]"]["username"]
-    assert trigger.user.realname is None
+    assert trigger.user.username == bot_fx.users["unit_test[BOT]"]["username"]
+    assert trigger.user.realname == bot_fx.users["unit_test[BOT]"]["realname"]
     assert trigger.user.hostname == bot_fx.users["unit_test[BOT]"]["hostname"]
-    assert trigger.user.away == bot_fx.users["unit_test[BOT]"]["away_message"]
+    assert trigger.user.away == bot_fx.users["unit_test[BOT]"]["away"]
+    assert trigger.user.away_message == bot_fx.users["unit_test[BOT]"]["away_message"]
     assert trigger.user.account == bot_fx.users["unit_test[BOT]"]["account"]
     assert trigger.user.identified == bot_fx.users["unit_test[BOT]"]["identified"]
 
 
 @pytest.mark.asyncio
 async def test_reply_channel(bot_fx):
-    trigger = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None)
+    trigger = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None, "#somechannel")
     await trigger.reply("Exceedingly smart test message.")
     assert {
                "target": "#somechannel",
@@ -63,7 +65,9 @@ async def test_reply_channel(bot_fx):
 
 @pytest.mark.asyncio
 async def test_reply_query(bot_fx):
-    trigger = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None)
+    user = User("test_nick", "nothing.to.see.here", "test_nick", "moveAlong", False, None,
+                "moveAlong")
+    trigger = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], user, "test_nick")
     await trigger.reply("Exceedingly smart test message.")
     assert {
                "target": "test_nick",
