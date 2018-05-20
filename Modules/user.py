@@ -29,7 +29,6 @@ class User(object):
     def __init__(self,
                  realname: str,
                  hostname: str,
-                 nickname: str,
                  username: str,
                  away: bool,
                  away_message: Union[str, None],
@@ -42,7 +41,6 @@ class User(object):
         Args:
             realname (str): real name
             hostname (str): hostmask
-            nickname (str):  nickname
             username (str): username
             away (bool): user's away status
             away_message(str): user's away message
@@ -52,7 +50,6 @@ class User(object):
         """
         self._realname: str = realname
         self._hostname: str = hostname
-        self._nickname: str = nickname
         self._username: str = username
         self._identified: bool = identified
         self._away: bool = away
@@ -82,11 +79,6 @@ class User(object):
     def hostname(self) -> str:
         """The users hostname"""
         return self._hostname
-
-    @property
-    def nickname(self) -> str:
-        """nickname"""
-        return self._nickname
 
     @property
     def username(self) -> str:
@@ -139,7 +131,6 @@ class User(object):
             my_user = cls(realname=irc_user['realname'],
                           username=irc_user["username"],
                           hostname=irc_user["hostname"],
-                          nickname=irc_user["nickname"],
                           away=irc_user["away"],
                           account=irc_user["account"],
                           identified=irc_user["identified"],

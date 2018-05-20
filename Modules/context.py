@@ -79,7 +79,7 @@ class Context(object):
         Arguments:
             msg (str): Message to send.
         """
-        await self.bot.message(self.channel if self.channel else self.user.nickname, msg)
+        await self.bot.message(self.channel if self.channel else self.user.username, msg)
 
     def __eq__(self, other) -> bool:
         if self is other:

@@ -18,7 +18,7 @@ from Modules import permissions
 from Modules.user import User
 
 
-@pytest.mark.parametrize("prop", ["realname", "hostname", "nickname", "username", "away",
+@pytest.mark.parametrize("prop", ["realname", "hostname", "username", "away",
                                   "account", "identified", "permission_level"])
 def test_read_only(user_fx: User, prop: str):
     """ verifies all properties on the User object are read only"""

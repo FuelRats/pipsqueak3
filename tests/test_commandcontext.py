@@ -25,7 +25,6 @@ async def test_create_from_user_channel(bot_fx):
     assert trigger.words == ["some", "thing"]
     assert trigger.words_eol == ["some thing", "thing"]
 
-    assert trigger.user.nickname == bot_fx.users["unit_test"]["nickname"]
     assert trigger.user.username == bot_fx.users["unit_test"]["username"]
     assert trigger.user.realname == bot_fx.users["unit_test"]["realname"]
     assert trigger.user.hostname == bot_fx.users["unit_test"]["hostname"]
@@ -43,7 +42,6 @@ async def test_create_from_user_query(bot_fx):
     assert trigger.words == ["some", "thing"]
     assert trigger.words_eol == ["some thing", "thing"]
 
-    assert trigger.user.nickname == bot_fx.users["unit_test[BOT]"]["nickname"]
     assert trigger.user.username == bot_fx.users["unit_test[BOT]"]["username"]
     assert trigger.user.realname == bot_fx.users["unit_test[BOT]"]["realname"]
     assert trigger.user.hostname == bot_fx.users["unit_test[BOT]"]["hostname"]
@@ -65,7 +63,7 @@ async def test_reply_channel(bot_fx):
 
 @pytest.mark.asyncio
 async def test_reply_query(bot_fx):
-    user = User("test_nick", "nothing.to.see.here", "test_nick", "moveAlong", False, None,
+    user = User("test_nick", "nothing.to.see.here", "test_nick", False, None,
                 "moveAlong")
     trigger = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], user, "test_nick")
     await trigger.reply("Exceedingly smart test message.")
