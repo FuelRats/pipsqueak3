@@ -33,8 +33,7 @@ class User(object):
                  away: bool,
                  away_message: Union[str, None],
                  account: str,
-                 identified: bool = False,
-                 ):
+                 identified: bool = False):
         """
         Create a new IRC User representation
 
@@ -68,7 +67,6 @@ class User(object):
         except KeyError:
             # means the user didn't have  a valid hostmask, ignore it.
             LOG.debug(f"no matching permission for hostname {hostname}")
-            pass
 
     @property
     def realname(self) -> str:
@@ -96,8 +94,10 @@ class User(object):
         return self._away
 
     @property
-    def away_message(self):
+    def away_message(self) -> Union[None, str]:
+        """users away message, None if not set"""
         return self._away_message
+
     @property
     def account(self) -> Union[str, None]:
         """Users nickserv account, None if not identified"""
@@ -134,7 +134,6 @@ class User(object):
                           away=irc_user["away"],
                           account=irc_user["account"],
                           identified=irc_user["identified"],
-                          away_message=irc_user["away_message"]
-                          )
+                          away_message=irc_user["away_message"])
 
         return my_user
