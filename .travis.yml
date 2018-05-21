@@ -21,7 +21,7 @@ before_script: # code climate init
   - ./cc-test-reporter before-build
   # psql init
   - psql -c 'CREATE ROLE mecha3 WITH LOGIN CREATEDB;' -U postgres
-  - psql -c "CREATE DATABASE mecha3 WITH OWNER = 'mecha3';" -U postgres
+  - psql -c 'CREATE DATABASE mecha3 WITH OWNER = mecha3;' -U postgres
 
 script:
   - pytest -v --cov --cov-report xml
