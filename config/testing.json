@@ -1,0 +1,25 @@
+{
+  "irc": {
+    "presence": "Mechasqueak3[BOT]",
+    "server": "dev.irc.fuelrats.com",
+    "port": 6667,
+    "tls": false,
+    "channels": [
+      "#unkn0wndev"
+    ]
+  },
+  "authentication": {
+    "username": "mecha3",
+    "password": "",
+    "SASL": false,
+    "identity": ""
+  },
+  "logging": {
+    "base_logger": "mecha",
+    "log_file": "logs/unit_tests.log"
+  },
+  "commands": {
+    "trigger": true,
+    "prefix": "!"
+  }
+}
