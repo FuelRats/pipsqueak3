@@ -18,9 +18,9 @@ from uuid import UUID
 
 import config
 from Modules.rat_rescue import Rescue
-from config import Logging
+from config import CONFIGURATION
 
-LOG = logging.getLogger(f"{Logging.base_logger}.{__name__}")
+LOG = logging.getLogger(f"{CONFIGURATION['logging']['base_logger']}.{__name__}")
 
 
 class RescueBoardException(BaseException):

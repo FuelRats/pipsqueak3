@@ -33,16 +33,15 @@ def setup_logging(root_logger: str):
     """provides facilities for managing a configuration from disk"""
 
 
-def setup(filename: str):
+def setup(filename: str) -> None:
     """
     Sets up the module by loading the specified configuration file from disk
 
     Args:
         filename (str): path and filename to load.
-
-    Returns:
-
     """
+    global CONFIGURATION
+
     # check if the file exists
     if os.path.exists(filename):
         logging.info(f"Found a file with name '{filename}'! attempting to load...")
@@ -51,4 +50,6 @@ def setup(filename: str):
             logging.info("Successfully loaded JSON from file specified!")
 
         setup_logging(config_dict["logging"]["base_logger"])
-        return config_dict
+        CONFIGURATION = config_dict
+    else:
+        raise FileNotFoundError(f"unable to find {filename}")
