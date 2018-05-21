@@ -7,7 +7,7 @@ services:
 addons:
   apt:
     packages:
-      - odbc-postgresql=1:09.03.0300-1
+      - odbc-postgresql
 install:
   - pip install -r requirements.txt
   - pip install coverage
@@ -24,6 +24,8 @@ before_script: # code climate init
   - psql -c 'CREATE DATABASE mecha3 WITH OWNER = mecha3;' -U postgres
   # Debugging
   - echo DEBUGGING NOW
+  - cat /etc/odbcinst.ini
+  - cp ./odbcinst.ini /etc/odbcinst.ini
   - cat /etc/odbcinst.ini
   - echo DEBUGGING ENDED
 
