@@ -104,4 +104,4 @@ ENV/
 .mypy_cache/
 
 #configuration
-config/
+config/config.json
