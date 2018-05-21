@@ -20,11 +20,11 @@ import re
 from pydle import BasicClient
 
 from Modules.trigger import Trigger
-import config
+from config import CONFIGURATION
 
-# set the logger for handlers
 
-log = logging.getLogger(f'{config.Logging.base_logger}.handlers')
+# set the logger for rat_command
+log = logging.getLogger(f"{CONFIGURATION['logging']['base_logger']}.rat_command")
 
 
 class CommandException(Exception):
@@ -59,15 +59,14 @@ class Commands:
     """
     Handles command registration and execution
     """
-
-    # logger facility
-    log = logging.getLogger(f"{config.Logging.base_logger}.commands")
+    global log  # this feels ugly, will fix when i make this module-level
+    # FIXME: remove this silly global call when commands is made module-level
     # commands registered with @command will populate this dict
     _registered_commands = {}
     _rules = {}
 
     # character/s that must prefix a message for it to be parsed as a command.
-    prefix = '!'
+    prefix = CONFIGURATION['commands']['prefix']
 
     # Pydle bot instance.
     bot: BasicClient = None
