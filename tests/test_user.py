@@ -19,7 +19,7 @@ from Modules.user import User
 
 
 @pytest.mark.parametrize("prop", ["realname", "hostname", "username", "away",
-                                  "account", "identified", "permission_level"])
+                                  "account", "identified"])
 def test_read_only(user_fx: User, prop: str):
     """ verifies all properties on the User object are read only"""
     # one downside to this approach is new attributes need to be added manually :/
@@ -54,5 +54,4 @@ async def test_from_irc(bot_fx, monkeypatch, mock_data):
     assert mock_data[0]['hostname'] == user.hostname
     assert mock_data[0]['account'] == user.account
     assert mock_data[0]['identified'] == user.identified
-    assert user.permission_level is not None
-    assert mock_data[1] == user.permission_level
+

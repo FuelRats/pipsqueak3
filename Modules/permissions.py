@@ -42,7 +42,10 @@ class Permission:
     denied_message = property(lambda self: self._denied_message)
 
     def __eq__(self, other: 'Permission') -> bool:
-        return self.level == other.level
+        if isinstance(other, Permission):
+            return self.level == other.level
+        else:
+            raise TypeError
 
     def __ne__(self, other: 'Permission') -> bool:
         return self.level != other.level
@@ -117,13 +120,17 @@ def require_permission(permission: Permission,
     def real_decorator(func):
         log.debug("inside real_decorator")
         log.debug(f"Wrapping a command with permission {permission}")
-        # TODO implement require_permission wrapper.
 
         @wraps(func)
         async def guarded(bot, context: 'Context'):
             log.debug(f"context = {context}")
+            granted_permissions = NONE
+            for key, value in _by_vhost.items():
+                if context.user.hostname.endswith(key) and context.user.identified is True:
+                    granted_permissions = value
+                    break
 
-            if context.user.permission_level >= permission:
+            if granted_permissions >= permission:
                 return await func(bot, context)
             else:
                 await context.reply(override_message if override_message

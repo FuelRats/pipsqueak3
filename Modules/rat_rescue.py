@@ -763,7 +763,6 @@ class Rescue(object):
                 return
             elif found[1]:
                 # a generic match (not platform specific) was found
-                # TODO throw a warning so the invoking method can handle this condition
                 LOG.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
                 return

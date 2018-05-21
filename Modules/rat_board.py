@@ -329,5 +329,4 @@ class RatBoard(object):
             # we don't have a registered API handler, this call cannot succeed,
             LOG.exception("no API handler is registered, this call will fail!")
 
-            # TODO: replace this exception with something more specific?
             raise RescueBoardException("no API handler registered!")

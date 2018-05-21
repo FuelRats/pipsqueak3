@@ -53,20 +53,7 @@ class User(object):
         self._identified: bool = identified
         self._away: bool = away
         self._account: str = account
-        self._permission_level: Permission = permissions.NONE
         self._away_message: Union[str, None] = away_message
-        # sets the permission based on the hostmask
-        # which requires stripping the username and the leading period
-        try:
-            # FIXME: access to protected member
-            # loop over every known vhost
-            for key, value in permissions._by_vhost.items():
-                # if a vhost matches, and the user is identified
-                if hostname.endswith(key) and identified is True:
-                    self._permission_level = value
-        except KeyError:
-            # means the user didn't have  a valid hostmask, ignore it.
-            LOG.debug(f"no matching permission for hostname {hostname}")
 
     @property
     def realname(self) -> str:
@@ -103,16 +90,6 @@ class User(object):
         """Users nickserv account, None if not identified"""
         return self._account
 
-    @property
-    def permission_level(self) -> Union[None, Permission]:
-        """
-        IRC permission level for the user,
-            this property is Derrived from the hostmask.
-        Returns:
-            Permission or None
-        """
-        return self._permission_level
-
     @classmethod
     async def from_bot(cls, bot: BasicClient, nickname: str) -> Union['User', None]:
         """
@@ -123,7 +100,6 @@ class User(object):
         """
         # fetch the user data from their IRC observed presence
         irc_user = await bot.whois(nickname)
-        my_user = None
         if irc_user is None:
             raise ValueError(f"unable to find nickname {nickname}")
         else:
