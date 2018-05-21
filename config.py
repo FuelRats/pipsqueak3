@@ -6,14 +6,14 @@ from typing import Union
 CONFIGURATION: Union[None, dict] = None
 
 
-def setup_logging(root_logger: str):
+def setup_logging(root_logger: str, logfile: str):
     # create a log formatter
     log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
                                       style='{')
     # get Mecha's root logger
     log = logging.getLogger(root_logger)
     # Create a file handler for the logger
-    log_file_handler = logging.FileHandler("logs/MECHASQUEAK.log", 'w')
+    log_file_handler = logging.FileHandler(logfile, 'w')
     log_file_handler.setFormatter(log_formatter)
     # create a stream handler ( prints to STDOUT/STDERR )
     log_stream_handler = logging.StreamHandler()
@@ -49,7 +49,7 @@ def setup(filename: str) -> None:
             config_dict = json.load(infile)
             logging.info("Successfully loaded JSON from file specified!")
 
-        setup_logging(config_dict["logging"]["base_logger"])
+        setup_logging(config_dict["logging"]["base_logger"], config_dict['logging']['log_file'])
         CONFIGURATION = config_dict
     else:
         raise FileNotFoundError(f"unable to find {filename}")
