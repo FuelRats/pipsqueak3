@@ -75,9 +75,9 @@ async def test_reply_query(bot_fx):
 
 def test_trigger_eq(bot_fx):
     trigger1 = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None,
-                              "#unit_test")
+                       "#unit_test")
     trigger2 = Context(bot_fx, ["some", "thing"], ["some thing", "thing"], None,
-                              "#unit_test")
+                       "#unit_test")
 
     assert trigger1 == trigger1
     assert trigger2 == trigger2

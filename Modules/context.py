@@ -1,3 +1,17 @@
+"""
+context.py - Command Context object
+
+Provides a object to store the context surrounding a command invocation
+
+Copyright (c) 2018 The Fuel Rats Mischief,
+All rights reserved.
+
+Licensed under the BSD 3-Clause License.
+
+See LICENSE.md
+
+This module is built on top of the Pydle system.
+"""
 from functools import reduce
 from operator import xor
 from typing import List, Union
@@ -41,7 +55,6 @@ class Context(object):
     user: User = property(lambda self: self._user)
     """invoking IRC user"""
 
-
     @classmethod
     async def from_bot_user(cls, bot: pydle.BasicClient, nickname: str, target: str,
                             words: List[str],
@@ -82,17 +95,16 @@ class Context(object):
         await self.bot.message(self.channel if self.channel else self.user.username, msg)
 
     def __eq__(self, other) -> bool:
+        result = True
         if self is other:
-            return True
+            result = True
         elif isinstance(other, Context):
             for name, value in Context.__dict__.items():
                 if isinstance(value, property):
                     if getattr(self, name) != getattr(other, name):
-                        return False
-            else:
-                return True
-        else:
-            return False
+                        result = False
+
+        return result
 
     def __hash__(self) -> int:
         if self._hash is None:

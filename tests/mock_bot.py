@@ -1,6 +1,7 @@
 class MockBot(object):
     """Emulates some of the bots functions for testing purposes."""
-    async def whois(self, name:str)->dict:
+
+    async def whois(self, name: str) -> dict:
         return self.users[name] if name in self.users else None
 
     users = {
@@ -67,9 +68,9 @@ class MockBot(object):
             "identified": False
         }
     }
+
     def __init__(self):
         self.sent_messages = []
-
 
     async def message(self, target: str, message: str):
         self.sent_messages.append({
