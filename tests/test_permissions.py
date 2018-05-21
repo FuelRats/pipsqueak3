@@ -128,7 +128,7 @@ class TestPermission(object):
             "message": "Restricted command was executed."
         } in bot_fx.sent_messages
 
-    @pytest.mark.asycio
+    @pytest.mark.asyncio
     async def test_restricted_command_not_identified(self, bot_fx):
         user = await User.from_bot(bot_fx, "authorized_but_not_identified")
         await Commands.trigger("!restricted", user, "#somechannel")

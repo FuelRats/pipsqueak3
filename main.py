@@ -103,7 +103,7 @@ class MechaClient(Client):
 
         else:  # await command execution
 
-            invoking_user: User = User.from_bot(bot=self, nickname=user)
+            invoking_user: User = await User.from_bot(bot=self, nickname=user)
 
             try:
                 await Commands.trigger(message=message,

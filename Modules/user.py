@@ -53,7 +53,7 @@ class User(object):
         self._identified: bool = identified
         self._away: bool = away
         self._account: str = account
-        self._permission_level: Union[None, Permission] = None
+        self._permission_level: Permission = permissions.NONE
         self._away_message: Union[str, None] = away_message
         # sets the permission based on the hostmask
         # which requires stripping the username and the leading period

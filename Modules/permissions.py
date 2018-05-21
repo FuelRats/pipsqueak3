@@ -63,6 +63,8 @@ class Permission:
         return hash(self.level)
 
 
+# no special permissions
+NONE = Permission(-1, None)
 # the uninitiated
 RECRUIT = Permission(0, "recruit.fuelrats.com")
 # the initiated
