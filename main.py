@@ -95,13 +95,19 @@ class MechaClient(Client):
             # self-stimulated positive feedback loop.
             LOG.debug("received message from myself ignoring!.")
             return None
+
+        if not message.startswith(Commands.prefix):
+            # prevent bot from processing commands without the set prefix
+            LOG.debug(f"Message {message} did not have our command prefix. Ignoring.")
+            return None
+
         else:  # await command execution
 
             invoking_user: User = User.from_bot(bot=self, nickname=user)
 
             try:
                 await Commands.trigger(message=message,
-                                       sender=user,
+                                       sender=invoking_user,
                                        channel=channel)
             except CommandNotFoundException as ex:
                 LOG.exception(ex)

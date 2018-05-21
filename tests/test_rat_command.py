@@ -20,6 +20,7 @@ from unittest import mock
 
 import pydle
 import pytest
+import pytest
 from aiounittest import async_test
 
 from Modules.context import Context
@@ -44,35 +45,6 @@ class RatCommandTests(unittest.TestCase):
         # interfere and cause false positives/negatives.
         Commands._flush()
         super().setUp()
-
-    @async_test
-    async def test_command_decorator_single(self):
-        """
-        Verify`Commands.command` decorator can handle string registrations
-        """
-        # bunch of commands to test
-        alias = ['potato', 'cannon', 'Fodder', "fireball"]
-
-        for command in alias:
-            with self.subTest(command=command):
-                @Commands.command(command)
-                async def potato(bot: pydle.Client, channel: str, sender: str):
-                    # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
-                    return bot, channel, sender
-
-            assert command in Commands._registered_commands.keys()
-
-    def test_command_decorator_list(self):
-        aliases = ['potato', 'cannon', 'Fodder', 'fireball']
-
-        # register the command
-        @Commands.command(*aliases)
-        async def potato(bot: pydle.Client, channel: str, sender: str):
-            return bot, channel, sender
-
-        for name in aliases:
-            with self.subTest(name=name):
-                assert name in Commands._registered_commands.keys()
 
     @async_test
     async def test_invalid_command(self):
@@ -150,6 +122,36 @@ class RatCommandTests(unittest.TestCase):
             with self.assertRaises(CommandNotFoundException):
                 await Commands.trigger("!banan", "unit_test", "theOneWithTheHills")
             assert not underlying.called
+
+
+class TestRatCommand(object):
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', "fireball"])
+    async def test_command_decorator_single(self, alias: str):
+        """
+        Verify`Commands.command` decorator can handle string registrations
+        """
+
+        # bunch of commands to test
+
+        @Commands.command(alias)
+        async def potato(bot: pydle.Client, channel: str, sender: str):
+            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+            return bot, channel, sender
+
+        assert alias.lower() in Commands._registered_commands.keys()
+
+    @pytest.mark.asyncio
+    async def test_command_decorator_list(self):
+        aliases = ['napalm', 'Ball', 'orange', 'TAngerine']
+
+        # register the command
+        @Commands.command(*aliases)
+        async def potato(bot: pydle.Client, channel: str, sender: str):
+            return bot, channel, sender
+
+        for name in aliases:
+            assert name.lower() in Commands._registered_commands.keys()
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("alias", [user for user in MockBot.users])
