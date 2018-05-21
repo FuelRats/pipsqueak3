@@ -15,14 +15,16 @@ from uuid import uuid4, UUID
 
 import pytest
 
+import config
+from tests.mock_bot import MockBot
+
+# have config setup at the beginning of testing
+config.setup("config\\testing.json")
+
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from ratlib.names import Platforms
-from tests.mock_bot import MockBot
-import config
-# have config setup at the beginning of testing
-config.setup("./config/tests.json")
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),

@@ -16,9 +16,10 @@ import logging
 from pydle import ClientPool, Client
 
 import config
+from config import CONFIGURATION
 from Modules.rat_command import Commands
 
-CONFIGURATION = config.setup("./config/config.template.json")
+config.setup("./config/config.template.json")
 log = logging.getLogger(CONFIGURATION.config["logging"]["base_logger"])
 
 
