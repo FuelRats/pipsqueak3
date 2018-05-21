@@ -10,77 +10,85 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-import pytest, pytest_asyncio, aiosqlite
-from Modules.database_manager import DataBaseManager
+import pytest, pytest_asyncio, pyodbc
+from Modules.database_manager import DatabaseManager
 
 pytestmark = pytest.mark.asyncio
 
 
 # noinspection PyProtectedMember
 class TestStuff(object):
-    file_path = "test.db"
-    manager = DataBaseManager(file_path)  # use temporary RAM-DB
-    int_manager = manager._DataBaseManager__instance
+    db_name = "mecha3"
+    manager = DatabaseManager(db_name)
+
+    @classmethod
+    def setup_class(cls):
+        """ setup any state specific to the execution of the given class (which
+        usually contains tests).
+        """
+        table_names = ("testtablehas",
+                       "testtableselect",
+                       "testtablecreate",
+                       "testtableinsert",
+                       "testtableupdate",
+                       "testtabledelete",
+                       )
+        for name in table_names:
+            try:
+                cls.manager.cursor.execute(f"DROP TABLE {name}")
+            except (pyodbc.ProgrammingError, pyodbc.OperationalError, pyodbc.DataError):
+                pass
 
     async def test_has_table(self):
-        if await self.int_manager._has_table("testTableHas"):
-            async with aiosqlite.connect(self.file_path) as db:
-                await db.execute("DROP TABLE 'testTableHas'")
-                await db.commit()
-        assert not await self.int_manager._has_table("testTableHas")
-        await self.int_manager._create_table("testTableHas", {"string1": "STRING"})
-        assert await self.int_manager._has_table("testTableHas")
+        if await self.manager._has_table("testtablehas"):
+            await self.manager._drop_table("testtablehas")
+        assert not await self.manager._has_table("testtablehas")
+        await self.manager._create_table("testtablehas", {"string1": "VARCHAR"})
+        assert await self.manager._has_table("testtablehas")
 
     async def test_select_row(self):
-        if not await self.int_manager._has_table("testTableSelect"):
-            await self.int_manager._create_table("testTableSelect", {"string1": "STRING"})
-        await self.int_manager._insert_row("testTableSelect", ("thest",))
+        if not await self.manager._has_table("testtableselect"):
+            await self.manager._create_table("testtableselect", {"string1": "VARCHAR"})
+        await self.manager._insert_row("testtableselect", ("thest",))
 
-        tmp = await self.int_manager._select_rows("testTableSelect", "AND", {"string1": "thest"})
+        tmp = await self.manager._select_rows("testtableselect", "AND", {"string1": "thest"})
         print(tmp)
-        assert tmp[0] == ("thest",)
+        assert tmp[0][0] == ("thest",)[0]
 
     async def test_create_table(self):
-        if await self.int_manager._has_table("testTableCreate"):
-            async with aiosqlite.connect(self.file_path) as db:
-                await db.execute("DROP TABLE 'testTableCreate'")
-                await db.commit()
-        await self.int_manager._create_table("testTableCreate", {"string1": "STRING"})
+        if await self.manager._has_table("testtablecreate"):
+            await self.manager._drop_table("testtablecreate")
+        if not await self.manager._has_table("testtablecreate"):
+            await self.manager._create_table("testtablecreate", {"string1": "VARCHAR"})
         with pytest.raises(ValueError):
-            await self.int_manager._create_table("testTableCreate", {"test": "STRING"})
+            await self.manager._create_table("testtablecreate", {"test": "VARCHAR"})
 
     async def test_insert_row(self):
-        if not await self.int_manager._has_table("testTableInsert"):
-            await self.int_manager._create_table("testTableInsert", {"string1": "STRING"})
-        await self.int_manager._insert_row("testTableInsert", ("test",))
+        if not await self.manager._has_table("testtableinsert"):
+            await self.manager._create_table("testtableinsert", {"string1": "VARCHAR"})
+        await self.manager._insert_row("testtableinsert", ("test",))
 
         # with pytest.raises(OperationalError):
-        #    await self.int_manager._insert_row("testTableInsert", ("test", "test2"))
+        #    await self.int_manager._insert_row("testtableinsert", ("test", "test2"))
 
-        if await self.int_manager._has_table("testTableInsert"):
-            async with aiosqlite.connect(self.file_path) as db:
-                await db.execute("DROP TABLE 'testTableInsert'")
-                await db.commit()
-        with pytest.raises(ValueError):
-            await self.int_manager._insert_row("testTableInsert", ("test",))
+        if await self.manager._has_table("testtableinsert"):
+            await self.manager._drop_table("testtableinsert")
 
     async def test_update_row(self):
-        if not await self.int_manager._has_table("testTableUpdate"):
-            await self.int_manager._create_table("testTableUpdate", {"string1": "STRING"})
-        await self.int_manager._insert_row("testTableUpdate", ("thest",))
-        await self.int_manager._update_row("testTableUpdate", "AND", {"string1": "FizzBuzz"},
-                                           {"string1": "thest"})
+        if not await self.manager._has_table("testtableupdate"):
+            await self.manager._create_table("testtableupdate", {"string1": "VARCHAR"})
+        await self.manager._insert_row("testtableupdate", ("thest",))
+        await self.manager._update_row("testtableupdate", "AND", {"string1": "FizzBuzz"},
+                                       {"string1": "thest"})
 
-        assert\
-            await self.int_manager._select_rows("testTableUpdate", "AND", {"string1": "thest"})\
-        == [("FizzBuzz",)]
+        assert \
+            (await self.manager._select_rows("testtableupdate", "AND", {"string1": "FizzBuzz"}))\
+            [0][0] == "FizzBuzz"
 
     async def test_delete_row(self):
-        if not await self.int_manager._has_table("testTableDelete"):
-            await self.int_manager._create_table("testTableDelete", {"string1": "STRING"})
-        await self.int_manager._insert_row("testTableDelete", ("thest",))
-        await self.int_manager._delete_row("testTableDelete", "AND", {"string1": "thest"})
-        tmp = await self.int_manager._select_rows("testTableDelete", "AND", {"string1": "thest"})
+        if not await self.manager._has_table("testtabledelete"):
+            await self.manager._create_table("testtabledelete", {"string1": "VARCHAR"})
+        await self.manager._insert_row("testtabledelete", ("thest",))
+        await self.manager._delete_row("testtabledelete", "AND", {"string1": "thest"})
+        tmp = await self.manager._select_rows("testtabledelete", "AND", {"string1": "thest"})
         assert len(tmp) == 0
-
-
