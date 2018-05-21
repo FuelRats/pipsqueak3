@@ -1,72 +1,54 @@
-# coding: utf8
-"""
-config.py - Misc constants
-
-Copyright (c) 2018 The Fuel Rats Mischief,
-All rights reserved.
-
-Licensed under the BSD 3-Clause License.
-
-See LICENSE.md
-
-This module is built on top of the Pydle system.
-
-"""
+import json
 import logging
+import os
+from typing import Union
+
+CONFIGURATION: Union[None, dict] = None
 
 
-class IRC:
+def setup_logging(root_logger: str):
+    # create a log formatter
+    log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
+                                      style='{')
+    # get Mecha's root logger
+    log = logging.getLogger(root_logger)
+    # Create a file handler for the logger
+    log_file_handler = logging.FileHandler("logs/MECHASQUEAK.log", 'w')
+    log_file_handler.setFormatter(log_formatter)
+    # create a stream handler ( prints to STDOUT/STDERR )
+    log_stream_handler = logging.StreamHandler()
+    log_stream_handler.setFormatter(log_formatter)
+    # adds the two handlers to the logger so they can do their thing.
+    log.addHandler(log_file_handler)
+    log.addHandler(log_stream_handler)
+    # set the minimum severity the logger will report.
+    # uncomment for production:
+    # log.setLevel(logging.INFO)
+    # uncomment for develop:
+    log.setLevel(logging.DEBUG)
+
+    logging.info("[Mecha] configuration file loading...")
+    logging.basicConfig(level=logging.DEBUG)  # write all the things
+
+    """provides facilities for managing a configuration from disk"""
+
+
+def setup(filename: str):
     """
-    IRC Configuration
+    Sets up the module by loading the specified configuration file from disk
+
+    Args:
+        filename (str): path and filename to load.
+
+    Returns:
+
     """
-    ####
-    # Mecha's presence in IRC
-    presence = "Mechasqueak3-unknown[BOT]"
-    ####
-    # Server to connect to
-    server = "dev.localecho.net"
-    ####
-    # Port to connect on
-    port = "6667"
-    ####
-    # use TLS
-    tls = False
-    ####
-    # what channels to connect to
-    channels = ["#unkn0wndev"]
+    # check if the file exists
+    if os.path.exists(filename):
+        logging.info(f"Found a file with name '{filename}'! attempting to load...")
+        with open(filename, 'r') as infile:
+            config_dict = json.load(infile)
+            logging.info("Successfully loaded JSON from file specified!")
 
-    class Authentication:
-        """
-        Bots Authentication configuration
-
-        Currently this is just a skeleton and has no effect.
-        """
-        # TODO: Implement SASL authentication
-        username = ""
-        password = ""
-        SASL = True
-
-
-class Logging:
-    """
-    Log configurations
-    """
-    ####
-    # Base logger facility, all others are derivatives
-    base_logger = 'mecha'
-    log_file = f"logs/{IRC.presence}.log"
-    verbosity = logging.DEBUG
-
-
-class Commands:
-    ####
-    # Mecha's trigger prefix
-    trigger = "!"
-
-
-class RatBoard:
-    """
-    Configuration options for the RatBoard
-    """
-    CASE_LIMIT = 30
-    """Default limit to board indexies, may be dynamically re-sized during runtime."""
+        setup_logging(config_dict["logging"]["base_logger"])
+        return config_dict

@@ -20,6 +20,9 @@ from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from ratlib.names import Platforms
 from tests.mock_bot import MockBot
+import config
+# have config setup at the beginning of testing
+config.setup("./config/tests.json")
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
