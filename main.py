@@ -70,7 +70,7 @@ class MechaClient(Client):
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
 
-    async def on_message(self, channel, user, message):
+    async def on_message(self, channel, user, message: str):
         """
         Triggered when a message is received
         :param channel: Channel the message arrived in
@@ -84,6 +84,11 @@ class MechaClient(Client):
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
             log.debug("received message from myself ignoring!.")
+            return None
+
+        if not message.startswith(Commands.prefix):
+            # prevent bot from processing commands without the set prefix
+            log.debug(f"Message {message} did not have our command prefix. Ignoring.")
             return None
 
         else:  # await command execution
