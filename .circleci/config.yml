@@ -65,7 +65,9 @@ jobs:
       - store_test_results:
           path: test-results
 
-experimental:
+
   notify:
-    webhooks:
-      - url: http://orthanc.localecho.net/cgi-bin/webhook.py
+    branches:
+      - all
+      webhooks:
+        - url: http://orthanc.localecho.net/cgi-bin/webhook.py
