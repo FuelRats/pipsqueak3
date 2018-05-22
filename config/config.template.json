@@ -9,7 +9,7 @@
     ]
   },
   "authentication": {
-    "method":"plain",
+    "method":"PLAIN",
     "plain": {
       "username": "",
       "password": "",
@@ -17,7 +17,6 @@
       "identity": ""
     },
     "external":{
-      "use_external": false,
       "tls_client_key":"file",
       "tls_client_cert":"file"
     }
