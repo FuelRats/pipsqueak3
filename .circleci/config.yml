@@ -60,12 +60,12 @@ jobs:
 
       - store_artifacts:
           path: test-reports
-          destination: test-reports
+          destination: test-results
 
       - store_test_results:
-          path: test-reports
+          path: test-results
 
-
-notify:
-  webhooks:
-    - url: http://orthanc.localecho.net/cgi-bin/webhook.py
+experimental:
+  notify:
+    webhooks:
+      - url: http://orthanc.localecho.net/cgi-bin/webhook.py
