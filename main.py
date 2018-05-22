@@ -119,8 +119,10 @@ if __name__ == "__main__":
             client = MechaClient(
                 CONFIGURATION['irc']['presence'],
                 sasl_mechanism='EXTERNAL',
-                tls_client_cert=CONFIGURATION['authentication']['external']['cert'],
-                tls_client_key=CONFIGURATION['authentication']['external']['key']
+                tls_client_cert=f"certs/"
+                                f"{CONFIGURATION['authentication']['external']['tls_client_cert']}",
+                tls_client_key=f"certs/"
+                               f"{CONFIGURATION['authentication']['external']['tls_client_key']}"
             )
         else:
             # Pydle doesn't appear to support anything else
@@ -138,6 +140,7 @@ if __name__ == "__main__":
                   f"{CONFIGURATION['irc']['port']}"
                   f"due to an error.")
         log.error(ex)
+        raise ex
         from sys import exit
         exit(42)
     else:

@@ -22,7 +22,7 @@ RUN apk add --no-cache git
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r /requirements.txt
 
-# Copy the current directory contents into the container at /app
+# Copy the current directory contents into the container at /mechasqueak
 ADD . /mechasqueak
 
 # Set the working directory to /mechasqueak
