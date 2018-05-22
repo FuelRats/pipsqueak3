@@ -25,9 +25,27 @@ services:
     image: mecha3
     command: "pytest"
 
-  mecha3:
+  mecha3-dev:
     volumes:
       - ./logs :/logs
+      - ./config:/config
     build: .
     image: mecha3
-    command: ["python","main.py"]
+    command: ["python","main.py","./config/develop.json"]
+
+  drillsqueak:
+    volumes:
+      - ./logs :/logs
+      - ./config:/config
+    build: .
+    image: mecha3
+    command: ["python","main.py","./config/develop.json"]
+
+  mechasqueak:
+    volumes:
+      - ./logs :/logs
+      - ./config:/config
+    build: .
+    image: mecha3
+    command: ["python","main.py","./config/live.json"]
+
