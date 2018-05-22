@@ -19,7 +19,7 @@ import config
 from tests.mock_bot import MockBot
 
 # have config setup at the beginning of testing
-config.setup("config\\testing.json")
+config.setup("./config/testing.json")
 
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
