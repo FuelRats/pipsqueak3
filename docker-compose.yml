@@ -4,9 +4,13 @@
 #    client.
 #
 #    USAGE:
-#       test runner:  docker-compose up tests
-#       IRC client:   docker-compose up mecha3
+#       test runner:    docker-compose up tests
+#       Mechasqueak:    docker-compose up mechasqueak
+#       Drillsqueak:    docker-compose up drillsqueak
+#       development:    docker-compose up mecha3-dev
 #
+#     please note that these builds require a configuration file external to git, a template
+#       configuration file is provided.
 #Copyright (c) 2018 The Fuel Rats Mischief,
 #All rights reserved.
 #
@@ -19,32 +23,34 @@ version: '3'
 services:
   tests:
     volumes:
-      - ./logs :/logs
-      - ./config:/config
+      - ./logs :/mechasqueak/logs
+      - ./config :/mechasqueak/config
     build: .
     image: mecha3
     command: "pytest"
 
   mecha3-dev:
     volumes:
-      - ./logs :/logs
-      - ./config:/config
+      - ./logs :/mechasqueak/logs
+      - ./config :/mechasqueak/config
     build: .
     image: mecha3
     command: ["python","main.py","./config/develop.json"]
+#    expose:
+#      - 6697:6697
 
   drillsqueak:
     volumes:
-      - ./logs :/logs
-      - ./config:/config
+      - ./logs :/mechasqueak/logs
+      - ./config :/mechasqueak/config
     build: .
     image: mecha3
-    command: ["python","main.py","./config/develop.json"]
+    command: ["python","main.py","./config/drill.json"]
 
   mechasqueak:
     volumes:
-      - ./logs :/logs
-      - ./config:/config
+      - ./logs :/mechasqueak/logs
+      - ./config :/mechasqueak/config
     build: .
     image: mecha3
     command: ["python","main.py","./config/live.json"]
