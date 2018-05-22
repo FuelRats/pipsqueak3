@@ -12,15 +12,25 @@ This module is built on top of the Pydle system.
 
 """
 import logging
+from sys import argv
 
 from pydle import ClientPool, Client
 
 import config
+
+if len(argv) >= 2:  # assume first argument is the config file to use
+    config_filepath = argv[1]
+else:  # we didn't get one
+    config_filepath = "./config/config.template.json"
+
+print(f"loading configuration from '{config_filepath}'")
+config.setup(config_filepath)
+
 from config import CONFIGURATION
+
 from Modules.rat_command import Commands
 
-config.setup("./config/config.template.json")
-log = logging.getLogger(CONFIGURATION.config["logging"]["base_logger"])
+log = logging.getLogger(CONFIGURATION["logging"]["base_logger"])
 
 
 class MechaClient(Client):
