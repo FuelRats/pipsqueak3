@@ -66,8 +66,8 @@ jobs:
           path: test-results
 
 
-  notify:
-    branches:
-      - all
-      webhooks:
-        - url: http://orthanc.localecho.net/cgi-bin/webhook.py
+notify:
+  branches:
+    - all
+  webhooks:
+    - url: http://orthanc.localecho.net/cgi-bin/webhook.py
