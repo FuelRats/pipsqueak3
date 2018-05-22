@@ -60,10 +60,10 @@ jobs:
 
       - store_artifacts:
           path: test-reports
-          destination: test-results
+          destination: test-reports
 
       - store_test_results:
-          path: test-results
+          path: test-reports
 
 
 notify:
