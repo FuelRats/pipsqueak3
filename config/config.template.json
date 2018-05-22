@@ -1,7 +1,7 @@
 {
   "irc": {
     "presence": "Mechasqueak3[BOT]",
-    "server": "irc.fuelrats.com",
+    "server": "dev.irc.fuelrats.com",
     "port": 6697,
     "tls": true,
     "channels": [
@@ -9,10 +9,18 @@
     ]
   },
   "authentication": {
-    "username": "",
-    "password": "",
-    "SASL": true,
-    "identity": ""
+    "method":"plain",
+    "plain": {
+      "username": "",
+      "password": "",
+      "SASL": true,
+      "identity": ""
+    },
+    "external":{
+      "use_external": false,
+      "tls_client_key":"file",
+      "tls_client_cert":"file"
+    }
   },
   "logging": {
     "base_logger": "mecha",

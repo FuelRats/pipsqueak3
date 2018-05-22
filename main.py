@@ -104,7 +104,29 @@ if __name__ == "__main__":
     log.debug("starting bot for server...")
     try:
         log.debug("spawning new bot instance...")
-        client = MechaClient(CONFIGURATION['irc']['presence'])
+        if CONFIGURATION['authentication']['method'] == "PLAIN":
+            log.info("Authentication method set to PLAIN.")
+            # authenticate via sasl PLAIN mechanism (username & password)
+            client = MechaClient(CONFIGURATION['irc']['presence'],
+                                 sasl_username=CONFIGURATION['authentication']['plain']['username'],
+                                 sasl_password=CONFIGURATION['authentication']['plain']['password'],
+                                 sasl_identity=CONFIGURATION['authentication']['plain']['identity'])
+
+        elif CONFIGURATION['authentication']['method'] == "EXTERNAL":
+            log.info("Authentication method set to EXTERNAL")
+            # authenticate using provided client certificate
+            # key and cert may be stored as separate files, as long as mecha can read them.
+            client = MechaClient(
+                CONFIGURATION['irc']['presence'],
+                sasl_mechanism='EXTERNAL',
+                tls_client_cert=CONFIGURATION['authentication']['external']['cert'],
+                tls_client_key=CONFIGURATION['authentication']['external']['key']
+            )
+        else:
+            # Pydle doesn't appear to support anything else
+            raise TypeError(f"unknown authentication mechanism "
+                            f"{CONFIGURATION['authentication']['method']}.\n"
+                            f"loading cannot continue.")
 
         log.info(f"connecting to {CONFIGURATION['irc']['server']}:{CONFIGURATION['irc']['port']}")
         pool.connect(client,
