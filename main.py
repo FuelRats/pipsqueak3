@@ -34,7 +34,7 @@ from config import CONFIGURATION
 from Modules.rat_command import Commands
 
 log = logging.getLogger(CONFIGURATION["logging"]["base_logger"])
-coloredlogs.install(level='debug', reconfigure=False)
+coloredlogs.install(level='debug', isatty=True, reconfigure=False)
 
 
 class MechaClient(Client):

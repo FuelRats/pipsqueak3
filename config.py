@@ -14,14 +14,14 @@ def setup_logging(root_logger: str, logfile: str):
     # get Mecha's root logger
     log = logging.getLogger(root_logger)
     # Create a file handler for the logger
-    log_file_handler = logging.FileHandler(logfile, 'w')
-    log_file_handler.setFormatter(log_formatter)
+    # log_file_handler = logging.FileHandler(logfile, 'a+')
+    # log_file_handler.setFormatter(log_formatter)
     # create a stream handler ( prints to STDOUT/STDERR )
-    log_stream_handler = logging.StreamHandler()
-    log_stream_handler.setFormatter(log_formatter)
+    # log_stream_handler = logging.StreamHandler()
+    # log_stream_handler.setFormatter(log_formatter)
     # adds the two handlers to the logger so they can do their thing.
-    log.addHandler(log_file_handler)
-    log.addHandler(log_stream_handler)
+    # log.addHandler(log_file_handler)
+    # log.addHandler(log_stream_handler)
     # set the minimum severity the logger will report.
     # uncomment for production:
     # log.setLevel(logging.INFO)
