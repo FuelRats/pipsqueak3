@@ -27,6 +27,12 @@
   },
   "commands": {
     "trigger": true,
-    "prefix": "!"
+    "prefix": "?"
+  },
+  "api": {
+    "online_mode":false,
+    "url":null,
+    "tokenfile":null
   }
+
 }
