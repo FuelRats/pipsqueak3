@@ -28,10 +28,6 @@ def setup_logging(root_logger: str, logfile: str):
     log_streamhandler.setFormatter(log_formatter)
     logger.addHandler(log_streamhandler)
 
-
-
-
-
     # test logging colors:
     logging.debug("DEBUG level message.")
     logging.info("INFO level message.")
