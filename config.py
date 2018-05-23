@@ -43,10 +43,7 @@ def setup_logging(root_logger: str, logfile: str):
                         isatty=True,
                         datefmt='%y-%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
-                        stream=[
-                            logging.FileHandler(logfile, 'a+'),
-                            logging.StreamHandler()
-                        ])
+                        )
 
     """provides facilities for managing a configuration from disk"""
 
