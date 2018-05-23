@@ -12,7 +12,6 @@ This module is built on top of the Pydle system.
 
 """
 import logging
-import coloredlogs
 
 from sys import argv
 
@@ -34,7 +33,6 @@ from config import CONFIGURATION
 from Modules.rat_command import Commands
 
 log = logging.getLogger(CONFIGURATION["logging"]["base_logger"])
-coloredlogs.install(level='debug', isatty=True, reconfigure=False)
 
 
 class MechaClient(Client):
