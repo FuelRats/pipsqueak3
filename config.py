@@ -13,7 +13,8 @@ def setup_logging(root_logger: str, logfile: str):
     # log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
     #                                  style='{')
     # get Mecha's root logger
-    # log = logging.getLogger(root_logger)
+    log = logging.getLogger(root_logger)
+    log.propagate = False
     # Create a file handler for the logger
     # log_file_handler = logging.FileHandler(logfile, 'w')
     # log_file_handler.setFormatter(log_formatter)
@@ -39,7 +40,8 @@ def setup_logging(root_logger: str, logfile: str):
 
     # hook in coloredlogs, override formatting.
     # NOTE: using manual [Mecha] prefix is no longer required.
-    coloredlogs.install(level='debug',
+    coloredlogs.install(logger=log,
+                        level='debug',
                         isatty=True,
                         datefmt='%y-%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
