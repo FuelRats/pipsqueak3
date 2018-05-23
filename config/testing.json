@@ -13,11 +13,9 @@
     "plain": {
       "username": "",
       "password": "",
-      "SASL": true,
       "identity": ""
     },
     "external":{
-      "tls_client_key":"file",
       "tls_client_cert":"file"
     }
   },
@@ -26,7 +24,12 @@
     "log_file": "logs/unit_tests.log"
   },
   "commands": {
-    "trigger": true,
-    "prefix": "!"
+    "prefix": "?"
+  },
+  "api": {
+    "online_mode":false,
+    "url":null,
+    "tokenfile":null
   }
+
 }
