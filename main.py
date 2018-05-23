@@ -100,7 +100,6 @@ async def cmd_ping(bot, trigger):
 
 # entry point
 if __name__ == "__main__":
-    log.info("hello world!")
 
     pool = ClientPool()
     log.debug("Bot:  Starting bot from pool...")
