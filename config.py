@@ -29,14 +29,13 @@ def setup_logging(root_logger: str, logfile: str):
 
     filehandling = logging.FileHandler(logfile, 'a+')
     log.addHandler(filehandling)
-
-    coloredlogs.install(filehandling,
+    coloredlogs.install(logger=filehandling,
                         level='debug',
                         isatty=False,
                         datefmt='%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
                         )
-    coloredlogs.install(root_logger,
+    coloredlogs.install(logger=root_logger,
                         level='debug',
                         isatty=True,
                         datefmt='%m-%d %H:%M:%S',
