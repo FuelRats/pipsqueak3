@@ -27,15 +27,15 @@ def setup_logging(root_logger: str, logfile: str):
     # uncomment for production:
     # log.setLevel(logging.INFO)
     # uncomment for develop:
-    log.setLevel(logging.DEBUG)
-    logging.basicConfig(
-        format='%(asctime)s [Mecha] %(levelname)s %(message)s',
-        datefmt='%y-%m-%d %H:%M:%S',
-        level=logging.DEBUG,
-        handlers=[
-            logging.FileHandler(logfile, 'a+'),
-            logging.StreamHandler(sys.stdout)
-        ])
+    #log.setLevel(logging.DEBUG)
+    #logging.basicConfig(
+    #   format='%(asctime)s [Mecha] %(levelname)s %(message)s',
+    #    datefmt='%y-%m-%d %H:%M:%S',
+    #    level=logging.DEBUG,
+    #    handlers=[
+    #        logging.FileHandler(logfile, 'a+'),
+    #        logging.StreamHandler(sys.stdout)
+    #    ])
 
     # hook in coloredlogs, override formatting.
     # NOTE: using manual [Mecha] prefix is no longer required.
@@ -43,7 +43,11 @@ def setup_logging(root_logger: str, logfile: str):
                         isatty=True,
                         datefmt='%y-%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
-                        )
+                        logger=log,
+                        stream=[
+                            logging.FileHandler(logfile, 'a+'),
+                            logging.StreamHandler()
+                        ])
 
     """provides facilities for managing a configuration from disk"""
 
