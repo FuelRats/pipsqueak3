@@ -24,7 +24,7 @@
     "log_file": "logs/unit_tests.log"
   },
   "commands": {
-    "prefix": "?"
+    "prefix": "!"
   },
   "api": {
     "online_mode":false,
