@@ -2,47 +2,35 @@ import json
 import logging
 import coloredlogs
 import os
+import sys
 from typing import Union
 
 CONFIGURATION: Union[None, dict] = None
 
 
 def setup_logging(root_logger: str, logfile: str):
-    # create a log formatter
-    # log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
-    #                                 style='{')
-    # get Mecha's root logger
-    # log = logging.getLogger(root_logger)
-    # Create a file handler for the logger
-    # log_file_handler = logging.FileHandler(logfile, 'a+')
-    # log_file_handler.setFormatter(log_formatter)
-    # create a stream handler ( prints to STDOUT/STDERR )
-    # log_stream_handler = logging.StreamHandler()
-    # log_stream_handler.setFormatter(log_formatter)
-    # adds the two handlers to the logger so they can do their thing.
-    # log.addHandler(log_file_handler)
-    # log.addHandler(log_stream_handler)
+    log_level = logging.DEBUG
+    log_filename = logfile
 
-    # hook in coloredlogs, override formatting.
-    # NOTE: using manual [Mecha] prefix is no longer required.
-    log = logging.getLogger(root_logger)
+    logger = logging.getLogger(root_logger)
+    logger.setLevel(log_level)
 
-    filehandling = logging.FileHandler(logfile, 'a+')
-    filehandling.setLevel(logging.DEBUG)
-    log.addHandler(filehandling)
-    filehandling.setFormatter('%(asctime)s [Mecha] %(levelname)s %(message)s')
+    coloredlogs.install(logger, isatty=True)
 
-    #coloredlogs.install(logger=log,
-    #                     level='debug',
-    #                     isatty=True,
-    #                     datefmt='%m-%d %H:%M:%S',
-    #                     fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
-    #                    )
-    coloredlogs.install(level='debug',
-                        isatty=True,
-                        datefmt='%m-%d %H:%M:%S',
-                        fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
-                        )
+    log_formatter = logging.Formatter('%(asctime)s [Mecha]%(levelname)s : %(message)s')
+    log_filehandler = logging.FileHandler(log_filename, 'a+')
+    log_filehandler.setLevel(log_level)
+    log_filehandler.setFormatter(log_formatter)
+    logger.addHandler(log_filehandler)
+
+    log_streamhandler = logging.StreamHandler(sys.stdout)
+    log_streamhandler.setLevel(log_level)
+    log_streamhandler.setFormatter(log_formatter)
+    logger.addHandler(log_streamhandler)
+
+
+
+
 
     # test logging colors:
     logging.debug("DEBUG level message.")
