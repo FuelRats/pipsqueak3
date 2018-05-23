@@ -34,6 +34,7 @@ This section contains details relavent to authenticating against the
 
 ## plain
 Authentication settings for SASL plain (username + password)
+
 | Element| description |
 |--------|-------------|
 | username | nickserv username |
@@ -59,6 +60,7 @@ Logging settings
 ------------------
 # commands
 Command specific settings
+
 | Element| description |
 |--------|-------------|
 |trigger|string that must prefix messages recieved from IRC to be processed as commands|
