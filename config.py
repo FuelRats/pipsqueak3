@@ -9,42 +9,20 @@ CONFIGURATION: Union[None, dict] = None
 
 
 def setup_logging(root_logger: str, logfile: str):
-    # create a log formatter
-    # log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
-    #                                  style='{')
-    # get Mecha's root logger
     log = logging.getLogger(root_logger)
-    log.propagate = False
-    # Create a file handler for the logger
-    # log_file_handler = logging.FileHandler(logfile, 'w')
-    # log_file_handler.setFormatter(log_formatter)
-    # create a stream handler ( prints to STDOUT/STDERR )
-    # log_stream_handler = logging.StreamHandler()
-    # log_stream_handler.setFormatter(log_formatter)
-    # adds the two handlers to the logger so they can do their thing.
-    # log.addHandler(log_file_handler)
-    # log.addHandler(log_stream_handler)
-    # set the minimum severity the logger will report.
-    # uncomment for production:
-    # log.setLevel(logging.INFO)
-    # uncomment for develop:
-    # log.setLevel(logging.DEBUG)
-    # logging.basicConfig(
-    #   format='%(asctime)s [Mecha] %(levelname)s %(message)s',
-    #    datefmt='%y-%m-%d %H:%M:%S',
-    #    level=logging.DEBUG,
-    #    handlers=[
-    #        logging.FileHandler(logfile, 'a+'),
-    #        logging.StreamHandler(sys.stdout)
-    #    ])
-
-    # hook in coloredlogs, override formatting.
-    # NOTE: using manual [Mecha] prefix is no longer required.
     coloredlogs.install(logger=log,
                         level='debug',
                         isatty=True,
                         datefmt='%y-%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
+                        )
+    coloredlogs.install(logger=log,
+                        level='debug',
+                        isatty=False,
+                        datefmt='%y-%m-%d %H:%M:%S',
+                        fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
+                        handler=logging.FileHandler(logfile, 'a+'),
+                        reconfigure=False,
                         )
 
     """provides facilities for managing a configuration from disk"""
