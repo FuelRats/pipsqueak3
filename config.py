@@ -28,6 +28,8 @@ def setup_logging(root_logger: str, logfile: str):
     log = logging.getLogger(root_logger)
 
     filehandling = logging.FileHandler(logfile, 'a+')
+    filehandling.setLevel(logging.DEBUG)
+
     log.addHandler(filehandling)
     coloredlogs.install(logger=filehandling,
                         level='debug',
