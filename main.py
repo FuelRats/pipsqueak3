@@ -18,6 +18,7 @@ from pydle import ClientPool, Client
 
 import config
 
+# this feels really ugly, im probably going to replace this with argparse or similar.
 if len(argv) >= 2:  # assume first argument is the config file to use
     config_filepath = argv[1]
 else:  # we didn't get one
@@ -95,7 +96,6 @@ async def cmd_ping(bot, trigger):
                 f"'{trigger.nickname}'")
     await trigger.reply(f"{trigger.nickname} pong!")
 
-
 # entry point
 if __name__ == "__main__":
     log.info("hello world!")
@@ -141,8 +141,6 @@ if __name__ == "__main__":
                   f"due to an error.")
         log.error(ex)
         raise ex
-        from sys import exit
-        exit(42)
     else:
         # hand the bot instance to commands
         Commands.bot = client
