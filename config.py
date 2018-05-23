@@ -2,7 +2,7 @@ import json
 import logging
 import coloredlogs
 import os
-import sys
+
 from typing import Union
 
 CONFIGURATION: Union[None, dict] = None
@@ -43,8 +43,10 @@ def setup_logging(root_logger: str, logfile: str):
                         isatty=True,
                         datefmt='%y-%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
-                        stream=logging.StreamHandler(sys.stderr),
-                        )
+                        stream=[
+                            logging.FileHandler(logfile, 'a+'),
+                            logging.StreamHandler()
+                        ])
 
     """provides facilities for managing a configuration from disk"""
 
