@@ -10,7 +10,7 @@ CONFIGURATION: Union[None, dict] = None
 
 def setup_logging(root_logger: str, logfile: str):
     # hook the logger
-    log = logging.getLogger(__name__)
+    log = logging.getLogger('mecha')
 
     # create a handler for said logger...
     file_logger = logging.FileHandler(logfile, 'w')

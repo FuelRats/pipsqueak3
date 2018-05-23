@@ -33,7 +33,7 @@ from config import CONFIGURATION
 
 from Modules.rat_command import Commands
 
-log = logging.getLogger(CONFIGURATION["logging"]["base_logger"])
+log = logging.getLogger('mecha')
 coloredlogs.install(level='debug', reconfigure=False)
 
 
