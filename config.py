@@ -14,10 +14,6 @@ def setup_logging(root_logger: str, logfile: str):
     logger = logging.getLogger(root_logger)
     logger.setLevel(logging.DEBUG)
 
-    coloredlogs.install(level='debug',
-                        logger=root_logger,
-                        isatty=True)
-
     log_formatter = logging.Formatter('%(asctime)s [Mecha] %(levelname)s : %(message)s')
     log_filehandler = logging.FileHandler(log_filename, 'a+')
     log_filehandler.setLevel(logging.DEBUG)
@@ -36,6 +32,13 @@ def setup_logging(root_logger: str, logfile: str):
     logger.error("ERROR level message.")
     logger.debug("If these messages are colored, then your logs are working.")
     logger.info("configuration file loading...")
+
+    coloredlogs.install(level='debug',
+                        isatty=True,
+                        logger=logger,
+                        )
+
+
 
     """provides facilities for managing a configuration from disk"""
 
