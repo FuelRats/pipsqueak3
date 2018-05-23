@@ -36,6 +36,7 @@ def setup_logging(root_logger: str, logfile: str):
     coloredlogs.install(level='debug',
                         isatty=True,
                         logger=logger,
+                        fmt='%(asctime)s [Mecha] %(levelname)s : %(message)s'
                         )
 
 
