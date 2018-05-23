@@ -14,7 +14,7 @@ def setup_logging(root_logger: str, logfile: str):
     logger = logging.getLogger(root_logger)
     logger.setLevel(logging.DEBUG)
 
-    coloredlogs.install(logger, isatty=True)
+    coloredlogs.install(logger, isatty=True, level='debug')
 
     log_formatter = logging.Formatter('%(asctime)s [Mecha]%(levelname)s : %(message)s')
     log_filehandler = logging.FileHandler(log_filename, 'a+')
