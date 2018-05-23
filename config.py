@@ -30,6 +30,7 @@ def setup_logging(root_logger: str, logfile: str):
     log.setLevel(logging.DEBUG)
     logging.basicConfig(
         format='%(asctime)s [Mecha] %(levelname)s %(message)s',
+        datefmt='%y-%m-%d %H:%M:%S',
         level=logging.DEBUG,
         handlers=[
             logging.FileHandler(logfile, 'a+'),
@@ -42,7 +43,6 @@ def setup_logging(root_logger: str, logfile: str):
                         isatty=True,
                         datefmt='%y-%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
-                        reconfigure=True,
                         )
 
     """provides facilities for managing a configuration from disk"""
