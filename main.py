@@ -34,6 +34,7 @@ from Modules.rat_command import Commands
 
 log = logging.getLogger(CONFIGURATION["logging"]["base_logger"])
 
+
 class MechaClient(Client):
     """
     MechaSqueak v3
