@@ -1,5 +1,6 @@
 import json
 import logging
+import coloredlogs
 import os
 from typing import Union
 
@@ -26,9 +27,24 @@ def setup_logging(root_logger: str, logfile: str):
     # log.setLevel(logging.INFO)
     # uncomment for develop:
     log.setLevel(logging.DEBUG)
-
-    logging.info("[Mecha] configuration file loading...")
     logging.basicConfig(level=logging.DEBUG)  # write all the things
+
+    # hook in coloredlogs, override formatting.
+    # NOTE: using manual [Mecha] prefix is no longer required.
+    coloredlogs.install(level='debug',
+                        isatty=True,
+                        datefmt='%m-%d %H:%M:%S',
+                        fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
+                        reconfigure=True,
+                        )
+
+    # test logging colors:
+    logging.debug("DEBUG level message.")
+    logging.info("INFO level message.")
+    logging.warning("WARN level message.")
+    logging.error("ERROR level message.")
+    logging.debug("If these messages are colored, then your logs are working.")
+    logging.info("configuration file loading...")
 
     """provides facilities for managing a configuration from disk"""
 
