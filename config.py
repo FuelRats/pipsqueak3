@@ -42,10 +42,11 @@ def setup(filename: str) -> None:
     """
     global CONFIGURATION
 
+    path = f"config/{filename}"
     # check if the file exists
-    if os.path.exists(filename):
-        logging.info(f"Found a file with name '{filename}'! attempting to load...")
-        with open(filename, 'r') as infile:
+    if os.path.exists(path):
+        logging.info(f"Found a file/directory at {filename}'! attempting to load...")
+        with open(path, 'r') as infile:
             config_dict = json.load(infile)
             logging.info("Successfully loaded JSON from file specified!")
 
