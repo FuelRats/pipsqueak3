@@ -41,7 +41,6 @@ def setup_logging(root_logger: str, logfile: str):
                         isatty=True,
                         datefmt='%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
-                        reconfigure=False,
                         )
 
     # test logging colors:
