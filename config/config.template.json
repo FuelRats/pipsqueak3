@@ -13,11 +13,9 @@
     "plain": {
       "username": "",
       "password": "",
-      "SASL": true,
       "identity": ""
     },
     "external":{
-      "tls_client_key":"file",
       "tls_client_cert":"file"
     }
   },
@@ -26,7 +24,6 @@
     "log_file": "logs/mechasqueak.log"
   },
   "commands": {
-    "trigger": true,
     "prefix": "?"
   },
   "api": {
