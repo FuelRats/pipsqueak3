@@ -117,13 +117,13 @@ if __name__ == "__main__":
             # authenticate using provided client certificate
             # key and cert may be stored as separate files, as long as mecha can read them.
             cert = CONFIGURATION['authentication']['external']['tls_client_cert']
-            key = CONFIGURATION['authentication']['external']['tls_client_key']
+            # key = CONFIGURATION['authentication']['external']['tls_client_key']
 
             client = MechaClient(
                 CONFIGURATION['irc']['presence'],
                 sasl_mechanism='EXTERNAL',
                 tls_client_cert=f"certs/{cert}",
-                tls_client_key=f"certs/{key}"
+                # tls_client_key=f"certs/{key}"
             )
         else:
             # Pydle doesn't appear to support anything else
