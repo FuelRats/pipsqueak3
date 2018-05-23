@@ -29,9 +29,9 @@ def setup_logging(root_logger: str, logfile: str):
 
     filehandling = logging.FileHandler(logfile, 'a+')
     filehandling.setLevel(logging.DEBUG)
-
     log.addHandler(filehandling)
-    coloredlogs.install(logger=filehandling,
+
+    coloredlogs.install(logger=log,
                         level='debug',
                         isatty=False,
                         datefmt='%m-%d %H:%M:%S',
