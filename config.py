@@ -9,22 +9,21 @@ CONFIGURATION: Union[None, dict] = None
 
 
 def setup_logging(root_logger: str, logfile: str):
-    log_level = logging.DEBUG
     log_filename = logfile
 
     logger = logging.getLogger(root_logger)
-    logger.setLevel(log_level)
+    logger.setLevel(logging.DEBUG)
 
     coloredlogs.install(logger, isatty=True)
 
     log_formatter = logging.Formatter('%(asctime)s [Mecha]%(levelname)s : %(message)s')
     log_filehandler = logging.FileHandler(log_filename, 'a+')
-    log_filehandler.setLevel(log_level)
+    log_filehandler.setLevel(logging.DEBUG)
     log_filehandler.setFormatter(log_formatter)
     logger.addHandler(log_filehandler)
 
     log_streamhandler = logging.StreamHandler(sys.stdout)
-    log_streamhandler.setLevel(log_level)
+    log_streamhandler.setLevel(logging.DEBUG)
     log_streamhandler.setFormatter(log_formatter)
     logger.addHandler(log_streamhandler)
 
