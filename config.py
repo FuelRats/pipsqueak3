@@ -25,8 +25,10 @@ def setup_logging(root_logger: str, logfile: str):
 
     # hook in coloredlogs, override formatting.
     # NOTE: using manual [Mecha] prefix is no longer required.
+
     logging.basicConfig(filename=logfile, level=logging.DEBUG)
     coloredlogs.install(level='debug',
+                        logger=root_logger,
                         isatty=True,
                         datefmt='%m-%d %H:%M:%S',
                         fmt='%(asctime)s [Mecha] %(levelname)s %(message)s',
