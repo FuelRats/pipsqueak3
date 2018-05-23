@@ -19,20 +19,32 @@
 #See LICENSE.md
 #
 
-version: '3'
+version: '3.2'
 services:
   tests:
     volumes:
-      - ./logs :/mechasqueak/logs
-      - ./config :/mechasqueak/config
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
     build: .
     image: mecha3
     command: "pytest"
 
   mecha3-dev:
     volumes:
-      - ./logs :/mechasqueak/logs
-      - ./config :/mechasqueak/config
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
     build: .
     image: mecha3
     command: ["python","main.py","./config/develop.json"]
@@ -41,17 +53,28 @@ services:
 
   drillsqueak:
     volumes:
-      - ./logs :/mechasqueak/logs
-      - ./config :/mechasqueak/config
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
     build: .
     image: mecha3
     command: ["python","main.py","./config/drill.json"]
 
   mechasqueak:
     volumes:
-      - ./logs :/mechasqueak/logs
-      - ./config :/mechasqueak/config
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
     build: .
     image: mecha3
     command: ["python","main.py","./config/live.json"]
-
