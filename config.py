@@ -37,7 +37,8 @@ def setup_logging(root_logger: str, logfile: str):
     # set console formatter to use our format.
     console.setFormatter(console_format)
 
-    # set up Pydle logging.
+    # disable propagation
+    log.propagate = False
 
     # Post log current log level
     if log.isEnabledFor(logging.DEBUG):
