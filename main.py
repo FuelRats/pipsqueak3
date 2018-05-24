@@ -32,7 +32,7 @@ from config import CONFIGURATION
 
 from Modules.rat_command import Commands
 
-log = logging.getLogger('mecha')
+log = logging.getLogger(CONFIGURATION["logging"]["base_logger"])
 
 
 class MechaClient(Client):
