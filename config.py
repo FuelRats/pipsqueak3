@@ -10,7 +10,7 @@ CONFIGURATION: Union[None, dict] = None
 
 def setup_logging(root_logger: str, logfile: str):
     # hook the logger
-    log = logging.getLogger('mecha')
+    log = logging.getLogger(root_logger)
 
     # create a handler for said logger...
     file_logger = logging.FileHandler(logfile, 'w')
@@ -36,6 +36,8 @@ def setup_logging(root_logger: str, logfile: str):
 
     # set console formatter to use our format.
     console.setFormatter(console_format)
+
+    # set up Pydle logging.
 
     # Post log current log level
     if log.isEnabledFor(logging.DEBUG):
