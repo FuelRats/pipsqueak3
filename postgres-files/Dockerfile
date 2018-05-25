@@ -4,3 +4,4 @@ FROM postgres:alpine
 ENV PGDATA /psql-data
 COPY ./psql-startup.sh ./
 RUN chmod +x ./psql-startup.sh
+
