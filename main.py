@@ -92,7 +92,7 @@ async def cmd_ping(bot, trigger):
     :param bot: Pydle instance.
     :param trigger: `Trigger` object for the command call.
     """
-    log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
+    log.warning(f"Command:  Triggered on channel '{trigger.channel}' for user "
                 f"'{trigger.nickname}'")
     await trigger.reply(f"{trigger.nickname} pong!")
 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                                  sasl_identity=CONFIGURATION['authentication']['plain']['identity'])
 
         elif CONFIGURATION['authentication']['method'] == "EXTERNAL":
-            log.info("..Authentication method set to EXTERNAL")
+            log.info("Bot:  Authentication method set to EXTERNAL")
             # authenticate using provided client certificate
             # key and cert may be stored as separate files, as long as mecha can read them.
             client = MechaClient(

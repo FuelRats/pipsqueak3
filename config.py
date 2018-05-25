@@ -14,7 +14,7 @@ def setup_logging(root_logger: str, logfile: str):
 
     # create a handler for said logger...
     file_logger = logging.FileHandler(logfile, 'w')
-    log_format = '[%(asctime)s] - [%(levelname)s] - %(message)s'
+    log_format = '<%(asctime)s Mecha3> [%(levelname)s] %(message)s'
     file_logger_format = logging.Formatter(log_format)
 
     # set the formatter to actually use it
@@ -24,11 +24,11 @@ def setup_logging(root_logger: str, logfile: str):
     log.addHandler(file_logger)
 
     # set proper severity level
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
 
     # add Console logging
     console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
+    console.setLevel(logging.INFO)
     logging.getLogger(root_logger).addHandler(console)
 
     # add console logging format
@@ -37,6 +37,14 @@ def setup_logging(root_logger: str, logfile: str):
     # set console formatter to use our format.
     console.setFormatter(console_format)
 
+    # and then install the coloredlogs hook
+    coloredlogs.install(handler=console,
+                        level='INFO',
+                        fmt=log_format,
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        isatty=True,
+                        )
+
     # disable propagation
     log.propagate = False
 
@@ -44,6 +52,10 @@ def setup_logging(root_logger: str, logfile: str):
     if log.isEnabledFor(logging.DEBUG):
         log.debug('Logging level set to DEBUG.')
         log.debug('This is a typical level for DEV releases.')
+    else:
+        log.info('Logging level set to INFO.')
+        log.info('This is a typical level for a production release.')
+
 
 
 def setup(filename: str) -> None:
