@@ -1,0 +1,32 @@
+{
+  "irc": {
+    "presence": "Mechasqueak3-tests[BOT]",
+    "server": "dev.irc.fuelrats.com",
+    "port": 6697,
+    "tls": true,
+    "channels": [
+      "#unkn0wndev"
+    ]
+  },
+  "authentication": {
+    "method":"PLAIN",
+    "plain": {
+      "username": "",
+      "password": "",
+      "SASL": true,
+      "identity": ""
+    },
+    "external":{
+      "tls_client_key":"file",
+      "tls_client_cert":"file"
+    }
+  },
+  "logging": {
+    "base_logger": "testmecha",
+    "log_file": "logs/unit_tests.log"
+  },
+  "commands": {
+    "trigger": true,
+    "prefix": "!"
+  }
+}
