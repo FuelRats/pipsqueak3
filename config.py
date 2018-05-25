@@ -1,36 +1,61 @@
 import json
 import logging
+import coloredlogs
 import os
+
 from typing import Union
 
 CONFIGURATION: Union[None, dict] = None
 
 
 def setup_logging(root_logger: str, logfile: str):
-    # create a log formatter
-    log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
-                                      style='{')
-    # get Mecha's root logger
+    # hook the logger
     log = logging.getLogger(root_logger)
-    # Create a file handler for the logger
-    log_file_handler = logging.FileHandler(logfile, 'w')
-    log_file_handler.setFormatter(log_formatter)
-    # create a stream handler ( prints to STDOUT/STDERR )
-    log_stream_handler = logging.StreamHandler()
-    log_stream_handler.setFormatter(log_formatter)
-    # adds the two handlers to the logger so they can do their thing.
-    log.addHandler(log_file_handler)
-    log.addHandler(log_stream_handler)
-    # set the minimum severity the logger will report.
-    # uncomment for production:
-    # log.setLevel(logging.INFO)
-    # uncomment for develop:
-    log.setLevel(logging.DEBUG)
 
-    logging.info("[Mecha] configuration file loading...")
-    logging.basicConfig(level=logging.DEBUG)  # write all the things
+    # create a handler for said logger...
+    file_logger = logging.FileHandler(logfile, 'w')
+    log_format = '<%(asctime)s Mecha3> [%(levelname)s] %(message)s'
+    file_logger_format = logging.Formatter(log_format)
 
-    """provides facilities for managing a configuration from disk"""
+    # set the formatter to actually use it
+    file_logger.setFormatter(file_logger_format)
+
+    # add the handler to the log.
+    log.addHandler(file_logger)
+
+    # set proper severity level
+    log.setLevel(logging.INFO)
+
+    # add Console logging
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    logging.getLogger(root_logger).addHandler(console)
+
+    # add console logging format
+    console_format = logging.Formatter(log_format)
+
+    # set console formatter to use our format.
+    console.setFormatter(console_format)
+
+    # and then install the coloredlogs hook
+    coloredlogs.install(handler=console,
+                        level='INFO',
+                        fmt=log_format,
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        isatty=True,
+                        )
+
+    # disable propagation
+    log.propagate = False
+
+    # Post log current log level
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug('Logging level set to DEBUG.')
+        log.debug('This is a typical level for DEV releases.')
+    else:
+        log.info('Logging level set to INFO.')
+        log.info('This is a typical level for a production release.')
+
 
 
 def setup(filename: str) -> None:

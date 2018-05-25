@@ -12,6 +12,7 @@ This module is built on top of the Pydle system.
 
 """
 import logging
+
 from sys import argv
 
 from pydle import ClientPool, Client
@@ -46,12 +47,12 @@ class MechaClient(Client):
         Called upon connection to the IRC server
         :return:
         """
-        log.debug("on connect invoked")
+        log.debug('Connected to IRC Server.')
         # join a channel
         for channel in CONFIGURATION["irc"]["channels"]:
             await self.join(channel)
 
-        log.debug("joined channels.")
+        log.debug('Successfully joined configured channel.')
         # call the super
         super().on_connect()
     #
@@ -66,17 +67,16 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data"
-                 f"{message}")
+        log.info(f'Trigger: <{user} {channel}> {message}')
         if user == CONFIGURATION['irc']['presence']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
-            log.debug("received message from myself ignoring!.")
+            # log.debug("received message from myself ignoring!.")
             return None
 
         if not message.startswith(Commands.prefix):
             # prevent bot from processing commands without the set prefix
-            log.debug(f"Message {message} did not have our command prefix. Ignoring.")
+            log.debug(f'Ignored: {message}')
             return None
 
         else:  # await command execution
@@ -92,20 +92,19 @@ async def cmd_ping(bot, trigger):
     :param bot: Pydle instance.
     :param trigger: `Trigger` object for the command call.
     """
-    log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
+    log.warning(f"Command:  Triggered on channel '{trigger.channel}' for user "
                 f"'{trigger.nickname}'")
     await trigger.reply(f"{trigger.nickname} pong!")
 
 # entry point
 if __name__ == "__main__":
-    log.info("hello world!")
 
     pool = ClientPool()
-    log.debug("starting bot for server...")
+    log.debug("Bot:  Starting bot from pool...")
     try:
-        log.debug("spawning new bot instance...")
+        log.debug("Bot:  Spawning new instance...")
         if CONFIGURATION['authentication']['method'] == "PLAIN":
-            log.info("Authentication method set to PLAIN.")
+            log.info("Bot:  Authentication method set to PLAIN.")
             # authenticate via sasl PLAIN mechanism (username & password)
             client = MechaClient(CONFIGURATION['irc']['presence'],
                                  sasl_username=CONFIGURATION['authentication']['plain']['username'],
@@ -113,7 +112,7 @@ if __name__ == "__main__":
                                  sasl_identity=CONFIGURATION['authentication']['plain']['identity'])
 
         elif CONFIGURATION['authentication']['method'] == "EXTERNAL":
-            log.info("Authentication method set to EXTERNAL")
+            log.info("Bot:  Authentication method set to EXTERNAL")
             # authenticate using provided client certificate
             # key and cert may be stored as separate files, as long as mecha can read them.
             cert = CONFIGURATION['authentication']['external']['tls_client_cert']
@@ -131,7 +130,7 @@ if __name__ == "__main__":
                             f"{CONFIGURATION['authentication']['method']}.\n"
                             f"loading cannot continue.")
 
-        log.info(f"connecting to {CONFIGURATION['irc']['server']}:{CONFIGURATION['irc']['port']}")
+        log.info(f"Bot:  Connecting to {CONFIGURATION['irc']['server']}:{CONFIGURATION['irc']['port']}")
         pool.connect(client,
                      CONFIGURATION['irc']['server'],
                      CONFIGURATION['irc']['port'],
@@ -146,5 +145,5 @@ if __name__ == "__main__":
         # hand the bot instance to commands
         Commands.bot = client
         # and run the event loop
-        log.info("running forever...")
+        log.info("Bot: Wait loop started.")
         pool.handle_forever()
