@@ -103,10 +103,8 @@ ENV/
 # mypy
 .mypy_cache/
 
-# owncloud files
-._sync_*.db*
-.owncloudsync.log
+/postgres-files/data/
 
-# OS-specific files
-# Windows:
-Desktop.ini
+*.zip
+
+._sync_*

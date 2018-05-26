@@ -1,0 +1,26 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/repo
+    
+    docker:
+      - image: circleci/python:3.6.5
+    
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build containers
+          command: |
+            docker-compose build
+            docker volume create --name=p-data
+      - run:
+          name: Run tests
+          command: |
+            docker-compose up -d sql
+            docker-compose run -e CC_TEST_REPORTER_ID="c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f" tests
+notify:
+  branches:
+    - all
+  #webhooks:
+    #- url: http://orthanc.localecho.net/cgi-bin/webhook.py

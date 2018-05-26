@@ -1,0 +1,56 @@
+#
+#docker-compose.yml - build script for the mechasqueak3 irc bot
+#   creates the runtime environment for the IRC bot and, by default, runs both the tests and the
+#    client.
+#
+#    USAGE:
+#       test runner:  docker-compose up tests
+#       IRC client:   docker-compose up mecha3
+#
+#Copyright (c) 2018 The Fuel Rats Mischief,
+#All rights reserved.
+#
+#Licensed under the BSD 3-Clause License.
+#
+#See LICENSE.md
+#
+
+version: '3.2'
+services:
+  tests:
+    volumes:
+      - ./logs :/logs
+    build: .
+    image: mecha3
+    links:
+      - "sql:db"
+    depends_on: 
+      - sql
+    command: "sh ./pytest.sh"
+
+  mecha3:
+    volumes:
+      - ./logs :/logs
+    build: .
+    image: mecha3
+    command: ["python","main.py"]
+    depends_on: 
+      - sql
+
+  sql:
+    build: ./postgres-files
+    volumes:
+      - "p-data:/psql-data"
+ #     - type: bind
+  #      source: ./postgres-files/data
+   #     target: /psql-data/
+    image: sql
+    ports:
+      - "5432:5432"
+    environment:
+      - PGPORT = 5432
+      - PGDATA = /psql-data 
+    #command: sh ./psql-startup.sh      
+volumes:
+  p-data:
+    external: true

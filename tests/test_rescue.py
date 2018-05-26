@@ -408,8 +408,6 @@ class TestRescue(TestCase):
                 with self.assertRaises(TypeError):
                     self.rescue.rats = piece
 
-
-
     def test_eq_true_branch(self):
         """
         Verifies Rescue.__eq__ functions as expected when comparing two rescues
@@ -643,4 +641,3 @@ class TestRescuePyTests(object):
         await myRescue.add_rat(name=name, guid=uuid)
 
         assert name in Rats.cache_by_name
-

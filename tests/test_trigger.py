@@ -63,3 +63,36 @@ async def test_reply_query(bot_fx):
         "target": "test_nick",
         "message": "Exceedingly smart test message."
     } in bot_fx.sent_messages
+
+def test_trigger_eq(bot_fx):
+    trigger1 = Trigger(bot_fx, ["some", "thing"], ["some thing", "thing"], "test_nick",
+                       "not_a_channel", "test_ident", "test.vhost")
+    trigger2 = Trigger(bot_fx, ["some", "thing"], ["some thing", "thing"], "test_nick",
+                       "not_a_channel", "test_ident", "test.vhost")
+
+    assert trigger1 == trigger1
+    assert trigger2 == trigger2
+
+    assert trigger1 == trigger2
+    assert trigger2 == trigger1
+
+def test_trigger_ne(bot_fx):
+    trigger1 = Trigger(bot_fx, ["some", "thing"], ["some thing", "thing"], "test_nick",
+                       "not_a_channel", "test_ident", "test.vhost")
+    trigger2 = Trigger(bot_fx, ["some", "thing"], ["another thing", "thing"], "stupid_nick",
+                       "not_a_channel", "test_ident", "go.away")
+
+    assert trigger1 != trigger2
+    assert trigger2 != trigger1
+
+def test_trigger_hash():
+    trigger1 = Trigger(None, ["some", "thing"], ["some thing", "thing"], "test_nick",
+                       "not_a_channel", "test_ident", "test.vhost")
+    trigger2 = Trigger(None, ["some", "thing"], ["some thing", "thing"], "test_nick",
+                       "not_a_channel", "test_ident", "test.vhost")
+    trigger3 = Trigger(None, ["some", "thing"], ["another thing", "thing"], "stupid_nick",
+                       "not_a_channel", "test_ident", "go.away")
+
+    assert hash(trigger1) == hash(trigger2)
+    assert hash(trigger1) != hash(trigger3)
+    assert hash(trigger2) != hash(trigger3)

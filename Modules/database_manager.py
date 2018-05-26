@@ -33,7 +33,7 @@ class DatabaseManager(metaclass=Singleton):
         # connect to PostgreSQL (PSQL) database
         # FIXME: Insert actual credentials / read from Config
         connect_str = ("Driver={PostgreSQL UNICODE};"
-                       "Server=127.0.0.1;"
+                       "Server=db;"
                        "Port=5432;"
                        f"Database={database_name};"
                        "Uid=mecha3;"
