@@ -27,6 +27,7 @@ jobs:
           command: |
             docker cp spark:/mechasqueak/test-reports ./
             docker cp spark:/mechasqueak/cc-test-reporter ./
+            docker cp spark:/mechasqueak/coverage.xml ./
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
 notify:
   branches:
