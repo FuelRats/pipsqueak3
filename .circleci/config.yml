@@ -26,6 +26,7 @@ jobs:
             - CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
           command: |
             docker cp spark:/mechasqueak/test-reports ./
+            docker cp spark:/mechasqueak/cc-test-reporter ./
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
 notify:
   branches:
