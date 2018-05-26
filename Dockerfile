@@ -21,8 +21,8 @@ COPY ./pytest.sh ./
 RUN chmod +x ./pytest.sh
 # Update APK data
 RUN apk update
-# fetch git, as we will need it.
-RUN apk add --no-cache git
+# fetch git and curl, as we will need it.
+RUN apk add --no-cache git curl
 # PSQL stuff
 RUN apk add --no-cache unixodbc unixodbc-dev psqlodbc postgresql-client
 # build deps
