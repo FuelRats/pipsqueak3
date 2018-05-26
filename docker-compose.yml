@@ -22,11 +22,13 @@ services:
       - ./logs :/logs
     build: .
     image: mecha3
+
     links:
       - "sql:db"
     depends_on: 
       - sql
     command: "sh ./pytest.sh"
+
 
   mecha3:
     volumes:

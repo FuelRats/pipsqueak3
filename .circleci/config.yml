@@ -22,5 +22,5 @@ jobs:
 notify:
   branches:
     - all
-  #webhooks:
-    #- url: http://orthanc.localecho.net/cgi-bin/webhook.py
+  webhooks:
+    - url: http://orthanc.localecho.net/cgi-bin/webhook.py
