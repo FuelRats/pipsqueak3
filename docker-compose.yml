@@ -45,7 +45,6 @@ services:
  #     - type: bind
   #      source: ./postgres-files/data
    #     target: /psql-data/
-
     image: sql
     ports:
       - "5432:5432"
