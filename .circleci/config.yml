@@ -8,7 +8,7 @@ jobs:
     
     steps:
       environment:
-        CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
+        - CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
       - checkout
       - setup_remote_docker
       - run:
