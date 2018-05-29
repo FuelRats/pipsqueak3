@@ -27,11 +27,11 @@ else:  # we didn't get one
 print(f"loading configuration from '{config_filepath}'")
 config.setup(config_filepath)
 
-from config import CONFIGURATION
+from config import config
 
 from Modules.rat_command import Commands
 
-log = logging.getLogger(CONFIGURATION["logging"]["base_logger"])
+log = logging.getLogger(config["logging"]["base_logger"])
 
 
 class MechaClient(Client):
@@ -48,7 +48,7 @@ class MechaClient(Client):
         """
         log.debug("on connect invoked")
         # join a channel
-        for channel in CONFIGURATION["irc"]["channels"]:
+        for channel in config["irc"]["channels"]:
             await self.join(channel)
 
         log.debug("joined channels.")
@@ -68,7 +68,7 @@ class MechaClient(Client):
         """
         log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data"
                  f"{message}")
-        if user == CONFIGURATION['irc']['presence']:
+        if user == config['irc']['presence']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
             log.debug("received message from myself ignoring!.")
@@ -104,23 +104,23 @@ if __name__ == "__main__":
     log.debug("starting bot for server...")
     try:
         log.debug("spawning new bot instance...")
-        if CONFIGURATION['authentication']['method'] == "PLAIN":
+        if config['authentication']['method'] == "PLAIN":
             log.info("Authentication method set to PLAIN.")
             # authenticate via sasl PLAIN mechanism (username & password)
-            client = MechaClient(CONFIGURATION['irc']['presence'],
-                                 sasl_username=CONFIGURATION['authentication']['plain']['username'],
-                                 sasl_password=CONFIGURATION['authentication']['plain']['password'],
-                                 sasl_identity=CONFIGURATION['authentication']['plain']['identity'])
+            client = MechaClient(config['irc']['presence'],
+                                 sasl_username=config['authentication']['plain']['username'],
+                                 sasl_password=config['authentication']['plain']['password'],
+                                 sasl_identity=config['authentication']['plain']['identity'])
 
-        elif CONFIGURATION['authentication']['method'] == "EXTERNAL":
+        elif config['authentication']['method'] == "EXTERNAL":
             log.info("Authentication method set to EXTERNAL")
             # authenticate using provided client certificate
             # key and cert may be stored as separate files, as long as mecha can read them.
-            cert = CONFIGURATION['authentication']['external']['tls_client_cert']
-            # key = CONFIGURATION['authentication']['external']['tls_client_key']
+            cert = config['authentication']['external']['tls_client_cert']
+            # key = config['authentication']['external']['tls_client_key']
 
             client = MechaClient(
-                CONFIGURATION['irc']['presence'],
+                config['irc']['presence'],
                 sasl_mechanism='EXTERNAL',
                 tls_client_cert=f"certs/{cert}",
                 # tls_client_key=f"certs/{key}"
@@ -128,17 +128,17 @@ if __name__ == "__main__":
         else:
             # Pydle doesn't appear to support anything else
             raise TypeError(f"unknown authentication mechanism "
-                            f"{CONFIGURATION['authentication']['method']}.\n"
+                            f"{config['authentication']['method']}.\n"
                             f"loading cannot continue.")
 
-        log.info(f"connecting to {CONFIGURATION['irc']['server']}:{CONFIGURATION['irc']['port']}")
+        log.info(f"connecting to {config['irc']['server']}:{config['irc']['port']}")
         pool.connect(client,
-                     CONFIGURATION['irc']['server'],
-                     CONFIGURATION['irc']['port'],
-                     tls=CONFIGURATION['irc']['tls'])
+                     config['irc']['server'],
+                     config['irc']['port'],
+                     tls=config['irc']['tls'])
     except Exception as ex:
-        log.error(f"unable to connect to {CONFIGURATION['irc']['server']}:"
-                  f"{CONFIGURATION['irc']['port']}"
+        log.error(f"unable to connect to {config['irc']['server']}:"
+                  f"{config['irc']['port']}"
                   f"due to an error.")
         log.error(ex)
         raise ex

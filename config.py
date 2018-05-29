@@ -1,9 +1,24 @@
+"""
+config.py - Configuration facilities
+
+Provides fixtures for loading a configuration from disk.
+
+This modules `setup()` method should be invoked at the start of mecha's init, as other modules may
+depend on data stored here.
+
+Copyright (c) 2018 The Fuel Rats Mischief,
+All rights reserved.
+
+Licensed under the BSD 3-Clause License.
+
+See LICENSE
+"""
 import json
 import logging
 import os
 from typing import Union
 
-CONFIGURATION: Union[None, dict] = None
+config: Union[None, dict] = None
 
 
 def setup_logging(root_logger: str, logfile: str):
@@ -40,7 +55,7 @@ def setup(filename: str) -> None:
     Args:
         filename (str): path and filename to load.
     """
-    global CONFIGURATION
+    global config
 
     path = f"config/{filename}"
     # check if the file exists
@@ -51,6 +66,6 @@ def setup(filename: str) -> None:
             logging.info("Successfully loaded JSON from file specified!")
 
         setup_logging(config_dict["logging"]["base_logger"], config_dict['logging']['log_file'])
-        CONFIGURATION = config_dict
+        config = config_dict
     else:
         raise FileNotFoundError(f"unable to find {filename}")

@@ -16,10 +16,10 @@ This module is built on top of the Pydle system.
 import logging
 from uuid import UUID
 
-from config import CONFIGURATION
+from config import config
 from ratlib.names import Platforms
 
-LOG = logging.getLogger(f"{CONFIGURATION['logging']['base_logger']}.{__name__}")
+LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
 
 
 class Rats(object):
