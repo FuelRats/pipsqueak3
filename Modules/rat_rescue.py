@@ -18,10 +18,10 @@ from uuid import UUID
 
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
-from config import CONFIGURATION
+from config import config
 from ratlib.names import Platforms, Status
 
-LOG = logging.getLogger(f"{CONFIGURATION['logging']['base_logger']}.{__name__}")
+LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
 
 
 class Rescue(object):

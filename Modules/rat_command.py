@@ -20,11 +20,11 @@ import re
 from pydle import BasicClient
 
 from Modules.trigger import Trigger
-from config import CONFIGURATION
+from config import config
 
 
 # set the logger for rat_command
-log = logging.getLogger(f"{CONFIGURATION['logging']['base_logger']}.rat_command")
+log = logging.getLogger(f"{config['logging']['base_logger']}.rat_command")
 
 
 class CommandException(Exception):
@@ -66,7 +66,7 @@ class Commands:
     _rules = {}
 
     # character/s that must prefix a message for it to be parsed as a command.
-    prefix = CONFIGURATION['commands']['prefix']
+    prefix = config['commands']['prefix']
 
     # Pydle bot instance.
     bot: BasicClient = None
