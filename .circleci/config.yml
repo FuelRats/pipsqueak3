@@ -7,6 +7,7 @@ jobs:
       - image: circleci/python:3.6.5
     
     steps:
+
       - checkout
       - setup_remote_docker
       - run:
@@ -18,9 +19,18 @@ jobs:
           name: Run tests
           command: |
             docker-compose up -d sql
-            docker-compose run -e CC_TEST_REPORTER_ID="c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f" tests
+            docker-compose run --name spark -e CC_TEST_REPORTER_ID="c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f" tests
+      - run:
+          name: Copy workdir from docker container and upload reports
+          environment:
+            - CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
+          command: |
+            docker cp spark:/mechasqueak/ ./mecha/
+            cd mecha
+            ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
 notify:
   branches:
     - all
-  webhooks:
-    - url: http://orthanc.localecho.net/cgi-bin/webhook.py
+  #webhooks:
+    #- url: http://orthanc.localecho.net/cgi-bin/webhook.py
+

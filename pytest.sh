@@ -4,4 +4,3 @@ curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-lin
 chmod +x ./cc-test-reporter
 ./cc-test-reporter before-build
 pytest -v --cov --cov-report xml --junit-xml=test-reports
-./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?

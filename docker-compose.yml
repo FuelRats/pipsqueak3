@@ -18,41 +18,32 @@
 version: '3.2'
 services:
   tests:
+    network_mode: "host"
     volumes:
       - ./logs :/logs
     build: .
     image: mecha3
-
-    links:
-      - "sql:db"
-    depends_on: 
-      - sql
     command: "sh ./pytest.sh"
 
-
   mecha3:
+    network_mode: "host"
     volumes:
       - ./logs :/logs
     build: .
     image: mecha3
     command: ["python","main.py"]
-    depends_on: 
-      - sql
 
   sql:
+    network_mode: "host"
     build: ./postgres-files
     volumes:
       - "p-data:/psql-data"
- #     - type: bind
-  #      source: ./postgres-files/data
-   #     target: /psql-data/
     image: sql
     ports:
       - "5432:5432"
     environment:
       - PGPORT = 5432
-      - PGDATA = /psql-data 
-    #command: sh ./psql-startup.sh      
+      - PGDATA = /psql-data    
 volumes:
   p-data:
     external: true
