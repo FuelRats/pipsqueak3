@@ -26,8 +26,9 @@ _parser.add_argument("--config-file", "--config", help="Specify the configuratio
 
 # register optional flag for verbose logging
 _parser.add_argument("-verbose", "-v", help="Enable verbose logging. "
-                                            "!! caution !! "
-                                            "this can be deafening!", action="store_true")
+                                            "Earmuffs sold separately", action="store_true")
+
+
 # parse the *known* arguments into an object
 # parse_known_args returns a tuple (Namespace, unknown-args*)
 # we only care about the known arguments, thus [0]
