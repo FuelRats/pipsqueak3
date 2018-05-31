@@ -12,23 +12,13 @@ This module is built on top of the Pydle system.
 
 """
 import logging
-from sys import argv
+# noinspection PyUnresolvedReferences
+from Modules import argparsing
 
 from pydle import ClientPool, Client
 
-import config
-
-# this feels really ugly, im probably going to replace this with argparse or similar.
-if len(argv) >= 2:  # assume first argument is the config file to use
-    config_filepath = argv[1]
-else:  # we didn't get one
-    config_filepath = "./config/config.template.json"
-
-print(f"loading configuration from '{config_filepath}'")
-config.setup(config_filepath)
-
+# import config
 from config import config
-
 from Modules.rat_command import Commands
 
 log = logging.getLogger(config["logging"]["base_logger"])

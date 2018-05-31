@@ -18,10 +18,9 @@ import logging
 import os
 from typing import Union
 
+from Modules import argparsing  # For CLI config-file argument
 
 config: Union[None, dict] = None
-# Marker flag indicating if this module has already been loaded"
-__configured = False
 
 
 def setup_logging(root_logger: str, logfile: str):
@@ -72,3 +71,9 @@ def setup(filename: str) -> None:
         config = config_dict
     else:
         raise FileNotFoundError(f"unable to find {filename}")
+
+
+# fetch the CLI argument
+_path = argparsing.args.config_file
+# and initialize
+setup(_path)
