@@ -16,9 +16,9 @@ _parser = argparse.ArgumentParser()
 
 
 # register optional argument for the config file
-_parser.add_argument("--config-file", "-config", help="Specify the configuration file to load, "
-                                                      "relative to config/",
-                     default="testing.json")
+_parser.add_argument("--config-file", "--config", help="Specify the configuration file to load, "
+                                                       "relative to config/",
+                     default="configuration.json")
 # i had to set the above default to testing as pytest refuses to accept CLI args it doesn't
 #   expect and there is (apparently) no better solution other than to not give pytest
 #   a argument it doesn't expect >.>
