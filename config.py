@@ -18,7 +18,10 @@ import logging
 import os
 from typing import Union
 
+
 config: Union[None, dict] = None
+# Marker flag indicating if this module has already been loaded"
+__configured = False
 
 
 def setup_logging(root_logger: str, logfile: str):
