@@ -18,8 +18,6 @@ This module is built on top of the Pydle system.
 import argparse
 import logging
 
-# lower the basic config so our message gets through ( loads before logging is setup )
-logging.basicConfig(level=logging.DEBUG)
 # create a new parser
 _parser = argparse.ArgumentParser()
 
@@ -49,5 +47,6 @@ args = _parser.parse_known_args()[0]
 
 logging.debug(f"configuration file set to '{args.config_file}'")
 
-# clean up after ourselves ( restore default )
-logging.basicConfig(level=logging.WARNING)
+if args.verbose:
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug("verbose logging enabled. hope you have ear protection.")
