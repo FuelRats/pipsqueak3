@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 # noinspection PyUnresolvedReferences
-from Modules import argparsing
+from Modules import cli_manager
 
 from pydle import ClientPool, Client
 
