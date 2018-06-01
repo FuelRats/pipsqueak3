@@ -1,6 +1,6 @@
 {
   "irc": {
-    "presence": "Mechasqueak3-tests[BOT]",
+    "nickname": "Mechasqueak3-tests[BOT]",
     "server": null,
     "port": 6697,
     "tls": true,
