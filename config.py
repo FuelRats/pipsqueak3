@@ -18,7 +18,7 @@ import logging
 import os
 from typing import Union
 
-from Modules import argparsing  # For CLI config-file argument
+from Modules import cli_manager  # For CLI config-file argument
 
 config: Union[None, dict] = None
 
@@ -72,6 +72,6 @@ def setup(filename: str) -> None:
 
 
 # fetch the CLI argument
-_path = argparsing.args.config_file
+_path = cli_manager.args.config_file
 # and initialize
 setup(_path)
