@@ -58,7 +58,7 @@ class MechaClient(Client):
         """
         log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data"
                  f"{message}")
-        if user == config['irc']['presence']:
+        if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
             log.debug("received message from myself ignoring!.")
@@ -110,7 +110,7 @@ if __name__ == "__main__":
             # key = config['authentication']['external']['tls_client_key']
 
             client = MechaClient(
-                config['irc']['presence'],
+                config['irc']['nickname'],
                 sasl_mechanism='EXTERNAL',
                 tls_client_cert=f"certs/{cert}",
                 # tls_client_key=f"certs/{key}"

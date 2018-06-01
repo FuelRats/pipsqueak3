@@ -17,7 +17,7 @@ irc client, such as username, server, and channels to connect to.
 | Element| description |
 |--------|-------------|
 | server|  the irc server to connect to|
-| presence| the bots username|
+| nickname| the bots username|
 | port| irc port to connect to. `3367` for plain, `3397` for ssl|
 | tls| set to true to connect to tls, a false setting disables SASL|
 |channels| list of channels to connec to|
