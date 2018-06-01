@@ -37,7 +37,7 @@ services:
 
     build: .
     image: mecha3
-    command: "pytest"
+    command: ["pytest", "--config", "testing.json"]
 
   mecha3-dev:
     volumes:
@@ -54,9 +54,7 @@ services:
         target: /mechasqueak/certs/
     build: .
     image: mecha3
-    command: ["python","main.py","./config/develop.json"]
-#    expose:
-#      - 6697:6697
+    command: ["python","main.py","--config", "develop.json"]
 
   drillsqueak:
     volumes:
@@ -74,7 +72,7 @@ services:
 
     build: .
     image: mecha3
-    command: ["python","main.py","./config/drill.json"]
+    command: ["python","main.py","--config", "drill.json"]
 
   mechasqueak:
     volumes:
@@ -91,4 +89,4 @@ services:
         target: /mechasqueak/certs/
     build: .
     image: mecha3
-    command: ["python","main.py","./config/live.json"]
+    command: ["python","main.py","--config", "live.json"]
