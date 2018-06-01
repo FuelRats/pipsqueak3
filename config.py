@@ -3,8 +3,8 @@ config.py - Configuration facilities
 
 Provides fixtures for loading a configuration from disk.
 
-This modules `setup()` method should be invoked at the start of mecha's init, as other modules may
-depend on data stored here.
+This modules `setup()` function does not need to be called directly, it will be called
+    automatically upon first import.
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
@@ -45,8 +45,6 @@ def setup_logging(root_logger: str, logfile: str):
     log.setLevel(logging.DEBUG)
 
     logging.info("[Mecha] configuration file loading...")
-    logging.basicConfig(level=logging.DEBUG)  # write all the things
-
     """provides facilities for managing a configuration from disk"""
 
 
