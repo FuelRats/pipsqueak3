@@ -55,7 +55,7 @@ jobs:
           command: |
             . venv/bin/activate
             ./cc-test-reporter before-build
-            pytest -v --cov --cov-report xml --junit-xml=test-reports
+            pytest -v --cov --cov-report xml --junit-xml=test-reports --config testing.json
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
 
       - store_artifacts:
