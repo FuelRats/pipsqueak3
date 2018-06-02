@@ -24,7 +24,7 @@
     "log_file": "logs/mechasqueak.log"
   },
   "commands": {
-    "prefix": "?"
+    "prefix": "!"
   },
   "api": {
     "online_mode":false,

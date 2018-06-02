@@ -20,7 +20,7 @@ import config
 from Modules.rat_rescue import Rescue
 from config import config
 
-LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class RescueBoardException(BaseException):
@@ -29,7 +29,7 @@ class RescueBoardException(BaseException):
     """
 
     def __init__(self, *args: object) -> None:
-        LOG.error(f"Rescueboard Exception raised!\nargs = {args}")
+        log.error(f"RBoard:  Rescueboard Exception raised!\nargs = {args}")
         super().__init__(*args)
 
 
@@ -95,7 +95,7 @@ class RatBoard(object):
             raise TypeError
         else:
             for rescue in self.rescues.values():
-                LOG.debug(f"checking rescue {rescue} against {other}...\n"
+                log.debug(f"RBoard:  Checking rescue {rescue} against {other}...\n"
                           f"client {rescue.client} == {other.client} &&  "
                           f"createdAt {rescue.created_at} == {other.created_at}")
 
@@ -257,19 +257,19 @@ class RatBoard(object):
             result = False
         # check if its equal to what we already have
         elif found == rescue:
-            LOG.debug("a call was made to modify, yet the rescue was not changed!")
+            log.debug("RBoard:  A call was made to modify, yet the rescue was not changed!")
             raise RescueNotChangedException
         else:
             # its not what we already have
 
             # lets check if we have a API handler
             if self.handler is not None:
-                LOG.debug("Rescue has been modified, making a call to the API")
+                log.debug("RBoard:  Rescue has been modified, making a call to the API")
                 # if so, let it know we changed the rescue
                 # FIXME: change to match API Handler interface, once it exists
                 await self.handler.update_rescue(rescue)
 
-            LOG.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.case_id}...")
+            log.debug(f"RBoard:  Updating local rescue #{rescue.board_index} (@{rescue.case_id}...")
             self.append(rescue=rescue, overwrite=True)
             result = True
 
@@ -289,11 +289,11 @@ class RatBoard(object):
             KeyError: rescue was not on the board.
         """
         if self.handler is not None:
-            LOG.debug(f"Calling API to remove case by id {rescue.case_id}")
+            log.debug(f"RBoard:  Calling API to remove case by id {rescue.case_id}")
             #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
-        LOG.debug(f"removing case #{rescue.board_index} (@{rescue.case_id}) from the board.")
+        log.debug(f"RBoard:  Removing case #{rescue.board_index} (@{rescue.case_id}) from the board.")
         self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
@@ -305,7 +305,7 @@ class RatBoard(object):
 
         useful for flushing the board prior to re-retrieving cases from the API
         """
-        LOG.warning("Flushing the Dispatch Board, fire in the hole!")
+        log.warning("RBoard:  Flushing the Dispatch Board, fire in the hole!")
         self.rescues = {}
 
     async def retrieve_open_cases_from_api(self) -> None:
@@ -321,13 +321,13 @@ class RatBoard(object):
         """
         # verify we have an API handler registered
         if self.handler is not None:
-            LOG.debug("a API handler is registered, attempting to fetch open cases")
+            log.debug("RBoard:  API handler is registered, attempting to fetch open cases")
             # FIXME:  modify call to match API handler interface once it is implemented
             self.rescues = await self.handler.get_rescues("open")
 
         else:
             # we don't have a registered API handler, this call cannot succeed,
-            LOG.exception("no API handler is registered, this call will fail!")
+            log.exception("RBoard:  No API handler is registered, this call will fail!")
 
             # TODO: replace this exception with something more specific?
             raise RescueBoardException("no API handler registered!")

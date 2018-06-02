@@ -21,7 +21,7 @@ from pydle import ClientPool, Client
 from config import config
 from Modules.rat_command import Commands
 
-log = logging.getLogger(config["logging"]["base_logger"])
+log = logging.getLogger(f"mecha3.{__name__}")
 
 
 class MechaClient(Client):
@@ -36,9 +36,10 @@ class MechaClient(Client):
         Called upon connection to the IRC server
         :return:
         """
-        log.debug("on connect invoked")
+        log.debug(f"Bot:  Connecting to channels...")
         # join a channel
         for channel in config["irc"]["channels"]:
+            log.debug(f"Bot:  Configured channel {channel}")
             await self.join(channel)
 
         log.debug("joined channels.")
@@ -56,17 +57,16 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data"
-                 f"{message}")
+        log.info(f"{channel}: <{user}> {message}")
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
-            log.debug("received message from myself ignoring!.")
+            log.debug(f"Bot:  Ignored {message} (anti-loop)")
             return None
 
         if not message.startswith(Commands.prefix):
             # prevent bot from processing commands without the set prefix
-            log.debug(f"Message {message} did not have our command prefix. Ignoring.")
+            log.debug(f"Bot:  Ignored {message} (not a command)")
             return None
 
         else:  # await command execution
@@ -88,14 +88,14 @@ async def cmd_ping(bot, trigger):
 
 # entry point
 if __name__ == "__main__":
-    log.info("hello world!")
+    log.info("System:  Initializing...")
 
     pool = ClientPool()
-    log.debug("starting bot for server...")
+    log.debug("Bot:  Starting bot...")
     try:
-        log.debug("spawning new bot instance...")
+        log.debug("Bot:  Spawning instance...")
         if config['authentication']['method'] == "PLAIN":
-            log.info("Authentication method set to PLAIN.")
+            log.info("Bot:  Authentication method set to PLAIN.")
             # authenticate via sasl PLAIN mechanism (username & password)
             client = MechaClient(config['irc']['nickname'],
                                  sasl_username=config['authentication']['plain']['username'],
@@ -121,13 +121,13 @@ if __name__ == "__main__":
                             f"{config['authentication']['method']}.\n"
                             f"loading cannot continue.")
 
-        log.info(f"connecting to {config['irc']['server']}:{config['irc']['port']}")
+        log.info(f"Bot: Connecting to {config['irc']['server']}:{config['irc']['port']}...")
         pool.connect(client,
                      config['irc']['server'],
                      config['irc']['port'],
                      tls=config['irc']['tls'])
     except Exception as ex:
-        log.error(f"unable to connect to {config['irc']['server']}:"
+        log.error(f"Bot:  unable to connect to {config['irc']['server']}:"
                   f"{config['irc']['port']}"
                   f"due to an error.")
         log.error(ex)
