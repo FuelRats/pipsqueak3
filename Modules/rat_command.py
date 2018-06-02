@@ -82,7 +82,8 @@ class Commands:
         """
         if cls.bot is None:
             # someone didn't set me.
-            raise CommandException(f"RCommand:  Bot client has not been created or not handed to Commands.")
+            raise CommandException(f"RCommand:  Bot client has not been created"
+                                   f" or not handed to Commands.")
 
         # check for trigger
         assert message.startswith(cls.prefix), f"message passed that did not contain prefix."
