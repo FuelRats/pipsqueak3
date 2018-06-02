@@ -293,7 +293,8 @@ class RatBoard(object):
             #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
-        log.debug(f"RBoard:  Removing case #{rescue.board_index} (@{rescue.case_id}) from the board.")
+        log.debug(f"RBoard:  Removing case #{rescue.board_index} "
+                  f"(@{rescue.case_id})from the board.")
         self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
