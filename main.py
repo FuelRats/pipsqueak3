@@ -97,7 +97,7 @@ if __name__ == "__main__":
         if config['authentication']['method'] == "PLAIN":
             log.info("Authentication method set to PLAIN.")
             # authenticate via sasl PLAIN mechanism (username & password)
-            client = MechaClient(config['irc']['presence'],
+            client = MechaClient(config['irc']['nickname'],
                                  sasl_username=config['authentication']['plain']['username'],
                                  sasl_password=config['authentication']['plain']['password'],
                                  sasl_identity=config['authentication']['plain']['identity'])
