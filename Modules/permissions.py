@@ -16,7 +16,7 @@ from functools import wraps
 
 from config import config
 
-log = logging.getLogger(f"{config['logging']['base_logger']}.Permissions")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Permission:
@@ -32,7 +32,7 @@ class Permission:
         :param deny_message: message to display if user level < level required
         :return:
         """
-        log.debug(f"created new Permission object with permission level")
+        log.debug(f"Permissions:  Created new Permission object with permission {level}")
         self._level = level
         self._vhost = vhost
         self._denied_message = deny_message
@@ -113,8 +113,8 @@ def require_permission(permission: Permission,
     """
 
     def real_decorator(func):
-        log.debug("inside real_decorator")
-        log.debug(f"Wrapping a command with permission {permission}")
+        log.debug("Permission:  inside real_decorator")
+        log.debug(f"Permission:  Wrapping a command with permission {permission}")
         # TODO implement require_permission wrapper.
 
         @wraps(func)

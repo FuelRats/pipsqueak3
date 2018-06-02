@@ -4,7 +4,7 @@ from datetime import datetime
 from config import config
 from Modules.trigger import Trigger
 
-LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Quotation(object):

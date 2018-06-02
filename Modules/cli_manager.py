@@ -49,4 +49,4 @@ logging.debug(f"configuration file set to '{args.config_file}'")
 
 if args.verbose:
     logging.basicConfig(level=logging.DEBUG)
-    logging.debug("verbose logging enabled. hope you have ear protection.")
+    logging.debug("System:  Verbose logging enabled. hope you have ear protection.")

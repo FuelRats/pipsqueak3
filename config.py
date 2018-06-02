@@ -16,6 +16,7 @@ See LICENSE
 import json
 import logging
 import os
+import coloredlogs
 from typing import Union
 
 from Modules import cli_manager  # For CLI config-file argument
@@ -23,28 +24,47 @@ from Modules import cli_manager  # For CLI config-file argument
 config: Union[None, dict] = None
 
 
-def setup_logging(root_logger: str, logfile: str):
-    # create a log formatter
-    log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
-                                      style='{')
-    # get Mecha's root logger
-    log = logging.getLogger(root_logger)
-    # Create a file handler for the logger
-    log_file_handler = logging.FileHandler(logfile, 'w')
-    log_file_handler.setFormatter(log_formatter)
-    # create a stream handler ( prints to STDOUT/STDERR )
-    log_stream_handler = logging.StreamHandler()
-    log_stream_handler.setFormatter(log_formatter)
-    # adds the two handlers to the logger so they can do their thing.
-    log.addHandler(log_file_handler)
-    log.addHandler(log_stream_handler)
-    # set the minimum severity the logger will report.
-    # uncomment for production:
-    # log.setLevel(logging.INFO)
-    # uncomment for develop:
+def setup_logging(logfile: str):
+    # hook the logger
+    log = logging.getLogger(f"mecha.{__name__}")
+
+    # create a handler for said logger...
+    file_logger = logging.FileHandler(logfile, 'a')
+    log_format = '<%(asctime)s Mecha3> [%(levelname)s] %(message)s'
+    log_datefmt = '%Y-%m-%d %H:%M:%S'
+    file_logger_format = logging.Formatter(log_format)
+
+    # set the formatter to actually use it
+    file_logger.setFormatter(file_logger_format)
+
+    # add the handler to the log.
+    log.addHandler(file_logger)
+
+    # set proper severity level
     log.setLevel(logging.DEBUG)
 
-    logging.info("[Mecha] configuration file loading...")
+    # add Console logging
+    console = logging.StreamHandler()
+    logging.getLogger(f"mecha.{__name__}").addHandler(console)
+
+    # add console logging format
+    console_format = logging.Formatter(log_format)
+
+    # set console formatter to use our format.
+    console.setFormatter(console_format)
+
+    # coloredlogs hook
+    coloredlogs.install(handler=__name__,
+                        level='DEBUG',
+                        fmt=log_format,
+                        datefmt=log_datefmt,
+                        isatty=True,
+                        )
+
+    # disable propagation
+    log.propagate = False
+
+    logging.info("Config:  Configuration file loading...")
     """provides facilities for managing a configuration from disk"""
 
 
@@ -60,15 +80,15 @@ def setup(filename: str) -> None:
     path = f"config/{filename}"
     # check if the file exists
     if os.path.exists(path):
-        logging.info(f"Found a file/directory at {filename}'! attempting to load...")
+        logging.info(f"Config:  Found a file/directory at {filename}'! attempting to load...")
         with open(path, 'r') as infile:
             config_dict = json.load(infile)
-            logging.info("Successfully loaded JSON from file specified!")
+            logging.info("Config:  Successfully loaded JSON from file specified!")
 
-        setup_logging(config_dict["logging"]["base_logger"], config_dict['logging']['log_file'])
+        setup_logging(config_dict['logging']['log_file'])
         config = config_dict
     else:
-        raise FileNotFoundError(f"unable to find {filename}")
+        raise FileNotFoundError(f"Config:  unable to find {filename}")
 
 
 # fetch the CLI argument
