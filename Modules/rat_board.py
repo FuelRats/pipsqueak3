@@ -289,11 +289,11 @@ class RatBoard(object):
             KeyError: rescue was not on the board.
         """
         if self.handler is not None:
-            log.debug(f"RBoard:  Calling API to remove case by id {rescue.case_id}")
+            log.debug(f"Calling API to remove case by id {rescue.case_id}")
             #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
-        log.debug(f"RBoard:  Removing case #{rescue.board_index} "
+        log.debug(f"Removing case #{rescue.board_index} "
                   f"(@{rescue.case_id})from the board.")
         self.rescues.pop(rescue.board_index)
 
@@ -322,13 +322,13 @@ class RatBoard(object):
         """
         # verify we have an API handler registered
         if self.handler is not None:
-            log.debug("RBoard:  API handler is registered, attempting to fetch open cases")
+            log.debug("API handler is registered, attempting to fetch open cases")
             # FIXME:  modify call to match API handler interface once it is implemented
             self.rescues = await self.handler.get_rescues("open")
 
         else:
             # we don't have a registered API handler, this call cannot succeed,
-            log.exception("RBoard:  No API handler is registered, this call will fail!")
+            log.exception("No API handler is registered, this call will fail!")
 
             # TODO: replace this exception with something more specific?
             raise RescueBoardException("no API handler registered!")

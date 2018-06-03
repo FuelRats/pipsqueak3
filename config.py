@@ -76,7 +76,7 @@ def setup_logging(logfile: str):
     # disable propagation
     log.propagate = False
 
-    logging.info("Config:  Configuration file loading...")
+    logging.info("Configuration file loading...")
     """provides facilities for managing a configuration from disk"""
 
 
@@ -92,15 +92,15 @@ def setup(filename: str) -> None:
     path = f"config/{filename}"
     # check if the file exists
     if os.path.exists(path):
-        logging.info(f"Config:  Found a file/directory at {filename}'! attempting to load...")
+        logging.info(f"Found a file/directory at {filename}'! attempting to load...")
         with open(path, 'r') as infile:
             config_dict = json.load(infile)
-            logging.info("Config:  Successfully loaded JSON from file specified!")
+            logging.info("Successfully loaded JSON from file specified!")
 
         setup_logging(config_dict['logging']['log_file'])
         config = config_dict
     else:
-        raise FileNotFoundError(f"Config:  unable to find {filename}")
+        raise FileNotFoundError(f"Unable to find {filename}")
 
 
 # fetch the CLI argument

@@ -49,4 +49,4 @@ _parser.add_argument("--nocolors", "-nc", help="Disable ANSI color coding. "
 # we only care about the known arguments, thus [0]
 args = _parser.parse_known_args()[0]
 
-logging.debug(f"configuration file set to '{args.config_file}'")
+logging.debug(f"Configuration file set to '{args.config_file}'")
