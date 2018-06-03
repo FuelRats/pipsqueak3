@@ -31,6 +31,12 @@ def setup_logging(logfile: str):
     else:
         loglevel = logging.INFO
 
+    # check for nocolor flag
+    if cli_manager.args.nocolors:
+        logcolors = False
+    else:
+        logcolors = True
+
     # hook the logger
     log = logging.getLogger(f"mecha.{__name__}")
 
@@ -64,7 +70,7 @@ def setup_logging(logfile: str):
                         level=loglevel,
                         fmt=log_format,
                         datefmt=log_datefmt,
-                        isatty=True,
+                        isatty=logcolors,
                         )
 
     # disable propagation

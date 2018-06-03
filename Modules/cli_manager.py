@@ -39,6 +39,10 @@ _parser.add_argument("--config-file", "--config", help="Specify the configuratio
 _parser.add_argument("-verbose", "-v", help="Enable verbose logging. "
                                             "Earmuffs sold separately", action="store_true")
 
+# register optional no color flag to remove ANSI coding in logs.
+_parser.add_argument("--nocolors", "-nc", help="Disable ANSI color coding. "
+                                               "For people who hate fun.", action="store_true")
+
 
 # parse the *known* arguments into an object
 # parse_known_args returns a tuple (Namespace, unknown-args*)
