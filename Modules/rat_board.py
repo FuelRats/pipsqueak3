@@ -29,7 +29,7 @@ class RescueBoardException(BaseException):
     """
 
     def __init__(self, *args: object) -> None:
-        log.error(f"RBoard:  Rescueboard Exception raised!\nargs = {args}")
+        log.error(f"Rescueboard Exception raised!\nargs = {args}")
         super().__init__(*args)
 
 
@@ -95,7 +95,7 @@ class RatBoard(object):
             raise TypeError
         else:
             for rescue in self.rescues.values():
-                log.debug(f"RBoard:  Checking rescue {rescue} against {other}...\n"
+                log.debug(f"Checking rescue {rescue} against {other}...\n"
                           f"client {rescue.client} == {other.client} &&  "
                           f"createdAt {rescue.created_at} == {other.created_at}")
 
@@ -257,19 +257,19 @@ class RatBoard(object):
             result = False
         # check if its equal to what we already have
         elif found == rescue:
-            log.debug("RBoard:  A call was made to modify, yet the rescue was not changed!")
+            log.debug("A call was made to modify, yet the rescue was not changed!")
             raise RescueNotChangedException
         else:
             # its not what we already have
 
             # lets check if we have a API handler
             if self.handler is not None:
-                log.debug("RBoard:  Rescue has been modified, making a call to the API")
+                log.debug("Rescue has been modified, making a call to the API")
                 # if so, let it know we changed the rescue
                 # FIXME: change to match API Handler interface, once it exists
                 await self.handler.update_rescue(rescue)
 
-            log.debug(f"RBoard:  Updating local rescue #{rescue.board_index} (@{rescue.case_id}...")
+            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.case_id}...")
             self.append(rescue=rescue, overwrite=True)
             result = True
 
