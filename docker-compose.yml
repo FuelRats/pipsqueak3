@@ -107,6 +107,6 @@ services:
     image: mecha3
     command: ["python","main.py","--config", "live.json"]
 
- volumes:
+volumes:
   p-data:
     external: true
