@@ -70,6 +70,8 @@ services:
     build: .
     image: mecha3
     command: ["python","main.py","--config", "develop.json"]
+    environment:
+      - P_HOST = localhost
 
   drillsqueak:
     network_mode: "host"
@@ -88,6 +90,8 @@ services:
     build: .
     image: mecha3
     command: ["python","main.py","--config", "drill.json"]
+    environment:
+      - P_HOST = localhost
 
   mechasqueak:
     network_mode: "host"
@@ -106,6 +110,8 @@ services:
     build: .
     image: mecha3
     command: ["python","main.py","--config", "live.json"]
+    environment:
+      - P_HOST = localhost
 
 volumes:
   p-data:
