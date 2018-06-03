@@ -41,7 +41,7 @@ def setup_logging(logfile: str):
     log = logging.getLogger(f"mecha.{__name__}")
 
     # create a handler for said logger...
-    file_logger = logging.FileHandler(logfile, 'a')
+    file_logger = logging.FileHandler(logfile, 'w')
     log_format = '<%(asctime)s %(name)s> [%(levelname)s] %(message)s'
     log_datefmt = '%Y-%m-%d %H:%M:%S'
     file_logger_format = logging.Formatter(log_format)
@@ -50,7 +50,7 @@ def setup_logging(logfile: str):
     file_logger.setFormatter(file_logger_format)
 
     # add the handler to the log.
-    log.addHandler(file_logger)
+    logging.getLogger(f"mecha.{__name__}").addHandler(file_logger)
 
     # set proper severity level
     log.setLevel(loglevel)

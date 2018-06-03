@@ -36,7 +36,7 @@ class MechaClient(Client):
         Called upon connection to the IRC server
         :return:
         """
-        log.debug(f"Bot:  Connecting to channels...")
+        log.debug(f"Connecting to channels...")
         # join a channel
         for channel in config["irc"]["channels"]:
             log.debug(f"Configured channel {channel}")

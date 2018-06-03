@@ -102,9 +102,9 @@ class Rats(object):
             None
         """
         if isinstance(value, str):
-            log.debug(f"Rats:  value was a string with data '{value}'")
+            log.debug(f"Value was a string with data '{value}'")
             uuid = UUID(value)
-            log.debug("Rats:  parsed value into a valid UUID.")
+            log.debug("Parsed value into a valid UUID.")
             self._uuid = uuid
         elif isinstance(value, UUID):
             self._uuid = value
