@@ -82,13 +82,13 @@ class Commands:
         """
         if cls.bot is None:
             # someone didn't set me.
-            raise CommandException(f"RCommand:  Bot client has not been created"
+            raise CommandException(f"Bot client has not been created"
                                    f" or not handed to Commands.")
 
         # check for trigger
         assert message.startswith(cls.prefix), f"message passed that did not contain prefix."
 
-        log.debug(f"RCommand:  Trigger! {message}")
+        log.debug(f"Trigger! {message}")
 
         # remove command prefix and make lowercase
         raw_command: str = message.lstrip(cls.prefix).lower()
@@ -167,10 +167,10 @@ class Commands:
                 return await func(bot, trigger)
 
             # we want to register the wrapper, not the underlying function
-            log.debug(f"RCommand:  Registering command aliases: {aliases}...")
+            log.debug(f"Registering command aliases: {aliases}...")
             if not cls._register(wrapper, aliases):
                 raise InvalidCommandException("unable to register commands.")
-            log.debug(f"RCommand:  Registration of {aliases} completed.")
+            log.debug(f"Registration of {aliases} completed.")
 
             return wrapper
         return real_decorator
@@ -190,6 +190,6 @@ class Commands:
                 return await coro(bot, trigger)
 
             cls._rules[re.compile(regex, re.IGNORECASE)] = wrapper
-            log.info(f"RCommand:  New rule matching '{regex}' was created.")
+            log.info(f"New rule matching '{regex}' was created.")
             return wrapper
         return decorator

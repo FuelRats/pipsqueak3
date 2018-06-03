@@ -32,7 +32,7 @@ class Permission:
         :param deny_message: message to display if user level < level required
         :return:
         """
-        log.debug(f"Permissions:  Created new Permission object with permission {level}")
+        log.debug(f"Created new Permission object with permission {level}")
         self._level = level
         self._vhost = vhost
         self._denied_message = deny_message
@@ -113,8 +113,8 @@ def require_permission(permission: Permission,
     """
 
     def real_decorator(func):
-        log.debug("Permission:  inside real_decorator")
-        log.debug(f"Permission:  Wrapping a command with permission {permission}")
+        log.debug("Inside the real_decorator")
+        log.debug(f"Wrapping a command with permission {permission}")
         # TODO implement require_permission wrapper.
 
         @wraps(func)

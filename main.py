@@ -39,7 +39,7 @@ class MechaClient(Client):
         log.debug(f"Bot:  Connecting to channels...")
         # join a channel
         for channel in config["irc"]["channels"]:
-            log.debug(f"Bot:  Configured channel {channel}")
+            log.debug(f"Configured channel {channel}")
             await self.join(channel)
 
         log.debug("joined channels.")
@@ -61,12 +61,12 @@ class MechaClient(Client):
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
-            log.debug(f"Bot:  Ignored {message} (anti-loop)")
+            log.debug(f"Ignored {message} (anti-loop)")
             return None
 
         if not message.startswith(Commands.prefix):
             # prevent bot from processing commands without the set prefix
-            log.debug(f"Bot:  Ignored {message} (not a command)")
+            log.debug(f"Ignored {message} (not a command)")
             return None
 
         else:  # await command execution
@@ -88,14 +88,14 @@ async def cmd_ping(bot, trigger):
 
 # entry point
 if __name__ == "__main__":
-    log.info("System:  Initializing...")
+    log.info("Initializing...")
 
     pool = ClientPool()
-    log.debug("Bot:  Starting bot...")
+    log.debug("Starting bot...")
     try:
-        log.debug("Bot:  Spawning instance...")
+        log.debug("Spawning instance...")
         if config['authentication']['method'] == "PLAIN":
-            log.info("Bot:  Authentication method set to PLAIN.")
+            log.info("Authentication method set to PLAIN.")
             # authenticate via sasl PLAIN mechanism (username & password)
             client = MechaClient(config['irc']['nickname'],
                                  sasl_username=config['authentication']['plain']['username'],
@@ -121,13 +121,13 @@ if __name__ == "__main__":
                             f"{config['authentication']['method']}.\n"
                             f"loading cannot continue.")
 
-        log.info(f"Bot: Connecting to {config['irc']['server']}:{config['irc']['port']}...")
+        log.info(f"Connecting to {config['irc']['server']}:{config['irc']['port']}...")
         pool.connect(client,
                      config['irc']['server'],
                      config['irc']['port'],
                      tls=config['irc']['tls'])
     except Exception as ex:
-        log.error(f"Bot:  unable to connect to {config['irc']['server']}:"
+        log.error(f"Unable to connect to {config['irc']['server']}:"
                   f"{config['irc']['port']}"
                   f"due to an error.")
         log.error(ex)
