@@ -87,7 +87,7 @@ class Commands:
         # check for trigger
         assert message.startswith(cls.prefix), f"message passed that did not contain prefix."
 
-        cls.log.debug(f"triggered! message is {message}")
+        log.debug(f"triggered! message is {message}")
 
         # remove command prefix and make lowercase
         raw_command: str = message.lstrip(cls.prefix).lower()

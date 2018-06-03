@@ -31,7 +31,7 @@ services:
       - type: bind
         source: ./config
         target: /mechasqueak/config/
-        
+       
       - type: bind
         source: ./certs
         target: /mechasqueak/certs/ 
@@ -66,6 +66,7 @@ services:
       - type: bind
         source: ./certs
         target: /mechasqueak/certs/
+
     build: .
     image: mecha3
     command: ["python","main.py","--config", "develop.json"]
@@ -84,7 +85,6 @@ services:
       - type: bind
         source: ./certs
         target: /mechasqueak/certs/
-
     build: .
     image: mecha3
     command: ["python","main.py","--config", "drill.json"]
