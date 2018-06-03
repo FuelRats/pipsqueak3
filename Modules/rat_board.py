@@ -306,7 +306,7 @@ class RatBoard(object):
 
         useful for flushing the board prior to re-retrieving cases from the API
         """
-        log.warning("RBoard:  Flushing the Dispatch Board, fire in the hole!")
+        log.warning("Flushing the Dispatch Board, fire in the hole!")
         self.rescues = {}
 
     async def retrieve_open_cases_from_api(self) -> None:
