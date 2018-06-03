@@ -22,6 +22,7 @@
 version: '3.2'
 services:
   tests:
+    network_mode: "host"
     volumes:
       - type: bind
         source: ./logs
@@ -30,7 +31,7 @@ services:
       - type: bind
         source: ./config
         target: /mechasqueak/config/
-
+        
       - type: bind
         source: ./certs
         target: /mechasqueak/certs/ 
@@ -40,6 +41,7 @@ services:
       - P_HOST = localhost
   
   sql:
+    network_mode: "host"
     build: ./postgres-files
     volumes:
       - "p-data:/psql-data"
@@ -51,6 +53,7 @@ services:
       - PGDATA = /psql-data 
       
   mecha3-dev:
+    network_mode: "host"
     volumes:
       - type: bind
         source: ./logs
@@ -68,6 +71,7 @@ services:
     command: ["python","main.py","--config", "develop.json"]
 
   drillsqueak:
+    network_mode: "host"
     volumes:
       - type: bind
         source: ./logs
@@ -86,6 +90,7 @@ services:
     command: ["python","main.py","--config", "drill.json"]
 
   mechasqueak:
+    network_mode: "host"
     volumes:
       - type: bind
         source: ./logs
