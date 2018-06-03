@@ -16,10 +16,10 @@ This module is built on top of the Pydle system.
 import logging
 from uuid import UUID
 
-import config
+from config import config
 from ratlib.names import Platforms
 
-LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Rats(object):
@@ -102,9 +102,9 @@ class Rats(object):
             None
         """
         if isinstance(value, str):
-            LOG.debug(f"value was a string with data '{value}'")
+            log.debug(f"Value was a string with data '{value}'")
             uuid = UUID(value)
-            LOG.debug("parsed value into a valid UUID.")
+            log.debug("Parsed value into a valid UUID.")
             self._uuid = uuid
         elif isinstance(value, UUID):
             self._uuid = value

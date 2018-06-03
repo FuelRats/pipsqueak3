@@ -1,10 +1,9 @@
 import logging
 from datetime import datetime
 
-import config
 from Modules.context import Context
 
-LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Quotation(object):

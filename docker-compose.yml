@@ -4,9 +4,13 @@
 #    client.
 #
 #    USAGE:
-#       test runner:  docker-compose up tests
-#       IRC client:   docker-compose up mecha3
+#       test runner:    docker-compose up tests
+#       Mechasqueak:    docker-compose up mechasqueak
+#       Drillsqueak:    docker-compose up drillsqueak
+#       development:    docker-compose up mecha3-dev
 #
+#     please note that these builds require a configuration file external to git, a template
+#       configuration file is provided.
 #Copyright (c) 2018 The Fuel Rats Mischief,
 #All rights reserved.
 #
@@ -15,18 +19,74 @@
 #See LICENSE.md
 #
 
-version: '3'
+version: '3.2'
 services:
   tests:
     volumes:
-      - ./logs :/logs
-    build: .
-    image: mecha3
-    command: "pytest"
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
 
-  mecha3:
-    volumes:
-      - ./logs :/logs
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+
     build: .
     image: mecha3
-    command: ["python","main.py"]
+    command: ["pytest", "--config", "testing.json"]
+
+  mecha3-dev:
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+    build: .
+    image: mecha3
+    command: ["python","main.py","--config", "develop.json"]
+
+  drillsqueak:
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+
+    build: .
+    image: mecha3
+    command: ["python","main.py","--config", "drill.json"]
+
+  mechasqueak:
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+    build: .
+    image: mecha3
+    command: ["python","main.py","--config", "live.json"]

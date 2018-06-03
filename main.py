@@ -12,50 +12,22 @@ This module is built on top of the Pydle system.
 
 """
 import logging
+# noinspection PyUnresolvedReferences
 from uuid import uuid4
+
+from Modules import cli_manager, permissions
 
 from pydle import ClientPool, Client
 
-from Modules import permissions
+# import config
 from Modules.context import Context
 from Modules.permissions import require_permission
-from Modules.rat_command import Commands, CommandNotFoundException
 from Modules.user import User
-# noinspection PyUnresolvedReferences
-from commands.diagnostics import Diagnostics
-from config import IRC, Logging
+from config import config
+from Modules.rat_command import Commands, CommandNotFoundException
 
-__version__ = "3.0a"
+log = logging.getLogger(f"mecha.{__name__}")
 
-##########
-# setup logging stuff
-
-# create a log formatter
-log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}\t",
-                                  style='{')
-# get Mecha's root logger
-LOG = logging.getLogger(Logging.base_logger)
-# Create a file handler for the logger
-log_file_handler = logging.FileHandler("logs/MECHASQUEAK.log", 'w')
-log_file_handler.setFormatter(log_formatter)
-# create a stream handler ( prints to STDOUT/STDERR )
-log_stream_handler = logging.StreamHandler()
-log_stream_handler.setFormatter(log_formatter)
-# adds the two handlers to the logger so they can do their thing.
-LOG.addHandler(log_file_handler)
-LOG.addHandler(log_stream_handler)
-# set the minimum severity the logger will report.
-# uncomment for production:
-# log.setLevel(logging.INFO)
-# uncomment for develop:
-LOG.setLevel(logging.DEBUG)
-
-logging.info("[Mecha] Main file loading...")
-logging.basicConfig(level=logging.DEBUG)  # write all the things
-
-
-# end log Setup
-####
 
 class MechaClient(Client):
     """
@@ -67,12 +39,13 @@ class MechaClient(Client):
         Called upon connection to the IRC server
         :return:
         """
-        LOG.debug("on connect invoked")
+        log.debug(f"Connecting to channels...")
         # join a channel
-        for channel in IRC.channels:
+        for channel in config["irc"]["channels"]:
+            log.debug(f"Configured channel {channel}")
             await self.join(channel)
 
-        LOG.debug("joined channels.")
+        log.debug("joined channels.")
         # call the super
         super().on_connect()
 
@@ -88,17 +61,16 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        LOG.debug(f"trigger! Sender is {user}\t in channel {channel}\twith data"
-                  f"{message}")
-        if user == IRC.presence:
+        log.info(f"{channel}: <{user}> {message}")
+        if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
-            LOG.debug("received message from myself ignoring!.")
+            log.debug(f"Ignored {message} (anti-loop)")
             return None
 
         if not message.startswith(Commands.prefix):
             # prevent bot from processing commands without the set prefix
-            LOG.debug(f"Message {message} did not have our command prefix. Ignoring.")
+            log.debug(f"Ignored {message} (not a command)")
             return None
 
         else:  # await command execution
@@ -110,15 +82,15 @@ class MechaClient(Client):
                                        sender=invoking_user,
                                        channel=channel)
             except CommandNotFoundException as ex:
-                LOG.exception(ex)
+                log.exception(ex)
 
             except Exception as ex:
                 # generate a uuid to attach to the error (to make it easier to find later)
                 uuid = uuid4()
                 # write a unique marker to the log file for easier searching
-                LOG.error(f"Error during command invocation. marker: {uuid}")
+                log.error(f"Error during command invocation. marker: {uuid}")
                 # write the actual exception, since it may be useful
-                LOG.exception(ex)
+                log.exception(ex)
 
                 # and report state to the user
                 await self.message(channel if channel else user, f"An error has occured during "
@@ -135,7 +107,7 @@ async def cmd_ping(bot, trigger):
     :param bot: Pydle instance.
     :param trigger: `Context` object for the command call.
     """
-    LOG.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
+    log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
                 f"'{trigger.nickname}'")
     await trigger.reply(f"{trigger.nickname} pong!")
 
@@ -149,28 +121,53 @@ async def cmd_version(bot, trigger: Context):
 
 # entry point
 if __name__ == "__main__":
-    LOG.info("hello world!")
+    log.info("Initializing...")
 
-    POOL = ClientPool()
-    LOG.debug("starting bot for server...")
+    pool = ClientPool()
+    log.debug("Starting bot...")
     try:
-        LOG.debug("spawning new bot instance...")
-        CLIENT = MechaClient(IRC.presence, sasl_username=IRC.Authentication.username,
-                             sasl_password=IRC.Authentication.password,
-                             sasl_identity=IRC.Authentication.identity)
+        log.debug("Spawning instance...")
+        if config['authentication']['method'] == "PLAIN":
+            log.info("Authentication method set to PLAIN.")
+            # authenticate via sasl PLAIN mechanism (username & password)
+            client = MechaClient(config['irc']['nickname'],
+                                 sasl_username=config['authentication']['plain']['username'],
+                                 sasl_password=config['authentication']['plain']['password'],
+                                 sasl_identity=config['authentication']['plain']['identity'])
 
-        LOG.info(f"connecting to {IRC.server}:{IRC.port}")
-        POOL.connect(CLIENT, IRC.server, IRC.port, tls=IRC.tls)
+        elif config['authentication']['method'] == "EXTERNAL":
+            log.info("Authentication method set to EXTERNAL")
+            # authenticate using provided client certificate
+            # key and cert may be stored as separate files, as long as mecha can read them.
+            cert = config['authentication']['external']['tls_client_cert']
+            # key = config['authentication']['external']['tls_client_key']
+
+            client = MechaClient(
+                config['irc']['nickname'],
+                sasl_mechanism='EXTERNAL',
+                tls_client_cert=f"certs/{cert}",
+                # tls_client_key=f"certs/{key}"
+            )
+        else:
+            # Pydle doesn't appear to support anything else
+            raise TypeError(f"unknown authentication mechanism "
+                            f"{config['authentication']['method']}.\n"
+                            f"loading cannot continue.")
+
+        log.info(f"Connecting to {config['irc']['server']}:{config['irc']['port']}...")
+        pool.connect(client,
+                     config['irc']['server'],
+                     config['irc']['port'],
+                     tls=config['irc']['tls'])
     except Exception as ex:
-        LOG.error(f"unable to connect to {IRC.server}:{IRC.port} "
+        log.error(f"Unable to connect to {config['irc']['server']}:"
+                  f"{config['irc']['port']}"
                   f"due to an error.")
-        LOG.error(ex)
-        from sys import exit
-
-        exit(42)
+        log.error(ex)
+        raise ex
     else:
         # hand the bot instance to commands
         Commands.bot = CLIENT
         # and run the event loop
-        LOG.info("running forever...")
-        POOL.handle_forever()
+        log.info("running forever...")
+        pool.handle_forever()

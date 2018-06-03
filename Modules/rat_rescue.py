@@ -16,12 +16,12 @@ from datetime import datetime
 from typing import Union
 from uuid import UUID
 
-import config
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
+from config import config
 from ratlib.names import Platforms, Status
 
-LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Rescue(object):
@@ -689,7 +689,7 @@ class Rescue(object):
                     raise ValueError("Data validation failed. at least one key contains invalid"
                                      "data.")
             else:
-                LOG.debug(f"data of value is: {value}")
+                log.debug(f"Data of value is: {value}")
                 raise ValueError("required fields missing and/or keys!")
         else:
             raise TypeError(f"expected type dict, got type {type(value)}")
@@ -763,7 +763,8 @@ class Rescue(object):
                 return
             elif found[1]:
                 # a generic match (not platform specific) was found
-                LOG.warning("A match was found, but it was not the right platform!")
+                # TODO throw a warning so the invoking method can handle this condition
+                log.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
                 return
 

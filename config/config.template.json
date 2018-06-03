@@ -1,0 +1,34 @@
+{
+  "irc": {
+    "nickname": "Mechasqueak3[BOT]",
+    "server": null,
+    "port": 6697,
+    "tls": true,
+    "channels": [
+      "#unkn0wndev"
+    ]
+  },
+  "authentication": {
+    "method":"PLAIN",
+    "plain": {
+      "username": "",
+      "password": "",
+      "identity": ""
+    },
+    "external":{
+      "tls_client_cert":"file"
+    }
+  },
+  "logging": {
+    "base_logger": "mecha",
+    "log_file": "logs/mechasqueak.log"
+  },
+  "commands": {
+    "prefix": "!"
+  },
+  "api": {
+    "online_mode":false,
+    "url":null,
+    "tokenfile":null
+  }
+}

@@ -5,3 +5,4 @@ pytest-cov
 pytest-asyncio
 aiounittest
 IPython
+coloredlogs
