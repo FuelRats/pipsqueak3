@@ -25,6 +25,12 @@ config: Union[None, dict] = None
 
 
 def setup_logging(logfile: str):
+    # check for CLI verbosity flag
+    if cli_manager.args.verbose:
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.INFO
+
     # hook the logger
     log = logging.getLogger(f"mecha.{__name__}")
 
@@ -41,7 +47,7 @@ def setup_logging(logfile: str):
     log.addHandler(file_logger)
 
     # set proper severity level
-    log.setLevel(logging.DEBUG)
+    log.setLevel(loglevel)
 
     # add Console logging
     console = logging.StreamHandler()
@@ -55,7 +61,7 @@ def setup_logging(logfile: str):
 
     # coloredlogs hook
     coloredlogs.install(handler=__name__,
-                        level='DEBUG',
+                        level=loglevel,
                         fmt=log_format,
                         datefmt=log_datefmt,
                         isatty=True,
