@@ -12,14 +12,16 @@ This module is built on top of the Pydle system.
 
 """
 
-from functools import wraps
 import logging
-
 import re
+from functools import wraps
 
 from pydle import BasicClient
 
-from Modules.trigger import Trigger
+import config
+from Modules.context import Context
+
+from Modules.user import User
 from config import config
 
 
@@ -72,13 +74,16 @@ class Commands:
     bot: BasicClient = None
 
     @classmethod
-    async def trigger(cls, message: str, sender: str, channel: str):
+    async def trigger(cls, message: str, sender: User, channel: str):
         """
-        Invoke a command, passing args and kwargs to the called function
-        :param message: triggers message to invoke
-        :param sender: author of triggering message
-        :param channel: channel of triggering message
-        :return: bool command
+        Invokes command execution
+
+        Creates a Context object from the incomming message and sender, passed to invoked command.
+
+        Args:
+            message (str): raw message from IRC
+            sender (User): IRC user that invoked command execution
+            channel (str): channel the message was sent in
         """
         if cls.bot is None:
             # someone didn't set me.
@@ -107,7 +112,7 @@ class Commands:
             else:
                 words.append(word)
 
-        trigger = Trigger.from_bot_user(cls.bot, sender, channel, words, words_eol)
+        trigger = Context(cls.bot, words, words_eol, sender, channel)
 
         if words[0] in cls._registered_commands.keys():
             cmd = cls._registered_commands[words[0]]

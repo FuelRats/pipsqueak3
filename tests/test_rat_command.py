@@ -20,10 +20,13 @@ from unittest import mock
 
 import pydle
 import pytest
+import pytest
 from aiounittest import async_test
 
+from Modules.context import Context
 from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, \
     CommandException
+from Modules.user import User
 from tests.mock_bot import MockBot
 
 
@@ -72,31 +75,6 @@ class RatCommandTests(unittest.TestCase):
                     @Commands.command(name)
                     async def bar():
                         pass
-
-    @async_test
-    async def test_call_command(self):
-        """
-        Verifiy that found commands can be invoked via Commands.Trigger()
-        :return:
-        """
-        aliases = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}" for name in aliases]
-        input_sender = "unit_test[BOT]"
-        input_channel = "#unit_testing"
-
-        @Commands.command(*aliases)
-        async def potato(bot, trigger):
-            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
-            return bot, trigger.channel, trigger.nickname
-
-        for command in trigger_alias:
-            with self.subTest(command=command):
-                out_bot, out_channel, out_sender = await Commands.trigger(
-                    message=command, sender=input_sender,
-                    channel=input_channel)
-                self.assertEqual(input_sender, out_sender)
-                self.assertEqual(input_channel, out_channel)
-                self.assertIsNotNone(out_bot)
 
     @mock.patch("Modules.rat_command.Commands.bot")
     @async_test
@@ -174,3 +152,32 @@ class TestRatCommand(object):
 
         for name in aliases:
             assert name.lower() in Commands._registered_commands.keys()
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("alias", [user for user in MockBot.users])
+async def test_call_command(alias: str, monkeypatch, bot_fx):
+    """
+    Verifiy that found commands can be invoked via Commands.Context()
+    :return:
+    """
+
+    # async def mock_whois(*args):
+    #     return mock_data
+
+    monkeypatch.setattr('Modules.rat_command.Commands.bot', bot_fx)
+    # monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_whois)
+    trigger_alias = f"{Commands.prefix}{alias}"
+    input_user = await User.from_bot(bot_fx, alias)
+    input_channel = "#unit_testing"
+
+    @Commands.command(alias)
+    async def potato(bot, trigger: Context):
+        # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+        return bot, trigger.channel, trigger.user.username
+
+    out_bot, out_channel, out_sender = await Commands.trigger(
+        message=trigger_alias, sender=input_user,
+        channel=input_channel)
+
+    assert input_user.username == out_sender
+    assert input_channel == out_channel

@@ -42,7 +42,10 @@ class Permission:
     denied_message = property(lambda self: self._denied_message)
 
     def __eq__(self, other: 'Permission') -> bool:
-        return self.level == other.level
+        if isinstance(other, Permission):
+            return self.level == other.level
+        else:
+            raise TypeError
 
     def __ne__(self, other: 'Permission') -> bool:
         return self.level != other.level
@@ -63,6 +66,8 @@ class Permission:
         return hash(self.level)
 
 
+# no special permissions
+NONE = Permission(-1, None)
 # the uninitiated
 RECRUIT = Permission(0, "recruit.fuelrats.com")
 # the initiated
@@ -115,15 +120,20 @@ def require_permission(permission: Permission,
     def real_decorator(func):
         log.debug("Inside the real_decorator")
         log.debug(f"Wrapping a command with permission {permission}")
-        # TODO implement require_permission wrapper.
 
         @wraps(func)
-        async def guarded(bot, trigger):
-            if trigger.identified and trigger.hostname in _by_vhost.keys() \
-                    and _by_vhost[trigger.hostname] >= permission:
-                return await func(bot, trigger)
+        async def guarded(bot, context: 'Context'):
+            log.debug(f"context = {context}")
+            granted_permissions = NONE
+            for key, value in _by_vhost.items():
+                if context.user.hostname.endswith(key) and context.user.identified is True:
+                    granted_permissions = value
+                    break
+
+            if granted_permissions >= permission:
+                return await func(bot, context)
             else:
-                await trigger.reply(override_message if override_message
+                await context.reply(override_message if override_message
                                     else permission.denied_message)
 
         return guarded

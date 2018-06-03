@@ -35,6 +35,7 @@ setup("testing.json")
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
+from Modules.user import User
 
 from ratlib.names import Platforms
 
@@ -108,3 +109,9 @@ def RatBoard_fx() -> RatBoard:
 @pytest.fixture
 def bot_fx():
     return MockBot()
+
+
+@pytest.fixture
+def user_fx() -> User:
+    return User("myRealName", "myRealName.rat.fuelrats.com", "Ducky", "myRealName", False, "Ducky",
+                False)

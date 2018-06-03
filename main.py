@@ -13,13 +13,18 @@ This module is built on top of the Pydle system.
 """
 import logging
 # noinspection PyUnresolvedReferences
-from Modules import cli_manager
+from uuid import uuid4
+
+from Modules import cli_manager, permissions
 
 from pydle import ClientPool, Client
 
 # import config
+from Modules.context import Context
+from Modules.permissions import require_permission
+from Modules.user import User
 from config import config
-from Modules.rat_command import Commands
+from Modules.rat_command import Commands, CommandNotFoundException
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -28,8 +33,6 @@ class MechaClient(Client):
     """
     MechaSqueak v3
     """
-
-    version = "3.0a"
 
     async def on_connect(self):
         """
@@ -45,11 +48,12 @@ class MechaClient(Client):
         log.debug("joined channels.")
         # call the super
         super().on_connect()
+
     #
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
 
-    async def on_message(self, channel, user, message: str):
+    async def on_message(self, channel: str, user: str, message: str):
         """
         Triggered when a message is received
         :param channel: Channel the message arrived in
@@ -70,9 +74,30 @@ class MechaClient(Client):
             return None
 
         else:  # await command execution
-            await Commands.trigger(message=message,
-                                   sender=user,
-                                   channel=channel)
+
+            invoking_user: User = await User.from_bot(bot=self, nickname=user)
+
+            try:
+                await Commands.trigger(message=message,
+                                       sender=invoking_user,
+                                       channel=channel)
+            except CommandNotFoundException as ex:
+                log.exception(ex)
+
+            except Exception as ex:
+                # generate a uuid to attach to the error (to make it easier to find later)
+                uuid = uuid4()
+                # write a unique marker to the log file for easier searching
+                log.error(f"Error during command invocation. marker: {uuid}")
+                # write the actual exception, since it may be useful
+                log.exception(ex)
+
+                # and report state to the user
+                await self.message(channel if channel else user, f"An error has occured during "
+                                                                 f"command execution. Please let a "
+                                                                 f"techrat  know!"
+                                                                 f" -reference id "
+                                                                 f"{str(uuid)[:8]}")
 
 
 @Commands.command("ping")
@@ -80,11 +105,19 @@ async def cmd_ping(bot, trigger):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param bot: Pydle instance.
-    :param trigger: `Trigger` object for the command call.
+    :param trigger: `Context` object for the command call.
     """
     log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
                 f"'{trigger.nickname}'")
     await trigger.reply(f"{trigger.nickname} pong!")
+
+
+@require_permission(permissions.RAT)
+@Commands.command("version", "potato", "ver")
+async def cmd_version(bot, trigger: Context):
+    """reports mecha's version"""
+    await trigger.reply(f"My version is {__version__}")
+
 
 # entry point
 if __name__ == "__main__":
@@ -134,7 +167,7 @@ if __name__ == "__main__":
         raise ex
     else:
         # hand the bot instance to commands
-        Commands.bot = client
+        Commands.bot = CLIENT
         # and run the event loop
         log.info("running forever...")
         pool.handle_forever()
