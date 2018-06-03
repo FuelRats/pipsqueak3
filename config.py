@@ -41,7 +41,7 @@ def setup_logging(logfile: str):
     log = logging.getLogger(f"mecha.{__name__}")
 
     # create a handler for said logger...
-    file_logger = logging.FileHandler(logfile, 'w')
+    file_logger = logging.FileHandler(logfile, 'a+')
     log_format = '<%(asctime)s %(name)s> [%(levelname)s] %(message)s'
     log_datefmt = '%Y-%m-%d %H:%M:%S'
     file_logger_format = logging.Formatter(log_format)
@@ -67,19 +67,21 @@ def setup_logging(logfile: str):
 
     # coloredlogs hook
     log_levelstyles = {'critical': {'color': 'red', 'bold': True},
-                       'debug': {'color': 'green', 'bright': True},
                        'error': {'color': 'red', 'bright': True},
+                       'warning': {'color': 'yellow', 'bright': True},
                        'info': {'color': 'white', 'bright': True},
-                       'warning': {'color': 'yellow', 'bright': True}}
+                       'debug': {'color': 'black', 'bright': True}}
 
-    loglevel_fieldstyles = {'asctime': {'color': 'green'},
-                            'levelname': {'color': 'blue', 'bold': True},
-                            'name': {'color': 'blue', 'bright': True}}
+    log_fieldstyles = {'asctime': {'color': 'white', 'bright': True},
+                       'levelname': {'color': 'white', 'bright': True},
+                       'name': {'color': 'yellow', 'bright': True}}
 
     # coloredlogs hook
     coloredlogs.install(handler=__name__,
                         level=loglevel,
                         fmt=log_format,
+                        level_styles=log_levelstyles,
+                        field_styles=log_fieldstyles,
                         datefmt=log_datefmt,
                         isatty=logcolors,
                         )
