@@ -36,7 +36,7 @@ def setup_logging(logfile: str):
 
     # create a handler for said logger...
     file_logger = logging.FileHandler(logfile, 'a')
-    log_format = '<%(asctime)s Mecha3> [%(levelname)s] %(message)s'
+    log_format = '<%(asctime)s %(name)s> [%(levelname)s] %(message)s'
     log_datefmt = '%Y-%m-%d %H:%M:%S'
     file_logger_format = logging.Formatter(log_format)
 
