@@ -108,3 +108,11 @@ ENV/
 *.zip
 
 ._sync_*
+#configuration
+config/config.json
+config/live.json
+config/drill.json
+config/develop.json
+
+#certs
+*.pem

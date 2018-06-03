@@ -1,10 +1,10 @@
 import logging
 from datetime import datetime
 
-import config
+from config import config
 from Modules.trigger import Trigger
 
-LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
+LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
 
 
 class Quotation(object):

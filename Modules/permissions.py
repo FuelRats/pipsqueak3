@@ -14,9 +14,9 @@ This module is built on top of the Pydle system.
 import logging
 from functools import wraps
 
-import config
+from config import config
 
-log = logging.getLogger(f"{config.Logging.base_logger}.Permissions")
+log = logging.getLogger(f"{config['logging']['base_logger']}.Permissions")
 
 
 class Permission:

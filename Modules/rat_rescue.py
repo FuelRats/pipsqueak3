@@ -16,12 +16,12 @@ from datetime import datetime
 from typing import Union
 from uuid import UUID
 
-import config
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
+from config import config
 from ratlib.names import Platforms, Status
 
-LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
+LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
 
 
 class Rescue(object):
