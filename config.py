@@ -37,11 +37,19 @@ def setup_logging(logfile: str):
     else:
         logcolors = True
 
+    # check for new-log flag, overwriting existing log,
+    # otherwise, append to the file per normal.
+    if cli_manager.args.clean_log:
+        log_filemode = 'w'
+    else:
+        log_filemode = 'a'
+
+
     # hook the logger
     log = logging.getLogger(f"mecha.{__name__}")
 
     # create a handler for said logger...
-    file_logger = logging.FileHandler(logfile, 'a+')
+    file_logger = logging.FileHandler(logfile, log_filemode)
     log_format = '<%(asctime)s %(name)s> [%(levelname)s] %(message)s'
     log_datefmt = '%Y-%m-%d %H:%M:%S'
     file_logger_format = logging.Formatter(log_format)
