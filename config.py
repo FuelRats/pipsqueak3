@@ -44,7 +44,6 @@ def setup_logging(logfile: str):
     else:
         log_filemode = 'a'
 
-
     # hook the logger
     log = logging.getLogger(f"mecha.{__name__}")
 

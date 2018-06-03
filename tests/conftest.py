@@ -19,8 +19,12 @@ from tests.mock_bot import MockBot
 
 
 def pytest_addoption(parser):
-    """Hooks pytest's add_option """
+    """
+    hooks into pytest before it parses its CLI arguments,
+    allowing us to register our own so it doesn't throw a fit if we use them
+    """
     parser.addoption("--config-file", "--config", default="testing.json")
+    parser.addoption("--new-log", action="store_true", default=False)
 
 
 from config import setup

@@ -27,7 +27,8 @@ _parser = argparse.ArgumentParser()
 
 # register optional flag for --clean-log, truncating existing log file and starting a new blank one.
 _parser.add_argument("--clean-log", help="Start with a clean log file.  "
-                                         "Deletes any existing log data.", action="store_true")
+                                         "Deletes any existing log data.",
+                     action="store_true")
 # register optional argument for the config file
 _parser.add_argument("--config-file", "--config", help="Specify the configuration file to load, "
                                                        "relative to config/",
