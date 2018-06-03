@@ -21,7 +21,7 @@ from pydle import ClientPool, Client
 from config import config
 from Modules.rat_command import Commands
 
-log = logging.getLogger(f"mecha3.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class MechaClient(Client):

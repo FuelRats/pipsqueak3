@@ -50,7 +50,7 @@ def setup_logging(logfile: str):
     file_logger.setFormatter(file_logger_format)
 
     # add the handler to the log.
-    logging.getLogger(f"mecha.{__name__}").addHandler(file_logger)
+    logging.getLogger(f"mecha").addHandler(file_logger)
 
     # set proper severity level
     log.setLevel(loglevel)
@@ -64,6 +64,17 @@ def setup_logging(logfile: str):
 
     # set console formatter to use our format.
     console.setFormatter(console_format)
+
+    # coloredlogs hook
+    log_levelstyles = {'critical': {'color': 'red', 'bold': True},
+                       'debug': {'color': 'green', 'bright': True},
+                       'error': {'color': 'red', 'bright': True},
+                       'info': {'color': 'white', 'bright': True},
+                       'warning': {'color': 'yellow', 'bright': True}}
+
+    loglevel_fieldstyles = {'asctime': {'color': 'green'},
+                            'levelname': {'color': 'blue', 'bold': True},
+                            'name': {'color': 'blue', 'bright': True}}
 
     # coloredlogs hook
     coloredlogs.install(handler=__name__,
