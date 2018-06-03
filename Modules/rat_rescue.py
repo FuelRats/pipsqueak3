@@ -689,7 +689,7 @@ class Rescue(object):
                     raise ValueError("Data validation failed. at least one key contains invalid"
                                      "data.")
             else:
-                log.debug(f"Rescue:  data of value is: {value}")
+                log.debug(f"Data of value is: {value}")
                 raise ValueError("required fields missing and/or keys!")
         else:
             raise TypeError(f"expected type dict, got type {type(value)}")
