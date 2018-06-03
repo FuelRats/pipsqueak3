@@ -25,7 +25,9 @@ _parser = argparse.ArgumentParser()
 # - I would wrap this in a list of tuples to be looped over, but each argument may is too specific
 # - to enable looping. So we will register them manually.
 
-
+# register optional flag for --clean-log, truncating existing log file and starting a new blank one.
+_parser.add_argument("--clean-log", help="Start with a clean log file.  "
+                                         "Deletes any existing log data.", action="store_true")
 # register optional argument for the config file
 _parser.add_argument("--config-file", "--config", help="Specify the configuration file to load, "
                                                        "relative to config/",
