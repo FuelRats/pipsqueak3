@@ -24,6 +24,7 @@ from aiounittest import async_test
 
 from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, \
     CommandException
+from Modules.trigger import Trigger
 from tests.mock_bot import MockBot
 
 
@@ -174,3 +175,24 @@ class TestRatCommand(object):
 
         for name in aliases:
             assert name.lower() in Commands._registered_commands.keys()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("name", ("september", "Phoenix"))
+    @pytest.mark.parametrize("trigger_message", ["salad Baton", "Crunchy Cheddar", "POTATOES!",
+                                                 "carrots"])
+    async def test_command_preserves_arguments(self, trigger_message: str, name: str):
+        """
+        Verifies commands do not mutate argument words
+            - because someone had the bright idea of casting ALL words to lower...
+            (that would break things)
+        """
+        Commands._flush()
+        ftrigger = f"!{name} {trigger_message}"
+        words = [name.lower()] + trigger_message.split(" ")
+
+        @Commands.command(name)
+        async def the_command(bot: MockBot, trigger: Trigger):
+            """asserts its arguments equal the outer scope"""
+            assert trigger.words == words
+
+        await Commands.trigger(ftrigger, "unit_test[BOT]", "#unit_tests")
