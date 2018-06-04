@@ -11,9 +11,13 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
+from config import setup_logging
+import logging
 from uuid import uuid4, UUID
-
 import pytest
+import random
+
+
 
 from tests.mock_bot import MockBot
 
@@ -108,3 +112,9 @@ def RatBoard_fx() -> RatBoard:
 @pytest.fixture
 def bot_fx():
     return MockBot()
+
+
+@pytest.fixture
+def Logging_fx() -> type(logging.getLogger('mecha')):
+    setup_logging('logs/test_log.log')
+    return logging.getLogger('mecha')
