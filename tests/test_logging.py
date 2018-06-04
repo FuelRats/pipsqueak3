@@ -15,21 +15,6 @@ import logging
 import random
 
 
-def random_string():
-    """
-    Creates a 16 digit alphanumeric string.  For use
-    with logging tests.
-
-    Returns:
-         16 digit alphanumeric string.
-    """
-    source = "abcdefghijklmnopqrstuvwxyz012345" \
-             "67890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    string_len = 16
-    result = "".join(random.sample(source, string_len))
-    return result
-
-
 def test_logging_default_level(Logging_fx):
     """
     Test logging level has been set to INFO by default
@@ -37,11 +22,11 @@ def test_logging_default_level(Logging_fx):
     assert Logging_fx.getEffectiveLevel() == logging.INFO
 
 
-def test_logging_console_debug(caplog, Logging_fx):
+def test_logging_console_debug(caplog, Logging_fx, Random_string_fx):
     """
     Test Console logging with random string to ensure input matches output.
     """
-    test_randstring = random_string()
+    test_randstring = Random_string_fx
     Logging_fx.setLevel(logging.DEBUG)
     Logging_fx.debug(f"Console Test String {test_randstring}")
 
@@ -50,11 +35,11 @@ def test_logging_console_debug(caplog, Logging_fx):
     ]
 
 
-def test_logging_console_info(caplog, Logging_fx):
+def test_logging_console_info(caplog, Logging_fx, Random_string_fx):
     """
     Test Console logging with random string to ensure input matches output.
     """
-    test_randstring = random_string()
+    test_randstring = Random_string_fx
     Logging_fx.info(f"Console Test String {test_randstring}")
 
     assert caplog.record_tuples == [
@@ -62,11 +47,11 @@ def test_logging_console_info(caplog, Logging_fx):
     ]
 
 
-def test_logging_console_warn(caplog, Logging_fx):
+def test_logging_console_warn(caplog, Logging_fx, Random_string_fx):
     """
     Test Console logging with random string to ensure input matches output.
     """
-    test_randstring = random_string()
+    test_randstring = Random_string_fx
     Logging_fx.warn(f"Console Test String {test_randstring}")
 
     assert caplog.record_tuples == [
@@ -74,11 +59,11 @@ def test_logging_console_warn(caplog, Logging_fx):
     ]
 
 
-def test_logging_console_error(caplog, Logging_fx):
+def test_logging_console_error(caplog, Logging_fx, Random_string_fx):
     """
     Test Console logging with random string to ensure input matches output.
     """
-    test_randstring = random_string()
+    test_randstring = Random_string_fx
     Logging_fx.error(f"Console Test String {test_randstring}")
 
     assert caplog.record_tuples == [
@@ -86,12 +71,12 @@ def test_logging_console_error(caplog, Logging_fx):
     ]
 
 
-def test_logging_to_file_debug(Logging_fx):
+def test_logging_to_file_debug(Logging_fx, Random_string_fx):
     """
     Test log file input matches written data by logging a random string,
     and then searching that file for the string.
     """
-    test_randstring = random_string()
+    test_randstring = Random_string_fx
 
     Logging_fx.setLevel(logging.DEBUG)
     Logging_fx.debug(f"File Test String {test_randstring}")
@@ -104,12 +89,12 @@ def test_logging_to_file_debug(Logging_fx):
     assert re_match == 2
 
 
-def test_logging_to_file_info(Logging_fx):
+def test_logging_to_file_info(Logging_fx, Random_string_fx):
     """
     Test log file input matches written data by logging a random string,
     and then searching that file for the string.
     """
-    test_randstring = random_string()
+    test_randstring = Random_string_fx
 
     Logging_fx.info(f"File Test String {test_randstring}")
 
