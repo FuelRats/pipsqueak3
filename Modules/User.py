@@ -18,6 +18,43 @@ class User(object):
     Represents an IRC user
     """
 
+    @classmethod
+    def process_vhost(cls, vhost: Union[str, None]) -> Union[None, str]:
+        """
+        Refines a raw vhost into `{role}.fuelrats.com`
+
+        Args:
+            vhost (str): raw host string
+
+        Returns:
+            str : refined vhost
+            None: invalid vhost, raw vhost was None
+        """
+        # sanity check
+        if vhost is None:
+            return None
+        # sanity check
+        if not vhost.endswith(".fuelrats.com"):
+            return None
+        # strip fuelrats.com from the end
+        leading_data: str = vhost.rsplit(".fuelrats.com")[0]
+
+        # attempt to split the vhost between ident and role
+        data_split = leading_data.split('.')
+
+        # sanity check.
+        # if the split returns 3+ items, something isn't right here.
+        assert len(data_split) <= 2
+
+        if len(data_split) == 1:
+            # we have an administrator
+            host = f"{data_split[0]}"
+        else:
+            # standard user
+            host = f"{data_split[1]}"
+
+        return f"{host}.fuelrats.com"
+
     def __init__(self,
                  oper: bool,
                  idle: int,
@@ -57,7 +94,7 @@ class User(object):
         self._away: bool = away
         self._away_message: str = away_message
         self._username: str = username
-        self._hostname: str = hostname
+        self._hostname: str = self.process_vhost(hostname)
         self._realname: str = realname
         self._identified: bool = identified
         self._server: str = server
