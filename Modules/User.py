@@ -12,6 +12,8 @@ See LICENSE.md
 """
 from typing import Union
 
+from main import MechaClient
+
 
 class User(object):
     """
@@ -63,6 +65,7 @@ class User(object):
                  identified: bool,
                  secure: bool,
                  account: str,
+                 nickname: str,
                  # attributes below this line are nullable
                  username: Union[None, str] = None,
                  hostname: Union[None, str] = None,
@@ -84,6 +87,7 @@ class User(object):
             server_info (str): server's information string
             secure (bool): Secure connection marker
             account (str): NS identity
+            nickname (str): IRC nickname of user
 
         As a whois entry will not return some fields for users that don't exist,
         Username, hostname, realname, server, and server_info are nullable.
@@ -101,6 +105,7 @@ class User(object):
         self._server_info: str = server_info
         self._secure: bool = secure
         self._account: str = account
+        self._nickname: str = nickname
 
     @property
     def oper(self) -> bool:
@@ -168,46 +173,55 @@ class User(object):
         """Nickserv account, if applicable"""
         return self._account
 
+    @property
+    def nickname(self) -> str:
+        return self._nickname
+
     @classmethod
-    def from_whois(cls, data: dict) -> 'User':
+    async def from_bot(cls, bot: 'MechaClient', nickname: str) -> 'User':
         """
         Creates a user object from a WHOIS reply
 
         Args:
-            data (dict):  WHOIS reply from server
+            bot(MechaClient): MechaClient instance
+            nickname(str):  nickname to look up
 
         Returns:
             User: user object
 
         Raises:
-            ValueError: invalid dict passed
-            KeyError: malformed dict passed
+            ValueError: somehow got an invalid WHOIS response
         """
+        data = await bot.whois(nickname)
+
         # anything less than 7 is not a valid whois reply
         if len(data) < 7:
             raise ValueError("Dict does not contain enough keys")
 
         # null whois reply, user not found
         if len(data) == 7:
-            return cls(data['oper'],
-                       data['idle'],
-                       data['away'],
-                       data['away_message'],
-                       data['identified'],
-                       data['secure'],
-                       data['account'])
+            return cls(oper=data['oper'],
+                       idle=data['idle'],
+                       away=data['away'],
+                       away_message=data['away_message'],
+                       identified=data['identified'],
+                       secure=data['secure'],
+                       account=data['account'],
+                       nickname=nickname)
 
         # full whois reply
         else:
-            return cls(data['oper'],
-                       data['idle'],
-                       data['away'],
-                       data['away_message'],
-                       data['identified'],
-                       data['secure'],
-                       data['account'],
-                       data['username'],
-                       data['hostname'],
-                       data['realname'],
-                       data['server'],
-                       data['server_info'])
+            return cls(oper=data['oper'],
+                       idle=data['idle'],
+                       away=data['away'],
+                       away_message=data['away_message'],
+                       identified=data['identified'],
+                       secure=data['secure'],
+                       account=data['account'],
+                       nickname=nickname,
+                       username=data['username'],
+                       hostname=data['hostname'],
+                       realname=data['realname'],
+                       server=data['server'],
+                       server_info=data['server_info'],
+                       )
