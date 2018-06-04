@@ -35,7 +35,10 @@ class User(object):
         # sanity check
         if vhost is None:
             return None
-        # sanity check
+        # lets see if its orange, because orange has a special vhost.
+        if vhost == "i.see.all":
+            return vhost
+        # sanity / security check
         if not vhost.endswith(".fuelrats.com"):
             return None
         # strip fuelrats.com from the end
