@@ -130,3 +130,47 @@ class User(object):
     def account(self) -> Union[str, None]:
         """Nickserv account, if applicable"""
         return self._account
+
+    @classmethod
+    def from_whois(cls, data: dict) -> 'User':
+        """
+        Creates a user object from a WHOIS reply
+
+        Args:
+            data (dict):  WHOIS reply from server
+
+        Returns:
+            User: user object
+
+        Raises:
+            ValueError: invalid dict passed
+            KeyError: malformed dict passed
+        """
+        # anything less than 7 is not a valid whois reply
+        if len(data) < 7:
+            raise ValueError("Dict does not contain enough keys")
+
+        # null whois reply, user not found
+        if len(data) == 7:
+            return cls(data['oper'],
+                       data['idle'],
+                       data['away'],
+                       data['away_message'],
+                       data['identified'],
+                       data['secure'],
+                       data['account'])
+
+        # full whois reply
+        else:
+            return cls(data['oper'],
+                       data['idle'],
+                       data['away'],
+                       data['away_message'],
+                       data['identified'],
+                       data['secure'],
+                       data['account'],
+                       data['username'],
+                       data['hostname'],
+                       data['realname'],
+                       data['server'],
+                       data['server_info'])
