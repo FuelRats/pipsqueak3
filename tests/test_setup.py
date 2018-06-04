@@ -19,6 +19,3 @@ def test_bad_filename(Random_string_fx):
     filename = Random_string_fx
     with pytest.raises(FileNotFoundError):
         config.setup(filename)
-
-
-
