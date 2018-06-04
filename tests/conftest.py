@@ -118,3 +118,18 @@ def bot_fx():
 def Logging_fx() -> type(logging.getLogger('mecha')):
     setup_logging('logs/test_log.log')
     return logging.getLogger('mecha')
+
+@pytest.fixture
+def Random_string_fx() -> str:
+    """
+    Creates a 16 digit alphanumeric string.  For use
+    with logging tests.
+
+    Returns:
+         16 digit alphanumeric string.
+    """
+    source = "abcdefghijklmnopqrstuvwxyz012345" \
+             "67890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    string_len = 16
+    result = "".join(random.sample(source, string_len))
+    return result
