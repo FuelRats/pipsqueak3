@@ -19,6 +19,7 @@ def test_logging_default_level(Logging_fx):
     """
     Test logging level has been set to INFO by default
     """
+    Logging_fx.setLevel(logging.INFO)
     assert Logging_fx.getEffectiveLevel() == logging.INFO
 
 
