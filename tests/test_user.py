@@ -41,7 +41,7 @@ def test_process_vhost_orange():
 
 
 @pytest.mark.parametrize("garbage", ("i.see.none", "furats.com", "not.so.clever.fuelrats.com.com",
-                                     "Clk-FFFFAA3F.customer.potato.net"))
+                                     "Clk-FFFFAA3F.customer.potato.net", None))
 def test_process_vhost_garbage(garbage: str):
     """
     Verifies result of throwing garbage at `User.process_vhost()`
@@ -103,6 +103,7 @@ def test_user_constructor(data: dict):
     assert data['account'] == my_user.account
     assert "unit_test" == my_user.nickname
     assert data['hostname'] == my_user.hostname
+    assert data['username'] == my_user.username
     assert data['realname'] == my_user.realname
     assert data['server'] == my_user.server
     assert data['server_info'] == my_user.server_info
@@ -156,6 +157,7 @@ async def test_user_from_whois_existing_user(data: dict, monkeypatch, bot_fx):
     assert data['account'] == my_user.account
     assert "unit_test" == my_user.nickname
     assert data['hostname'] == my_user.hostname
+    assert data['username'] == my_user.username
     assert data['realname'] == my_user.realname
     assert data['server'] == my_user.server
     assert data['server_info'] == my_user.server_info
