@@ -12,14 +12,16 @@ This module is built on top of the Pydle system.
 
 """
 import logging
-# noinspection PyUnresolvedReferences
-from Modules import cli_manager
 
 from pydle import ClientPool, Client
 
+# noinspection PyUnresolvedReferences
+from Modules import cli_manager
+from Modules.rat_command import Commands
+# noinspection PyUnresolvedReferences
+from commands import debug as cmd_debug
 # import config
 from config import config
-from Modules.rat_command import Commands
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -29,7 +31,23 @@ class MechaClient(Client):
     MechaSqueak v3
     """
 
-    version = "3.0a"
+    __version__ = "3.0a"
+
+    def __init__(self, *args, **kwargs):
+        """
+        Custom mechasqueak constructor
+
+        Unused arguments are passed through to pydle's constructor
+
+        Args:
+            *args (list): arguments
+            **kwargs (list): keyword arguments
+
+        """
+        self._api_handler = None  # TODO: replace with handler init once it exists
+        self._database_manager = None  # TODO: replace with dbm once it exists
+        self._rat_cache = None  # TODO: replace with ratcache once it exists
+        super().__init__(*args, **kwargs)
 
     async def on_connect(self):
         """
@@ -45,6 +63,7 @@ class MechaClient(Client):
         log.debug("joined channels.")
         # call the super
         super().on_connect()
+
     #
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
@@ -74,6 +93,27 @@ class MechaClient(Client):
                                    sender=user,
                                    channel=channel)
 
+    @property
+    def rat_cache(self) -> object:
+        """
+        Mecha's rat cache
+        """
+        return self._rat_cache
+
+    @property
+    def database_mgr(self) -> object:
+        """
+        Mecha's database connection
+        """
+        return self._database_mgr
+
+    @property
+    def api_handler(self) -> object:
+        """
+        Mecha's API connection
+        """
+        return self._api_handler
+
 
 @Commands.command("ping")
 async def cmd_ping(bot, trigger):
@@ -85,6 +125,7 @@ async def cmd_ping(bot, trigger):
     log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
                 f"'{trigger.nickname}'")
     await trigger.reply(f"{trigger.nickname} pong!")
+
 
 # entry point
 if __name__ == "__main__":

@@ -10,6 +10,8 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from typing import Optional
+
 from Modules.User import User
 from main import MechaClient
 
@@ -79,7 +81,7 @@ class Context(object):
     @property
     def target(self) -> str:
         """
-        Target of command invocation, if its a channel
+        Target of command invocation
 
         Returns:
             str
@@ -87,7 +89,7 @@ class Context(object):
         return self._target
 
     @property
-    def channel(self) -> str or None:
+    def channel(self) -> Optional[str]:
         """
         If the message was sent in a channel, this will be its name and `None` otherwise.
         """
