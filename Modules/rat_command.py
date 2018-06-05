@@ -90,7 +90,7 @@ class Commands:
 
         log.debug(f"Trigger! {message}")
 
-        # remove command prefix and make lowercase
+        # remove command prefix
         raw_command: str = message.lstrip(cls.prefix)
 
         words = []
@@ -107,6 +107,7 @@ class Commands:
             else:
                 words.append(word)
 
+        # casts the command to lower case, for case insensitivity
         words[0] = words[0].lower()
         trigger = Trigger.from_bot_user(cls.bot, sender, channel, words, words_eol)
 

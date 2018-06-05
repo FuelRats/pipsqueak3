@@ -40,6 +40,15 @@ def test_process_vhost_orange():
     assert User.process_vhost("i.see.all") == "i.see.all"
 
 
+@pytest.mark.parametrize("garbage", ("i.see.none", "furats.com", "not.so.clever.fuelrats.com.com",
+                                     "Clk-FFFFAA3F.customer.potato.net"))
+def test_process_vhost_garbage(garbage: str):
+    """
+    Verifies result of throwing garbage at `User.process_vhost()`
+    """
+    assert User.process_vhost(garbage) is None
+
+
 @pytest.mark.parametrize("data", (
         {'oper': False,
          'idle': 0,
