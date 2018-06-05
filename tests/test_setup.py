@@ -16,6 +16,10 @@ import config
 
 
 def test_bad_filename(Random_string_fx):
+    """
+    Intentionally insert a bad filename to ensure FileNotFoundError
+    is thrown, when passed to config.setup.
+    """
     filename = Random_string_fx
     with pytest.raises(FileNotFoundError):
         config.setup(filename)
