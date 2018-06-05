@@ -11,6 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import pyodbc
+import config
 
 
 class Singleton(type):
@@ -25,19 +26,20 @@ class Singleton(type):
 # noinspection SqlNoDataSourceInspection
 class DatabaseManager(metaclass=Singleton):
 
-    def __init__(self, database_name: str):
+    def __init__(self):
         """
         Connects to the DB, sets up the connection, retrieves the cursor.
         Creates the default tables should they not exist.
         """
         # connect to PostgreSQL (PSQL) database
         # FIXME: Insert actual credentials / read from Config
+        __config: dict = config.config.get("database")
         connect_str = ("Driver={PostgreSQL UNICODE};"
-                       "Server=localhost;"
-                       "Port=5432;"
-                       f"Database={database_name};"
-                       "Uid=mecha3;"
-                       "Pwd=mecha3;"
+                       f"Server={__config.get('server')};"
+                       f"Port={__config.get('port')};"
+                       f"Database={__config.get('database')};"
+                       f"Uid={__config.get('username')};"
+                       f"Pwd={__config.get('password')};"
                        "MaxVarcharSize=1024 * 1024 * 1024"
                        # Allow bigger VarcharSize to allow faster interaction
                        )

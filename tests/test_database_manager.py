@@ -18,8 +18,7 @@ pytestmark = pytest.mark.asyncio
 
 # noinspection PyProtectedMember
 class TestStuff(object):
-    db_name = "mecha3"
-    manager = DatabaseManager(db_name)
+    manager = DatabaseManager()
 
     @classmethod
     def setup_class(cls):
