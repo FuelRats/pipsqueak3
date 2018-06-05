@@ -10,7 +10,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from typing import Union
+from typing import Union, Optional
 
 from main import MechaClient
 
@@ -181,9 +181,9 @@ class User(object):
         return self._nickname
 
     @classmethod
-    async def from_bot(cls, bot: 'MechaClient', nickname: str) -> 'User':
+    async def from_whois(cls, bot: 'MechaClient', nickname: str) -> Optional['User']:
         """
-        Creates a user object from a WHOIS reply
+        Creates a user object from a WHOIS query
 
         Args:
             bot(MechaClient): MechaClient instance
@@ -191,26 +191,21 @@ class User(object):
 
         Returns:
             User: user object
+            None: no found user
 
         Raises:
             ValueError: somehow got an invalid WHOIS response
+            KeyError: malformed dict received from pydle
         """
-        data = await bot.whois(nickname)
+        try:
+            data = await bot.whois(nickname)
+        except AttributeError:
+            # Pydle errors when the user is not found
+            return None
 
         # anything less than 7 is not a valid whois reply
         if len(data) < 7:
             raise ValueError("Dict does not contain enough keys")
-
-        # null whois reply, user not found
-        if len(data) == 7:
-            return cls(oper=data['oper'],
-                       idle=data['idle'],
-                       away=data['away'],
-                       away_message=data['away_message'],
-                       identified=data['identified'],
-                       secure=data['secure'],
-                       account=data['account'],
-                       nickname=nickname)
 
         # full whois reply
         else:

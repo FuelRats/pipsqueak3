@@ -1,8 +1,8 @@
 class MockBot(object):
     """Emulates some of the bots functions for testing purposes."""
+
     def __init__(self):
         self.sent_messages = []
-
         self.users = {
             "unit_test[BOT]": {
                 "nickname": "unit_test[BOT]",
@@ -65,6 +65,10 @@ class MockBot(object):
             "target": target,
             "message": message
         })
+
+    async def whois(self, name: str) -> dict:
+        if name in self.users:
+            return self.users[name]
 
     @classmethod
     def is_channel(cls, channel: str):

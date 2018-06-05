@@ -106,3 +106,79 @@ def test_user_constructor(data: dict):
     assert data['realname'] == my_user.realname
     assert data['server'] == my_user.server
     assert data['server_info'] == my_user.server_info
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("data", (
+        {'oper': False,
+         'idle': 0,
+         'away': False,
+         'away_message': None,
+         'username': 'White',
+         'hostname': 'recruit.fuelrats.com',
+         'realname': 'WhiteStrips',
+         'identified': False,
+         'server': 'irc.fuelrats.com',
+         'server_info': 'Fuel Rats IRC Server',
+         'secure': True,
+         'account': 'WhiteStrips'},
+        {'oper': True,
+         'idle': 0,
+         'away': False,
+         'away_message': None,
+         'username': 'AwesomeAdmin',
+         'hostname': 'admin.fuelrats.com',
+         'realname': 'you know',
+         'identified': True,
+         'server': 'irc.fuelrats.com',
+         'server_info': 'Fuel Rats IRC Server',
+         'secure': True,
+         'account': 'AwesomeAdmin'}
+))
+async def test_user_from_whois_existing_user(data: dict, monkeypatch, bot_fx):
+    """
+    verifies building a User from a full IRC reply when said user exists
+    """
+
+    async def mock_return(*args) -> dict:
+        return data
+
+    monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_return)
+
+    my_user = await User.from_whois(bot_fx, "unit_test")
+
+    assert data['oper'] == my_user.oper
+    assert data['idle'] == my_user.idle
+    assert data['away'] == my_user.away
+    assert data['away_message'] == my_user.away_message
+    assert data['identified'] == my_user.identified
+    assert data['secure'] == my_user.secure
+    assert data['account'] == my_user.account
+    assert "unit_test" == my_user.nickname
+    assert data['hostname'] == my_user.hostname
+    assert data['realname'] == my_user.realname
+    assert data['server'] == my_user.server
+    assert data['server_info'] == my_user.server_info
+
+
+@pytest.mark.asyncio
+async def test_user_from_whois_miss(monkeypatch, bot_fx):
+    async def mock_whois(*args):
+        raise AttributeError("because pydle")
+
+    # patch in the exception raiser
+    monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_whois)
+
+    ret = await User.from_whois(bot_fx, "snafu")
+    assert ret is None
+
+
+@pytest.mark.asyncio
+async def test_user_from_whois_malformed_return(monkeypatch, bot_fx):
+    async def mock_return(*args) -> dict:
+        """returns a malformed dict"""
+        return {}
+
+    monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_return)
+    with pytest.raises(ValueError):
+        await User.from_whois(bot_fx, "FUBAR")
