@@ -16,6 +16,7 @@ from uuid import uuid4, UUID
 import pytest
 
 from Modules.User import User
+from Modules.context import Context
 from tests.mock_bot import MockBot
 
 
@@ -125,3 +126,26 @@ def User_fx():
                 "unittest.rats.fuelrats.com",
                 "potatobot",
                 "irc.fuelrats,com")
+
+
+@pytest.fixture
+def Context_channel_fx(User_fx, bot_fx) -> Context:
+    """
+    Provides a context fixture
+
+    Returns:
+        Context
+    """
+    context = Context(User_fx, bot_fx, "#unit_test", ["my", "word"], ["my", "my word"])
+    return context
+
+@pytest.fixture
+def Context_pm_fx(User_fx, bot_fx) -> Context:
+    """
+    Provides a context fixture
+
+    Returns:
+        Context
+    """
+    context = Context(User_fx, bot_fx, "someUSer", ["my", "word"], ["my", "my word"])
+    return context
