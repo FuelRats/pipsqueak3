@@ -123,8 +123,9 @@ def Logging_fx() -> type(logging.getLogger('mecha')):
     setup_logging('logs/test_log.log')
     return logging.getLogger('mecha')
 
-@pytest.fixture
-def Random_string_fx() -> str:
+
+@pytest.fixture(params=[8, 16, 32])
+def Random_string_fx(request) -> str:
     """
     Creates a 16 digit alphanumeric string.  For use
     with logging tests.
@@ -134,6 +135,6 @@ def Random_string_fx() -> str:
     """
     source = "abcdefghijklmnopqrstuvwxyz012345" \
              "67890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    string_len = 16
-    result = "".join(random.sample(source, string_len))
+    request = 16
+    result = "".join(random.sample(source, request))
     return result
