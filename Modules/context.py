@@ -102,4 +102,7 @@ class Context(object):
         Arguments:
             msg (str): Message to send.
         """
-        await self.bot.message(self.channel if self.channel else self.user.nickname, msg)
+        if self.channel is not None:
+            await self.bot.message(self.channel,  msg)
+        else:
+            await self.bot.message(self.user.nickname, msg)
