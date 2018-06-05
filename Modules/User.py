@@ -64,17 +64,17 @@ class User(object):
                  oper: bool,
                  idle: int,
                  away: bool,
-                 away_message: str,
+                 away_message: Optional[str],
                  identified: bool,
                  secure: bool,
                  account: str,
                  nickname: str,
                  # attributes below this line are nullable
-                 username: Union[None, str] = None,
-                 hostname: Union[None, str] = None,
-                 realname: Union[None, str] = None,
-                 server: Union[None, str] = None,
-                 server_info: Union[None, str] = None):
+                 username: Optional[str] = None,
+                 hostname: Optional[str] = None,
+                 realname: Optional[str] = None,
+                 server: Optional[str] = None,
+                 server_info: Optional[str] = None):
         """
         Creates a new IRC user object
         Args:
@@ -223,3 +223,32 @@ class User(object):
                        server=data['server'],
                        server_info=data['server_info'],
                        )
+
+    def __eq__(self, other) -> bool:
+        """
+        Check equality
+
+        Args:
+            other (User):
+
+        Returns:
+            bool
+        """
+        if not isinstance(other, User):
+            raise TypeError
+
+        conditions = [
+            self.oper == other.oper,
+            self.idle == other.idle,
+            self.away == other.away,
+            self.away_message == other.away_message,
+            self.username == other.username,
+            self.hostname == other.hostname,
+            self.identified == other.identified,
+            self.server == other.server,
+            self.server_info == other.server_info,
+            self.secure == other.secure,
+            self.account == other.account,
+            self.nickname == other.nickname
+        ]
+        return all(conditions)

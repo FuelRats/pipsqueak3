@@ -15,6 +15,7 @@ from uuid import uuid4, UUID
 
 import pytest
 
+from Modules.User import User
 from tests.mock_bot import MockBot
 
 
@@ -108,3 +109,19 @@ def RatBoard_fx() -> RatBoard:
 @pytest.fixture
 def bot_fx():
     return MockBot()
+
+
+@pytest.fixture
+def User_fx():
+    return User(False,
+                0,
+                False,
+                None,
+                True,
+                True,
+                "unit_test",
+                "unit_test[bot]",
+                "unit_test",
+                "unittest.rats.fuelrats.com",
+                "potatobot",
+                "irc.fuelrats,com")
