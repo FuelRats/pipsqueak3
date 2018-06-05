@@ -38,7 +38,7 @@ services:
     build: .
     command: "sh ./pytest.sh"
     environment:
-      - P_HOST = localhost
+      - P_HOST=localhost
   
   sql:
     network_mode: "host"
