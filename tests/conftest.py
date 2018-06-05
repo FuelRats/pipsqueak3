@@ -116,6 +116,10 @@ def bot_fx():
 
 @pytest.fixture
 def Logging_fx() -> type(logging.getLogger('mecha')):
+    """
+    Calls config.setup_logging with a test_log.log file for testing purposes.
+    :return:
+    """
     setup_logging('logs/test_log.log')
     return logging.getLogger('mecha')
 
