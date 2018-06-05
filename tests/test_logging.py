@@ -12,7 +12,19 @@ See LICENSE.md
 """
 
 import logging
-import random
+import pytest
+
+
+def log_severity_call(logger, severity, random_string):
+    logging_string = f"Test String {random_string}"
+    if severity == logging.DEBUG:
+        logger.debug(logging_string)
+    elif severity == logging.INFO:
+        logger.info(logging_string)
+    elif severity == logging.WARN:
+        logger.warn(logging_string)
+    elif severity == logging.ERROR:
+        logger.error(logging_string)
 
 
 def test_logging_default_level(Logging_fx):
@@ -23,85 +35,34 @@ def test_logging_default_level(Logging_fx):
     assert Logging_fx.getEffectiveLevel() == logging.INFO
 
 
-def test_logging_console_debug(caplog, Logging_fx, Random_string_fx):
+@pytest.mark.parametrize("severity", [logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR])
+def test_logging_levels(caplog, Logging_fx, Random_string_fx, severity):
     """
     Test Console logging with random string to ensure input matches output.
     """
     test_randstring = Random_string_fx
-    Logging_fx.setLevel(logging.DEBUG)
-    Logging_fx.debug(f"Console Test String {test_randstring}")
+    Logging_fx.setLevel(severity)
+    log_severity_call(Logging_fx, severity, test_randstring)
 
     assert caplog.record_tuples == [
-        ('mecha', logging.DEBUG, f"Console Test String {test_randstring}"),
+        ('mecha', severity, f"Test String {test_randstring}"),
     ]
 
 
-def test_logging_console_info(caplog, Logging_fx, Random_string_fx):
-    """
-    Test Console logging with random string to ensure input matches output.
-    """
-    test_randstring = Random_string_fx
-    Logging_fx.info(f"Console Test String {test_randstring}")
-
-    assert caplog.record_tuples == [
-        ('mecha', logging.INFO, f"Console Test String {test_randstring}"),
-    ]
-
-
-def test_logging_console_warn(caplog, Logging_fx, Random_string_fx):
-    """
-    Test Console logging with random string to ensure input matches output.
-    """
-    test_randstring = Random_string_fx
-    Logging_fx.warn(f"Console Test String {test_randstring}")
-
-    assert caplog.record_tuples == [
-        ('mecha', logging.WARN, f"Console Test String {test_randstring}"),
-    ]
-
-
-def test_logging_console_error(caplog, Logging_fx, Random_string_fx):
-    """
-    Test Console logging with random string to ensure input matches output.
-    """
-    test_randstring = Random_string_fx
-    Logging_fx.error(f"Console Test String {test_randstring}")
-
-    assert caplog.record_tuples == [
-        ('mecha', logging.ERROR, f"Console Test String {test_randstring}"),
-    ]
-
-
-def test_logging_to_file_debug(Logging_fx, Random_string_fx):
+@pytest.mark.parametrize("severity", [logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR])
+def test_logging_to_file_debug(Logging_fx, Random_string_fx, severity):
     """
     Test log file input matches written data by logging a random string,
     and then searching that file for the string.
     """
     test_randstring = Random_string_fx
 
-    Logging_fx.setLevel(logging.DEBUG)
-    Logging_fx.debug(f"File Test String {test_randstring}")
+    Logging_fx.setLevel(severity)
+    log_severity_call(Logging_fx, severity, test_randstring)
 
-    re_match = 0
+    match = 0
     for line in open('logs/unit_tests.log'):
         if test_randstring in line:
-            re_match += 1
+            match += 1
 
-    assert re_match == 2
-
-
-def test_logging_to_file_info(Logging_fx, Random_string_fx):
-    """
-    Test log file input matches written data by logging a random string,
-    and then searching that file for the string.
-    """
-    test_randstring = Random_string_fx
-
-    Logging_fx.info(f"File Test String {test_randstring}")
-
-    re_match = 0
-    for line in open('logs/unit_tests.log'):
-        if test_randstring in line:
-            re_match += 1
-
-    assert re_match == 2
+    assert match == 2
