@@ -11,12 +11,15 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
+import logging
+import random
 from uuid import uuid4, UUID
 
 import pytest
 
 from Modules.User import User
 from Modules.context import Context
+from config import setup_logging
 from tests.mock_bot import MockBot
 
 
@@ -161,3 +164,29 @@ def Context_fx(request, bot_fx, User_fx):
         return Context(bot_fx, User_fx, "someUSer", ["my", "word"], ["my", "my word"])
 
     raise ValueError
+
+
+@pytest.fixture
+def Logging_fx() -> logging:
+    """
+    Calls config.setup_logging with a test_log.log file for testing purposes.
+    :return:
+    """
+    setup_logging('logs/test_log.log')
+    return logging.getLogger('mecha')
+
+
+@pytest.fixture(params=[8, 16, 32])
+def Random_string_fx(request) -> str:
+    """
+    Creates a 16 digit alphanumeric string.  For use
+    with logging tests.
+
+    Returns:
+         16 digit alphanumeric string.
+    """
+    source = "abcdefghijklmnopqrstuvwxyz012345" \
+             "67890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    request = 16
+    result = "".join(random.sample(source, request))
+    return result
