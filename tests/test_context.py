@@ -17,7 +17,7 @@ from Modules.context import Context
 
 def test_constructor(bot_fx, User_fx):
     """verifies the constructor functions"""
-    my_context = Context(User_fx, bot_fx, "#unittest", ["bird", "is", "the", "word"], [""])
+    my_context = Context(bot_fx, User_fx, "#unittest", ["bird", "is", "the", "word"], [""])
 
     assert my_context.bot is bot_fx
     assert my_context.channel == "#unittest"

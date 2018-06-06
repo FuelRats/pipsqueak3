@@ -12,16 +12,15 @@ This module is built on top of the Pydle system.
 
 """
 
-from functools import wraps
 import logging
-
 import re
+from functools import wraps
 
 from pydle import BasicClient
 
-from Modules.trigger import Trigger
+from Modules.User import User
+from Modules.context import Context
 from config import config
-
 
 # set the logger for rat_command
 log = logging.getLogger(f"mecha.{__name__}")
@@ -109,7 +108,6 @@ class Commands:
 
         # casts the command to lower case, for case insensitivity
         words[0] = words[0].lower()
-        trigger = Trigger.from_bot_user(cls.bot, sender, channel, words, words_eol)
 
         if words[0] in cls._registered_commands.keys():
             cmd = cls._registered_commands[words[0]]
@@ -121,7 +119,10 @@ class Commands:
             else:
                 raise CommandNotFoundException(f"Unable to find command {words[0]}")
 
-        return await cmd(cls.bot, trigger)
+        user = await User.from_whois(cls.bot, sender)
+        context = Context(cls.bot, user, channel, words, words_eol)
+
+        return await cmd(context)
 
     @classmethod
     def _register(cls, func, names: list or str) -> bool:
@@ -153,7 +154,7 @@ class Commands:
             return True
 
     @classmethod
-    def _flush(cls)->None:
+    def _flush(cls) -> None:
         """
         Flushes registered commands
         Probably useless outside testing...
@@ -175,6 +176,7 @@ class Commands:
             log.debug(f"Registration of {aliases} completed.")
 
             return wrapper
+
         return real_decorator
 
     @classmethod
@@ -187,6 +189,7 @@ class Commands:
         Arguments:
             regex (str): Regular expression to match the command.
         """
+
         def decorator(coro):
             async def wrapper(bot, trigger):
                 return await coro(bot, trigger)
@@ -194,4 +197,5 @@ class Commands:
             cls._rules[re.compile(regex, re.IGNORECASE)] = wrapper
             log.info(f"New rule matching '{regex}' was created.")
             return wrapper
+
         return decorator

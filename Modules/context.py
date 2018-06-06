@@ -13,7 +13,6 @@ See LICENSE.md
 from typing import Optional
 
 from Modules.User import User
-from main import MechaClient
 
 
 class Context(object):
@@ -21,7 +20,7 @@ class Context(object):
     Command context, stores the context of a command's invocation
     """
 
-    def __init__(self, user: User, bot: MechaClient, target: str, words: [str], words_eol: [str]):
+    def __init__(self, bot: 'MechaClient', user: User, target: str, words: [str], words_eol: [str]):
         """
         Creates a new Commands Context
 
@@ -33,7 +32,7 @@ class Context(object):
             words_eol ([str]): list of words from command invocation to EOL
         """
         self._user: User = user
-        self._bot: MechaClient = bot
+        self._bot: 'MechaClient' = bot
         self._target: str = target
         self._words: [str] = words
         self._words_eol: [str] = words_eol
@@ -49,7 +48,7 @@ class Context(object):
         return self._user
 
     @property
-    def bot(self) -> MechaClient:
+    def bot(self) -> 'MechaClient':
         """
         MechaClient instance
 
@@ -103,6 +102,6 @@ class Context(object):
             msg (str): Message to send.
         """
         if self.channel is not None:
-            await self.bot.message(self.channel,  msg)
+            await self.bot.message(self.channel, msg)
         else:
             await self.bot.message(self.user.nickname, msg)

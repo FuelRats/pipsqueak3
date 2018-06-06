@@ -136,7 +136,7 @@ def Context_channel_fx(User_fx, bot_fx) -> Context:
     Returns:
         Context
     """
-    context = Context(User_fx, bot_fx, "#unit_test", ["my", "word"], ["my", "my word"])
+    context = Context(bot_fx, User_fx, "#unit_test", ["my", "word"], ["my", "my word"])
     return context
 
 
@@ -148,7 +148,7 @@ def Context_pm_fx(User_fx, bot_fx) -> Context:
     Returns:
         Context
     """
-    context = Context(User_fx, bot_fx, "someUSer", ["my", "word"], ["my", "my word"])
+    context = Context(bot_fx, User_fx, "someUSer", ["my", "word"], ["my", "my word"])
     return context
 
 
@@ -156,8 +156,8 @@ def Context_pm_fx(User_fx, bot_fx) -> Context:
 def Context_fx(request, bot_fx, User_fx):
     """Parametrized context fixture, returning a channel and non-channel Context object"""
     if request.param == 0:
-        return Context(User_fx, bot_fx, "#unit_test", ["my", "word"], ["my", "my word"])
+        return Context(bot_fx, User_fx, "#unit_test", ["my", "word"], ["my", "my word"])
     elif request.param == 1:
-        return Context(User_fx, bot_fx, "someUSer", ["my", "word"], ["my", "my word"])
+        return Context(bot_fx, User_fx, "someUSer", ["my", "word"], ["my", "my word"])
 
     raise ValueError

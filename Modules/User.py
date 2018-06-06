@@ -12,8 +12,7 @@ See LICENSE.md
 """
 from typing import Union, Optional
 
-from main import MechaClient
-
+from pydle import BasicClient
 
 class User(object):
     """
@@ -181,7 +180,7 @@ class User(object):
         return self._nickname
 
     @classmethod
-    async def from_whois(cls, bot: 'MechaClient', nickname: str) -> Optional['User']:
+    async def from_whois(cls, bot: BasicClient, nickname: str) -> Optional['User']:
         """
         Creates a user object from a WHOIS query
 
