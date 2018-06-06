@@ -16,7 +16,6 @@ This module is built on top of the Pydle system.
 import logging
 from uuid import UUID
 
-from config import config
 from ratlib.names import Platforms
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -62,7 +61,7 @@ class Rats(object):
             # don't register duplicates
             Rats.cache_by_id[uuid] = self
 
-    def __eq__(self, other: 'Rats')->bool:
+    def __eq__(self, other: 'Rats') -> bool:
         """
         Compare two Rats objects for equality
 
