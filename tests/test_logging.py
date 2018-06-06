@@ -66,4 +66,4 @@ def test_logging_to_file_debug(Logging_fx, Random_string_fx, severity):
         if test_randstring in line:
             match += 1
 
-    assert 1 == match
+    assert 2 == match
