@@ -25,6 +25,14 @@ from Modules.rat_command import Commands, CommandNotFoundException, CommandExcep
     NameCollisionException
 
 
+@pytest.fixture
+def Setup_fx(bot_fx):
+    """Sets up the test environment"""
+    Commands._flush()
+    Commands.bot = bot_fx
+
+
+@pytest.mark.usefixtures("Setup_fx")
 class TestRatCommand(object):
 
     @pytest.mark.asyncio
