@@ -13,7 +13,6 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-import unittest
 from itertools import product
 
 import pytest
@@ -30,7 +29,7 @@ async def restricted(bot, trigger):
     await trigger.reply("Restricted command was executed.")
 
 
-class PermissionTests(unittest.TestCase):
+class PermissionTests(object):
     def setUp(self):
         Commands._flush()
         Commands.bot = self.bot = MockBot()
@@ -41,86 +40,86 @@ class PermissionTests(unittest.TestCase):
         Tests if Permission_a > Permission_b functions correctly.
         :return:
         """
-        self.assertTrue(permissions.RAT > permissions.RECRUIT)
-        self.assertTrue(permissions.ADMIN > permissions.RAT)
-        self.assertFalse(permissions.RAT > permissions.TECHRAT)
+        assert permissions.RAT > permissions.RECRUIT
+        assert permissions.ADMIN > permissions.RAT
+        assert not permissions.RAT > permissions.TECHRAT
 
     def test_permission_lesser(self):
         """
         Tests if Permission_a < Permission_b correctly.
         :return:
         """
-        self.assertTrue(permissions.RECRUIT < permissions.RAT)
-        self.assertTrue(permissions.RAT < permissions.TECHRAT)
-        self.assertFalse(permissions.ORANGE < permissions.TECHRAT)
+        assert permissions.RECRUIT < permissions.RAT
+        assert permissions.RAT < permissions.TECHRAT
+        assert not permissions.ORANGE < permissions.TECHRAT
 
     def test_permission_le(self):
         """
         Tests if Permission_a <= Permission_b correctly.
         :return:
         """
-        self.assertTrue(permissions.ADMIN <= permissions.ADMIN)
-        self.assertFalse(permissions.ADMIN <= permissions.RAT)
-        self.assertTrue(permissions.ADMIN <= permissions.ORANGE)
+        assert permissions.ADMIN <= permissions.ADMIN
+        assert not permissions.ADMIN <= permissions.RAT
+        assert permissions.ADMIN <= permissions.ORANGE
 
     def test_permission_ge(self):
         """
         Tests if Permission_a <= Permission_b correctly.
         :return:
         """
-        self.assertTrue(permissions.ADMIN >= permissions.ADMIN)
-        self.assertTrue(permissions.ADMIN >= permissions.RAT)
-        self.assertFalse(permissions.ADMIN >= permissions.ORANGE)
+        assert permissions.ADMIN >= permissions.ADMIN
+        assert permissions.ADMIN >= permissions.RAT
+        assert not permissions.ADMIN >= permissions.ORANGE
 
     def test_permission_equal(self):
         """
         Verifies that Permission_a == Permission_b
         :return:
         """
-        self.assertTrue(permissions.RAT == permissions.RAT)
-        self.assertTrue(permissions.TECHRAT == permissions.TECHRAT)
-        self.assertTrue(permissions.ADMIN == permissions.NETADMIN)
+        assert permissions.RAT == permissions.RAT
+        assert permissions.TECHRAT == permissions.TECHRAT
+        assert permissions.ADMIN == permissions.NETADMIN
 
     def test_permission_not_equal(self):
         """
         Verifies that Permission_a != Permission_b
         :return:
         """
-        self.assertTrue(permissions.RAT != permissions.TECHRAT)
-        self.assertTrue(permissions.DISPATCH != permissions.ORANGE)
+        assert permissions.RAT != permissions.TECHRAT
+        assert permissions.DISPATCH != permissions.ORANGE
 
     @pytest.mark.asyncio
     async def test_restricted_command_inferior(self):
         await Commands.trigger("!restricted", "some_recruit", "#somechannel")
-        self.assertIn({
-            "target": "#somechannel",
-            "message": permissions.OVERSEER.denied_message
-        }, self.bot.sent_messages)
+        assert {
+                   "target": "#somechannel",
+                   "message": permissions.OVERSEER.denied_message
+               } in self.bot.sent_messages
 
     @pytest.mark.asyncio
     async def test_restricted_command_exact(self):
         await Commands.trigger("!restricted", "some_ov", "#somechannel")
-        self.assertIn({
-            "target": "#somechannel",
-            "message": "Restricted command was executed."
-        }, self.bot.sent_messages)
+        assert {
+                   "target": "#somechannel",
+                   "message": "Restricted command was executed."
+               } in self.bot.sent_messages
 
     @pytest.mark.asyncio
     async def test_restricted_command_superior(self):
         await Commands.trigger("!restricted", "some_admin", "#somechannel")
-        self.assertIn({
-            "target": "#somechannel",
-            "message": "Restricted command was executed."
-        }, self.bot.sent_messages)
+        assert {
+                   "target": "#somechannel",
+                   "message": "Restricted command was executed."
+               } in self.bot.sent_messages
 
     @pytest.mark.asyncio
     async def test_restricted_command_not_identified(self):
         await Commands.trigger("!restricted", "authorized_but_not_identified",
                                "#somechannel")
-        self.assertIn({
-            "target": "#somechannel",
-            "message": permissions.OVERSEER.denied_message
-        }, self.bot.sent_messages)
+        assert {
+                   "target": "#somechannel",
+                   "message": permissions.OVERSEER.denied_message
+               } in self.bot.sent_messages
 
     def test_hash(self):
         for perm1, perm2 in product(permissions._by_vhost.values(), permissions._by_vhost.values()):
