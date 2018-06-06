@@ -16,7 +16,7 @@ This module is built on top of the Pydle system.
 import unittest
 from itertools import product
 
-from aiounittest import async_test
+import pytest
 
 from Modules import permissions
 from Modules.permissions import require_permission
@@ -89,7 +89,7 @@ class PermissionTests(unittest.TestCase):
         self.assertTrue(permissions.RAT != permissions.TECHRAT)
         self.assertTrue(permissions.DISPATCH != permissions.ORANGE)
 
-    @async_test
+    @pytest.mark.asyncio
     async def test_restricted_command_inferior(self):
         await Commands.trigger("!restricted", "some_recruit", "#somechannel")
         self.assertIn({
@@ -97,7 +97,7 @@ class PermissionTests(unittest.TestCase):
             "message": permissions.OVERSEER.denied_message
         }, self.bot.sent_messages)
 
-    @async_test
+    @pytest.mark.asyncio
     async def test_restricted_command_exact(self):
         await Commands.trigger("!restricted", "some_ov", "#somechannel")
         self.assertIn({
@@ -105,7 +105,7 @@ class PermissionTests(unittest.TestCase):
             "message": "Restricted command was executed."
         }, self.bot.sent_messages)
 
-    @async_test
+    @pytest.mark.asyncio
     async def test_restricted_command_superior(self):
         await Commands.trigger("!restricted", "some_admin", "#somechannel")
         self.assertIn({
@@ -113,7 +113,7 @@ class PermissionTests(unittest.TestCase):
             "message": "Restricted command was executed."
         }, self.bot.sent_messages)
 
-    @async_test
+    @pytest.mark.asyncio
     async def test_restricted_command_not_identified(self):
         await Commands.trigger("!restricted", "authorized_but_not_identified",
                                "#somechannel")

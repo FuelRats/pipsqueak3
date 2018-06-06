@@ -20,11 +20,10 @@ from unittest import mock
 
 import pydle
 import pytest
-from aiounittest import async_test
 
+from Modules.context import Context
 from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, \
     CommandException
-from Modules.trigger import Trigger
 from tests.mock_bot import MockBot
 
 
@@ -44,7 +43,7 @@ class RatCommandTests(unittest.TestCase):
         Commands._flush()
         super().setUp()
 
-    @async_test
+    @pytest.mark.asyncio
     async def test_invalid_command(self):
         """
         Ensures the proper exception is raised when a command is not found.
@@ -74,7 +73,7 @@ class RatCommandTests(unittest.TestCase):
                     async def bar():
                         pass
 
-    @async_test
+    @pytest.mark.asyncio
     async def test_call_command(self):
         """
         Verifiy that found commands can be invoked via Commands.Trigger()
@@ -100,7 +99,7 @@ class RatCommandTests(unittest.TestCase):
                 self.assertIsNotNone(out_bot)
 
     @mock.patch("Modules.rat_command.Commands.bot")
-    @async_test
+    @pytest.mark.asyncio
     async def test_null_bot(self, mock_bot):
         """
         Verifies the correct exception is raised when someone forgets to set
@@ -129,7 +128,7 @@ class RatCommandTests(unittest.TestCase):
             with self.subTest(item=item):
                 self.assertFalse(Commands._register(item, ['foo']))
 
-    @async_test
+    @pytest.mark.asyncio
     async def test_rule(self):
         """Verifies that the rule decorator works as expected."""
         underlying = mock.MagicMock()
@@ -191,8 +190,8 @@ class TestRatCommand(object):
         words = [name.lower()] + trigger_message.split(" ")
 
         @Commands.command(name)
-        async def the_command(bot: MockBot, trigger: Trigger):
+        async def the_command(bot: MockBot, context: Context):
             """asserts its arguments equal the outer scope"""
-            assert trigger.words == words
+            assert context.words == words
 
         await Commands.trigger(ftrigger, "unit_test[BOT]", "#unit_tests")
