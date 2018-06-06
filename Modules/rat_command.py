@@ -166,8 +166,8 @@ class Commands:
     def command(cls, *aliases):
         def real_decorator(func):
             @wraps(func)
-            async def wrapper(bot, trigger):
-                return await func(bot, trigger)
+            async def wrapper(context):
+                return await func(context)
 
             # we want to register the wrapper, not the underlying function
             log.debug(f"Registering command aliases: {aliases}...")
@@ -191,8 +191,8 @@ class Commands:
         """
 
         def decorator(coro):
-            async def wrapper(bot, trigger):
-                return await coro(bot, trigger)
+            async def wrapper(context):
+                return await coro(context)
 
             cls._rules[re.compile(regex, re.IGNORECASE)] = wrapper
             log.info(f"New rule matching '{regex}' was created.")
