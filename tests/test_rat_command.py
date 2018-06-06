@@ -176,7 +176,7 @@ class TestRatCommand(object):
             assert name.lower() in Commands._registered_commands.keys()
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("name", ("september", "Phoenix"))
+    @pytest.mark.parametrize("name", ("unit_test[BOT]", "some_recruit", "some_ov"))
     @pytest.mark.parametrize("trigger_message", ["salad Baton", "Crunchy Cheddar", "POTATOES!",
                                                  "carrots"])
     async def test_command_preserves_arguments(self, trigger_message: str, name: str):
@@ -190,7 +190,7 @@ class TestRatCommand(object):
         words = [name.lower()] + trigger_message.split(" ")
 
         @Commands.command(name)
-        async def the_command(bot: MockBot, context: Context):
+        async def the_command(context: Context):
             """asserts its arguments equal the outer scope"""
             assert context.words == words
 
