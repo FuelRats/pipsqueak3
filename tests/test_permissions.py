@@ -20,20 +20,24 @@ import pytest
 from Modules import permissions
 from Modules.permissions import require_permission
 from Modules.rat_command import Commands
-from tests.mock_bot import MockBot
 
 
 # registration is done in setUp
 @require_permission(permissions.OVERSEER)
-async def restricted(bot, trigger):
-    await trigger.reply("Restricted command was executed.")
+async def restricted(context):
+    await context.reply("Restricted command was executed.")
 
 
-class PermissionTests(object):
-    def setUp(self):
-        Commands._flush()
-        Commands.bot = self.bot = MockBot()
-        Commands.command("restricted")(restricted)
+@pytest.fixture
+def Setup_fx(bot_fx):
+    """Sets up the test environment"""
+    Commands._flush()
+    Commands.bot = bot_fx
+    Commands.command("restricted")(restricted)
+
+
+@pytest.mark.usefixtures("Setup_fx")
+class TestPermissions(object):
 
     def test_permission_greater(self):
         """
@@ -89,37 +93,37 @@ class PermissionTests(object):
         assert permissions.DISPATCH != permissions.ORANGE
 
     @pytest.mark.asyncio
-    async def test_restricted_command_inferior(self):
+    async def test_restricted_command_inferior(self, bot_fx):
         await Commands.trigger("!restricted", "some_recruit", "#somechannel")
         assert {
                    "target": "#somechannel",
                    "message": permissions.OVERSEER.denied_message
-               } in self.bot.sent_messages
+               } in bot_fx.sent_messages
 
     @pytest.mark.asyncio
-    async def test_restricted_command_exact(self):
+    async def test_restricted_command_exact(self, bot_fx):
         await Commands.trigger("!restricted", "some_ov", "#somechannel")
         assert {
                    "target": "#somechannel",
                    "message": "Restricted command was executed."
-               } in self.bot.sent_messages
+               } in bot_fx.sent_messages
 
     @pytest.mark.asyncio
-    async def test_restricted_command_superior(self):
+    async def test_restricted_command_superior(self, bot_fx):
         await Commands.trigger("!restricted", "some_admin", "#somechannel")
         assert {
                    "target": "#somechannel",
                    "message": "Restricted command was executed."
-               } in self.bot.sent_messages
+               } in bot_fx.sent_messages
 
     @pytest.mark.asyncio
-    async def test_restricted_command_not_identified(self):
+    async def test_restricted_command_not_identified(self, bot_fx):
         await Commands.trigger("!restricted", "authorized_but_not_identified",
                                "#somechannel")
         assert {
                    "target": "#somechannel",
                    "message": permissions.OVERSEER.denied_message
-               } in self.bot.sent_messages
+               } in bot_fx.sent_messages
 
     def test_hash(self):
         for perm1, perm2 in product(permissions._by_vhost.values(), permissions._by_vhost.values()):
