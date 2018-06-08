@@ -12,16 +12,14 @@ This module is built on top of the Pydle system.
 
 """
 
-from functools import wraps
 import logging
-
 import re
+from functools import wraps
 
 from pydle import BasicClient
 
 from Modules.trigger import Trigger
 from config import config
-
 
 # set the logger for rat_command
 log = logging.getLogger(f"mecha.{__name__}")

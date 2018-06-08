@@ -22,8 +22,9 @@ import pydle
 import pytest
 from aiounittest import async_test
 
-from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, \
+from Modules.rat_command import command, CommandNotFoundException, NameCollisionException, \
     CommandException
+import Modules.rat_command as Commands
 from tests.mock_bot import MockBot
 
 
@@ -63,7 +64,7 @@ class RatCommandTests(unittest.TestCase):
         # TODO: move these common lists to setup_class
         # lets define them initially.
         for name in alias:
-            @Commands.command(name)
+            @command(name)
             async def foo():
                 pass
 
@@ -98,9 +99,8 @@ class RatCommandTests(unittest.TestCase):
                 self.assertEqual(input_channel, out_channel)
                 self.assertIsNotNone(out_bot)
 
-    @mock.patch("Modules.rat_command.Commands.bot")
     @async_test
-    async def test_null_bot(self, mock_bot):
+    async def test_null_bot(self):
         """
         Verifies the correct exception is raised when someone forgets to set
         Commands.bot <.<

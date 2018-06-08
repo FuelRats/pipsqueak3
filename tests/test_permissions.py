@@ -20,7 +20,8 @@ from aiounittest import async_test
 
 from Modules import permissions
 from Modules.permissions import require_permission
-from Modules.rat_command import Commands
+from Modules.rat_command import command
+import Modules.rat_command as Commands
 from tests.mock_bot import MockBot
 
 
