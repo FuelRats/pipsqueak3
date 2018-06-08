@@ -11,39 +11,29 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
+import sys
 import logging
 import random
 from uuid import uuid4, UUID
 
 import pytest
 
-from Modules.epic import Epic
-from Modules.user import User
-from Modules.context import Context
+# Set argv to keep cli arguments meant for pytest from polluting our things
+sys.argv = ["test",
+            "--config-file", "testing.json",
+            "--clean-log"]
 
+# This import statement is where the config gets read
 from config import setup_logging
+
 from tests.mock_bot import MockBot
-
-
-def pytest_addoption(parser):
-    """
-    hooks into pytest before it parses its CLI arguments,
-    allowing us to register our own so it doesn't throw a fit if we use them
-    """
-    parser.addoption("--config-file", "--config", default="testing.json")
-    parser.addoption("--new-log", action="store_true", default=False)
-
-
-from config import setup
-
-# have config setup at the beginning of testing
-
-setup("testing.json")
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
-
 from ratlib.names import Platforms
+from Modules.context import Context
+from Modules.epic import Epic
+from Modules.user import User
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
