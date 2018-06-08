@@ -30,7 +30,7 @@ _parser.add_argument("--clean-log", help="Start with a clean log file.  "
                                          "Deletes any existing log data.",
                      action="store_true")
 # register optional argument for the config file
-_parser.add_argument("--config-file", "--config", help="Specify the configuration file to load, "
+_parser.add_argument("--config-file", "--config", "-c", help="Specify the configuration file to load, "
                                                        "relative to config/",
                      default="configuration.json")
 # i had to set the above default to testing as pytest refuses to accept CLI args it doesn't
@@ -39,11 +39,11 @@ _parser.add_argument("--config-file", "--config", help="Specify the configuratio
 
 
 # register optional flag for verbose logging
-_parser.add_argument("-verbose", "-v", help="Enable verbose logging. "
+_parser.add_argument("--verbose", "-v", help="Enable verbose logging. "
                                             "Earmuffs sold separately", action="store_true")
 
 # register optional no color flag to remove ANSI coding in logs.
-_parser.add_argument("--nocolors", "-nc", help="Disable ANSI color coding. "
+_parser.add_argument("--nocolors", "--nc", help="Disable ANSI color coding. "
                                                "For people who hate fun.", action="store_true")
 
 
