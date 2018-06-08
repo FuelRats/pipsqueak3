@@ -37,25 +37,11 @@ def test_channel_false(Context_pm_fx: Context):
 
 
 @pytest.mark.asyncio
-async def test_reply(Context_fx: Context, monkeypatch):
+async def test_reply(Context_fx: Context):
     """"""
     payload = "This is my reply!!!!"
-    retn = []
-
-    async def mock_reply(bot, channel: str, message: str):
-        """Mocks bot.message"""
-
-        retn.append(channel)
-        retn.append(message)
-
-    # apply the patch
-    monkeypatch.setattr("tests.mock_bot.MockBot.message", mock_reply)
 
     # make the call
     await Context_fx.reply(payload)
 
-    out_channel = retn[0]
-    out_message = retn[1]
-
-    assert payload == out_message
-    assert Context_fx.channel == out_channel if Context_fx.channel else Context_fx.user.nickname
+    assert payload == Context_fx.bot.sent_messages[0]['message']
