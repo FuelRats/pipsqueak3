@@ -43,23 +43,11 @@ class User(object):
         # sanity / security check
         if not vhost.endswith(".fuelrats.com"):
             return None
-        # strip fuelrats.com from the end
-        leading_data: str = vhost.rsplit(".fuelrats.com")[0]
 
-        # attempt to split the vhost between ident and role
-        data_split = leading_data.split('.')
+        # identify the role
+        host = vhost.rsplit(".", 3)[-3]
 
-        # sanity check.
-        # if the split returns 3+ items, something isn't right here.
-        assert len(data_split) <= 2
-
-        if len(data_split) == 1:
-            # we have an administrator
-            host = f"{data_split[0]}"
-        else:
-            # standard user
-            host = f"{data_split[1]}"
-
+        # return the corresponding vhost
         return f"{host}.fuelrats.com"
 
     def __init__(self,
