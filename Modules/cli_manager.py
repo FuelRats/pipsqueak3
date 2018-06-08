@@ -16,7 +16,6 @@ This module is built on top of the Pydle system.
 """
 
 import argparse
-import logging
 
 # create a new parser
 _parser = argparse.ArgumentParser()
@@ -42,5 +41,3 @@ _parser.add_argument("--nocolors", "--nc", help="Disable ANSI color coding. "
 
 # parse the arguments into an object
 args = _parser.parse_args()
-
-logging.debug(f"Configuration file set to '{args.config_file}'")
