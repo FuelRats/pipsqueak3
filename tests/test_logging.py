@@ -44,9 +44,8 @@ def test_logging_levels(caplog, Logging_fx, Random_string_fx, severity):
     test_randstring = Random_string_fx
     Logging_fx.setLevel(severity)
     log_severity_call(Logging_fx, severity, test_randstring)
-
     assert caplog.record_tuples == [
-        ('mecha', severity, f"Test String {test_randstring}"),
+        (Logging_fx.name, severity, f"Test String {test_randstring}"),
     ]
 
 
@@ -66,4 +65,4 @@ def test_logging_to_file_debug(Logging_fx, Random_string_fx, severity):
         if test_randstring in line:
             match += 1
 
-    assert 2 == match
+    assert match == 1

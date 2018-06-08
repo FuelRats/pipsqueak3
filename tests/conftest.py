@@ -12,6 +12,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE
 """
 import sys
+import string
 import logging
 import random
 from uuid import uuid4, UUID
@@ -25,6 +26,7 @@ sys.argv = ["test",
 
 # This import statement is where the config gets read
 from config import setup_logging
+setup_logging("logs/unit_tests.log")
 
 from tests.mock_bot import MockBot
 from Modules.rat_board import RatBoard
@@ -159,17 +161,16 @@ def Context_fx(request, bot_fx, User_fx):
 
 
 @pytest.fixture
-def Logging_fx() -> logging:
+def Logging_fx(caplog) -> logging.Logger:
     """
     Calls config.setup_logging with a test_log.log file for testing purposes.
     :return:
     """
-    setup_logging('logs/test_log.log')
-    return logging.getLogger('mecha')
+    caplog.clear()
+    return logging.getLogger("mecha.logging_fx")
 
-
-@pytest.fixture(params=[8, 16, 32])
-def Random_string_fx(request) -> str:
+@pytest.fixture
+def Random_string_fx() -> str:
     """
     Creates a 16 digit alphanumeric string.  For use
     with logging tests.
@@ -177,10 +178,7 @@ def Random_string_fx(request) -> str:
     Returns:
          16 digit alphanumeric string.
     """
-    source = "abcdefghijklmnopqrstuvwxyz012345" \
-             "67890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    request = 16
-    result = "".join(random.sample(source, request))
+    result = "".join(random.sample(string.ascii_letters, 16))
     return result
 
 
