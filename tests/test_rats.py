@@ -194,29 +194,29 @@ class TestRatsPyTest(object):
         assert await Rats.get_rat_by_uuid(uuid) is None
 
     @pytest.mark.asyncio
-    async def test_get_rat_by_uuid_cache_hit(self, RatGood_fx: Rats):
+    async def test_get_rat_by_uuid_cache_hit(self, rat_good_fx: Rats):
         """Verifies Rats.get_rat_by_uuid returns the correct rat on cache hit"""
-        mine = RatGood_fx
+        mine = rat_good_fx
         found = await Rats.get_rat_by_uuid(mine.uuid)
         assert found is not None
         assert found == mine
 
-    def test_rat_eq_true(self, RatGood_fx: Rats):
+    def test_rat_eq_true(self, rat_good_fx: Rats):
         """Verifies Rats.__eq__ functions correctly against equal objects"""
-        assert RatGood_fx == RatGood_fx
+        assert rat_good_fx == rat_good_fx
 
-    def test_rat_eq_None(self, RatGood_fx: Rats):
+    def test_rat_eq_None(self, rat_good_fx: Rats):
         """Verifies Rats.__eq__ functions correctly against None"""
         # because object is nullable, therefore must be able to handle None.
-        assert RatGood_fx != None
+        assert rat_good_fx != None
 
     @pytest.mark.asyncio
-    async def test_find_rat_by_name_existing(self, RatGood_fx: Rats):
+    async def test_find_rat_by_name_existing(self, rat_good_fx: Rats):
         """
         Verifies that cached rats can be found by name
         """
-        found_rat = await Rats.get_rat_by_name(name=RatGood_fx.name)
-        assert RatGood_fx == found_rat
+        found_rat = await Rats.get_rat_by_name(name=rat_good_fx.name)
+        assert rat_good_fx == found_rat
 
     @pytest.mark.asyncio
     async def test_find_rat_incorrect_platform(self):

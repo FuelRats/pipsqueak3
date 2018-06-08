@@ -101,14 +101,14 @@ class TestQuotes(object):
         with pytest.raises(ValueError):
             quote.last_author = garbage
 
-    def test_modify(self, Context_fx):
+    def test_modify(self, context_fx):
         """
         Verifies a quote can be changed correctly, that the correct fields are
          set
         """
 
         quote = Quotation("foo")
-        quote.modify(Context_fx, message="bar")
+        quote.modify(context_fx, message="bar")
         assert "bar" == quote.message
         assert quote.created_at != quote.updated_at
         assert quote.author != quote.last_author
