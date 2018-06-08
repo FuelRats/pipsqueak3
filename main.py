@@ -20,6 +20,7 @@ import commands
 # noinspection PyUnresolvedReferences
 from Modules import cli_manager
 from Modules.context import Context
+from Modules.permissions import require_permission, RAT
 from Modules.rat_command import Commands
 # import config
 from config import config
@@ -116,6 +117,7 @@ class MechaClient(Client):
         return self._api_handler
 
 
+@require_permission(RAT)
 @Commands.command("ping")
 async def cmd_ping(context: Context):
     """
