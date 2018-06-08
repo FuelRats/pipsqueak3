@@ -16,10 +16,11 @@ import logging
 from pydle import ClientPool, Client
 
 # noinspection PyUnresolvedReferences
-from Modules import cli_manager
-from Modules.rat_command import Commands
+import commands
 # noinspection PyUnresolvedReferences
-from commands import debug as cmd_debug
+from Modules import cli_manager
+from Modules.context import Context
+from Modules.rat_command import Commands
 # import config
 from config import config
 
@@ -76,7 +77,7 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        log.info(f"{channel}: <{user}> {message}")
+        log.debug(f"{channel}: <{user}> {message}")
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
@@ -116,15 +117,15 @@ class MechaClient(Client):
 
 
 @Commands.command("ping")
-async def cmd_ping(bot, trigger):
+async def cmd_ping(context: Context):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param bot: Pydle instance.
     :param trigger: `Trigger` object for the command call.
     """
-    log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
-                f"'{trigger.nickname}'")
-    await trigger.reply(f"{trigger.nickname} pong!")
+    log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
+                f"'{context.user.nickname}'")
+    await context.reply(f"{context.user.nickname} pong!")
 
 
 # entry point

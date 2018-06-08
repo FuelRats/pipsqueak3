@@ -21,7 +21,12 @@ log = logging.getLogger(f"mecha.{__name__}")
 
 @require_permission(TECHRAT)
 @Commands.command("debug-whois")
-async def cmd_debug_whois(bot, trigger):
-    data = await bot.whois(trigger.words[1])
+async def cmd_debug_whois(context):
+    """A debug command for running a WHOIS command.
+
+    Returns
+        str: string repreentation
+    """
+    data = await context.bot.whois(context.words[1])
     log.debug(data)
-    await trigger.reply(f"{data}")
+    await context.reply(f"{data}")
