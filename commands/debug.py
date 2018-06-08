@@ -19,8 +19,8 @@ from Modules.rat_command import Commands
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-@require_permission(TECHRAT)
 @Commands.command("debug-whois")
+@require_permission(TECHRAT)
 async def cmd_debug_whois(context):
     """A debug command for running a WHOIS command.
 
