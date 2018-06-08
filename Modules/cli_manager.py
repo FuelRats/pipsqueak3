@@ -21,23 +21,24 @@ import argparse
 _parser = argparse.ArgumentParser()
 
 # register optional flag for --clean-log, truncating existing log file and starting a new blank one.
-_parser.add_argument("--clean-log", help="Start with a clean log file.  "
-                                         "Deletes any existing log data.",
+_parser.add_argument("--clean-log",
+                     help="Start with a clean log file. Deletes any existing log data.",
                      action="store_true")
 
 # register optional argument for the config file
-_parser.add_argument("--config-file", "--config", "-c", help="Specify the configuration file to load, "
-                                                       "relative to config/",
+_parser.add_argument("--config-file", "--config", "-c",
+                     help="Specify the configuration file to load, relative to config/",
                      default="configuration.json")
 
 # register optional flag for verbose logging
-_parser.add_argument("--verbose", "-v", help="Enable verbose logging. "
-                                            "Earmuffs sold separately", action="store_true")
+_parser.add_argument("--verbose", "-v",
+                     help="Enable verbose logging. Earmuffs sold separately",
+                     action="store_true")
 
 # register optional no color flag to remove ANSI coding in logs.
-_parser.add_argument("--nocolors", "--nc", help="Disable ANSI color coding. "
-                                               "For people who hate fun.", action="store_true")
-
+_parser.add_argument("--nocolors", "--nc",
+                     help="Disable ANSI color coding. For people who hate fun.",
+                     action="store_true")
 
 # parse the arguments into an object
 args = _parser.parse_args()
