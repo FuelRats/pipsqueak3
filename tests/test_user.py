@@ -110,44 +110,14 @@ def test_user_constructor(data: dict):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("data", (
-        {'oper': False,
-         'idle': 0,
-         'away': False,
-         'away_message': None,
-         'username': 'White',
-         'hostname': 'recruit.fuelrats.com',
-         'realname': 'WhiteStrips',
-         'identified': False,
-         'server': 'irc.fuelrats.com',
-         'server_info': 'Fuel Rats IRC Server',
-         'secure': True,
-         'account': 'WhiteStrips'},
-        {'oper': True,
-         'idle': 0,
-         'away': False,
-         'away_message': None,
-         'username': 'AwesomeAdmin',
-         'hostname': 'admin.fuelrats.com',
-         'realname': 'you know',
-         'identified': True,
-         'server': 'irc.fuelrats.com',
-         'server_info': 'Fuel Rats IRC Server',
-         'secure': True,
-         'account': 'AwesomeAdmin'}
-))
-async def test_user_from_whois_existing_user(data: dict, monkeypatch, bot_fx):
+async def test_user_from_whois_existing_user(bot_fx):
     """
     verifies building a User from a full IRC reply when said user exists
     """
 
-    async def mock_return(*args) -> dict:
-        return data
+    my_user = await User.from_whois(bot_fx, "some_recruit")
 
-    monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_return)
-
-    my_user = await User.from_whois(bot_fx, "unit_test")
-
+    data = bot_fx.users['some_recruit']
     assert data['oper'] == my_user.oper
     assert data['idle'] == my_user.idle
     assert data['away'] == my_user.away
@@ -155,7 +125,7 @@ async def test_user_from_whois_existing_user(data: dict, monkeypatch, bot_fx):
     assert data['identified'] == my_user.identified
     assert data['secure'] == my_user.secure
     assert data['account'] == my_user.account
-    assert "unit_test" == my_user.nickname
+    assert "some_recruit" == my_user.nickname
     assert data['hostname'] == my_user.hostname
     assert data['username'] == my_user.username
     assert data['realname'] == my_user.realname
