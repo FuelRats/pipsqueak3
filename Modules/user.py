@@ -10,6 +10,8 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from functools import reduce
+from operator import xor
 from typing import Union, Optional
 
 from pydle import BasicClient
@@ -110,6 +112,8 @@ class User(object):
         self._account: str = account
         self._nickname: str = nickname
 
+        self._hash = None
+
     @property
     def oper(self) -> bool:
         """User's OPER flag, False if they are not an Oper"""
@@ -178,6 +182,7 @@ class User(object):
 
     @property
     def nickname(self) -> str:
+        """Nickname"""
         return self._nickname
 
     @classmethod
@@ -221,8 +226,7 @@ class User(object):
                        hostname=data['hostname'],
                        realname=data['realname'],
                        server=data['server'],
-                       server_info=data['server_info'],
-                       )
+                       server_info=data['server_info'])
 
     def __eq__(self, other) -> bool:
         """
@@ -252,3 +256,13 @@ class User(object):
             self.nickname == other.nickname
         ]
         return all(conditions)
+
+    def __hash__(self) -> int:
+        if self._hash is None:
+            attrs = (self.oper, self.idle, self.away, self.away_message, self.username,
+                     self.hostname, self.identified, self.server, self.server_info, self.secure,
+                     self.account, self.nickname)
+
+            # borrowed hashing mechanism from the old Trigger object
+            self._hash = reduce(xor, map(hash, attrs))
+        return self._hash

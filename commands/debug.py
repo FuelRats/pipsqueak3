@@ -24,4 +24,4 @@ log = logging.getLogger(f"mecha.{__name__}")
 async def cmd_debug_whois(bot, trigger):
     data = await bot.whois(trigger.words[1])
     log.debug(data)
-    await trigger.reply("done.")
+    await trigger.reply(f"{data}")
