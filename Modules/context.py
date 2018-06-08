@@ -12,7 +12,7 @@ See LICENSE.md
 """
 from typing import Optional
 
-from Modules.User import User
+from Modules.user import User
 
 
 class Context(object):

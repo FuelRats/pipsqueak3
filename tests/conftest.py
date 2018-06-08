@@ -17,7 +17,7 @@ from uuid import uuid4, UUID
 
 import pytest
 
-from Modules.User import User
+from Modules.user import User
 from Modules.context import Context
 from config import setup_logging
 from tests.mock_bot import MockBot

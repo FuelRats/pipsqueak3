@@ -10,7 +10,7 @@ See LICENSE.md
 """
 import pytest
 
-from Modules.User import User
+from Modules.user import User
 
 
 @pytest.mark.parametrize("expected_host", [

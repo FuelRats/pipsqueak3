@@ -18,7 +18,7 @@ from functools import wraps
 
 from pydle import BasicClient
 
-from Modules.User import User
+from Modules.user import User
 from Modules.context import Context
 from config import config
 
