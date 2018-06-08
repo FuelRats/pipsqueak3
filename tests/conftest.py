@@ -29,7 +29,7 @@ def pytest_addoption(parser):
     allowing us to register our own so it doesn't throw a fit if we use them
     """
     parser.addoption("--config-file", "--config", default="testing.json")
-    parser.addoption("--clean-log", action="store_true", default=False)
+    parser.addoption("--new-log", action="store_true", default=False)
 
 
 from config import setup
