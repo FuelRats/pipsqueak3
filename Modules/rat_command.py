@@ -82,7 +82,7 @@ async def trigger(message: str, sender: str, channel: str):
     log.debug(f"Trigger! {message}")
 
     # remove command prefix and make lowercase
-    raw_command: str = message.lstrip(prefix).lower()
+    raw_command: str = message.lstrip(prefix)
 
     words = []
     words_eol = []
@@ -97,6 +97,8 @@ async def trigger(message: str, sender: str, channel: str):
             break
         else:
             words.append(word)
+
+    words[0] = words[0].lower()
 
     trigger = Trigger.from_bot_user(bot, sender, channel, words, words_eol)
 
