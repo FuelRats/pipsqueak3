@@ -22,7 +22,7 @@ jobs:
             docker-compose build
             docker volume create --name=p-data
             docker-compose up --no-start tests
-            docker cp spark:/mechasqueak/ ./config/
+            docker cp ./config spark:/mechaqueak/config/
       - run:
           name: Run tests
           command: |
