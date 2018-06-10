@@ -13,13 +13,14 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
+from functools import reduce
+from operator import xor
 from typing import Union, Optional
 from uuid import UUID
 
 from Modules.epic import Epic
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
-from config import config
 from ratlib.names import Platforms, Status
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -106,6 +107,7 @@ class Rescue(object):
         self._board_index = board_index
         self._lang_id = lang_id
         self._status = status
+        self._hash = None
 
     def __eq__(self, other) -> bool:
         """
@@ -149,6 +151,29 @@ class Rescue(object):
             ]
 
             return all(conditions)
+
+    def __hash__(self):
+
+        attributes = (
+            self.case_id,
+            self.board_index,
+            self.client,
+            self.platform,
+            self.first_limpet,
+            self.created_at,
+            self.updated_at,
+            self.system,
+            self.active,
+            self.code_red,
+            self.outcome,
+            self.title,
+            self.first_limpet,
+            self.lang_id,
+            self.irc_nickname,
+        )
+        if self._hash is None:
+            self._hash = reduce(xor, map(hash, attributes))
+        return self._hash
 
     @property
     def status(self) -> Status:

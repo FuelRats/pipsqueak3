@@ -37,3 +37,8 @@ def test_ne(epic_fx: Epic):
     assert epic_fx != other
     # as Epic is nullable, this (bad) equality check is necessary
     assert None != epic_fx
+
+
+def test_hash(epic_fx: Epic):
+    epic_hash = hash(epic_fx)
+    assert epic_hash != 0
