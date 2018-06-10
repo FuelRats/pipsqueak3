@@ -16,7 +16,6 @@ from operator import xor
 from typing import Optional
 from uuid import UUID
 
-from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 
 
@@ -28,7 +27,7 @@ class Epic(object):
     def __init__(self,
                  uuid: UUID,
                  notes: str,
-                 rescue: Optional[Rescue] = None,
+                 rescue: Optional['Rescue'] = None,
                  rat: Optional[Rats] = None):
         """
         Creates a new Epic object.
@@ -44,7 +43,7 @@ class Epic(object):
         self._hash: Optional[int] = None
         self._uuid: uuid = uuid
         self._notes: str = notes
-        self._rescue: Rescue = rescue
+        self._rescue: 'Rescue' = rescue
         self._rat: Rats = rat
 
     @property
@@ -68,7 +67,7 @@ class Epic(object):
         return self._notes
 
     @property
-    def rescue(self) -> Rescue:
+    def rescue(self) -> 'Rescue':
         """
         Associated epic rescue
 

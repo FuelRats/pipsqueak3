@@ -13,9 +13,10 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Union
+from typing import Union, Optional
 from uuid import UUID
 
+from Modules.epic import Epic
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
 from config import config
@@ -39,11 +40,11 @@ class Rescue(object):
                  unidentified_rats=None,
                  active=True,
                  quotes: list = None,
-                 epic=False,
-                 title: Union[str, None] = None,
-                 first_limpet: UUID or None = None,
-                 board_index: int = None,
-                 mark_for_deletion: dict or None = None,
+                 epic: Optional[Epic]=None,
+                 title: Optional[str] = None,
+                 first_limpet: Optional[UUID]= None,
+                 board_index: Optional[int] = None,
+                 mark_for_deletion: Optional[dict]= None,
                  lang_id: str = "EN",
                  rats: list = None,
                  status: Status = Status.OPEN,
@@ -91,7 +92,7 @@ class Rescue(object):
         self._system: str = system.upper()
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
-        self._epic: bool = epic
+        self._epic: Epic = epic
         self._codeRed: bool = code_red
         self._outcome: None = None
         self._title: Union[str, None] = title
@@ -580,12 +581,12 @@ class Rescue(object):
             raise TypeError(f"expected type bool, got {type(value)}")
 
     @property
-    def epic(self) -> bool:
+    def epic(self) -> Epic:
         """
         Epic status of the rescue.
 
         Returns:
-            bool
+            Epic
 
         Notes:
             This property is **READ ONLY** (for now)
