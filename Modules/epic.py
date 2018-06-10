@@ -11,6 +11,8 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 
 """
+from functools import reduce
+from operator import xor
 from typing import Optional
 from uuid import UUID
 
@@ -35,6 +37,7 @@ class Epic(object):
             rescue (Rescue): Associated Rescue
             rat (Rats):    Associated rat rats
         """
+        self._hash: Optional[int] = None
         self._uuid: uuid = uuid
         self._notes: str = notes
         self._rescue: Rescue = rescue
@@ -79,3 +82,20 @@ class Epic(object):
             rats
         """
         return self._rat
+
+    def __eq__(self, other: 'Epic') -> bool:
+        if not isinstance(other, Epic):
+            raise TypeError
+
+        attributes = (self.rescue == other.rescue,
+                      self.uuid == other.uuid,
+                      self.notes == other.notes,
+                      self.rat == other.rat)
+        return all(attributes)
+
+    def __hash__(self) -> int:
+        if self._hash is None:
+            attrs = (self.rescue, self.uuid, self.notes, self.rat)
+            self._hash = reduce(xor, map(hash, attrs))
+
+        return self._hash
