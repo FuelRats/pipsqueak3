@@ -641,3 +641,9 @@ class TestRescuePyTests(object):
         await myRescue.add_rat(name=name, guid=uuid)
 
         assert name in Rats.cache_by_name
+
+    def test_eq_none(self, RescuePlain_fx: Rescue):
+        """Verifies behavior of `Rescue.__eq__` when comparing against None"""
+        # This check only exists because this object is nullable...
+        # and no, you really shouldn't be comparing against None like this.
+        assert not None == RescuePlain_fx
