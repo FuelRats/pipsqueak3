@@ -11,14 +11,14 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
-from config import setup_logging
 import logging
-from uuid import uuid4, UUID
-import pytest
 import random
+from uuid import uuid4, UUID
 
+import pytest
 
-
+from Modules.epic import Epic
+from config import setup_logging
 from tests.mock_bot import MockBot
 
 
@@ -138,3 +138,9 @@ def Random_string_fx(request) -> str:
     request = 16
     result = "".join(random.sample(source, request))
     return result
+
+
+@pytest.fixture
+def epic_fx(RescuePlain_fx, RatGood_fx) -> Epic:
+    """Provides an Epic object fixture"""
+    return Epic(uuid4(), "my notes package", RescuePlain_fx, RatGood_fx)

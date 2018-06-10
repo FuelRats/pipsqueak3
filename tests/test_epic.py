@@ -26,3 +26,14 @@ def test_constructor(RatGood_fx: Rats, uuid: UUID, RescuePlain_fx, Random_string
     assert RescuePlain_fx == epic.rescue
     assert RatGood_fx == epic.rat
     assert Random_string_fx == epic.notes
+
+
+def test_eq(epic_fx: Epic):
+    assert epic_fx == epic_fx
+
+
+def test_ne(epic_fx: Epic):
+    other = Epic(uuid4(), "potato express")
+    assert epic_fx != other
+    # as Epic is nullable, this (bad) equality check is necessary
+    assert None != epic_fx
