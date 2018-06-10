@@ -25,7 +25,11 @@ class Epic(object):
     Epic rescue data
     """
 
-    def __init__(self, uuid: UUID, notes: str, rescue: Optional[Rescue], rat: Optional[Rats]):
+    def __init__(self,
+                 uuid: UUID,
+                 notes: str,
+                 rescue: Optional[Rescue] = None,
+                 rat: Optional[Rats] = None):
         """
         Creates a new Epic object.
 
@@ -84,6 +88,13 @@ class Epic(object):
         return self._rat
 
     def __eq__(self, other: 'Epic') -> bool:
+        # null check
+        # while it is bad style to check a value against None, its possible this object
+        # will be None inside the rescue object, for rescues that are not Epics.
+        if other is None:
+            return False
+
+        # type check
         if not isinstance(other, Epic):
             raise TypeError
 
