@@ -183,8 +183,7 @@ def command(*aliases):
             command executor
 
             Args:
-                bot (MechaClient): IRC bot instance
-                trigger (Trigger): Trigger object
+                context: Command IRC context
 
             Returns:
                 whatever the called function returns (probably None)
