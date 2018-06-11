@@ -19,7 +19,8 @@ import pytest
 
 import Modules.rat_command as Commands
 from Modules import permissions
-from Modules.permissions import require_permission
+from Modules.context import Context
+from Modules.permissions import require_permission, require_channel
 
 
 # registration is done in setUp
@@ -131,3 +132,22 @@ class TestPermissions(object):
                 assert hash(perm1) == hash(perm2)
             else:
                 assert hash(perm1) != hash(perm2)
+
+    @pytest.mark.asyncio
+    async def test_require_channel_valid(self, bot_fx, Context_channel_fx):
+        @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
+        async def potato(context: Context):
+            return "hi there!"
+
+        retn = await potato(Context_channel_fx)
+        assert retn == "hi there!"
+
+    @pytest.mark.asyncio
+    async def test_require_channel_invalid(self, Context_pm_fx, bot_fx):
+        @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
+        async def potato(context: Context):
+            context.reply("hi there!")
+
+        await potato(Context_pm_fx)
+
+        assert "https://www.youtube.com/watch?v=gvdf5n-zI14" == bot_fx.sent_messages[0]['message']
