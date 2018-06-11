@@ -17,8 +17,10 @@ from uuid import uuid4, UUID
 
 import pytest
 
+from Modules.epic import Epic
 from Modules.user import User
 from Modules.context import Context
+
 from config import setup_logging
 from tests.mock_bot import MockBot
 
@@ -190,3 +192,9 @@ def Random_string_fx(request) -> str:
     request = 16
     result = "".join(random.sample(source, request))
     return result
+
+
+@pytest.fixture
+def epic_fx(RescuePlain_fx, RatGood_fx) -> Epic:
+    """Provides an Epic object fixture"""
+    return Epic(uuid4(), "my notes package", RescuePlain_fx, RatGood_fx)

@@ -416,13 +416,7 @@ class TestRescue(TestCase):
         # is this total overkill?
         self.assertTrue(self.rescue == self.rescue)
 
-    def test_eq_bad_type(self):
-        """
-        Verifies Rescue.__eq__ raises a type error when attempting to compare something
-            other than a rescue.
-        """
-        with self.assertRaises(TypeError):
-            self.assertTrue(self.rescue == "foobar")
+
 
     def test_eq_false_branch(self):
         """
@@ -641,3 +635,16 @@ class TestRescuePyTests(object):
         await myRescue.add_rat(name=name, guid=uuid)
 
         assert name in Rats.cache_by_name
+
+    def test_eq_none(self, RescuePlain_fx: Rescue):
+        """Verifies behavior of `Rescue.__eq__` when comparing against None"""
+        # This check only exists because this object is nullable...
+        # and no, you really shouldn't be comparing against None like this.
+        assert not None == RescuePlain_fx
+
+    def test_eq_bad_type(self, RescuePlain_fx: Rescue):
+        """
+        Verifies Rescue.__eq__ raises a type error when attempting to compare something
+            other than a rescue.
+        """
+        assert not RescuePlain_fx == "Rescue object at <0xBADBEEF> "

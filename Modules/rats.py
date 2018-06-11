@@ -14,6 +14,8 @@ This module is built on top of the Pydle system.
 """
 
 import logging
+from functools import reduce
+from operator import xor
 from uuid import UUID
 
 from ratlib.names import Platforms
@@ -53,6 +55,7 @@ class Rats(object):
         self._platform = platform
         self._uuid = uuid
         self._name = name
+        self._hash = None
         # and update the cache
         if name and name not in Rats.cache_by_name:
             # don't register duplicates
@@ -70,13 +73,25 @@ class Rats(object):
 
         Returns:
             bool: equal if uuid, platform, and name match
+            NotImplemented: bad type given
         """
+
+        if not isinstance(other, Rats):
+            return NotImplemented
+
         conditions = {
             self.platform == other.platform,
             self.uuid == other.uuid,
             self.name == other.name
         }
         return all(conditions)
+
+    def __hash__(self) -> int:
+        if self._hash is None:
+            attrs = (self.platform, self.uuid, self.uuid, self.name)
+            self._hash = reduce(xor, map(hash, attrs))
+
+        return self._hash
 
     @property
     def uuid(self):

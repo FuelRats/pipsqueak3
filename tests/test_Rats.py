@@ -205,6 +205,11 @@ class TestRatsPyTest(object):
         """Verifies Rats.__eq__ functions correctly against equal objects"""
         assert RatGood_fx == RatGood_fx
 
+    def test_rat_eq_None(self, RatGood_fx: Rats):
+        """Verifies Rats.__eq__ functions correctly against None"""
+        # because object is nullable, therefore must be able to handle None.
+        assert RatGood_fx != None
+
     @pytest.mark.asyncio
     async def test_find_rat_by_name_existing(self, RatGood_fx: Rats):
         """
