@@ -757,7 +757,8 @@ class Rescue(object):
 
         if isinstance(name, str):
             # lets check if we already have this rat in the cache (platform, any)
-            found = (await Rats.get_rat_by_name(name, self.platform), await Rats.get_rat_by_name(name))
+            found = (await Rats.get_rat_by_name(name, self.platform),
+                     await Rats.get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
                 return

@@ -11,14 +11,15 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
-from config import setup_logging
 import logging
-from uuid import uuid4, UUID
-import pytest
 import random
+from uuid import uuid4, UUID
 
+import pytest
 
-
+from Modules.user import User
+from Modules.context import Context
+from config import setup_logging
 from tests.mock_bot import MockBot
 
 
@@ -112,6 +113,57 @@ def RatBoard_fx() -> RatBoard:
 @pytest.fixture
 def bot_fx():
     return MockBot()
+
+
+@pytest.fixture
+def User_fx():
+    return User(False,
+                0,
+                False,
+                None,
+                True,
+                True,
+                "unit_test",
+                "unit_test[bot]",
+                "unit_test",
+                "unittest.rats.fuelrats.com",
+                "potatobot",
+                "irc.fuelrats,com")
+
+
+@pytest.fixture
+def Context_channel_fx(User_fx, bot_fx) -> Context:
+    """
+    Provides a context fixture
+
+    Returns:
+        Context
+    """
+    context = Context(bot_fx, User_fx, "#unit_test", ["my", "word"], ["my", "my word"])
+    return context
+
+
+@pytest.fixture
+def Context_pm_fx(User_fx, bot_fx) -> Context:
+    """
+    Provides a context fixture
+
+    Returns:
+        Context
+    """
+    context = Context(bot_fx, User_fx, "someUSer", ["my", "word"], ["my", "my word"])
+    return context
+
+
+@pytest.fixture(params=[0, 1])
+def Context_fx(request, bot_fx, User_fx):
+    """Parametrized context fixture, returning a channel and non-channel Context object"""
+    if request.param == 0:
+        return Context(bot_fx, User_fx, "#unit_test", ["my", "word"], ["my", "my word"])
+    elif request.param == 1:
+        return Context(bot_fx, User_fx, "someUSer", ["my", "word"], ["my", "my word"])
+
+    raise ValueError
 
 
 @pytest.fixture
