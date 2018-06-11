@@ -20,7 +20,7 @@ import pytest
 
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
-from ratlib.names import Platforms
+from utils.ratlib import Platforms
 
 
 class TestRescue(TestCase):

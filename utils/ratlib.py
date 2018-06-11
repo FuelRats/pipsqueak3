@@ -1,5 +1,5 @@
 """
-names.py - IRC/Fuelrat nickname utilities
+ratlib.py - IRC/Fuelrat nickname utilities
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
@@ -12,6 +12,11 @@ This module is built on top of the Pydle system.
 
 """
 from enum import Enum
+import re
+
+MIRC_CONTROL_CODES = ["\x0F", "\x16", "\x1D", "\x1F", "\x02",
+                      "\x03([1-9][0-6]?)?,?([1-9][0-6]?)?"]
+STRIPPED_CHARS = ';\''
 
 
 class Platforms(Enum):
@@ -33,6 +38,34 @@ class Status(Enum):
     """The rescue is currently closed"""
     INACTIVE = 2
     """The rescue is open, but is marked inactive"""
+
+
+def sanitize(message: str) -> str:
+    """
+    Sanitizes and makes safe any text passed by removing mIRC Color,
+    Bold, italic, and reverse flags.
+    Removes semi-colons and tabs.
+
+    Args:
+        message (str): raw input message, from IRC.
+
+    Returns:
+        str: sanitized text string.
+    """
+    sanitized_string = message
+
+    # Remove mIRC codes
+    for code in MIRC_CONTROL_CODES:
+        sanitized_string = re.sub(code, '', sanitized_string, re.UNICODE)
+
+    # Remove tabs and semi-colons
+    for character in sanitized_string:
+        if character in STRIPPED_CHARS:
+            sanitized_string = sanitized_string.replace(character, '')
+
+    sanitized_string = ' '.join(sanitized_string.split())
+
+    return sanitized_string
 
 
 def strip_name(nickname: str) -> str:

@@ -21,7 +21,7 @@ from uuid import UUID
 from Modules.epic import Epic
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
-from ratlib.names import Platforms, Status
+from utils.ratlib import Platforms, Status
 
 log = logging.getLogger(f"mecha.{__name__}")
 
