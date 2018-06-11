@@ -31,5 +31,3 @@ async def cmd_debug_whois(context):
     data = await context.bot.whois(context.words[1])
     log.debug(data)
     await context.reply(f"{data}")
-
-pass
