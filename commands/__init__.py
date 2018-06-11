@@ -8,5 +8,5 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from . import debug
+from . import *
 __all__ = ["debug"]

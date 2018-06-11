@@ -18,8 +18,8 @@ from functools import wraps
 
 from pydle import BasicClient
 
-from Modules.user import User
 from Modules.context import Context
+from Modules.user import User
 from config import config
 
 # set the logger for rat_command
@@ -100,22 +100,22 @@ async def trigger(message: str, sender: str, channel: str):
             words.append(word)
 
         # casts the command to lower case, for case insensitivity
-        words[0] = words[0].lower()
+    words[0] = words[0].lower()
 
-        if words[0] in _registered_commands.keys():
-            cmd = _registered_commands[words[0]]
+    if words[0] in _registered_commands.keys():
+        cmd = _registered_commands[words[0]]
+    else:
+        for key, value in _rules.items():
+            if key.match(words[0]) is not None:
+                cmd = value
+                break
         else:
-            for key, value in _rules.items():
-                if key.match(words[0]) is not None:
-                    cmd = value
-                    break
-            else:
-                raise CommandNotFoundException(f"Unable to find command {words[0]}")
+            raise CommandNotFoundException(f"Unable to find command {words[0]}")
 
-        user = await User.from_whois(bot, sender)
-        context = Context(bot, user, channel, words, words_eol)
+    user = await User.from_whois(bot, sender)
+    context = Context(bot, user, channel, words, words_eol)
 
-        return await cmd(context)
+    return await cmd(context)
 
 
 def _register(func, names: list or str) -> bool:

@@ -21,7 +21,7 @@ import commands
 from Modules import cli_manager
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
-from Modules.rat_command import Commands
+from Modules.rat_command import command
 # import config
 
 from pydle import ClientPool, Client
@@ -124,7 +124,7 @@ class MechaClient(Client):
 
 
 @require_permission(RAT)
-@Commands.command("ping")
+@command("ping")
 async def cmd_ping(context: Context):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)

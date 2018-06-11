@@ -20,9 +20,9 @@ from unittest import mock
 import pydle
 import pytest
 
+import Modules.rat_command as Commands
 from Modules.context import Context
-from Modules.rat_command import Commands, CommandNotFoundException, CommandException, \
-    NameCollisionException
+from Modules.rat_command import CommandNotFoundException, NameCollisionException
 
 
 @pytest.fixture
@@ -87,22 +87,6 @@ class TestRatCommand(object):
             channel=input_channel)
         assert input_sender == out_sender
         assert input_channel == out_channel
-
-    @mock.patch("Modules.rat_command.Commands.bot")
-    @pytest.mark.asyncio
-    async def test_null_bot(self, mock_bot):
-        """
-        Verifies the correct exception is raised when someone forgets to set
-        Commands.bot <.<
-        Overkill?
-        """
-        # this is the default value, which should be overwritten during
-        #  MechaClient init...
-        with pytest.raises(CommandException):
-            await Commands.trigger(
-                message="!message",
-                sender="unit_test[BOT]",
-                channel="unit_tests")
 
     @pytest.mark.parametrize("garbage", [12, None, "str"])
     def test_register_non_callable(self, garbage):
