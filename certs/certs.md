@@ -23,8 +23,8 @@ a example configuration is provided below
       "identity": ""
     },
     "external":{
-      "tls_client_key":"certs/key",
-      "tls_client_cert":"certs/cert"
+      "tls_client_key":"mecha3.pem",
+      "tls_client_cert":"mecha3.pem"
     }
   },
 ```

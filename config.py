@@ -48,7 +48,7 @@ def setup_logging(logfile: str):
     log = logging.getLogger(f"mecha.{__name__}")
 
     # create a handler for said logger...
-    file_logger = logging.FileHandler(logfile, log_filemode)
+    file_logger = logging.FileHandler(logfile, log_filemode, encoding="utf-8")
     log_format = '<%(asctime)s %(name)s> [%(levelname)s] %(message)s'
     log_datefmt = '%Y-%m-%d %H:%M:%S'
     file_logger_format = logging.Formatter(log_format)

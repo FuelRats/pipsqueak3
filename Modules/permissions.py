@@ -14,6 +14,7 @@ This module is built on top of the Pydle system.
 import logging
 from functools import wraps
 
+from Modules.context import Context
 from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -118,12 +119,12 @@ def require_permission(permission: Permission,
         # TODO implement require_permission wrapper.
 
         @wraps(func)
-        async def guarded(bot, trigger):
-            if trigger.identified and trigger.hostname in _by_vhost.keys() \
-                    and _by_vhost[trigger.hostname] >= permission:
-                return await func(bot, trigger)
+        async def guarded(context: Context):
+            if context.user.identified and context.user.hostname in _by_vhost.keys() \
+                    and _by_vhost[context.user.hostname] >= permission:
+                return await func(context)
             else:
-                await trigger.reply(override_message if override_message
+                await context.reply(override_message if override_message
                                     else permission.denied_message)
 
         return guarded
