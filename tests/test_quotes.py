@@ -11,18 +11,13 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import datetime
-from unittest import TestCase, expectedFailure
 
-from Modules.rat_rescue import Rescue
+import pytest
+
 from Modules.rat_quotation import Quotation
-from Modules.trigger import Trigger
-from tests import mock_bot
 
 
-class TestQuotes(TestCase):
-
-    def setUp(self):
-        pass
+class TestQuotes(object):
 
     def test_message(self):
         """
@@ -30,8 +25,8 @@ class TestQuotes(TestCase):
         """
         expectedMessage = "some test message"
         quote = Quotation(message=expectedMessage)
-        self.assertEqual(expectedMessage, quote.message)
-        self.assertEqual("Mecha", quote.author)
+        assert expectedMessage == quote.message
+        assert "Mecha" == quote.author
 
     def test_message_setter(self):
         """
@@ -42,7 +37,7 @@ class TestQuotes(TestCase):
         expected_message = "my glorious message"
         quote = Quotation(message="foo")
         quote.message = expected_message
-        self.assertEqual(expected_message, quote.message)
+        assert expected_message == quote.message
 
     def test_author(self):
         """
@@ -52,7 +47,7 @@ class TestQuotes(TestCase):
         """
         expected_author = "unit_test[BOT]"
         quote = Quotation(message="foo", author=expected_author)
-        self.assertEqual(expected_author, quote.author)
+        assert expected_author == quote.author
 
     def test_author_is_readonly(self):
         """
@@ -61,13 +56,13 @@ class TestQuotes(TestCase):
         :rtype:
         """
         quote = Quotation("foo")
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             quote.author = "unit_test[BOT]"
 
     def test_created_at(self):
         expected_time = datetime.datetime.utcnow()
         quote = Quotation(message="foo", created_at=expected_time)
-        self.assertEqual(quote.created_at, expected_time)
+        assert quote.created_at == expected_time
 
     def test_updated_at_setter_valid(self):
         """
@@ -78,47 +73,42 @@ class TestQuotes(TestCase):
         expected_time = datetime.datetime.utcnow()
         quote = Quotation(message="foo", updated_at=expected_time)
 
-        self.assertEqual(expected_time, quote.updated_at)
+        assert expected_time == quote.updated_at
 
         quote.updated_at = expected_time = datetime.datetime.utcnow()
-        self.assertEqual(expected_time, quote.updated_at)
+        assert expected_time == quote.updated_at
 
-    def test_updated_at_invalid(self):
+    @pytest.mark.parametrize("garbage", [12, False, ["foo"], "bar", None])
+    def test_updated_at_invalid(self, garbage):
         """
         Verifies writing garbage to `Quotation.updated_at` raises expected
         Error when garbage is thrown at it
 
         """
         quote = Quotation("foobar")
-        bad_values = [12, False, ["foo"], "bar", None]
-        for value in bad_values:
-            with self.subTest(value=value):
-                with self.assertRaises(ValueError):
-                    quote.updated_at = value
+        with pytest.raises(ValueError):
+            quote.updated_at = garbage
 
-    def test_last_author_setter_invalid(self):
+    @pytest.mark.parametrize("garbage", [12, False, ["foo"], None])
+    def test_last_author_setter_invalid(self, garbage):
         """
         Verifies `Quotation.last_author` can be written to
         :return:
         :rtype:
         """
         quote = Quotation("foobar")
-        bad_values = [12, False, ["foo"], None]
-        for value in bad_values:
-            with self.subTest(value=value):
-                with self.assertRaises(ValueError):
-                    quote.last_author = value
 
-    def test_modify(self):
+        with pytest.raises(ValueError):
+            quote.last_author = garbage
+
+    def test_modify(self, Context_fx):
         """
         Verifies a quote can be changed correctly, that the correct fields are
          set
         """
-        trigger = Trigger(mock_bot, [], [], nickname="unit_test[BOT]",
-                          target="#unit_tests", ident="mechasqueak3",
-                          hostname="techrat.fuelrats.com")
+
         quote = Quotation("foo")
-        quote.modify(trigger, message="bar")
-        self.assertEqual("bar", quote.message)
-        self.assertNotEqual(quote.created_at, quote.updated_at)
-        self.assertNotEqual(quote.author, quote.last_author)
+        quote.modify(Context_fx, message="bar")
+        assert "bar" == quote.message
+        assert quote.created_at != quote.updated_at
+        assert quote.author != quote.last_author
