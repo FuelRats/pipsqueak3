@@ -102,7 +102,7 @@ class MechaClient(Client):
             # sanitize input string headed to command executor
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
-            await rat_command.trigger(message=message,
+            await rat_command.trigger(message=sanitized_message,
                                       sender=user,
                                       channel=channel)
 
