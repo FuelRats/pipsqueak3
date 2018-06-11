@@ -87,15 +87,9 @@ class Epic(object):
         return self._rat
 
     def __eq__(self, other: 'Epic') -> bool:
-        # null check
-        # while it is bad style to check a value against None, its possible this object
-        # will be None inside the rescue object, for rescues that are not Epics.
-        if other is None:
-            return NotImplemented
-
-        # type check
+        # type and null check
         if not isinstance(other, Epic):
-            raise TypeError
+            return NotImplemented
 
         attributes = (self.rescue == other.rescue,
                       self.uuid == other.uuid,
