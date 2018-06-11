@@ -91,7 +91,7 @@ class Epic(object):
         # while it is bad style to check a value against None, its possible this object
         # will be None inside the rescue object, for rescues that are not Epics.
         if other is None:
-            return False
+            return NotImplemented
 
         # type check
         if not isinstance(other, Epic):

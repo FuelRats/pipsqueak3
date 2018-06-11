@@ -119,12 +119,9 @@ class Rescue(object):
         Returns:
             bool: is equivalent
         """
-        if other is None:
-            return False
-
         if not isinstance(other, Rescue):
             # instance type check
-            raise TypeError(f"other was of type {type(other)} expected instance of Rescue")
+            return NotImplemented
         else:
             # check equality
 

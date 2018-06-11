@@ -74,15 +74,11 @@ class Rats(object):
 
         Returns:
             bool: equal if uuid, platform, and name match
-
-        Raises:
-            TypeError : invalid type for equality check.
+            NotImplemented: bad type given
         """
-        if other is None:
-            return False
 
         if not isinstance(other, Rats):
-            raise TypeError
+            return NotImplemented
 
         conditions = {
             self.platform == other.platform,
