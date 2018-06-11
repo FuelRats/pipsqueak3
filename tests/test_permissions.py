@@ -17,9 +17,9 @@ from itertools import product
 
 import pytest
 
+import Modules.rat_command as Commands
 from Modules import permissions
 from Modules.permissions import require_permission
-from Modules.rat_command import Commands
 
 
 # registration is done in setUp

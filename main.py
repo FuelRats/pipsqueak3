@@ -21,8 +21,14 @@ import commands
 from Modules import cli_manager
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
-from Modules.rat_command import Commands
+from Modules.rat_command import command
 # import config
+
+from pydle import ClientPool, Client
+
+# noinspection PyUnresolvedReferences
+from Modules import cli_manager, rat_command
+from Modules.rat_command import command
 from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -85,15 +91,15 @@ class MechaClient(Client):
             log.debug(f"Ignored {message} (anti-loop)")
             return None
 
-        if not message.startswith(Commands.prefix):
+        if not message.startswith(rat_command.prefix):
             # prevent bot from processing commands without the set prefix
             log.debug(f"Ignored {message} (not a command)")
             return None
 
         else:  # await command execution
-            await Commands.trigger(message=message,
-                                   sender=user,
-                                   channel=channel)
+            await rat_command.trigger(message=message,
+                                      sender=user,
+                                      channel=channel)
 
     @property
     def rat_cache(self) -> object:
@@ -118,7 +124,7 @@ class MechaClient(Client):
 
 
 @require_permission(RAT)
-@Commands.command("ping")
+@command("ping")
 async def cmd_ping(context: Context):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
@@ -178,7 +184,7 @@ if __name__ == "__main__":
         raise ex
     else:
         # hand the bot instance to commands
-        Commands.bot = client
+        rat_command.bot = client
         # and run the event loop
         log.info("running forever...")
         pool.handle_forever()
