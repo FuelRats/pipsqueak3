@@ -19,13 +19,13 @@ from Modules.rats import Rats
 
 
 @pytest.mark.parametrize("uuid", (uuid4(), uuid4(), uuid4()))
-def test_constructor(RatGood_fx: Rats, uuid: UUID, RescuePlain_fx, Random_string_fx: str):
-    epic = Epic(uuid, Random_string_fx, RescuePlain_fx, RatGood_fx)
+def test_constructor(rat_good_fx: Rats, uuid: UUID, rescue_plain_fx, random_string_fx: str):
+    epic = Epic(uuid, random_string_fx, rescue_plain_fx, rat_good_fx)
 
     assert uuid == epic.uuid
-    assert RescuePlain_fx == epic.rescue
-    assert RatGood_fx == epic.rat
-    assert Random_string_fx == epic.notes
+    assert rescue_plain_fx == epic.rescue
+    assert rat_good_fx == epic.rat
+    assert random_string_fx == epic.notes
 
 
 def test_eq(epic_fx: Epic):

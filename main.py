@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 main.py - Mechasqueak3 main program
 

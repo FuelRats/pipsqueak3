@@ -97,7 +97,6 @@ def setup_logging(logfile: str):
     log.propagate = False
 
     logging.info("Configuration file loading...")
-    """provides facilities for managing a configuration from disk"""
 
 
 def setup(filename: str) -> None:
