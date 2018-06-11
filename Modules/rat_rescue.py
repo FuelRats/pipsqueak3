@@ -151,24 +151,25 @@ class Rescue(object):
 
     def __hash__(self):
 
-        attributes = (
-            self.case_id,
-            self.board_index,
-            self.client,
-            self.platform,
-            self.first_limpet,
-            self.created_at,
-            self.updated_at,
-            self.system,
-            self.active,
-            self.code_red,
-            self.outcome,
-            self.title,
-            self.first_limpet,
-            self.lang_id,
-            self.irc_nickname,
-        )
         if self._hash is None:
+            attributes = (
+                self.case_id,
+                self.board_index,
+                self.client,
+                self.platform,
+                self.first_limpet,
+                self.created_at,
+                self.updated_at,
+                self.system,
+                self.active,
+                self.code_red,
+                self.outcome,
+                self.title,
+                self.first_limpet,
+                self.lang_id,
+                self.irc_nickname,
+            )
+
             self._hash = reduce(xor, map(hash, attributes))
         return self._hash
 
