@@ -18,7 +18,8 @@ from functools import wraps
 
 from pydle import BasicClient
 
-from Modules.trigger import Trigger
+from Modules.user import User
+from Modules.context import Context
 from config import config
 
 # set the logger for rat_command
@@ -81,7 +82,7 @@ async def trigger(message: str, sender: str, channel: str):
 
     log.debug(f"Trigger! {message}")
 
-    # remove command prefix and make lowercase
+    # remove command prefix
     raw_command: str = message.lstrip(prefix)
 
     words = []
@@ -98,21 +99,23 @@ async def trigger(message: str, sender: str, channel: str):
         else:
             words.append(word)
 
-    words[0] = words[0].lower()
+        # casts the command to lower case, for case insensitivity
+        words[0] = words[0].lower()
 
-    trigger = Trigger.from_bot_user(bot, sender, channel, words, words_eol)
-
-    if words[0] in _registered_commands.keys():
-        cmd = _registered_commands[words[0]]
-    else:
-        for key, value in _rules.items():
-            if key.match(words[0]) is not None:
-                cmd = value
-                break
+        if words[0] in _registered_commands.keys():
+            cmd = _registered_commands[words[0]]
         else:
-            raise CommandNotFoundException(f"Unable to find command {words[0]}")
+            for key, value in _rules.items():
+                if key.match(words[0]) is not None:
+                    cmd = value
+                    break
+            else:
+                raise CommandNotFoundException(f"Unable to find command {words[0]}")
 
-    return await cmd(bot, trigger)
+        user = await User.from_whois(bot, sender)
+        context = Context(bot, user, channel, words, words_eol)
+
+        return await cmd(context)
 
 
 def _register(func, names: list or str) -> bool:
@@ -175,7 +178,7 @@ def command(*aliases):
         """
 
         @wraps(func)
-        async def wrapper(bot, trigger):
+        async def wrapper(context):
             """
             command executor
 
@@ -186,7 +189,7 @@ def command(*aliases):
             Returns:
                 whatever the called function returns (probably None)
             """
-            return await func(bot, trigger)
+            return await func(context)
 
         # we want to register the wrapper, not the underlying function
         log.debug(f"Registering command aliases: {aliases}...")
@@ -195,7 +198,6 @@ def command(*aliases):
         log.debug(f"Registration of {aliases} completed.")
 
         return wrapper
-
     return real_decorator
 
 
@@ -208,13 +210,11 @@ def rule(regex: str):
     Arguments:
         regex (str): Regular expression to match the command.
     """
-
     def decorator(coro):
-        async def wrapper(bot, trigger):
-            return await coro(bot, trigger)
+        async def wrapper(context):
+            return await coro(context)
 
         _rules[re.compile(regex, re.IGNORECASE)] = wrapper
         log.info(f"New rule matching '{regex}' was created.")
         return wrapper
-
     return decorator

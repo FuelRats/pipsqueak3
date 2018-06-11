@@ -13,7 +13,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
-from typing import Union
+from typing import Union, Optional
 from uuid import UUID
 
 import config
@@ -186,7 +186,7 @@ class RatBoard(object):
                 return rescue
         return None
 
-    def find_by_uuid(self, guid: UUID) -> Rescue or None:
+    def find_by_uuid(self, guid: UUID) -> Optional[Rescue]:
         """
         Searches for and returns a rescue by api ID, should it exist.
 
