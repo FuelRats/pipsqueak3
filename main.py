@@ -31,6 +31,7 @@ from pydle import ClientPool, Client
 from Modules import cli_manager, rat_command
 from Modules.rat_command import command
 from config import config
+from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -98,6 +99,9 @@ class MechaClient(Client):
             return None
 
         else:  # await command execution
+            # sanitize input string headed to command executor
+            sanitized_message = sanitize(message)
+            log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             await rat_command.trigger(message=message,
                                       sender=user,
                                       channel=channel)
