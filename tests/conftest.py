@@ -34,7 +34,7 @@ from tests.mock_bot import MockBot
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
-from ratlib.names import Platforms
+from utils.ratlib import Platforms
 from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User

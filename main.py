@@ -129,8 +129,7 @@ class MechaClient(Client):
 async def cmd_ping(context: Context):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
-    :param bot: Pydle instance.
-    :param trigger: `Trigger` object for the command call.
+    :param context: `Context` object for the command call.
     """
     log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
                 f"'{context.user.nickname}'")
