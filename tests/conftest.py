@@ -22,7 +22,9 @@ import pytest
 # Set argv to keep cli arguments meant for pytest from polluting our things
 sys.argv = ["test",
             "--config-file", "testing.json",
-            "--clean-log"]
+            "--clean-log",
+            "--verbose",
+            ]
 
 # This import statement is where the config gets read
 from config import setup_logging
