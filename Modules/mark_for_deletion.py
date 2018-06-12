@@ -18,9 +18,8 @@ class MarkForDeletion(object):
     Data object representing a MD structurefrom the API
     """
 
-    def __init__(self, marked: bool = False,
-                 reason: Optional[str] = None,
-                 reporter: Optional[str] = None):
+    def __init__(self, marked: bool = False, reporter: Optional[str] = None,
+                 reason: Optional[str] = None):
         """
         Creates a new MD object
 

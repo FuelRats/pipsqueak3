@@ -18,7 +18,7 @@ from uuid import uuid4
 
 import pytest
 
-from Modules.context import Context
+from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from utils.ratlib import Platforms
@@ -637,19 +637,29 @@ class TestRescuePyTests(object):
     @pytest.mark.parametrize("reporter, reason", [("unit_test[BOT]", "reasons! reasons i say!"),
                                                   ("potato[pc|nd]", "uhhh..."),
                                                   ("sayWhat99", "dawg this ain't right!")])
-    def test_mark_true_valid(self, rescue_sop_fx: Rescue, reporter: str, reason: str):
+    def test_mark_delete_valid(self, rescue_sop_fx: Rescue, reporter: str, reason: str):
         """Verifies Rescue.mark functions as expected when marking a case for deletion"""
 
-        rescue_sop_fx.mark(True, reporter, reason)
+        rescue_sop_fx.mark_delete(reporter, reason)
 
         assert rescue_sop_fx.mark_for_deletion.marked
         assert reporter == rescue_sop_fx.mark_for_deletion.reporter
         assert reason == rescue_sop_fx.mark_for_deletion.reason
 
-    def test_mark_true_invalid(self, rescue_sop_fx: Rescue, context_fx: Context):
+    def test_mark_delete_invalid(self, rescue_sop_fx: Rescue):
         """verify what happens when garbage gets thrown at `rescue.mark`"""
         with pytest.raises(TypeError):
-            rescue_sop_fx.mark(True, None, None)
+            rescue_sop_fx.mark_delete(None, "sna")
 
         with pytest.raises(TypeError):
-            rescue_sop_fx.mark("True", context_fx)
+            rescue_sop_fx.mark_delete("sna", None)
+
+    def test(self, rescue_sop_fx: Rescue):
+        """Verify unmarking a case that was MD'ed works as expected"""
+        rescue_sop_fx.mark_for_deletion = MarkForDeletion(True, "unit_test[BOT]",
+                                                          "unit test reasons!")
+
+        rescue_sop_fx.unmark_delete()
+        assert rescue_sop_fx.mark_for_deletion.marked is False
+        assert rescue_sop_fx.mark_for_deletion.reporter is None
+        assert rescue_sop_fx.mark_for_deletion.reason is None
