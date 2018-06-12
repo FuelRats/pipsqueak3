@@ -785,12 +785,11 @@ class Rescue(object):
                 rat = Rats(name=name, uuid=guid)
                 self.rats.append(rat)
 
-    def mark(self, marked: bool, reporter: str, reason: str):
+    def mark_delete(self, reporter: str, reason: str) -> None:
         """
-        Marks or unmarks a rescue for deletion
+        Marks a rescue for deletion
 
         Args:
-            marked (bool): bool marking whether to mark or remove the Md mark
             reporter (str): person marking rescue as deleted
             reason (str): reason for the rescue being marked as deleted.
 
@@ -798,26 +797,25 @@ class Rescue(object):
             TypeError: invalid params
         """
         # type enforcement
-        if not isinstance(marked, bool) or not isinstance(reporter, str) or not isinstance(reason,
-                                                                                           str):
+        if not isinstance(reporter, str) or not isinstance(reason, str):
             raise TypeError
 
-        if marked:  # mark the rescue for deletion
-            log.debug(f"marking rescue @{self.case_id} for deletion. reporter is {reporter} and "
-                      f"their reason is '{reason}'.")
-            if reason == "":
-                raise ValueError("Reason required.")
-            self.mark_for_deletion.reporter = reporter
-            self.mark_for_deletion.reason = reason
-            self.mark_for_deletion.marked = True
+        log.debug(f"marking rescue @{self.case_id} for deletion. reporter is {reporter} and "
+                  f"their reason is '{reason}'.")
+        if reason == "":
+            raise ValueError("Reason required.")
+        self.mark_for_deletion.reporter = reporter
+        self.mark_for_deletion.reason = reason
+        self.mark_for_deletion.marked = True
 
-        else:  # unmark the rescue for deletion
-            log.debug(f"clearing Md status for rescue @{self.case_id} ...")
-            self.mark_for_deletion.reason = None
-            self.mark_for_deletion.reporter = None
-            self.mark_for_deletion.marked = False
+    def unmark_delete(self) -> None:
+        """
+        helper method for unmarking a rescue for deletion. resets the Md object
+        """
 
-
+        self.mark_for_deletion.marked = False
+        self.mark_for_deletion.reason = None
+        self.mark_for_deletion.reporter = None
 
     @contextmanager
     def change(self):
