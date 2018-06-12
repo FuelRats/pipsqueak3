@@ -18,7 +18,9 @@ class MarkForDeletion(object):
     Data object representing a MD structurefrom the API
     """
 
-    def __init__(self, marked: bool, reason: Optional[str], reporter: Optional[str]):
+    def __init__(self, marked: bool = False,
+                 reason: Optional[str] = None,
+                 reporter: Optional[str] = None):
         """
         Creates a new MD object
 
@@ -61,7 +63,7 @@ class MarkForDeletion(object):
             raise TypeError
 
     @property
-    def reason(self) -> str:
+    def reason(self) -> Optional[str]:
         """
         Reported reason for marking the case as deleted
 
@@ -84,13 +86,13 @@ class MarkForDeletion(object):
         Raises:
             TypeError: invalid type
         """
-        if isinstance(value, str):
+        if isinstance(value, str) or value is None:
             self._reason = value
         else:
             raise TypeError
 
     @property
-    def reporter(self) -> str:
+    def reporter(self) -> Optional[str]:
         """
         IRC nickname of reporting user
 
@@ -113,7 +115,7 @@ class MarkForDeletion(object):
         Raises:
             TypeError: invalid type
         """
-        if isinstance(value, str):
+        if isinstance(value, str) or value is None:
             self._reporter = value
         else:
             raise TypeError

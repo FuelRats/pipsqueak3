@@ -46,7 +46,7 @@ class Rescue(object):
                  title: Optional[str] = None,
                  first_limpet: Optional[UUID] = None,
                  board_index: Optional[int] = None,
-                 mark_for_deletion: MarkForDeletion = None,
+                 mark_for_deletion: MarkForDeletion = MarkForDeletion(),
                  lang_id: str = "EN",
                  rats: List[Rats] = None,
                  status: Status = Status.OPEN,
@@ -672,7 +672,7 @@ class Rescue(object):
             raise TypeError(f"expected type None or str, got {type(value)}")
 
     @property
-    def mark_for_deletion(self) -> dict:
+    def mark_for_deletion(self) -> MarkForDeletion:
         """
         Mark for deletion object as used by the API
 

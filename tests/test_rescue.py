@@ -542,50 +542,46 @@ class TestRescuePyTests(object):
         (None, None, True),
         (None, None, False)
     ])
-    def test_mark_for_deletion_setter_good_data(self, reason: str or None, reporter: str or None,
-                                                marked: bool, rescue_plain_fx: Rescue):
-        """
-        Verifies setting the mark for deletion property succeeds when the data is valid
+    def test_mark_for_deletion_setter_valid(self, rescue_sop_fx: Rescue, reason: str, reporter: str,
+                                            marked: bool):
+        rescue_sop_fx.mark_for_deletion.reporter = reporter
+        assert rescue_sop_fx.mark_for_deletion.reporter == reporter
 
-        Args:
-            rescue_plain_fx (): plain rescue fixture
-            reason (str): md reason
-            reporter(str) md reporter
-        """
+        rescue_sop_fx.mark_for_deletion.reason = reason
+        assert rescue_sop_fx.mark_for_deletion.reason == reason
 
-        myMdStructure = {
-            "marked": marked,
-            "reason": reason,
-            "reporter": reporter
-        }
-        rescue_plain_fx.mark_for_deletion = myMdStructure
-        assert myMdStructure == rescue_plain_fx.mark_for_deletion
+        rescue_sop_fx.mark_for_deletion.reporter = reporter
+        assert rescue_sop_fx.mark_for_deletion.reporter == reporter
+
 
     @pytest.mark.parametrize("reason,reporter,marked", [
-        ("some reason", 42, True),
-        (-2.1, "Potato", False),
-        (None, None, 0),
-        (True, None, False)
+        ([], 42.2, -1),
+        (-2.1, {"Potato"}, None),
+        ([], 42, "md reason"),
+        (True, -42.2, uuid4())
     ])
     def test_mark_for_deletion_setter_bad_data(self, reason: str or None, reporter: str or None,
-                                               marked: bool, rescue_plain_fx: Rescue):
+                                               marked: bool, rescue_sop_fx: Rescue):
         """
         Verifies setting the mark for deletion property succeeds when the data is valid
 
         Args:
-            rescue_plain_fx (): plain rescue fixture
+            rescue_sop_fx (): plain rescue fixture
             reason (str): md reason
             reporter(str) md reporter
         """
+        with pytest.raises(TypeError):
+            rescue_sop_fx.mark_for_deletion.reason = reason
 
-        my_md_structure = {
-            "marked": marked,
-            "reason": reason,
-            "reporter": reporter
-        }
-        with pytest.raises(ValueError):
-            rescue_plain_fx.mark_for_deletion = my_md_structure
-            assert my_md_structure != rescue_plain_fx.mark_for_deletion
+        with pytest.raises(TypeError):
+            rescue_sop_fx.mark_for_deletion.reporter = reporter
+
+        with pytest.raises(TypeError):
+            rescue_sop_fx.mark_for_deletion.marked = marked
+
+        assert rescue_sop_fx.mark_for_deletion.marked is False
+        assert rescue_sop_fx.mark_for_deletion.reason != reason
+        assert rescue_sop_fx.mark_for_deletion.reporter != reporter
 
     @pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
     def test_mark_for_deletion_setter_bad_types(self, garbage, rescue_plain_fx: Rescue):
@@ -593,18 +589,6 @@ class TestRescuePyTests(object):
         myRescue = deepcopy(rescue_plain_fx)
 
         with pytest.raises(TypeError):
-            myRescue.mark_for_deletion = garbage
-
-    @pytest.mark.parametrize("garbage", [
-        {'reason': 42, 'marked': True, 'reporter': "UNIT_TEST"},
-        {'reason': None, "marked": 1, 'reporter': "UNIT_TEST"},
-        {'reason': None, "marked": False, "reporter": 21}
-    ])
-    def test_mark_for_deletion_setter_malformed_data(self, garbage, rescue_plain_fx: Rescue):
-        """Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError"""
-        myRescue = deepcopy(rescue_plain_fx)
-
-        with pytest.raises(ValueError):
             myRescue.mark_for_deletion = garbage
 
     @pytest.mark.asyncio
