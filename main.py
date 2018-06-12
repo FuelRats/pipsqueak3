@@ -12,25 +12,14 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+
+from config import config
 import logging
-
-from pydle import ClientPool, Client
-
-# noinspection PyUnresolvedReferences
-import commands
-# noinspection PyUnresolvedReferences
-from Modules import cli_manager
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
+from Modules import rat_command
 from Modules.rat_command import command
-# import config
-
 from pydle import ClientPool, Client
-
-# noinspection PyUnresolvedReferences
-from Modules import cli_manager, rat_command
-from Modules.rat_command import command
-from config import config
 from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
