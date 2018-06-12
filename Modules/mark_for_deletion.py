@@ -72,7 +72,7 @@ class MarkForDeletion(object):
         return self._reason
 
     @reason.setter
-    def reason(self, value: str) -> None:
+    def reason(self, value: Optional[str]) -> None:
         """
         Set the MD reason
 
@@ -101,7 +101,7 @@ class MarkForDeletion(object):
         return self._reporter
 
     @reporter.setter
-    def reporter(self, value: str) -> None:
+    def reporter(self, value: Optional[str]) -> None:
         """
         Sets the reporter
 
