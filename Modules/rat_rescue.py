@@ -19,6 +19,7 @@ from typing import Union, Optional, List
 from uuid import UUID
 
 from Modules.epic import Epic
+from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
 from utils.ratlib import Platforms, Status
@@ -43,11 +44,11 @@ class Rescue(object):
                  quotes: list = None,
                  epic: List[Epic] = None,
                  title: Optional[str] = None,
-                 first_limpet: Optional[UUID]= None,
+                 first_limpet: Optional[UUID] = None,
                  board_index: Optional[int] = None,
-                 mark_for_deletion: Optional[dict]= None,
+                 mark_for_deletion: MarkForDeletion = None,
                  lang_id: str = "EN",
-                 rats: list = None,
+                 rats: List[Rats] = None,
                  status: Status = Status.OPEN,
                  code_red=False):
         """
@@ -99,11 +100,7 @@ class Rescue(object):
         self._title: Union[str, None] = title
         self._firstLimpet: UUID = first_limpet
         self._board_index = board_index
-        self._mark_for_deletion = mark_for_deletion if mark_for_deletion else {
-            "marked": False,
-            "reason": None,
-            "reporter": None
-        }
+        self._mark_for_deletion = mark_for_deletion
         self._board_index = board_index
         self._lang_id = lang_id
         self._status = status
@@ -699,30 +696,13 @@ class Rescue(object):
             TypeError: bad value type
             ValueError: value failed validation
         """
-        if isinstance(value, dict):
-            # checks to ensure only the required fields are present
-            if "marked" in value and "reason" in value and "reporter" in value and len(value) == 3:
-                # now sanity check the values
-                conditions = {
-                    isinstance(value["marked"], bool),
-                    isinstance(value["reason"], str) or value["reason"] is None,
-                    isinstance(value["reporter"], str) or value["reporter"] is None,
-                }
-                if all(conditions):
-                    self._mark_for_deletion = value
-
-                else:
-                    # at least one of the values was not valid
-                    raise ValueError("Data validation failed. at least one key contains invalid"
-                                     "data.")
-            else:
-                log.debug(f"Data of value is: {value}")
-                raise ValueError("required fields missing and/or keys!")
+        if isinstance(value, MarkForDeletion):
+            self._mark_for_deletion = value
         else:
-            raise TypeError(f"expected type dict, got type {type(value)}")
+            raise TypeError
 
     @property
-    def rats(self) -> list:
+    def rats(self) -> List[Rats]:
         """
         Identified rats assigned to rescue
 
