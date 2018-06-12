@@ -18,7 +18,6 @@ from operator import xor
 from typing import Union, Optional, List
 from uuid import UUID
 
-from Modules.context import Context
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat_quotation import Quotation
@@ -786,24 +785,24 @@ class Rescue(object):
                 rat = Rats(name=name, uuid=guid)
                 self.rats.append(rat)
 
-    def mark(self, marked: bool, context: Context):
+    def mark(self, marked: bool, reporter: str, reason: str):
         """
         Marks or unmarks a rescue for deletion
 
         Args:
             marked (bool): bool marking whether to mark or remove the Md mark
-            context (Context): Command context of invocation
+            reporter (str): person marking rescue as deleted
+            reason (str): reason for the rescue being marked as deleted.
 
         Raises:
-            AssertionError: invalid params
+            TypeError: invalid params
         """
         # type enforcement
-        assert isinstance(marked, bool), "invalid marked value"
-        assert isinstance(context, Context), "invalid context object"
+        if not isinstance(marked, bool) or not isinstance(reporter, str) or not isinstance(reason,
+                                                                                           str):
+            raise TypeError
 
         if marked:  # mark the rescue for deletion
-            reporter = context.user.nickname
-            reason = context.words_eol[1]
             log.debug(f"marking rescue @{self.case_id} for deletion. reporter is {reporter} and "
                       f"their reason is '{reason}'.")
             if reason == "":
