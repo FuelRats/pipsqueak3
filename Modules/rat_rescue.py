@@ -18,6 +18,7 @@ from operator import xor
 from typing import Union, Optional, List
 from uuid import UUID
 
+from Modules.context import Context
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat_quotation import Quotation
@@ -784,6 +785,35 @@ class Rescue(object):
 
                 rat = Rats(name=name, uuid=guid)
                 self.rats.append(rat)
+
+    def mark(self, marked: bool, context: Context):
+        """
+        Marks or unmarks a rescue for deletion
+
+        Args:
+            marked (bool): bool marking whether to mark or remove the Md mark
+            context (Context): Command context of invocation
+        """
+        # type enforcement
+        assert isinstance(marked, bool), "invalid marked value"
+
+        if marked:  # mark the rescue for deletion
+            reporter = context.user.nickname
+            reason = context.words_eol[1]
+            log.debug(f"marking rescue @{self.case_id} for deletion. reporter is {reporter} and "
+                      f"their reason is '{reason}'.")
+            if reason == "":
+                raise ValueError("Reason required.")
+            self.mark_for_deletion.reporter = reporter
+            self.mark_for_deletion.reason = reason
+            self.mark_for_deletion.marked = True
+
+        else:
+            self.mark_for_deletion.reason = None
+            self.mark_for_deletion.reporter = None
+            self.mark_for_deletion.marked = False
+
+
 
     @contextmanager
     def change(self):
