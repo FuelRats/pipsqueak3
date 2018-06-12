@@ -654,6 +654,9 @@ class TestRescuePyTests(object):
         with pytest.raises(TypeError):
             rescue_sop_fx.mark_delete("sna", None)
 
+        with pytest.raises(ValueError):
+            rescue_sop_fx.mark_delete("unit_test", "")
+
     def test(self, rescue_sop_fx: Rescue):
         """Verify unmarking a case that was MD'ed works as expected"""
         rescue_sop_fx.mark_for_deletion = MarkForDeletion(True, "unit_test[BOT]",
