@@ -28,42 +28,41 @@ def log_severity_call(logger, severity, random_string):
         logger.error(logging_string)
 
 
-def test_logging_default_level(Logging_fx):
+def test_logging_default_level(logging_fx):
     """
     Test logging level has been set to INFO by default
     """
-    Logging_fx.setLevel(logging.INFO)
-    assert Logging_fx.getEffectiveLevel() == logging.INFO
+    logging_fx.setLevel(logging.INFO)
+    assert logging_fx.getEffectiveLevel() == logging.INFO
 
 
 @pytest.mark.parametrize("severity", [logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR])
-def test_logging_levels(caplog, Logging_fx, Random_string_fx, severity):
+def test_logging_levels(caplog, logging_fx, random_string_fx, severity):
     """
     Test Console logging with random string to ensure input matches output.
     """
-    test_randstring = Random_string_fx
-    Logging_fx.setLevel(severity)
-    log_severity_call(Logging_fx, severity, test_randstring)
-
+    test_randstring = random_string_fx
+    logging_fx.setLevel(severity)
+    log_severity_call(logging_fx, severity, test_randstring)
     assert caplog.record_tuples == [
-        ('mecha', severity, f"Test String {test_randstring}"),
+        (logging_fx.name, severity, f"Test String {test_randstring}"),
     ]
 
 
 @pytest.mark.parametrize("severity", [logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR])
-def test_logging_to_file_debug(Logging_fx, Random_string_fx, severity):
+def test_logging_to_file_debug(logging_fx, random_string_fx, severity):
     """
     Test log file input matches written data by logging a random string,
     and then searching that file for the string.
     """
-    test_randstring = Random_string_fx
+    test_randstring = random_string_fx
 
-    Logging_fx.setLevel(severity)
-    log_severity_call(Logging_fx, severity, test_randstring)
+    logging_fx.setLevel(severity)
+    log_severity_call(logging_fx, severity, test_randstring)
 
     match = 0
     for line in open('logs/unit_tests.log'):
         if test_randstring in line:
             match += 1
 
-    assert 2 == match
+    assert match == 1

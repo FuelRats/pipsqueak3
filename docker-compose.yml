@@ -37,7 +37,7 @@ services:
 
     build: .
     image: mecha3
-    command: ["pytest", "--config", "testing.json"]
+    command: ["pytest"]
 
   mecha3-dev:
     volumes:

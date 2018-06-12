@@ -11,46 +11,40 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
+import sys
+import string
 import logging
 import random
 from uuid import uuid4, UUID
 
 import pytest
 
-from Modules.epic import Epic
-from Modules.user import User
-from Modules.context import Context
+# Set argv to keep cli arguments meant for pytest from polluting our things
+sys.argv = ["test",
+            "--config-file", "testing.json",
+            "--clean-log",
+            "--verbose",
+            ]
 
+# This import statement is where the config gets read
 from config import setup_logging
+setup_logging("logs/unit_tests.log")
+
 from tests.mock_bot import MockBot
-
-
-def pytest_addoption(parser):
-    """
-    hooks into pytest before it parses its CLI arguments,
-    allowing us to register our own so it doesn't throw a fit if we use them
-    """
-    parser.addoption("--config-file", "--config", default="testing.json")
-    parser.addoption("--new-log", action="store_true", default=False)
-
-
-from config import setup
-
-# have config setup at the beginning of testing
-
-setup("testing.json")
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
-
-from ratlib.names import Platforms
+from utils.ratlib import Platforms
+from Modules.context import Context
+from Modules.epic import Epic
+from Modules.user import User
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
                         ("xxXclient", Platforms.XB, "sol", 2),
                         ("psCoolKid", Platforms.PS, "NLTT 48288", 33)],
                 )
-def RescueSoP_fx(request) -> Rescue:
+def rescue_sop_fx(request) -> Rescue:
     """
     A Rescue fixture providing Rescue objects for the 3 supported platforms
 
@@ -68,7 +62,7 @@ def RescueSoP_fx(request) -> Rescue:
 
 
 @pytest.fixture
-def RescuePlain_fx() -> Rescue:
+def rescue_plain_fx() -> Rescue:
     """
     A plain initialized Rescue without parametrization
 
@@ -79,7 +73,7 @@ def RescuePlain_fx() -> Rescue:
 
 
 @pytest.fixture
-def RatNoID_fx():
+def rat_no_id_fx():
     """
     Returns: (Rescue): Rescue test fixture without an api ID
 
@@ -92,7 +86,7 @@ def RatNoID_fx():
                         ("psRatToTheRescue", Platforms.PS,
                          UUID("FEE1DEA-DFAC-0000-000001BADB001FEED"))],
                 )
-def RatGood_fx(request) -> Rats:
+def rat_good_fx(request) -> Rats:
     """
     Testing fixture containing good and registered rats
     """
@@ -102,7 +96,7 @@ def RatGood_fx(request) -> Rats:
 
 
 @pytest.fixture
-def RatBoard_fx() -> RatBoard:
+def rat_board_fx() -> RatBoard:
     """
     Provides a RatBoard object
 
@@ -118,7 +112,7 @@ def bot_fx():
 
 
 @pytest.fixture
-def User_fx():
+def user_fx():
     return User(False,
                 0,
                 False,
@@ -134,52 +128,51 @@ def User_fx():
 
 
 @pytest.fixture
-def Context_channel_fx(User_fx, bot_fx) -> Context:
+def context_channel_fx(user_fx, bot_fx) -> Context:
     """
     Provides a context fixture
 
     Returns:
         Context
     """
-    context = Context(bot_fx, User_fx, "#unit_test", ["my", "word"], ["my", "my word"])
+    context = Context(bot_fx, user_fx, "#unit_test", ["my", "word"], ["my", "my word"])
     return context
 
 
 @pytest.fixture
-def Context_pm_fx(User_fx, bot_fx) -> Context:
+def context_pm_fx(user_fx, bot_fx) -> Context:
     """
     Provides a context fixture
 
     Returns:
         Context
     """
-    context = Context(bot_fx, User_fx, "someUSer", ["my", "word"], ["my", "my word"])
+    context = Context(bot_fx, user_fx, "someUSer", ["my", "word"], ["my", "my word"])
     return context
 
 
 @pytest.fixture(params=[0, 1])
-def Context_fx(request, bot_fx, User_fx):
+def context_fx(request, bot_fx, user_fx):
     """Parametrized context fixture, returning a channel and non-channel Context object"""
     if request.param == 0:
-        return Context(bot_fx, User_fx, "#unit_test", ["my", "word"], ["my", "my word"])
+        return Context(bot_fx, user_fx, "#unit_test", ["my", "word"], ["my", "my word"])
     elif request.param == 1:
-        return Context(bot_fx, User_fx, "someUSer", ["my", "word"], ["my", "my word"])
+        return Context(bot_fx, user_fx, "someUSer", ["my", "word"], ["my", "my word"])
 
     raise ValueError
 
 
 @pytest.fixture
-def Logging_fx() -> logging:
+def logging_fx(caplog) -> logging.Logger:
     """
     Calls config.setup_logging with a test_log.log file for testing purposes.
     :return:
     """
-    setup_logging('logs/test_log.log')
-    return logging.getLogger('mecha')
+    caplog.clear()
+    return logging.getLogger("mecha.logging_fx")
 
-
-@pytest.fixture(params=[8, 16, 32])
-def Random_string_fx(request) -> str:
+@pytest.fixture
+def random_string_fx() -> str:
     """
     Creates a 16 digit alphanumeric string.  For use
     with logging tests.
@@ -187,14 +180,11 @@ def Random_string_fx(request) -> str:
     Returns:
          16 digit alphanumeric string.
     """
-    source = "abcdefghijklmnopqrstuvwxyz012345" \
-             "67890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    request = 16
-    result = "".join(random.sample(source, request))
+    result = "".join(random.sample(string.ascii_letters, 16))
     return result
 
 
 @pytest.fixture
-def epic_fx(RescuePlain_fx, RatGood_fx) -> Epic:
+def epic_fx(rescue_plain_fx, rat_good_fx) -> Epic:
     """Provides an Epic object fixture"""
-    return Epic(uuid4(), "my notes package", RescuePlain_fx, RatGood_fx)
+    return Epic(uuid4(), "my notes package", rescue_plain_fx, rat_good_fx)

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 main.py - Mechasqueak3 main program
 
@@ -11,25 +12,15 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+
+from config import config
 import logging
-
-from pydle import ClientPool, Client
-
-# noinspection PyUnresolvedReferences
-import commands
-# noinspection PyUnresolvedReferences
-from Modules import cli_manager
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
+from Modules import rat_command
 from Modules.rat_command import command
-# import config
-
 from pydle import ClientPool, Client
-
-# noinspection PyUnresolvedReferences
-from Modules import cli_manager, rat_command
-from Modules.rat_command import command
-from config import config
+from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -97,7 +88,10 @@ class MechaClient(Client):
             return None
 
         else:  # await command execution
-            await rat_command.trigger(message=message,
+            # sanitize input string headed to command executor
+            sanitized_message = sanitize(message)
+            log.debug(f"Sanitized {sanitized_message}, Original: {message}")
+            await rat_command.trigger(message=sanitized_message,
                                       sender=user,
                                       channel=channel)
 
@@ -128,8 +122,7 @@ class MechaClient(Client):
 async def cmd_ping(context: Context):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
-    :param bot: Pydle instance.
-    :param trigger: `Trigger` object for the command call.
+    :param context: `Context` object for the command call.
     """
     log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
                 f"'{context.user.nickname}'")

@@ -18,7 +18,7 @@ from functools import reduce
 from operator import xor
 from uuid import UUID
 
-from ratlib.names import Platforms
+from utils.ratlib import Platforms
 
 log = logging.getLogger(f"mecha.{__name__}")
 
