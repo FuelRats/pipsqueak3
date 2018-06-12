@@ -657,3 +657,11 @@ class TestRescuePyTests(object):
         assert rescue_sop_fx.mark_for_deletion.marked
         assert user_fx.nickname == rescue_sop_fx.mark_for_deletion.reporter
         assert context.words_eol[1] == rescue_sop_fx.mark_for_deletion.reason
+
+    def test_mark_true_invalid(self, rescue_sop_fx: Rescue, context_fx: Context):
+        """verify what happens when garbage gets thrown at `rescue.mark`"""
+        with pytest.raises(AssertionError):
+            rescue_sop_fx.mark(True, None)
+
+        with pytest.raises(AssertionError):
+            rescue_sop_fx.mark("True", context_fx)

@@ -793,9 +793,13 @@ class Rescue(object):
         Args:
             marked (bool): bool marking whether to mark or remove the Md mark
             context (Context): Command context of invocation
+
+        Raises:
+            AssertionError: invalid params
         """
         # type enforcement
         assert isinstance(marked, bool), "invalid marked value"
+        assert isinstance(context, Context), "invalid context object"
 
         if marked:  # mark the rescue for deletion
             reporter = context.user.nickname
@@ -808,7 +812,8 @@ class Rescue(object):
             self.mark_for_deletion.reason = reason
             self.mark_for_deletion.marked = True
 
-        else:
+        else:  # unmark the rescue for deletion
+            log.debug(f"clearing Md status for rescue @{self.case_id} ...")
             self.mark_for_deletion.reason = None
             self.mark_for_deletion.reporter = None
             self.mark_for_deletion.marked = False
