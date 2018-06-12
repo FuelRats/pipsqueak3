@@ -134,20 +134,20 @@ class TestPermissions(object):
                 assert hash(perm1) != hash(perm2)
 
     @pytest.mark.asyncio
-    async def test_require_channel_valid(self, bot_fx, Context_channel_fx):
+    async def test_require_channel_valid(self, bot_fx, context_channel_fx):
         @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
         async def potato(context: Context):
             return "hi there!"
 
-        retn = await potato(Context_channel_fx)
+        retn = await potato(context_channel_fx)
         assert retn == "hi there!"
 
     @pytest.mark.asyncio
-    async def test_require_channel_invalid(self, Context_pm_fx, bot_fx):
+    async def test_require_channel_invalid(self, context_pm_fx, bot_fx):
         @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
         async def potato(context: Context):
             context.reply("hi there!")
 
-        await potato(Context_pm_fx)
+        await potato(context_pm_fx)
 
         assert "https://www.youtube.com/watch?v=gvdf5n-zI14" == bot_fx.sent_messages[0]['message']
