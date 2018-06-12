@@ -12,7 +12,6 @@ This module is built on top of the Pydle system.
 """
 from copy import deepcopy
 from datetime import datetime
-from typing import List
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 from uuid import uuid4
@@ -22,7 +21,6 @@ import pytest
 from Modules.context import Context
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
-from Modules.user import User
 from utils.ratlib import Platforms
 
 
@@ -636,32 +634,22 @@ class TestRescuePyTests(object):
         """
         assert not rescue_plain_fx == "Rescue object at <0xBADBEEF> "
 
-    @pytest.mark.parametrize("words, words_eol", [
-        (["md", "3", "I", "have", "my", "reasons!"],
-         ["3 I have my reasons!", "I have my reasons!", "have my reasons!",
-          "my reasons!", "reasons!"]),
-        (["md", "4", "reasons"], ["md 4 reasons", "4 reasons", "reasons"])
-    ])
-    def test_mark_true_valid(self, rescue_sop_fx: Rescue,
-                             bot_fx,
-                             user_fx: User,
-                             words: List[str],
-                             words_eol: List[str]):
+    @pytest.mark.parametrize("reporter, reason", [("unit_test[BOT]", "reasons! reasons i say!"),
+                                                  ("potato[pc|nd]", "uhhh..."),
+                                                  ("sayWhat99", "dawg this ain't right!")])
+    def test_mark_true_valid(self, rescue_sop_fx: Rescue, reporter: str, reason: str):
         """Verifies Rescue.mark functions as expected when marking a case for deletion"""
 
-        context = Context(bot_fx,
-                          user_fx,
-                          "#unit_test", words, words_eol)
+        rescue_sop_fx.mark(True, reporter, reason)
 
-        rescue_sop_fx.mark(True, context)
         assert rescue_sop_fx.mark_for_deletion.marked
-        assert user_fx.nickname == rescue_sop_fx.mark_for_deletion.reporter
-        assert context.words_eol[1] == rescue_sop_fx.mark_for_deletion.reason
+        assert reporter == rescue_sop_fx.mark_for_deletion.reporter
+        assert reason == rescue_sop_fx.mark_for_deletion.reason
 
     def test_mark_true_invalid(self, rescue_sop_fx: Rescue, context_fx: Context):
         """verify what happens when garbage gets thrown at `rescue.mark`"""
-        with pytest.raises(AssertionError):
-            rescue_sop_fx.mark(True, None)
+        with pytest.raises(TypeError):
+            rescue_sop_fx.mark(True, None, None)
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(TypeError):
             rescue_sop_fx.mark("True", context_fx)
