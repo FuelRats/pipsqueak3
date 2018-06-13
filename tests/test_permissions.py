@@ -161,6 +161,7 @@ class TestPermissions(object):
         retn = await potato(context_pm_fx)
         assert retn == "hi there!"
 
+    @pytest.mark.asyncio
     async def test_require_dm_invalid(self, context_channel_fx):
         @require_dm()
         async def potato(context: Context):
