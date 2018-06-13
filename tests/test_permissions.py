@@ -20,7 +20,7 @@ import pytest
 import Modules.rat_command as Commands
 from Modules import permissions
 from Modules.context import Context
-from Modules.permissions import require_permission, require_channel
+from Modules.permissions import require_permission, require_channel, require_dm
 
 
 # registration is done in setUp
@@ -151,3 +151,20 @@ class TestPermissions(object):
         await potato(context_pm_fx)
 
         assert "https://www.youtube.com/watch?v=gvdf5n-zI14" == bot_fx.sent_messages[0]['message']
+
+    @pytest.mark.asyncio
+    async def test_require_dm_valid(self, context_pm_fx):
+        @require_dm()
+        async def potato(context: Context):
+            return "hi there!"
+
+        retn = await potato(context_pm_fx)
+        assert retn == "hi there!"
+
+    async def test_require_dm_invalid(self, context_channel_fx):
+        @require_dm()
+        async def potato(context: Context):
+            return "oh noes!"
+
+        retn = await potato(context_channel_fx)
+        assert retn != "oh noes!"

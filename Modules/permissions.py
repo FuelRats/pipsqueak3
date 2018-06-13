@@ -162,7 +162,7 @@ def require_channel(message: str = "This command must be invoked in a channel.")
     return real_decorator
 
 
-def require_dm(message: str = "This command must be invoked in a channel."):
+def require_dm(message: str = "This command must be invoked in a private message."):
     """
     Require the wrapped IRC command to be invoked in a direct message context.
 
