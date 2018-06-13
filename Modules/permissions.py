@@ -160,3 +160,34 @@ def require_channel(message: str = "This command must be invoked in a channel.")
         return guarded
 
     return real_decorator
+
+
+def require_dm(message: str = "This command must be invoked in a channel."):
+    """
+    Require the wrapped IRC command to be invoked in a direct message context.
+
+    Usage:
+        ```py
+
+        @require_channel()
+        async def my_command(context: Context):
+            pass
+        ```
+    """
+
+    def real_decorator(func):
+        """wrapps the function in the DM enforcer"""
+        log.debug(f"Wrapping function object {func} with Direct message enforcement")
+
+        @wraps(func)
+        async def guarded(context: Context):
+            """Enforces channel requirement"""
+            if context.channel is None:
+                return await func(context)
+            else:
+                log.debug(f"Executed from channel context... enforcing restriction...")
+                await context.reply(message)
+
+        return guarded
+
+    return real_decorator
