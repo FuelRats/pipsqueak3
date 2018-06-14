@@ -3,7 +3,7 @@ Unittest file for the Rat_Board module.
 """
 from copy import deepcopy
 from unittest import TestCase
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import pytest
 
@@ -262,3 +262,34 @@ class TestRatBoardPyTest(object):
 
         # and verify its functionality
         assert expected == nextFree
+
+    @pytest.mark.parametrize("test_input", [
+        "unit_test[BOT]",
+        1,
+        '@23a47b14-c2b8-4633-8cba-8c6a32a9cf7a',
+        "1",
+        UUID('23a47b14-c2b8-4633-8cba-8c6a32a9cf7a')])
+    def test_search_valid(self, test_input, rat_board_fx: RatBoard):
+            my_board = deepcopy(rat_board_fx)
+            test_rescue = Rescue(UUID('23a47b14-c2b8-4633-8cba-8c6a32a9cf7a'), "unit_test[BOT]", "snafu", "unit_test",
+                                 board_index=1)
+            my_board.append(test_rescue)
+            assert my_board.search(test_input) == test_rescue
+
+    @pytest.mark.parametrize("test_input", [
+        "unit_test[BOT",
+        True,
+        3.14,
+        '@23a47b14-c2b8-4633-8cba-8c6a32afa',
+        '@23a47b14-c2b8-4633-8cba-8c6a32a9cf7)'
+        "42",
+        False])
+    def test_search_garbage(self, test_input, rat_board_fx: RatBoard):
+            my_board = deepcopy(rat_board_fx)
+            test_rescue = Rescue(UUID('23a47b14-c2b8-4633-8cba-8c6a32a9cf7a'), "unit_test[BOT]", "snafu", "unit_test",
+                                 board_index=1)
+            my_board.append(test_rescue)
+            try:
+                assert my_board.search(test_input) is None
+            except ValueError:
+                assert True
