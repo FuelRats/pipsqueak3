@@ -162,7 +162,7 @@ def require_channel(message: str = "This command must be invoked in a channel.")
     return real_decorator
 
 
-def require_dm(message: str = "This command must be invoked in a private message."):
+def require_dm(message: str = "command {cmd} must be invoked in a private message."):
     """
     Require the wrapped IRC command to be invoked in a direct message context.
 
@@ -186,7 +186,7 @@ def require_dm(message: str = "This command must be invoked in a private message
                 return await func(context)
             else:
                 log.debug(f"Executed from channel context... enforcing restriction...")
-                await context.reply(message)
+                await context.reply(message.format(cmd=context.words[0]))
 
         return guarded
 
