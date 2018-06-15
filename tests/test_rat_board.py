@@ -280,8 +280,9 @@ class TestRatBoardPyTest(object):
                             True,
                             3.14,
                             '@12345678-9876-53d1-ea5e-0000dead',
-                            '@12345678-9876-53d1-ea5e-000deadsheep'
-                            "42",
+                            '@12345678-9876-53d1-ea5e-0000deadbee-',
+                            '@12345678-9876-53d1-ea5e-000deadsheep',
+                            "42.5",
                             False])
     def test_search_garbage(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
         test_rescue = rescue_plain_fx
@@ -290,4 +291,4 @@ class TestRatBoardPyTest(object):
         try:
             assert rat_board_fx.search(test_input) is None
         except ValueError:
-            pass
+            assert True
