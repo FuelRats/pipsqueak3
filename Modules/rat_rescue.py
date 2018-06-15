@@ -699,7 +699,7 @@ class Rescue(object):
         if isinstance(value, MarkForDeletion):
             self._mark_for_deletion = value
         else:
-            raise TypeError
+            raise TypeError(f"got {type(value)} expected MarkForDeletion object")
 
     @property
     def rats(self) -> List[Rats]:
@@ -798,7 +798,8 @@ class Rescue(object):
         """
         # type enforcement
         if not isinstance(reporter, str) or not isinstance(reason, str):
-            raise TypeError
+            raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
+                            f"{type(reason)}")
 
         log.debug(f"marking rescue @{self.case_id} for deletion. reporter is {reporter} and "
                   f"their reason is '{reason}'.")
