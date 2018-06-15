@@ -222,7 +222,7 @@ class RatBoard(object):
             raise ValueError
 
         if isinstance(case, str):
-            # strings could be any of the valid types (such as using commands), check for the best one.
+            # strings could be any of the valid types, check for the best one.
             if case.isdigit():
                     return self.find_by_index(int(case))
             else:
