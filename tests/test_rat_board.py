@@ -297,4 +297,4 @@ class TestRatBoardPyTest(object):
         rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
         rat_board_fx.append(rescue_plain_fx)
         with pytest.raises((TypeError, ValueError,)):
-            assert rat_board_fx.search(test_input) is None
+            rat_board_fx.search(test_input)
