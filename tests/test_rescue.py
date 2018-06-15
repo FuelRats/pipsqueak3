@@ -102,21 +102,14 @@ def test_uuid_is_set(rescue_sop_fx):
 
 def test_client_is_set(rescue_sop_fx):
     """
-    Verfies that rescue_sop_fx._client is set.
+    Verifies that rescue_sop_fx._client is set.
     """
     assert rescue_sop_fx.client != ''
 
 
-def test_client_attribute_exists(rescue_sop_fx):
-    """
-    Verifies client attribute exists
-    """
-    assert hasattr(rescue_sop_fx, 'client')
-
-
 def test_created_at_date_exists(rescue_sop_fx):
     """
-    Verfies rescue.created_at datetime is set, and in the past.
+    Verifies rescue.created_at datetime is set, and in the past.
     """
     expected_time_differential = (datetime.utcnow() - rescue_sop_fx.created_at)
     assert expected_time_differential != 0
@@ -126,10 +119,12 @@ def test_updated_at_date_exists(rescue_sop_fx):
     """
     Verifies rescue.updated_at is correct
     """
+    rescue_sop_fx._updatedAt = datetime(1990, 1, 1, 1, 1, 1)
+
     with rescue_sop_fx.change():
         rescue_sop_fx.system = 'UpdatedSystem'
 
-    assert rescue_sop_fx.updated_at is not None
+    assert rescue_sop_fx.updated_at != datetime(1990, 1, 1, 1, 1, 1)
 
 
 @pytest.mark.parametrize("expected_rats", [['Joeblow', 'TinyTim', 'White Sheets'],
@@ -171,7 +166,6 @@ def test_rescue_quotes_list(rescue_sop_fx, expected_quote, expected_author):
     for quote in rescue_sop_fx.quotes:
         assert quote.message == expected_quote
         assert quote.author == expected_author
-
 
 
 class TestRescue(TestCase):
@@ -703,7 +697,6 @@ class TestRescuePyTests(object):
 
         rescue_sop_fx.marked_for_deletion.reporter = reporter
         assert rescue_sop_fx.marked_for_deletion.reporter == reporter
-
 
     @pytest.mark.parametrize("reason,reporter,marked", [
         ([], 42.2, -1),
