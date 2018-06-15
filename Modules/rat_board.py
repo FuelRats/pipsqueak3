@@ -219,7 +219,7 @@ class RatBoard(object):
         """
         # ensure a proper type was passed
         if not isinstance(case, str):
-            raise ValueError(f"Expected str, got {type(case)}")
+            raise TypeError(f"Expected str, got {type(case)}")
         # strings could be any of the valid types, check for the best one.
         if case.isdigit():
             case_number = int(case)
