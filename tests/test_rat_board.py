@@ -278,7 +278,8 @@ class TestRatBoardPyTest(object):
                             "100",  # bad case number (int)
                             '@12345678-9876-53d1-ea5e-0000dead'  # wrong length uuid
                             ])
-    def test_search_garbage_returns_none(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
+    def test_search_garbage_returns_none(self, test_input, rat_board_fx: RatBoard,
+                                         rescue_plain_fx: Rescue):
         rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
         rat_board_fx.append(rescue_plain_fx)
         assert rat_board_fx.search(test_input) is None
@@ -286,9 +287,14 @@ class TestRatBoardPyTest(object):
     @pytest.mark.parametrize("test_input", [
                             '@12345678-9876-53d1-ea5e-0000deadbee-',
                             '@12345678-9876-53d1-ea5e-000deadsheep',
-                            42])
-    def test_search_garbage_raises_exception(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
+                            True,
+                            False,
+                            42,
+                            uuid4(),
+                            None])
+    def test_search_garbage_raises_exception(self, test_input, rat_board_fx: RatBoard,
+                                             rescue_plain_fx: Rescue):
         rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
         rat_board_fx.append(rescue_plain_fx)
-        with pytest.raises(ValueError):
+        with pytest.raises((TypeError, ValueError,)):
             assert rat_board_fx.search(test_input) is None
