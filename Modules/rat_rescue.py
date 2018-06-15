@@ -814,7 +814,7 @@ class Rescue(object):
             raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
                             f"{type(reason)}")
 
-        log.debug(f"marking rescue @{self.case_id} for deletion. reporter is {reporter} and "
+        log.debug(f"marking rescue @{self.uuid} for deletion. reporter is {reporter} and "
                   f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")
