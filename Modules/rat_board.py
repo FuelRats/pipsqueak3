@@ -203,12 +203,12 @@ class RatBoard(object):
                 return rescue
         return None
 
-    def search(self, case: Union[str, int, UUID]) -> Optional[Rescue]:
+    def search(self, case: str) -> Optional[Rescue]:
         """
         Helper for searching for a case using implemented search functions.
 
         Args:
-            case (Union[str, int, UUID]): the client's name, a case ID, or a rescue UUID
+            case str: The case string to search on
 
         Returns:
             Rescue: found rescue
@@ -218,30 +218,23 @@ class RatBoard(object):
             ValueError: argument was not an expected type
         """
         # ensure a proper type was passed
-        if not isinstance(case, str) and not isinstance(case, int) and not isinstance(case, UUID):
-            raise ValueError
-
-        if isinstance(case, str):
-            # strings could be any of the valid types, check for the best one.
-            if case.isdigit():
-                    return self.find_by_index(int(case))
+        if not isinstance(case, str):
+            raise ValueError(f"Expected str, got {type(case)} instead")
+        # strings could be any of the valid types, check for the best one.
+        if case.isdigit():
+            return self.find_by_index(int(case))
+        # UUIDs always start with @ and are 37 characters, so try to parse it
+        elif case[0] == "@" and len(case) == 37:
+            try:
+                guid_str = case[1:]
+                guid = UUID(guid_str)
+            except (AttributeError, ValueError):
+                # not a valid UUID
+                raise ValueError("Specified uuid is not valid.")
             else:
-                # UUIDs always start with @ and are 37 characters, so try to parse it
-                if case[0] == "@" and len(case) == 37:
-                    try:
-                        guid_str = case[1:]
-                        guid = UUID(guid_str)
-                    except (AttributeError, ValueError):
-                        # not a valid UUID
-                        return None
-                    else:
-                        return self.find_by_uuid(guid)
-                else:
-                    return self.find_by_name(case)
-        elif isinstance(case, int) and not isinstance(case, bool):
-            return self.find_by_index(case)
+                return self.find_by_uuid(guid)
         else:
-            return self.find_by_uuid(case)
+            return self.find_by_name(case)
 
     def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """

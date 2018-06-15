@@ -350,6 +350,7 @@ class Rescue(object):
     def uuid(self, uuid) -> None:
         """
         Sets the API uuid associated with the Rescue
+
         Args:
             uuid (UUID): The API ID
 
@@ -364,7 +365,8 @@ class Rescue(object):
     @property
     def client(self) -> str:
         """
-        The client associated with the rescue\n
+        The client associated with the rescue
+
         Returns:
             (str) the client
 
@@ -375,6 +377,7 @@ class Rescue(object):
     def client(self, name) -> None:
         """
         Sets the client's Commander Name associated with the rescue
+
         Args:
             name (str): Commander name of the client
 
