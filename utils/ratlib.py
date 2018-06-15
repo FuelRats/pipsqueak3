@@ -87,21 +87,13 @@ def strip_name(nickname: str) -> str:
     return split_string[0]
 
 
-def validate_uuid(uuid_val: UUID) -> bool:
-    """
-    Args:
-        uuid_val: suspected invalid uuid, or uuid to be validated
+def try_parse_uuid(suspect: str):
+    result = None
 
-    Returns:
-        bool True/False if uuid can be validated.
-
-    """
     try:
-        result = UUID(uuid_val, version=4)
+        result = UUID(suspect, version=4)
     except ValueError:
-        # If we get a value error, it isn't a valid UUID.
-        return False
+        return None
 
-    # If its valid hex, then UUID will convert it to a valid
-    # uuid4, which we don't want.
-    return result.hex == uuid_val
+    else:
+        return result
