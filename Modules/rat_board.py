@@ -100,7 +100,7 @@ class RatBoard(object):
                           f"createdAt {rescue.created_at} == {other.created_at}")
 
                 # if the IDs match then we know they are the same case.
-                if other.case_id is not None and rescue.case_id == other.case_id:
+                if other.uuid is not None and rescue.uuid == other.uuid:
                     return True
 
                 # check if the key attributes are equal
@@ -199,7 +199,7 @@ class RatBoard(object):
 
         """
         for rescue in self.rescues.values():
-            if rescue.case_id == guid:
+            if rescue.uuid == guid:
                 return rescue
         return None
 
@@ -229,7 +229,8 @@ class RatBoard(object):
                 # UUIDs always start with @ and are 37 characters, so try to parse it
                 if case[0] == "@" and len(case) == 37:
                     try:
-                        guid = UUID(case[1:])
+                        guid_str = case[1:]
+                        guid = UUID(guid_str)
                     except (AttributeError, ValueError):
                         # not a valid UUID
                         return None
@@ -308,7 +309,7 @@ class RatBoard(object):
                 # FIXME: change to match API Handler interface, once it exists
                 await self.handler.update_rescue(rescue)
 
-            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.case_id}...")
+            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.uuid}...")
             self.append(rescue=rescue, overwrite=True)
             result = True
 
@@ -328,12 +329,12 @@ class RatBoard(object):
             KeyError: rescue was not on the board.
         """
         if self.handler is not None:
-            log.debug(f"Calling API to remove case by id {rescue.case_id}")
+            log.debug(f"Calling API to remove case by id {rescue.uuid}")
             #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
         log.debug(f"Removing case #{rescue.board_index} "
-                  f"(@{rescue.case_id})from the board.")
+                  f"(@{rescue.uuid})from the board.")
         self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
