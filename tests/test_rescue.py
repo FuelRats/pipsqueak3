@@ -93,13 +93,6 @@ def test_validate_rescue_uuid(rescue_sop_fx):
     assert rescue_sop_fx.case_id == result
 
 
-def test_uuid_is_set(rescue_sop_fx):
-    """
-    Verifies a UUID is set for a given Rescue object.
-    """
-    assert rescue_sop_fx.case_id is not None
-
-
 def test_client_is_set(rescue_sop_fx):
     """
     Verifies that rescue_sop_fx._client is set.
