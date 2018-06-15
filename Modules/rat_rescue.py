@@ -347,20 +347,20 @@ class Rescue(object):
         return self._id
 
     @uuid.setter
-    def uuid(self, uuid) -> None:
+    def uuid(self, value: UUID) -> None:
         """
         Sets the API uuid associated with the Rescue
 
         Args:
-            uuid (UUID): The API ID
+            value (UUID): The API ID
 
         Returns:
             None
         """
-        if isinstance(uuid, UUID):
-            self._id = uuid
+        if isinstance(value, UUID):
+            self._id = value
         else:
-            raise ValueError(f"expected UUID, got type {type(uuid)}")
+            raise ValueError(f"expected UUID, got type {type(value)}")
 
     @property
     def client(self) -> str:
@@ -374,17 +374,17 @@ class Rescue(object):
         return self._client
 
     @client.setter
-    def client(self, name) -> None:
+    def client(self, value: str) -> None:
         """
         Sets the client's Commander Name associated with the rescue
 
         Args:
-            name (str): Commander name of the client
+            value (str): Commander name of the client
 
         Returns:
             None
         """
-        self._client = name
+        self._client = value
 
     @property
     def created_at(self) -> datetime:

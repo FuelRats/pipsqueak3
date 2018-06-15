@@ -219,10 +219,11 @@ class RatBoard(object):
         """
         # ensure a proper type was passed
         if not isinstance(case, str):
-            raise ValueError(f"Expected str, got {type(case)} instead")
+            raise ValueError(f"Expected str, got {type(case)}")
         # strings could be any of the valid types, check for the best one.
         if case.isdigit():
-            return self.find_by_index(int(case))
+            case_number = int(case)
+            return self.find_by_index(case_number)
         # UUIDs always start with @ and are 37 characters, so try to parse it
         elif case[0] == "@" and len(case) == 37:
             guid_str = case[1:]
