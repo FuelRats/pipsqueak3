@@ -265,10 +265,8 @@ class TestRatBoardPyTest(object):
 
     @pytest.mark.parametrize("test_input", [
                             "UNIT_TEST",
-                            42,
                             "@12345678-9876-53d1-ea5e-0000deadbeef",
-                            "42",
-                            UUID('12345678-9876-53d1-ea5e-0000deadbeef')])
+                            "42"])
     def test_search_valid(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
         test_rescue = rescue_plain_fx
         test_rescue.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
@@ -277,13 +275,11 @@ class TestRatBoardPyTest(object):
 
     @pytest.mark.parametrize("test_input", [
                             "unit_tes",
-                            True,
-                            3.14,
                             '@12345678-9876-53d1-ea5e-0000dead',
                             '@12345678-9876-53d1-ea5e-0000deadbee-',
                             '@12345678-9876-53d1-ea5e-000deadsheep',
-                            "42.5",
-                            False])
+                            42,
+                            "42.5"])
     def test_search_garbage(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
         test_rescue = rescue_plain_fx
         test_rescue.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
