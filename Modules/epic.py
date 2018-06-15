@@ -1,5 +1,5 @@
 """
-epic.py - Epic datas tructure
+epic.py - Epic data structure
 
 Provides an Epic object for storing Epic data from the API
 
