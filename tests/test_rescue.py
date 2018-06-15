@@ -11,10 +11,10 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import pytest
 
@@ -22,6 +22,156 @@ from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from utils.ratlib import Platforms
+
+
+#  self,           case_id: UUID,
+#                  client: str,
+#                  system: str,
+#                  irc_nickname: str,
+#                  board: 'RatBoard' = None,
+#                  created_at: datetime = None,
+#                  updated_at: datetime = None,
+#                  unidentified_rats=None,
+#                  active=True,
+#                  quotes: list = None,
+#                  epic: List[Epic] = None,
+#                  title: Optional[str] = None,
+#                  first_limpet: Optional[UUID] = None,
+#                  board_index: Optional[int] = None,
+#                  mark_for_deletion: MarkForDeletion = MarkForDeletion(),
+#                  lang_id: str = "EN",
+#                  rats: List[Rats] = None,
+#                  status: Status = Status.OPEN,
+#                  code_red=False):
+# FIXME Remove this list before PR
+
+
+@pytest.mark.parametrize("expected_client", ['DeadBeef', 'Commander_Test', '11Alpha1',
+                                             'Xxx22K1ng2xxX'])
+def test_verify_rescue_client(rescue_plain_fx, expected_client):
+    """
+    Verify Rescue.client returns expected value.
+    """
+    rescue_plain_fx.client = expected_client
+    assert rescue_plain_fx.client == expected_client
+
+
+@pytest.mark.parametrize("expected_system", ['Nuekau YU-F d11-176', 'Eidairld RN-J d9-7',
+                                             'Wredguia LI-G b38-1', 'Tyriedgoo CR-N c6-0'])
+def test_verify_rescue_system(rescue_plain_fx, expected_system):
+    """
+    Verify Rescue.system returns expected value.
+    """
+    rescue_plain_fx.system = expected_system
+    expected_system = expected_system.upper()
+    assert rescue_plain_fx.system == expected_system
+
+
+@pytest.mark.parametrize("expected_irc_nickname", ['MasterToNone', 'White Sheets',
+                                                   'Utopia27', 'LintHair'])
+def test_verify_expected_irc_nickname(rescue_plain_fx, expected_irc_nickname):
+    """
+    Verify Rescue.irc_nickname returns expected value.
+    """
+    rescue_plain_fx.irc_nickname = expected_irc_nickname
+    assert rescue_plain_fx.irc_nickname == expected_irc_nickname
+
+
+def test_verify_expected_ratboard(rescue_sop_fx, rat_board_fx):
+    """
+    Verify rescue, when appended, is contained within the Ratboard object.
+    """
+    rat_board_fx.append(rescue_sop_fx)
+    assert rescue_sop_fx in rat_board_fx
+
+
+def test_validate_rescue_uuid(rescue_sop_fx):
+    """
+    Validates the UUID of rescue_sop_fx._id
+    """
+    result = UUID(rescue_sop_fx._id.hex, version=4)
+    assert rescue_sop_fx.case_id == result
+
+
+def test_uuid_is_set(rescue_sop_fx):
+    """
+    Verifies a UUID is set for a given Rescue object.
+    """
+    assert rescue_sop_fx.case_id is not None
+
+
+def test_client_is_set(rescue_sop_fx):
+    """
+    Verfies that rescue_sop_fx._client is set.
+    """
+    assert rescue_sop_fx.client != ''
+
+
+def test_client_attribute_exists(rescue_sop_fx):
+    """
+    Verifies client attribute exists
+    """
+    assert hasattr(rescue_sop_fx, 'client')
+
+
+def test_created_at_date_exists(rescue_sop_fx):
+    """
+    Verfies rescue.created_at datetime is set, and in the past.
+    """
+    expected_time_differential = (datetime.utcnow() - rescue_sop_fx.created_at)
+    assert expected_time_differential != 0
+
+
+def test_updated_at_date_exists(rescue_sop_fx):
+    """
+    Verifies rescue.updated_at is correct
+    """
+    with rescue_sop_fx.change():
+        rescue_sop_fx.system = 'UpdatedSystem'
+
+    assert rescue_sop_fx.updated_at is not None
+
+
+@pytest.mark.parametrize("expected_rats", [['Joeblow', 'TinyTim', 'White Sheets'],
+                                           ['Azel4st', 'Aero_Chamber', 'YoMama_27'],
+                                           ['UnitTestingSucks', 'PytestPwns', 'yUnoComplain']])
+def test_unidentified_rats_list(rescue_plain_fx, expected_rats):
+    """
+    Verifies a list of unidentified rats is set, and returned.
+
+    Uses expected_rats list cast as set to determine if all values match,
+    by intersection.  If all values match, the assertion is true.  If not all values
+    match, a set of matches is returned, or false if no matches.
+
+    Either a returned set or a false assertion will fail this test.
+    """
+    rescue_plain_fx.unidentified_rats = expected_rats
+    assert set(expected_rats).intersection(rescue_plain_fx.unidentified_rats)
+
+
+def test_rescue_defaults_to_active(rescue_sop_fx):
+    """
+    Set rescue.active to false, and verify.
+    (inverse test)
+    """
+    rescue_sop_fx.active = False
+    assert not rescue_sop_fx.active
+
+
+@pytest.mark.parametrize("expected_quote, expected_author", [('5 min o2', 'BadAzz'),
+                                                             ('2600LS from star', 'Unzolver'),
+                                                             ('1:30 o2, client @station', 'T3str')]
+                         )
+def test_rescue_quotes_list(rescue_sop_fx, expected_quote, expected_author):
+    """
+    Verifies quotes are added and returned properly.
+    """
+    rescue_sop_fx.add_quote(expected_quote, expected_author)
+
+    for quote in rescue_sop_fx.quotes:
+        assert quote.message == expected_quote
+        assert quote.author == expected_author
+
 
 
 class TestRescue(TestCase):
