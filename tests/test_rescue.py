@@ -545,14 +545,14 @@ class TestRescuePyTests(object):
     ])
     def test_mark_for_deletion_setter_valid(self, rescue_sop_fx: Rescue, reason: str, reporter: str,
                                             marked: bool):
-        rescue_sop_fx.mark_for_deletion.reporter = reporter
-        assert rescue_sop_fx.mark_for_deletion.reporter == reporter
+        rescue_sop_fx.marked_for_deletion.reporter = reporter
+        assert rescue_sop_fx.marked_for_deletion.reporter == reporter
 
-        rescue_sop_fx.mark_for_deletion.reason = reason
-        assert rescue_sop_fx.mark_for_deletion.reason == reason
+        rescue_sop_fx.marked_for_deletion.reason = reason
+        assert rescue_sop_fx.marked_for_deletion.reason == reason
 
-        rescue_sop_fx.mark_for_deletion.reporter = reporter
-        assert rescue_sop_fx.mark_for_deletion.reporter == reporter
+        rescue_sop_fx.marked_for_deletion.reporter = reporter
+        assert rescue_sop_fx.marked_for_deletion.reporter == reporter
 
 
     @pytest.mark.parametrize("reason,reporter,marked", [
@@ -572,17 +572,17 @@ class TestRescuePyTests(object):
             reporter(str) md reporter
         """
         with pytest.raises(TypeError):
-            rescue_sop_fx.mark_for_deletion.reason = reason
+            rescue_sop_fx.marked_for_deletion.reason = reason
 
         with pytest.raises(TypeError):
-            rescue_sop_fx.mark_for_deletion.reporter = reporter
+            rescue_sop_fx.marked_for_deletion.reporter = reporter
 
         with pytest.raises(TypeError):
-            rescue_sop_fx.mark_for_deletion.marked = marked
+            rescue_sop_fx.marked_for_deletion.marked = marked
 
-        assert rescue_sop_fx.mark_for_deletion.marked is False
-        assert rescue_sop_fx.mark_for_deletion.reason != reason
-        assert rescue_sop_fx.mark_for_deletion.reporter != reporter
+        assert rescue_sop_fx.marked_for_deletion.marked is False
+        assert rescue_sop_fx.marked_for_deletion.reason != reason
+        assert rescue_sop_fx.marked_for_deletion.reporter != reporter
 
     @pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
     def test_mark_for_deletion_setter_bad_types(self, garbage, rescue_plain_fx: Rescue):
@@ -590,7 +590,7 @@ class TestRescuePyTests(object):
         myRescue = deepcopy(rescue_plain_fx)
 
         with pytest.raises(TypeError):
-            myRescue.mark_for_deletion = garbage
+            myRescue.marked_for_deletion = garbage
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
@@ -642,9 +642,9 @@ class TestRescuePyTests(object):
 
         rescue_sop_fx.mark_delete(reporter, reason)
 
-        assert rescue_sop_fx.mark_for_deletion.marked
-        assert reporter == rescue_sop_fx.mark_for_deletion.reporter
-        assert reason == rescue_sop_fx.mark_for_deletion.reason
+        assert rescue_sop_fx.marked_for_deletion.marked
+        assert reporter == rescue_sop_fx.marked_for_deletion.reporter
+        assert reason == rescue_sop_fx.marked_for_deletion.reason
 
     def test_mark_delete_invalid(self, rescue_sop_fx: Rescue):
         """verify what happens when garbage gets thrown at `rescue.mark`"""
@@ -659,10 +659,10 @@ class TestRescuePyTests(object):
 
     def test(self, rescue_sop_fx: Rescue):
         """Verify unmarking a case that was MD'ed works as expected"""
-        rescue_sop_fx.mark_for_deletion = MarkForDeletion(True, "unit_test[BOT]",
+        rescue_sop_fx.marked_for_deletion = MarkForDeletion(True, "unit_test[BOT]",
                                                           "unit test reasons!")
 
         rescue_sop_fx.unmark_delete()
-        assert rescue_sop_fx.mark_for_deletion.marked is False
-        assert rescue_sop_fx.mark_for_deletion.reporter is None
-        assert rescue_sop_fx.mark_for_deletion.reason is None
+        assert rescue_sop_fx.marked_for_deletion.marked is False
+        assert rescue_sop_fx.marked_for_deletion.reporter is None
+        assert rescue_sop_fx.marked_for_deletion.reason is None

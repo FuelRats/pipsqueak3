@@ -138,7 +138,7 @@ class Rescue(object):
                 self.outcome == other.outcome,
                 self.title == other.title,
                 self.first_limpet == other.first_limpet,
-                self.mark_for_deletion == other.mark_for_deletion,
+                self.marked_for_deletion == other.marked_for_deletion,
                 self.lang_id == other.lang_id,
                 self.rats == other.rats,
                 self.irc_nickname == other.irc_nickname,
@@ -672,7 +672,7 @@ class Rescue(object):
             raise TypeError(f"expected type None or str, got {type(value)}")
 
     @property
-    def mark_for_deletion(self) -> MarkForDeletion:
+    def marked_for_deletion(self) -> MarkForDeletion:
         """
         Mark for deletion object as used by the API
 
@@ -681,8 +681,8 @@ class Rescue(object):
         """
         return self._mark_for_deletion
 
-    @mark_for_deletion.setter
-    def mark_for_deletion(self, value) -> None:
+    @marked_for_deletion.setter
+    def marked_for_deletion(self, value) -> None:
         """
         Sets the Md object
 
@@ -804,18 +804,18 @@ class Rescue(object):
                   f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")
-        self.mark_for_deletion.reporter = reporter
-        self.mark_for_deletion.reason = reason
-        self.mark_for_deletion.marked = True
+        self.marked_for_deletion.reporter = reporter
+        self.marked_for_deletion.reason = reason
+        self.marked_for_deletion.marked = True
 
     def unmark_delete(self) -> None:
         """
         helper method for unmarking a rescue for deletion. resets the Md object
         """
 
-        self.mark_for_deletion.marked = False
-        self.mark_for_deletion.reason = None
-        self.mark_for_deletion.reporter = None
+        self.marked_for_deletion.marked = False
+        self.marked_for_deletion.reason = None
+        self.marked_for_deletion.reporter = None
 
     @contextmanager
     def change(self):
