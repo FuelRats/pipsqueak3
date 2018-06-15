@@ -33,8 +33,8 @@ class TestRescue(TestCase):
         self.time = datetime(2017, 12, 24, 23, 59, 49)
         self.updated_at = datetime(2017, 12, 24, 23, 59, 52)
         self.system = "firestone"
-        self.case_id = "some_id"
-        self.rescue = Rescue(self.case_id, "stranded_commander", system=self.system, irc_nickname="stranded_commander",
+        self.uuid = "some_id"
+        self.rescue = Rescue(self.uuid, "stranded_commander", system=self.system, irc_nickname="stranded_commander",
                              created_at=self.time, updated_at=self.updated_at, board_index=42)
 
     def test_client_property_exists(self):
@@ -131,7 +131,7 @@ class TestRescue(TestCase):
         self.assertEqual(self.rescue.system, "SOL")
 
     def test_case_id(self):
-        self.assertEqual(self.case_id, self.rescue.uuid)
+        self.assertEqual(self.uuid, self.rescue.uuid)
 
     def test_get_active(self):
         """
@@ -660,7 +660,7 @@ class TestRescuePyTests(object):
     def test(self, rescue_sop_fx: Rescue):
         """Verify unmarking a case that was MD'ed works as expected"""
         rescue_sop_fx.marked_for_deletion = MarkForDeletion(True, "unit_test[BOT]",
-                                                          "unit test reasons!")
+                                                            "unit test reasons!")
 
         rescue_sop_fx.unmark_delete()
         assert rescue_sop_fx.marked_for_deletion.marked is False
