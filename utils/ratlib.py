@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 """
 from enum import Enum
 import re
+from uuid import UUID, uuid4
 
 MIRC_CONTROL_CODES = ["\x0F", "\x16", "\x1D", "\x1F", "\x02",
                       "\x03([1-9][0-6]?)?,?([1-9][0-6]?)?"]
@@ -84,3 +85,23 @@ def strip_name(nickname: str) -> str:
     """
     split_string = nickname.split("[")
     return split_string[0]
+
+
+def validate_uuid(uuid_val: UUID) -> bool:
+    """
+    Args:
+        uuid_val: suspected invalid uuid, or uuid to be validated
+
+    Returns:
+        bool True/False if uuid can be validated.
+
+    """
+    try:
+        result = UUID(uuid_val, version=4)
+    except ValueError:
+        # If we get a value error, it isn't a valid UUID.
+        return False
+
+    # If its valid hex, then UUID will convert it to a valid
+    # uuid4, which we don't want.
+    return result.hex == uuid_val

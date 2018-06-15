@@ -161,6 +161,53 @@ def test_rescue_quotes_list(rescue_sop_fx, expected_quote, expected_author):
         assert quote.author == expected_author
 
 
+def test_epic_rescue_attached(epic_fx):
+    """
+    Verifies Epic obj data attached to rescue is returned properly.
+    """
+    # Create local rescue object
+    test_rescue = Rescue(uuid4(), 'TestClient', 'Alioth', 'Test_Client', epic=[epic_fx])
+
+    for epic in test_rescue.epic:
+        assert epic.notes == 'my notes package'
+        assert str(epic.uuid) != ''
+
+
+@pytest.mark.parametrize('expected_title', ['Operation Unit Hazing', 'Dumbo Drop', 'Delight'])
+def test_rescue_title(rescue_sop_fx, expected_title):
+    """
+    Verfies title is unset by default, and verifies new title is reflected.
+    """
+    assert rescue_sop_fx.title is None
+
+    # Set a title
+    rescue_sop_fx.title = expected_title
+
+    # Assert again
+    assert rescue_sop_fx.title == expected_title
+
+
+def test_rescue_first_limpet(rescue_sop_fx, rat_good_fx):
+    """
+    Verfies first limpet is set and returned properly.
+    """
+    # Pass UUID to first_limpet
+    rescue_sop_fx.first_limpet = rat_good_fx.uuid
+    assert rescue_sop_fx.first_limpet == rat_good_fx.uuid
+
+    # Pass something immutable and verify the coercion into UUID fails,
+    # raising a TypeError from Rescue module
+    with pytest.raises(TypeError):
+        rescue_sop_fx.first_limpet = rat_good_fx
+
+    # Finally, pass a string and verify it -is- coerced into a UUID
+    string_uuid = 'This is a test'
+    expected_uuid = UUID(string_uuid, version=4)
+
+    rescue_sop_fx.first_limpet = expected_uuid
+    assert rescue_sop_fx.first_limpet == expected_uuid
+
+
 class TestRescue(TestCase):
     """
     Tests for `Modules.Rescue.Rescue`
