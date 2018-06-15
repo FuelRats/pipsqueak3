@@ -268,23 +268,27 @@ class TestRatBoardPyTest(object):
                             "@12345678-9876-53d1-ea5e-0000deadbeef",
                             "42"])
     def test_search_valid(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
-        test_rescue = rescue_plain_fx
-        test_rescue.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
-        rat_board_fx.append(test_rescue)
-        assert rat_board_fx.search(test_input) == test_rescue
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        assert rat_board_fx.search(test_input) == rescue_plain_fx
 
     @pytest.mark.parametrize("test_input", [
-                            "unit_tes",
-                            '@12345678-9876-53d1-ea5e-0000dead',
+                            "unit_tes",  # bad client name
+                            "42.5",  # bad case number (decimals)
+                            "100",  # bad case number (int)
+                            '@12345678-9876-53d1-ea5e-0000dead'  # wrong length uuid
+                            ])
+    def test_search_garbage_returns_none(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        assert rat_board_fx.search(test_input) is None
+
+    @pytest.mark.parametrize("test_input", [
                             '@12345678-9876-53d1-ea5e-0000deadbee-',
                             '@12345678-9876-53d1-ea5e-000deadsheep',
-                            42,
-                            "42.5"])
-    def test_search_garbage(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
-        test_rescue = rescue_plain_fx
-        test_rescue.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
-        rat_board_fx.append(test_rescue)
-        try:
+                            42])
+    def test_search_garbage_raises_exception(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        with pytest.raises(ValueError):
             assert rat_board_fx.search(test_input) is None
-        except ValueError:
-            assert True
