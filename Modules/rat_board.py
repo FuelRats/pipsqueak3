@@ -225,14 +225,9 @@ class RatBoard(object):
             return self.find_by_index(int(case))
         # UUIDs always start with @ and are 37 characters, so try to parse it
         elif case[0] == "@" and len(case) == 37:
-            try:
-                guid_str = case[1:]
-                guid = UUID(guid_str)
-            except (AttributeError, ValueError):
-                # not a valid UUID
-                raise ValueError("Specified uuid is not valid.")
-            else:
-                return self.find_by_uuid(guid)
+            guid_str = case[1:]
+            guid = UUID(guid_str)
+            return self.find_by_uuid(guid)
         else:
             return self.find_by_name(case)
 

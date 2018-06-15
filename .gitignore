@@ -1,6 +1,6 @@
 .idea/
 .pytest_cache/
-config/configuration.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -108,6 +108,7 @@ config/config.json
 config/live.json
 config/drill.json
 config/develop.json
+config/configuration.json
 
 #certs
 *.pem
