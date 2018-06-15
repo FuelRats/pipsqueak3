@@ -131,7 +131,7 @@ class TestRescue(TestCase):
         self.assertEqual(self.rescue.system, "SOL")
 
     def test_case_id(self):
-        self.assertEqual(self.case_id, self.rescue.case_id)
+        self.assertEqual(self.case_id, self.rescue.uuid)
 
     def test_get_active(self):
         """

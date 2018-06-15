@@ -10,6 +10,7 @@ import pytest
 from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
 from Modules.rat_rescue import Rescue
 from utils.ratlib import Platforms
+from tests.conftest import rescue_plain_fx
 
 
 class RatBoardTests(TestCase):
@@ -99,7 +100,7 @@ class RatBoardTests(TestCase):
         """
         self.board.append(self.some_rescue)
         with self.subTest(condition="existing"):
-            found = self.board.find_by_uuid(self.some_rescue.case_id)
+            found = self.board.find_by_uuid(self.some_rescue.uuid)
             self.assertIsNotNone(found)
 
         with self.subTest(condition="not found"):
@@ -150,7 +151,7 @@ class RatBoardTests(TestCase):
         # make our assertion
         self.assertTrue(
             # spawn a case with the same uuid, and make our check
-            Rescue(self.some_rescue.case_id, "nope", "i have no idea!", "nope") in self.board)
+            Rescue(self.some_rescue.uuid, "nope", "i have no idea!", "nope") in self.board)
 
     def test_contains_non_existing(self):
         """
@@ -264,32 +265,30 @@ class TestRatBoardPyTest(object):
         assert expected == nextFree
 
     @pytest.mark.parametrize("test_input", [
-        "unit_test[BOT]",
-        1,
-        '@23a47b14-c2b8-4633-8cba-8c6a32a9cf7a',
-        "1",
-        UUID('23a47b14-c2b8-4633-8cba-8c6a32a9cf7a')])
+                            "UNIT_TEST",
+                            42,
+                            "@12345678-9876-53d1-ea5e-0000deadbeef",
+                            "42",
+                            UUID('12345678-9876-53d1-ea5e-0000deadbeef')])
     def test_search_valid(self, test_input, rat_board_fx: RatBoard):
-            my_board = deepcopy(rat_board_fx)
-            test_rescue = Rescue(UUID('23a47b14-c2b8-4633-8cba-8c6a32a9cf7a'), "unit_test[BOT]", "snafu", "unit_test",
-                                 board_index=1)
-            my_board.append(test_rescue)
-            assert my_board.search(test_input) == test_rescue
+        test_rescue = rescue_plain_fx()
+        test_rescue.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(test_rescue)
+        assert rat_board_fx.search(test_input) == test_rescue
 
     @pytest.mark.parametrize("test_input", [
-        "unit_test[BOT",
-        True,
-        3.14,
-        '@23a47b14-c2b8-4633-8cba-8c6a32afa',
-        '@23a47b14-c2b8-4633-8cba-8c6a32a9cf7)'
-        "42",
-        False])
+                            "unit_tes",
+                            True,
+                            3.14,
+                            '@12345678-9876-53d1-ea5e-0000dead',
+                            '@12345678-9876-53d1-ea5e-000deadsheep'
+                            "42",
+                            False])
     def test_search_garbage(self, test_input, rat_board_fx: RatBoard):
-            my_board = deepcopy(rat_board_fx)
-            test_rescue = Rescue(UUID('23a47b14-c2b8-4633-8cba-8c6a32a9cf7a'), "unit_test[BOT]", "snafu", "unit_test",
-                                 board_index=1)
-            my_board.append(test_rescue)
-            try:
-                assert my_board.search(test_input) is None
-            except ValueError:
-                assert True
+        test_rescue = rescue_plain_fx()
+        test_rescue.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(test_rescue)
+        try:
+            assert rat_board_fx.search(test_input) is None
+        except ValueError:
+            pass
