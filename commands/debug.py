@@ -13,13 +13,14 @@ See LICENSE.md
 """
 import logging
 
-from Modules.permissions import require_permission, TECHRAT
+from Modules.permissions import require_permission, TECHRAT, require_channel
 from Modules.rat_command import command
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
 @command("debug-whois")
+@require_channel()
 @require_permission(TECHRAT)
 async def cmd_debug_whois(context):
     """A debug command for running a WHOIS command.

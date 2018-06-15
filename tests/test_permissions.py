@@ -19,7 +19,8 @@ import pytest
 
 import Modules.rat_command as Commands
 from Modules import permissions
-from Modules.permissions import require_permission
+from Modules.context import Context
+from Modules.permissions import require_permission, require_channel, require_dm
 
 
 # registration is done in setUp
@@ -131,3 +132,40 @@ class TestPermissions(object):
                 assert hash(perm1) == hash(perm2)
             else:
                 assert hash(perm1) != hash(perm2)
+
+    @pytest.mark.asyncio
+    async def test_require_channel_valid(self, bot_fx, context_channel_fx):
+        @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
+        async def potato(context: Context):
+            return "hi there!"
+
+        retn = await potato(context_channel_fx)
+        assert retn == "hi there!"
+
+    @pytest.mark.asyncio
+    async def test_require_channel_invalid(self, context_pm_fx, bot_fx):
+        @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
+        async def potato(context: Context):
+            context.reply("hi there!")
+
+        await potato(context_pm_fx)
+
+        assert "https://www.youtube.com/watch?v=gvdf5n-zI14" == bot_fx.sent_messages[0]['message']
+
+    @pytest.mark.asyncio
+    async def test_require_dm_valid(self, context_pm_fx):
+        @require_dm()
+        async def potato(context: Context):
+            return "hi there!"
+
+        retn = await potato(context_pm_fx)
+        assert retn == "hi there!"
+
+    @pytest.mark.asyncio
+    async def test_require_dm_invalid(self, context_channel_fx):
+        @require_dm()
+        async def potato(context: Context):
+            return "oh noes!"
+
+        retn = await potato(context_channel_fx)
+        assert retn != "oh noes!"
