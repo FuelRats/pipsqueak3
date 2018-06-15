@@ -10,7 +10,6 @@ import pytest
 from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
 from Modules.rat_rescue import Rescue
 from utils.ratlib import Platforms
-from tests.conftest import rescue_plain_fx
 
 
 class RatBoardTests(TestCase):
@@ -270,8 +269,8 @@ class TestRatBoardPyTest(object):
                             "@12345678-9876-53d1-ea5e-0000deadbeef",
                             "42",
                             UUID('12345678-9876-53d1-ea5e-0000deadbeef')])
-    def test_search_valid(self, test_input, rat_board_fx: RatBoard):
-        test_rescue = rescue_plain_fx()
+    def test_search_valid(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
+        test_rescue = rescue_plain_fx
         test_rescue.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
         rat_board_fx.append(test_rescue)
         assert rat_board_fx.search(test_input) == test_rescue
@@ -284,8 +283,8 @@ class TestRatBoardPyTest(object):
                             '@12345678-9876-53d1-ea5e-000deadsheep'
                             "42",
                             False])
-    def test_search_garbage(self, test_input, rat_board_fx: RatBoard):
-        test_rescue = rescue_plain_fx()
+    def test_search_garbage(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
+        test_rescue = rescue_plain_fx
         test_rescue.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
         rat_board_fx.append(test_rescue)
         try:
