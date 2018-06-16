@@ -17,6 +17,7 @@ from uuid import uuid4, UUID
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rats import Rats
 from Modules.rat_rescue import Rescue
+from utils.ratlib import Status
 
 
 class TestRescuePyTests(object):
@@ -381,10 +382,10 @@ def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or
 @pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
 def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
     """Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError"""
-    myRescue = deepcopy(rescue_plain_fx)
+    result_rescue = deepcopy(rescue_plain_fx)
 
     with pytest.raises(TypeError):
-        myRescue.marked_for_deletion = garbage
+        result_rescue.marked_for_deletion = garbage
 
 
 @pytest.mark.asyncio
@@ -396,13 +397,13 @@ async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Re
     # rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
     # rats = [Rats(x, y) for x, y in rats_raw]
 
-    myRescue = deepcopy(rescue_plain_fx)
+    result_rescue = deepcopy(rescue_plain_fx)
 
     rat = Rats(uuid=uuid, name=name)
 
-    await myRescue.add_rat(rat=rat)
+    await result_rescue.add_rat(rat=rat)
 
-    assert rat in myRescue.rats
+    assert rat in result_rescue.rats
 
 
 @pytest.mark.asyncio
@@ -411,9 +412,9 @@ async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
     """
         Verifies `Rescue.add_rat` can add a rat given a guid and a name
         """
-    myRescue = deepcopy(rescue_plain_fx)
+    result_rescue = deepcopy(rescue_plain_fx)
 
-    await myRescue.add_rat(name=name, guid=uuid)
+    await result_rescue.add_rat(name=name, guid=uuid)
 
     assert name in Rats.cache_by_name
 
@@ -467,3 +468,47 @@ def test(rescue_sop_fx: Rescue):
     assert rescue_sop_fx.marked_for_deletion.marked is False
     assert rescue_sop_fx.marked_for_deletion.reporter is None
     assert rescue_sop_fx.marked_for_deletion.reason is None
+
+
+def test_rescue_status_default(rescue_sop_fx):
+    """
+    Verifies rescue status defaults to Status.OPEN
+    """
+    # Default
+    assert rescue_sop_fx.status == Status.OPEN
+
+
+@pytest.mark.parametrize("expected_status", [Status.OPEN, Status.CLOSED, Status.INACTIVE])
+def test_rescue_status_enum(rescue_sop_fx, expected_status):
+    """
+    Verifies all rescue status returns properly.
+    """
+    rescue_sop_fx.status = expected_status
+    assert rescue_sop_fx.status == expected_status
+
+
+def test_rescue_status_type_error(rescue_sop_fx):
+    """
+    Verifies a TypeError is raised if an incorrect status value is cast.
+    """
+    with pytest.raises(TypeError):
+        rescue_sop_fx.status = 'OPEN'
+
+
+def test_rescue_code_red_default(rescue_sop_fx):
+    """
+    Verifies CR is false by default.
+    """
+    assert not rescue_sop_fx.code_red
+
+
+def test_rescue_code_red_setter(rescue_sop_fx):
+    """
+    Verifies code_red is writable and a TypeError is raised if a non-bool
+    value is passed.
+    """
+    rescue_sop_fx.code_red = True
+    assert rescue_sop_fx.code_red
+
+    with pytest.raises(TypeError):
+        rescue_sop_fx.code_red = 'Yes'
