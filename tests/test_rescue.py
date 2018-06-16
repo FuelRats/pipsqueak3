@@ -126,6 +126,18 @@ def test_rescue_defaults_to_active(rescue_sop_fx):
     assert not rescue_sop_fx.active
 
 
+def test_rescue_rat_setter_typeerror(rescue_sop_fx):
+    """
+    Verifies the Rescue.rats setter returns a TypeError when not given proper value.
+    This is NOT the proper way to modify rats in production, use Rescue.add_rat.
+    """
+    # Set without error, expected type
+    rescue_sop_fx.rats = ['SomeRat', 'AnotherRat', 'NeedsTail']
+
+    with pytest.raises(TypeError):
+        rescue_sop_fx.rats = 'Some Rat Another Rat Needs My Tail'
+
+
 @pytest.mark.parametrize("expected_quote, expected_author", [('5 min o2', 'BadAzz'),
                                                              ('2600LS from star', 'Unzolver'),
                                                              ('1:30 o2, client @station', 'T3str')]
@@ -134,11 +146,41 @@ def test_rescue_quotes_list(rescue_sop_fx, expected_quote, expected_author):
     """
     Verifies quotes are added and returned properly.
     """
+    # Add Quote
     rescue_sop_fx.add_quote(expected_quote, expected_author)
 
+    # Check if Quote/Author match.
     for quote in rescue_sop_fx.quotes:
         assert quote.message == expected_quote
         assert quote.author == expected_author
+
+
+def test_rescue_quotes_without_author(rescue_sop_fx):
+    """
+    Verify quote is accepted without an author.
+    """
+    # Define and add quote
+    expected_quote = 'Houston, we have a problem'
+    rescue_sop_fx.add_quote(expected_quote)
+
+    # Check the quote we added is correct.
+    for quote in rescue_sop_fx.quotes:
+        assert quote.message == expected_quote
+
+
+def test_rescue_quotes(rescue_sop_fx):
+    """
+    Verifies quotes receives and returns a list.  Should return
+    a ValueError if the incorrect type is supplied.
+
+    This is NOT normally set, in production use .add_quote
+    """
+    expected_quotes = ['This is a quote', 'Here is another Quote']
+    rescue_sop_fx.quotes = expected_quotes
+    assert rescue_sop_fx.quotes == expected_quotes
+
+    with pytest.raises(ValueError):
+        rescue_sop_fx.quotes = 'I like Trains, Some Kid, 2010'
 
 
 def test_epic_rescue_attached(epic_fx):
@@ -253,6 +295,15 @@ def test_lang_id_garbage(garbage, rescue_plain_fx: Rescue):
     """
     with pytest.raises(TypeError):
         rescue_plain_fx.lang_id = garbage
+
+
+def test_platform_raises_type_error(rescue_sop_fx):
+    """
+    Verifies that Rescue.Platform properly raises a TypeError when the
+    wrong value is supplied.
+    """
+    with pytest.raises(TypeError):
+        rescue_sop_fx.platform = 'Xbox'
 
 
 @pytest.mark.asyncio
@@ -492,7 +543,34 @@ def test_rescue_status_type_error(rescue_sop_fx):
     Verifies a TypeError is raised if an incorrect status value is cast.
     """
     with pytest.raises(TypeError):
-        rescue_sop_fx.status = 'OPEN'
+        rescue_sop_fx.status = 'EN'
+
+
+def test_rescue_active_setter(rescue_sop_fx):
+    """
+    Verify Rescue is Active by default, set it to False,
+    and verify TypeError is cast if a non-bool is sent.
+    """
+    # Default state
+    assert rescue_sop_fx.active
+
+    # Set Inactive directly
+    rescue_sop_fx.active = False
+    assert not rescue_sop_fx.active
+
+    # Set Active directly
+    rescue_sop_fx.active = True
+    assert rescue_sop_fx
+
+    # Set Active by status update
+    rescue_sop_fx.status = Status.OPEN
+    assert rescue_sop_fx.active
+
+    # Set Inactive by status update
+    rescue_sop_fx.status = Status.INACTIVE
+
+    with pytest.raises(ValueError):
+        rescue_sop_fx.active = 'Yes'
 
 
 def test_rescue_code_red_default(rescue_sop_fx):
