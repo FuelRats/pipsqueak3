@@ -198,7 +198,7 @@ def test_epic_rescue_attached(epic_fx):
 @pytest.mark.parametrize('expected_title', ['Operation Unit Hazing', 'Dumbo Drop', 'Delight'])
 def test_rescue_title(rescue_sop_fx, expected_title):
     """
-    Verfies title is unset by default, and verifies new title is reflected.
+    Verifies title is unset by default, and verifies new title is reflected.
     """
     assert rescue_sop_fx.title is None
 
@@ -211,7 +211,7 @@ def test_rescue_title(rescue_sop_fx, expected_title):
 
 def test_rescue_first_limpet(rescue_sop_fx, rat_good_fx):
     """
-    Verfies first limpet is set and returned properly.
+    Verifies first limpet is set and returned properly.
     """
     # Pass UUID to first_limpet
     rescue_sop_fx.first_limpet = rat_good_fx.uuid
@@ -324,7 +324,7 @@ async def test_add_rats_ok(rat_good_fx, rescue_sop_fx):
         Args:
             rat_good_fx (Rats): Good Rat object Test Fixture
             rescue_sop_fx (Rescue):  Rescue object Test Fixture
-        """
+    """
     # rescue_sop_fx:Rescue
     await rescue_sop_fx.add_rat(rat=rat_good_fx)
     assert rat_good_fx in rescue_sop_fx.rats
@@ -332,6 +332,9 @@ async def test_add_rats_ok(rat_good_fx, rescue_sop_fx):
 
 @pytest.mark.asyncio
 async def test_add_rat_from_cache(rat_good_fx: Rats, rescue_sop_fx: Rescue):
+    """
+    Verifies rat added from cache matches rat object in Rescue
+    """
     await rescue_sop_fx.add_rat(rat_good_fx.name)
     assert rat_good_fx == rescue_sop_fx.rats[0]
 
@@ -339,8 +342,9 @@ async def test_add_rat_from_cache(rat_good_fx: Rats, rescue_sop_fx: Rescue):
 @pytest.mark.parametrize("garbage", [(None,), (42,), (-2.2,), (uuid4(),)])
 def test_irc_nickname_garbage(garbage, rescue_plain_fx: Rescue):
     """
-        Verifies throwing garbage types at Rescue.irc_nickname results in a TypeError
-        Args:
+    Verifies throwing garbage types at Rescue.irc_nickname results in a TypeError
+
+       Args:
             garbage (): Garbage to throw
             rescue_plain_fx (Rescue): Plain rescue Fixture
     """
@@ -351,13 +355,13 @@ def test_irc_nickname_garbage(garbage, rescue_plain_fx: Rescue):
 @pytest.mark.parametrize("test_input", ["foo", "bar", "en-us", "RU-RU"])
 def test_irc_nickname_strings(test_input, rescue_plain_fx: Rescue):
     """
-        Verifies the irc nickname can be set when passed a string
+    Verifies the irc nickname can be set when passed a string
 
         Args:
             test_input (str): values to test
             rescue_plain_fx (Rescue): Rescue fixture
 
-        """
+    """
 
     rescue_plain_fx.irc_nickname = test_input
     assert rescue_plain_fx.irc_nickname == test_input
@@ -366,11 +370,12 @@ def test_irc_nickname_strings(test_input, rescue_plain_fx: Rescue):
 @pytest.mark.parametrize("garbage", [None, 42, -2.2, uuid4()])
 def test_lang_id_garbage(garbage, rescue_plain_fx: Rescue):
     """
-        Verifies throwing garbage types at Rescue.lang_id results in a TypeError
+    Verifies throwing garbage types at Rescue.lang_id results in a TypeError
+
         Args:
             garbage (): Garbage to throw
             rescue_plain_fx (Rescue): Plain rescue Fixture
-        """
+    """
     with pytest.raises(TypeError):
         rescue_plain_fx.lang_id = garbage
 
@@ -378,13 +383,13 @@ def test_lang_id_garbage(garbage, rescue_plain_fx: Rescue):
 @pytest.mark.parametrize("test_input", ["foo", "bar", "en-us", "RU-RU"])
 def test_lang_id_strings(test_input, rescue_plain_fx: Rescue):
     """
-        Verifies the lang id can be set when passed a string
+    Verifies the lang id can be set when passed a string
 
         Args:
             test_input (str): values to test
             rescue_plain_fx (Rescue): Rescue fixture
 
-        """
+    """
 
     rescue_plain_fx.lang_id = test_input
     assert rescue_plain_fx.lang_id == test_input
@@ -392,9 +397,9 @@ def test_lang_id_strings(test_input, rescue_plain_fx: Rescue):
 
 def test_set_unidentified_rats_garbage_in_list(rescue_plain_fx: Rescue):
     """
-        Verifies a ValueError is raised if the list passed to Rats.unidentified_Rats contains
-            illegal values
-        """
+    Verifies a ValueError is raised if the list passed to Rats.unidentified_Rats contains
+    illegal values
+    """
     garbage = [12, -42.2, None]
     with pytest.raises(ValueError):
         rescue_plain_fx.unidentified_rats = garbage
@@ -409,13 +414,13 @@ def test_set_unidentified_rats_garbage_in_list(rescue_plain_fx: Rescue):
 def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or None,
                                            marked: bool, rescue_sop_fx: Rescue):
     """
-        Verifies setting the mark for deletion property succeeds when the data is valid
+    Verifies setting the mark for deletion property succeeds when the data is valid
 
         Args:
             rescue_sop_fx (): plain rescue fixture
             reason (str): md reason
             reporter(str) md reporter
-        """
+    """
     with pytest.raises(TypeError):
         rescue_sop_fx.marked_for_deletion.reason = reason
 
@@ -432,7 +437,9 @@ def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or
 
 @pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
 def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
-    """Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError"""
+    """
+    Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError
+    """
     result_rescue = deepcopy(rescue_plain_fx)
 
     with pytest.raises(TypeError):
@@ -443,8 +450,8 @@ def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
 async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
     """
-        Verifies `Rescue.add_rat` can add a rat given a `Rats` object
-        """
+    Verifies `Rescue.add_rat` can add a rat given a `Rats` object
+    """
     # rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
     # rats = [Rats(x, y) for x, y in rats_raw]
 
@@ -461,8 +468,8 @@ async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Re
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
 async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
     """
-        Verifies `Rescue.add_rat` can add a rat given a guid and a name
-        """
+    Verifies `Rescue.add_rat` can add a rat given a guid and a name
+    """
     result_rescue = deepcopy(rescue_plain_fx)
 
     await result_rescue.add_rat(name=name, guid=uuid)
@@ -471,7 +478,9 @@ async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
 
 
 def test_eq_none(rescue_plain_fx: Rescue):
-    """Verifies behavior of `Rescue.__eq__` when comparing against None"""
+    """
+    Verifies behavior of `Rescue.__eq__` when comparing against None
+    """
     # This check only exists because this object is nullable...
     # and no, you really shouldn't be comparing against None like this.
     assert not None == rescue_plain_fx
@@ -479,9 +488,9 @@ def test_eq_none(rescue_plain_fx: Rescue):
 
 def test_eq_bad_type(rescue_plain_fx: Rescue):
     """
-        Verifies Rescue.__eq__ raises a type error when attempting to compare something
-            other than a rescue.
-        """
+    Verifies Rescue.__eq__ raises a type error when attempting to compare something
+    other than a rescue.
+    """
     assert not rescue_plain_fx == "Rescue object at <0xBADBEEF> "
 
 
@@ -489,7 +498,9 @@ def test_eq_bad_type(rescue_plain_fx: Rescue):
                                               ("potato[pc|nd]", "uhhh..."),
                                               ("sayWhat99", "dawg this ain't right!")])
 def test_mark_delete_valid(rescue_sop_fx: Rescue, reporter: str, reason: str):
-    """Verifies Rescue.mark functions as expected when marking a case for deletion"""
+    """
+    Verifies Rescue.mark functions as expected when marking a case for deletion
+    """
 
     rescue_sop_fx.mark_delete(reporter, reason)
 
@@ -499,7 +510,9 @@ def test_mark_delete_valid(rescue_sop_fx: Rescue, reporter: str, reason: str):
 
 
 def test_mark_delete_invalid(rescue_sop_fx: Rescue):
-    """verify what happens when garbage gets thrown at `rescue.mark`"""
+    """
+    Verify what happens when garbage gets thrown at `rescue.mark`
+    """
     with pytest.raises(TypeError):
         rescue_sop_fx.mark_delete(None, "sna")
 
@@ -511,7 +524,9 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
 
 
 def test(rescue_sop_fx: Rescue):
-    """Verify unmarking a case that was MD'ed works as expected"""
+    """
+    Verify unmarking a case that was MD'ed works as expected
+    """
     rescue_sop_fx.marked_for_deletion = MarkForDeletion(True, "unit_test[BOT]",
                                                         "unit test reasons!")
 
