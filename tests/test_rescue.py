@@ -10,40 +10,19 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-from copy import deepcopy
-from datetime import datetime, timedelta
-from unittest import TestCase
-from unittest.mock import patch, MagicMock
-from uuid import uuid4, UUID
-
 import pytest
-
+from copy import deepcopy
+from datetime import datetime
+from uuid import uuid4, UUID
 from Modules.mark_for_deletion import MarkForDeletion
-from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
-from utils.ratlib import Platforms
+from Modules.rat_rescue import Rescue
 
 
-#  self,           case_id: UUID,
-#                  client: str,
-#                  system: str,
-#                  irc_nickname: str,
-#                  board: 'RatBoard' = None,
-#                  created_at: datetime = None,
-#                  updated_at: datetime = None,
-#                  unidentified_rats=None,
-#                  active=True,
-#                  quotes: list = None,
-#                  epic: List[Epic] = None,
-#                  title: Optional[str] = None,
-#                  first_limpet: Optional[UUID] = None,
-#                  board_index: Optional[int] = None,
-#                  mark_for_deletion: MarkForDeletion = MarkForDeletion(),
-#                  lang_id: str = "EN",
-#                  rats: List[Rats] = None,
-#                  status: Status = Status.OPEN,
-#                  code_red=False):
-# FIXME Remove this list before PR
+class TestRescuePyTests(object):
+    """
+    Container for pytest Tests.
+    """
 
 
 @pytest.mark.parametrize("expected_client", ['DeadBeef', 'Commander_Test', '11Alpha1',
@@ -200,482 +179,126 @@ def test_rescue_first_limpet(rescue_sop_fx, rat_good_fx):
     with pytest.raises(TypeError):
         rescue_sop_fx.first_limpet = rat_good_fx
 
-    # Finally, pass a string and verify it -is- coerced into a UUID
-    string_uuid = 'This is a test'
-    expected_uuid = UUID(string_uuid, version=4)
 
-    rescue_sop_fx.first_limpet = expected_uuid
-    assert rescue_sop_fx.first_limpet == expected_uuid
-
-
-class TestRescue(TestCase):
+def test_rescue_board_index(rescue_plain_fx):
     """
-    Tests for `Modules.Rescue.Rescue`
+    Verifies board index is NOT set without a rescue attached
     """
+    # Do not set board index
+    test_rescue = Rescue(uuid4(), 'Test_Client', 'AliothJr', 'TestClient')
+    assert test_rescue.board_index is None
 
-    def setUp(self):
-        self.time = datetime(2017, 12, 24, 23, 59, 49)
-        self.updated_at = datetime(2017, 12, 24, 23, 59, 52)
-        self.system = "firestone"
-        self.uuid = "some_id"
-        self.rescue = Rescue(self.uuid, "stranded_commander", system=self.system, irc_nickname="stranded_commander",
-                             created_at=self.time, updated_at=self.updated_at, board_index=42)
+    # Add rescue fixture
+    test_rescue = rescue_plain_fx
+    assert test_rescue.board_index == 42
 
-    def test_client_property_exists(self):
-        """
-        Verifies the `Rescue.client` property exists\n
-        :return:
-        :rtype:
-        """
-        self.assertTrue(hasattr(self.rescue, "client"))
-        self.assertEqual(self.rescue.client, "stranded_commander")
+    # Add a negative int for board index, ensuring ValueError is thrown
+    with pytest.raises(ValueError):
+        test_rescue.board_index = -99
 
-    def test_client_writeable(self):
-        """
-        Verifies the `Rescue.client` property can be written to correctly\n
-        :return:
-        :rtype:
-        """
-        expected = "some other commander"
-        self.rescue.client = expected
-        self.assertEqual(self.rescue.client, expected)
+    # Add incorrect type, ensuring TypeError is thrown
+    with pytest.raises(TypeError):
+        test_rescue.board_index = 'Index!'
 
-    def test_created_at_made_correctly(self):
-        """
-        Verifies the `Rescue.created_at` property was correctly created\n
-        :return:
-        :rtype:
-        """
-        self.assertEqual(self.time, self.rescue.created_at)
 
-    def test_created_at_not_writable(self):
-        """
-        Verifies the `Rescue.created_at` property cannot be written to\n
-        :return:
-        :rtype:
-        """
-        with self.assertRaises(AttributeError):
-            self.rescue.created_at = datetime.utcnow()
-
-    def test_updated_at_initial(self):
-        """
-        Verify `Rescue.updated_at` was initialized correctly.
-
-        Returns:
-
-        """
-        self.assertEqual(self.updated_at, self.rescue.updated_at)
-
-    def test_updated_at_settable_correctly(self):
-        """
-        Verifies `Rescue.updated_at` can be set properly
-
-        Returns:
-
-        """
-        my_time = datetime.now()
-        self.rescue.updated_at = my_time
-        self.assertEqual(my_time, self.rescue.updated_at)
-
-    def test_updated_at_value_error(self):
-        """
-        Verifies `Rescue.updated_at` returns a `ValueError` if a bad date is
-         given.
-
-        Returns:
-
-        """
-        with self.assertRaises(ValueError):
-            self.rescue.updated_at = datetime(2012, 1, 1, 1, 1, 1)
-
-    def test_updated_at_type_error(self):
-        """
-        Verifies `Rescue.updated_at` raises a `TypeError` when someone throws
-        garbage at it
-
-        Returns:
-
-        """
-        garbage = [12, "foo", [], {}, False, None]
-        for value in garbage:
-            with self.subTest(value=value):
-                with self.assertRaises(TypeError):
-                    self.rescue.updated_at = value
-
-    def test_system_initial_set(self):
-        """
-        Verifies the `Rescue.system` property was correctly set during init\n
-        :return:
-        :rtype:
-        """
-        self.assertEqual(self.system.upper(), self.rescue.system)
-
-    def test_system_writable(self):
-        self.rescue.system = "sol"
-        self.assertEqual(self.rescue.system, "SOL")
-
-    def test_case_id(self):
-        self.assertEqual(self.uuid, self.rescue.uuid)
-
-    def test_get_active(self):
-        """
-        Verifies `Rescue.active` is readable and set correctly by default
-        :return:
-        :rtype:
-        """
-        self.assertTrue(self.rescue.active)
-
-    def test_set_active_correctly(self):
-        """
-        Tests the `Rescue.active` property for expected function
-        :return:
-        :rtype:
-        """
-        states = [True, False]
-        for state in states:
-            with self.subTest(state=state):
-                self.rescue.active = state
-
-    def test_set_active_set_incorrectly(self):
-        """
-        Tests the `Rescue.active` property for the correct usage errors
-        :return:
-        :rtype:
-        """
-        with self.assertRaises(ValueError):
-            self.rescue.active = "something totally not right"
-
-    def test_get_quotes(self):
-        """
-        Verifies the default settings for `Rescue.quotes` property are set
-        correctly And confirms the property is readable.\n
-        :return:
-        :rtype:
-        """
-        self.assertEqual([], self.rescue.quotes)
-
-    def test_write_quotes_correctly(self):
-        """
-        Verifies the `Rescue.quotes` property can be written to when given a
-        list
-
-        :return:
-        :rtype:
-        """
-        self.rescue.quotes = ["foo"]
-        self.assertEqual(["foo"], self.rescue.quotes)
-
-    def test_write_quotes_incorrectly(self):
-        """
-        Verifies `Rescue.quotes` cannot be set to wierd things that are not
-         lists
-
-        :return:
-        :rtype:
-        """
-        names = [False, True, "string", {}, 12]
-        for name in names:
-            with self.assertRaises(ValueError):
-                self.rescue.quotes = name
-
-    def test_add_quote_with_name(self):
-        # verify the list was empty
-        self.assertEqual(self.rescue.quotes, [])
-        # add ourselves a quote
-        self.rescue.add_quote(message="foo", author='unit_test[BOT]')
-        # verify something got written to the rescue property
-        self.assertEqual(1, len(self.rescue.quotes))
-        # now verify that something is what we wanted to write
-        self.assertEqual("foo", self.rescue.quotes[0].message)
-        self.assertEqual("unit_test[BOT]", self.rescue.quotes[0].author)
-
-    def test_add_quote_mecha(self):
-        # verify the list was empty
-        self.assertEqual(self.rescue.quotes, [])
-        # add ourselves a quote
-        self.rescue.add_quote(message="foo")
-        # verify something got written to the rescue property
-        self.assertEqual(1, len(self.rescue.quotes))
-        # now verify that something is what we wanted to write
-        self.assertEqual("foo", self.rescue.quotes[0].message)
-        self.assertEqual("Mecha", self.rescue.quotes[0].author)
-
-    # @expectedFailure
-    @patch('tests.test_rescue.Rescue.updated_at')
-    def test_change_context_manager(self, mock_updated_at: MagicMock):
-        """
-        Verifies the `Rescue.change` context manager functions as expected.
-        Currently that is simply to update the `Rescue.updated_at` is updated.
-        Returns:
-
-        """
-        origin = self.rescue.updated_at
-        with self.rescue.change():
-            pass
-        self.assertNotEqual(origin, self.rescue.updated_at)
-
-    def test_get_board_index(self):
-        """
-        Verifies `Rescue.board_index` was set correctly during init.
-
-        Returns:
-
-        """
-        self.assertEqual(42, self.rescue.board_index)
-
-    def test_set_board_index_correctly(self):
-        """
-        Verifies `Rescue.board_index` is settable
-
-        Returns:
-        """
-        self.rescue.board_index = 24
-        self.assertEqual(24, self.rescue.board_index)
-
-    def test_set_board_index_incorrectly(self):
-        """
-        verifies attempts to set `Rescue.board_index` to things other than
-        ints, or below zero, Fail with the correct errors.
-        Returns:
-
-        """
-        bad_values_type = ["foo", [], {}]
-        bad_values_ints = [-42, -2]
-        for value in bad_values_ints:
-            with self.subTest(value=value):
-                with self.assertRaises(ValueError):
-                    self.rescue.board_index = value
-
-        for value in bad_values_type:
-            with self.subTest(value=value):
-                with self.assertRaises(TypeError):
-                    self.rescue.board_index = value
-
-    def test_unidentified_rats_properly(self):
-        """
-        Verifies `Rescue.unidentified_rats` can be written to with good data
-
-        Returns:
-
-        """
-        # verify it was empty to begin with (default)
-        self.assertEqual(self.rescue.unidentified_rats, [])
-        # lets make some names
-        names = ["UNIT_TEST[BOT]", "flying_potato", "random_person"]
-        # set the property
-        self.rescue.unidentified_rats = names
-        # verify the property.
-        self.assertEqual(self.rescue.unidentified_rats, names)
-
-    def test_unidentified_rats_bad_types(self):
-        """
-        Verifies the correct exception is raised when someone throws garbage
-        at `Rescue.unidentified_rats`
-
-        Returns:
-
-        """
-        garbage = [None, "foo", {}, 12, 22.3]
-        for piece in garbage:
-            with self.subTest(piece=piece):
-                with self.assertRaises(TypeError):
-                    self.rescue.unidentified_rats = piece
-
-    def test_is_open_properly(self):
-        """
-        Verifies `Rescue.open` is readable and settable when thrown good
-        parameters
-
-        Returns:
-
-        """
-        # check default state
-        self.assertTrue(self.rescue.open)
-
-        data = [True, False]
-        for value in data:
-            with self.subTest(value=value):
-                self.rescue.open = value
-                self.assertEqual(self.rescue.open, value)
-
-    def test_is_open_bad_types(self):
-        """
-        Verifies `Rescue.is_open` raises correct exceptions when its given
-        garbage
-
-        Returns:
-
-        """
-        garbage = [None, "foo", {}, 12, 22.3]
-        for piece in garbage:
-            with self.subTest(piece=piece):
-                with self.assertRaises(TypeError):
-                    self.rescue.open = piece
-
-    def test_epic_readable(self):
-        """
-        Verifies  `Rescue.epic` is readable.
-
-        Returns:
-
-        """
-        # check default state
-        self.assertFalse(self.rescue.epic)
-
-    def test_code_red_properly(self):
-        """
-        Verifies `Rescue.code_red` is readable and settable when thrown good
-        parameters
-
-        Returns:
-
-        """
-        # check default state
-        self.assertFalse(self.rescue.code_red)
-
-        data = [True, False]
-        for value in data:
-            with self.subTest(value=value):
-                self.rescue.code_red = value
-                self.assertEqual(self.rescue.code_red, value)
-
-    def test_code_red_bad_types(self):
-        """
-        Verifies `Rescue.code_red` raises correct exceptions when its given
-         garbage
-
-        Returns:
-
-        """
-        garbage = [None, "foo", {}, 12, 22.3]
-        for piece in garbage:
-            with self.subTest(piece=piece):
-                with self.assertRaises(TypeError):
-                    self.rescue.code_red = piece
-
-    def test_title(self):
-        """
-        Verifies `Rescue.title` behaves as expected
-        """
-
-        with self.subTest(condition="good"):
-            if self.rescue.title:
-                self.rescue.title = None
-                self.assertIsNone(self.rescue.title)
-
-            title = "foobar express"
-            self.rescue.title = title
-            self.assertEqual(self.rescue.title, title)
-
-        with self.subTest(condition="garbage"):
-            garbage = [[], {}, 42, 22., 0, uuid4()]
-            for piece in garbage:
-                with self.subTest(piece=piece):
-                    with self.assertRaises(TypeError):
-                        self.rescue.title = piece
-
-    def test_rats_good_data(self):
-        """
-        Verfifies the `Rescue.rats` property behaves as expected
-        """
-        self.assertEqual(self.rescue.rats, [])
-        data = [Rats(uuid4(), "unit_Test"), Rats(uuid4(), "icarus")]
-        self.rescue.rats = data
-        self.assertEqual(self.rescue.rats, data)
-
-    def test_rats_bad_types(self):
-        """
-        Verifies the proper exception is raised when `Rescue.rats` is given garbage params
-        """
-        garbage = [{}, -1, 0, .2, (2, 3), uuid4()]
-        for piece in garbage:
-            with self.subTest(piece=piece):
-                with self.assertRaises(TypeError):
-                    self.rescue.rats = piece
-
-    def test_eq_true_branch(self):
-        """
-        Verifies Rescue.__eq__ functions as expected when comparing two rescues
-         - verifies the true branch
-        """
-        # is this total overkill?
-        self.assertTrue(self.rescue == self.rescue)
-
-
-
-    def test_eq_false_branch(self):
-        """
-        Verifies Rescue.__eq__ functions as expected when comparing two rescues
-             - verifies the false branch
-        """
-        foo = Rescue(uuid4(), "snafu", "firestone", "snafu")
-        self.assertFalse(self.rescue == foo)
-
-    def test_platform_valid(self):
-        """
-        Verfiies Rescue.platform setter and getter function as expected when given valid data
-        """
-        platforms = [Platforms.PC, Platforms.PS, Platforms.XB, Platforms.DEFAULT]
-        for platform in platforms:
-            with self.subTest(platform=platform):
-                self.rescue.platform = platform
-                self.assertEqual(self.rescue.platform, platform)
-                self.assertEqual(self.rescue._platform, self.rescue.platform)
-
-    def test_platform_invalid(self):
-        garbage = ["pc", None, 42, 12.2, []]
-        for piece in garbage:
-            with self.subTest(piece=piece):
-                with self.assertRaises(TypeError):
-                    self.rescue.platform = piece
-
-
-class TestRescuePyTests(object):
+def test_marked_for_deletion(mark_for_deletion_plain_fx, mark_for_deletion_fx, rescue_plain_fx):
     """
-    container for pytest specific tests
+    Verifies MFD object is settable and returns proper data
     """
+    # Verify linkage
+    rescue_plain_fx.marked_for_deletion = mark_for_deletion_plain_fx
+    assert not rescue_plain_fx.marked_for_deletion.marked
 
-    @pytest.mark.asyncio
-    async def test_add_rats_bad_id(self, rat_no_id_fx, rescue_sop_fx):
-        """
-        Verifies attempting to add a rat that does not have a API id fails as expected
-        """
-        with pytest.raises(ValueError, message="Assigned rat does not have a known API ID"):
-            await rescue_sop_fx.add_rat(rat=rat_no_id_fx)
+    # Build test MFD Object
+    test_mark_for_deletion = mark_for_deletion_fx
+
+    # Verify Test MFD Object
+    rescue_plain_fx.marked_for_deletion = test_mark_for_deletion
+    assert rescue_plain_fx.marked_for_deletion.marked == mark_for_deletion_fx.marked
+    assert rescue_plain_fx.marked_for_deletion.reporter == mark_for_deletion_fx.reporter
+    assert rescue_plain_fx.marked_for_deletion.reason == mark_for_deletion_fx.reason
+
+
+def test_marked_for_deletion_type_errors(rescue_plain_fx):
+    """
+    Verifies TypeError is thrown when the wrong type is passed to MFD
+    """
+    # Check TypeError Assertion
+    with pytest.raises(TypeError):
+        rescue_plain_fx.marked_for_deletion = ['Improper List']
+
+    with pytest.raises(TypeError):
+        rescue_plain_fx.marked_for_deletion = 'This is not a valid reason'
+
+    with pytest.raises(TypeError):
+        rescue_plain_fx.marked_for_deletion = {'Reason 123': 'Bowl of Petunias'}
+
+
+def test_rescue_lang_id_constructor(rescue_sop_fx):
+    """
+    Verifies Language_ID is returned
+    """
+    # Defaults to EN
+    assert rescue_sop_fx.lang_id == 'EN'
+
+
+@pytest.mark.parametrize("garbage", [None, 42, -2.2, uuid4()])
+def test_lang_id_garbage(garbage, rescue_plain_fx: Rescue):
+    """
+    Verifies throwing garbage types at Rescue.lang_id results in a TypeError
+    Args:
+        garbage (): Garbage to throw
+        rescue_plain_fx (Rescue): Plain rescue Fixture
+    """
+    with pytest.raises(TypeError):
+        rescue_plain_fx.lang_id = garbage
+
+
+@pytest.mark.asyncio
+async def test_add_rats_bad_id(rat_no_id_fx, rescue_sop_fx):
+    """
+    Verifies attempting to add a rat that does not have a API id fails as expected
+    """
+    with pytest.raises(ValueError, message="Assigned rat does not have a known API ID"):
+        await rescue_sop_fx.add_rat(rat=rat_no_id_fx)
 
         assert rat_no_id_fx not in rescue_sop_fx.rats
 
-    @pytest.mark.asyncio
-    async def test_add_rats_ok(self, rat_good_fx, rescue_sop_fx):
-        """
+
+@pytest.mark.asyncio
+async def test_add_rats_ok(rat_good_fx, rescue_sop_fx):
+    """
         Verifies adding a existing rat with a UUID works
         Args:
             rat_good_fx (Rats): Good Rat object Test Fixture
             rescue_sop_fx (Rescue):  Rescue object Test Fixture
         """
-        # rescue_sop_fx:Rescue
-        await rescue_sop_fx.add_rat(rat=rat_good_fx)
-        assert rat_good_fx in rescue_sop_fx.rats
+    # rescue_sop_fx:Rescue
+    await rescue_sop_fx.add_rat(rat=rat_good_fx)
+    assert rat_good_fx in rescue_sop_fx.rats
 
-    @pytest.mark.asyncio
-    async def test_add_rat_from_cache(self, rat_good_fx: Rats, rescue_sop_fx: Rescue):
-        await rescue_sop_fx.add_rat(rat_good_fx.name)
-        assert rat_good_fx == rescue_sop_fx.rats[0]
 
-    @pytest.mark.parametrize("garbage", [(None,), (42,), (-2.2,), (uuid4(),)])
-    def test_irc_nickname_garbage(self, garbage, rescue_plain_fx: Rescue):
-        """
+@pytest.mark.asyncio
+async def test_add_rat_from_cache(rat_good_fx: Rats, rescue_sop_fx: Rescue):
+    await rescue_sop_fx.add_rat(rat_good_fx.name)
+    assert rat_good_fx == rescue_sop_fx.rats[0]
+
+
+@pytest.mark.parametrize("garbage", [(None,), (42,), (-2.2,), (uuid4(),)])
+def test_irc_nickname_garbage(garbage, rescue_plain_fx: Rescue):
+    """
         Verifies throwing garbage types at Rescue.irc_nickname results in a TypeError
         Args:
             garbage (): Garbage to throw
             rescue_plain_fx (Rescue): Plain rescue Fixture
-        """
-        with pytest.raises(TypeError):
-            rescue_plain_fx.irc_nickname = garbage
+    """
+    with pytest.raises(TypeError):
+        rescue_plain_fx.irc_nickname = garbage
 
-    @pytest.mark.parametrize("test_input", ["foo", "bar", "en-us", "RU-RU"])
-    def test_irc_nickname_strings(self, test_input, rescue_plain_fx: Rescue):
-        """
+
+@pytest.mark.parametrize("test_input", ["foo", "bar", "en-us", "RU-RU"])
+def test_irc_nickname_strings(test_input, rescue_plain_fx: Rescue):
+    """
         Verifies the irc nickname can be set when passed a string
 
         Args:
@@ -684,23 +307,25 @@ class TestRescuePyTests(object):
 
         """
 
-        rescue_plain_fx.irc_nickname = test_input
-        assert rescue_plain_fx.irc_nickname == test_input
+    rescue_plain_fx.irc_nickname = test_input
+    assert rescue_plain_fx.irc_nickname == test_input
 
-    @pytest.mark.parametrize("garbage", [None, 42, -2.2, uuid4()])
-    def test_lang_id_garbage(self, garbage, rescue_plain_fx: Rescue):
-        """
+
+@pytest.mark.parametrize("garbage", [None, 42, -2.2, uuid4()])
+def test_lang_id_garbage(garbage, rescue_plain_fx: Rescue):
+    """
         Verifies throwing garbage types at Rescue.lang_id results in a TypeError
         Args:
             garbage (): Garbage to throw
             rescue_plain_fx (Rescue): Plain rescue Fixture
         """
-        with pytest.raises(TypeError):
-            rescue_plain_fx.lang_id = garbage
+    with pytest.raises(TypeError):
+        rescue_plain_fx.lang_id = garbage
 
-    @pytest.mark.parametrize("test_input", ["foo", "bar", "en-us", "RU-RU"])
-    def test_lang_id_strings(self, test_input, rescue_plain_fx: Rescue):
-        """
+
+@pytest.mark.parametrize("test_input", ["foo", "bar", "en-us", "RU-RU"])
+def test_lang_id_strings(test_input, rescue_plain_fx: Rescue):
+    """
         Verifies the lang id can be set when passed a string
 
         Args:
@@ -709,44 +334,29 @@ class TestRescuePyTests(object):
 
         """
 
-        rescue_plain_fx.lang_id = test_input
-        assert rescue_plain_fx.lang_id == test_input
+    rescue_plain_fx.lang_id = test_input
+    assert rescue_plain_fx.lang_id == test_input
 
-    def test_set_unidentified_rats_garbage_in_list(self, rescue_plain_fx: Rescue):
-        """
+
+def test_set_unidentified_rats_garbage_in_list(rescue_plain_fx: Rescue):
+    """
         Verifies a ValueError is raised if the list passed to Rats.unidentified_Rats contains
             illegal values
         """
-        garbage = [12, -42.2, None]
-        with pytest.raises(ValueError):
-            rescue_plain_fx.unidentified_rats = garbage
+    garbage = [12, -42.2, None]
+    with pytest.raises(ValueError):
+        rescue_plain_fx.unidentified_rats = garbage
 
-    @pytest.mark.parametrize("reason,reporter,marked", [
-        ("some reason", "UNIT_TEST[BOT]", True),
-        ("Totally not md", "Potato", False),
-        (None, None, True),
-        (None, None, False)
-    ])
-    def test_mark_for_deletion_setter_valid(self, rescue_sop_fx: Rescue, reason: str, reporter: str,
-                                            marked: bool):
-        rescue_sop_fx.marked_for_deletion.reporter = reporter
-        assert rescue_sop_fx.marked_for_deletion.reporter == reporter
 
-        rescue_sop_fx.marked_for_deletion.reason = reason
-        assert rescue_sop_fx.marked_for_deletion.reason == reason
-
-        rescue_sop_fx.marked_for_deletion.reporter = reporter
-        assert rescue_sop_fx.marked_for_deletion.reporter == reporter
-
-    @pytest.mark.parametrize("reason,reporter,marked", [
-        ([], 42.2, -1),
-        (-2.1, {"Potato"}, None),
-        ([], 42, "md reason"),
-        (True, -42.2, uuid4())
-    ])
-    def test_mark_for_deletion_setter_bad_data(self, reason: str or None, reporter: str or None,
-                                               marked: bool, rescue_sop_fx: Rescue):
-        """
+@pytest.mark.parametrize("reason,reporter,marked", [
+    ([], 42.2, -1),
+    (-2.1, {"Potato"}, None),
+    ([], 42, "md reason"),
+    (True, -42.2, uuid4())
+])
+def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or None,
+                                           marked: bool, rescue_sop_fx: Rescue):
+    """
         Verifies setting the mark for deletion property succeeds when the data is valid
 
         Args:
@@ -754,8 +364,8 @@ class TestRescuePyTests(object):
             reason (str): md reason
             reporter(str) md reporter
         """
-        with pytest.raises(TypeError):
-            rescue_sop_fx.marked_for_deletion.reason = reason
+    with pytest.raises(TypeError):
+        rescue_sop_fx.marked_for_deletion.reason = reason
 
         with pytest.raises(TypeError):
             rescue_sop_fx.marked_for_deletion.reporter = reporter
@@ -767,72 +377,79 @@ class TestRescuePyTests(object):
         assert rescue_sop_fx.marked_for_deletion.reason != reason
         assert rescue_sop_fx.marked_for_deletion.reporter != reporter
 
-    @pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
-    def test_mark_for_deletion_setter_bad_types(self, garbage, rescue_plain_fx: Rescue):
-        """Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError"""
-        myRescue = deepcopy(rescue_plain_fx)
 
-        with pytest.raises(TypeError):
-            myRescue.marked_for_deletion = garbage
+@pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
+def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
+    """Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError"""
+    myRescue = deepcopy(rescue_plain_fx)
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-    async def test_add_rat_by_rat_object(self, uuid: uuid4, name: str, rescue_plain_fx: Rescue):
-        """
+    with pytest.raises(TypeError):
+        myRescue.marked_for_deletion = garbage
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
+async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+    """
         Verifies `Rescue.add_rat` can add a rat given a `Rats` object
         """
-        # rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
-        # rats = [Rats(x, y) for x, y in rats_raw]
+    # rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
+    # rats = [Rats(x, y) for x, y in rats_raw]
 
-        myRescue = deepcopy(rescue_plain_fx)
+    myRescue = deepcopy(rescue_plain_fx)
 
-        rat = Rats(uuid=uuid, name=name)
+    rat = Rats(uuid=uuid, name=name)
 
-        await myRescue.add_rat(rat=rat)
+    await myRescue.add_rat(rat=rat)
 
-        assert rat in myRescue.rats
+    assert rat in myRescue.rats
 
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-    async def test_add_rat_by_uuid(self, uuid: uuid4, name: str, rescue_plain_fx: Rescue):
-        """
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
+async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+    """
         Verifies `Rescue.add_rat` can add a rat given a guid and a name
         """
-        myRescue = deepcopy(rescue_plain_fx)
+    myRescue = deepcopy(rescue_plain_fx)
 
-        await myRescue.add_rat(name=name, guid=uuid)
+    await myRescue.add_rat(name=name, guid=uuid)
 
-        assert name in Rats.cache_by_name
+    assert name in Rats.cache_by_name
 
-    def test_eq_none(self, rescue_plain_fx: Rescue):
-        """Verifies behavior of `Rescue.__eq__` when comparing against None"""
-        # This check only exists because this object is nullable...
-        # and no, you really shouldn't be comparing against None like this.
-        assert not None == rescue_plain_fx
 
-    def test_eq_bad_type(self, rescue_plain_fx: Rescue):
-        """
+def test_eq_none(rescue_plain_fx: Rescue):
+    """Verifies behavior of `Rescue.__eq__` when comparing against None"""
+    # This check only exists because this object is nullable...
+    # and no, you really shouldn't be comparing against None like this.
+    assert not None == rescue_plain_fx
+
+
+def test_eq_bad_type(rescue_plain_fx: Rescue):
+    """
         Verifies Rescue.__eq__ raises a type error when attempting to compare something
             other than a rescue.
         """
-        assert not rescue_plain_fx == "Rescue object at <0xBADBEEF> "
+    assert not rescue_plain_fx == "Rescue object at <0xBADBEEF> "
 
-    @pytest.mark.parametrize("reporter, reason", [("unit_test[BOT]", "reasons! reasons i say!"),
-                                                  ("potato[pc|nd]", "uhhh..."),
-                                                  ("sayWhat99", "dawg this ain't right!")])
-    def test_mark_delete_valid(self, rescue_sop_fx: Rescue, reporter: str, reason: str):
-        """Verifies Rescue.mark functions as expected when marking a case for deletion"""
 
-        rescue_sop_fx.mark_delete(reporter, reason)
+@pytest.mark.parametrize("reporter, reason", [("unit_test[BOT]", "reasons! reasons i say!"),
+                                              ("potato[pc|nd]", "uhhh..."),
+                                              ("sayWhat99", "dawg this ain't right!")])
+def test_mark_delete_valid(rescue_sop_fx: Rescue, reporter: str, reason: str):
+    """Verifies Rescue.mark functions as expected when marking a case for deletion"""
 
-        assert rescue_sop_fx.marked_for_deletion.marked
-        assert reporter == rescue_sop_fx.marked_for_deletion.reporter
-        assert reason == rescue_sop_fx.marked_for_deletion.reason
+    rescue_sop_fx.mark_delete(reporter, reason)
 
-    def test_mark_delete_invalid(self, rescue_sop_fx: Rescue):
-        """verify what happens when garbage gets thrown at `rescue.mark`"""
-        with pytest.raises(TypeError):
-            rescue_sop_fx.mark_delete(None, "sna")
+    assert rescue_sop_fx.marked_for_deletion.marked
+    assert reporter == rescue_sop_fx.marked_for_deletion.reporter
+    assert reason == rescue_sop_fx.marked_for_deletion.reason
+
+
+def test_mark_delete_invalid(rescue_sop_fx: Rescue):
+    """verify what happens when garbage gets thrown at `rescue.mark`"""
+    with pytest.raises(TypeError):
+        rescue_sop_fx.mark_delete(None, "sna")
 
         with pytest.raises(TypeError):
             rescue_sop_fx.mark_delete("sna", None)
@@ -840,12 +457,13 @@ class TestRescuePyTests(object):
         with pytest.raises(ValueError):
             rescue_sop_fx.mark_delete("unit_test", "")
 
-    def test(self, rescue_sop_fx: Rescue):
-        """Verify unmarking a case that was MD'ed works as expected"""
-        rescue_sop_fx.marked_for_deletion = MarkForDeletion(True, "unit_test[BOT]",
-                                                            "unit test reasons!")
 
-        rescue_sop_fx.unmark_delete()
-        assert rescue_sop_fx.marked_for_deletion.marked is False
-        assert rescue_sop_fx.marked_for_deletion.reporter is None
-        assert rescue_sop_fx.marked_for_deletion.reason is None
+def test(rescue_sop_fx: Rescue):
+    """Verify unmarking a case that was MD'ed works as expected"""
+    rescue_sop_fx.marked_for_deletion = MarkForDeletion(True, "unit_test[BOT]",
+                                                        "unit test reasons!")
+
+    rescue_sop_fx.unmark_delete()
+    assert rescue_sop_fx.marked_for_deletion.marked is False
+    assert rescue_sop_fx.marked_for_deletion.reporter is None
+    assert rescue_sop_fx.marked_for_deletion.reason is None
