@@ -20,12 +20,6 @@ from Modules.rat_rescue import Rescue
 from utils.ratlib import Status
 
 
-class TestRescuePyTests(object):
-    """
-    Container for pytest Tests.
-    """
-
-
 @pytest.mark.parametrize("expected_client", ['DeadBeef', 'Commander_Test', '11Alpha1',
                                              'Xxx22K1ng2xxX'])
 def test_verify_rescue_client(rescue_plain_fx, expected_client):
