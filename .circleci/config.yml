@@ -37,8 +37,7 @@ jobs:
           command: |
             docker cp spark-tests:/test-data/coverage.xml ./
             docker cp spark-tests:/mechasqueak/test-reports ./
-            cd mecha
-            ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
+            ./cc-test-reporter after-build --coverage-input-type coverage.py
       - store_test_results:
           path: test-reports
 notify:
