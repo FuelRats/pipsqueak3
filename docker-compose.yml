@@ -28,6 +28,10 @@ services:
       - type: bind
         source: ./logs
         target: /mechasqueak/logs/
+      
+      - type: bind
+        source: ./.git
+        target: /mechasqueak/.git
 
       - type: bind
         source: ./config
