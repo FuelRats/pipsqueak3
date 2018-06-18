@@ -3,6 +3,5 @@ pytest
 pytest-cov
 pytest-asyncio
 aiounittest
-
 pyodbc
 pure-sasl

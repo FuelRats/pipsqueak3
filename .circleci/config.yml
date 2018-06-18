@@ -21,20 +21,24 @@ jobs:
           command: |
             docker-compose build
             docker volume create --name=p-data
+            docker volume create --name=test-data
       - run:
           name: Run tests
           command: |
             docker-compose up -d sql
             ./cc-test-reporter before-build
-            docker-compose run tests
+            docker-compose up tests
       - run:
           name: Copy workdir from docker container and upload reports
           environment:
             - CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
           command: |
-            docker cp spark:/mechasqueak/ ./mecha/
+            docker cp spark-tests:/test-data/coverage.xml ./
+            docker cp spark-tests:/mechasqueak/test-reports ./
             cd mecha
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
+      - store_test_results:
+          path: test-reports
 notify:
   branches:
     - all
