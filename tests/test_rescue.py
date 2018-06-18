@@ -64,7 +64,7 @@ def test_validate_rescue_uuid(rescue_sop_fx):
     Validates the UUID of rescue_sop_fx._id
     """
     result = UUID(rescue_sop_fx._id.hex, version=4)
-    assert rescue_sop_fx.case_id == result
+    assert rescue_sop_fx.uuid == result
 
 
 def test_client_is_set(rescue_sop_fx):
@@ -334,7 +334,6 @@ async def test_add_rats_bad_id(rat_no_id_fx, rescue_sop_fx):
     """
     with pytest.raises(ValueError, message="Assigned rat does not have a known API ID"):
         await rescue_sop_fx.add_rat(rat=rat_no_id_fx)
-
         assert rat_no_id_fx not in rescue_sop_fx.rats
 
 
@@ -550,7 +549,7 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
 
         with pytest.raises(ValueError):
             rescue_sop_fx.mark_delete("unit_test", "")
-
+            
 
 def test(rescue_sop_fx: Rescue):
     """

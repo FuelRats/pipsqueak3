@@ -108,6 +108,7 @@ config/config.json
 config/live.json
 config/drill.json
 config/develop.json
+config/configuration.json
 
 #certs
 *.pem

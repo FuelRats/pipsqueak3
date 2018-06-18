@@ -3,7 +3,7 @@ Unittest file for the Rat_Board module.
 """
 from copy import deepcopy
 from unittest import TestCase
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import pytest
 
@@ -99,7 +99,7 @@ class RatBoardTests(TestCase):
         """
         self.board.append(self.some_rescue)
         with self.subTest(condition="existing"):
-            found = self.board.find_by_uuid(self.some_rescue.case_id)
+            found = self.board.find_by_uuid(self.some_rescue.uuid)
             self.assertIsNotNone(found)
 
         with self.subTest(condition="not found"):
@@ -150,7 +150,7 @@ class RatBoardTests(TestCase):
         # make our assertion
         self.assertTrue(
             # spawn a case with the same uuid, and make our check
-            Rescue(self.some_rescue.case_id, "nope", "i have no idea!", "nope") in self.board)
+            Rescue(self.some_rescue.uuid, "nope", "i have no idea!", "nope") in self.board)
 
     def test_contains_non_existing(self):
         """
@@ -262,3 +262,39 @@ class TestRatBoardPyTest(object):
 
         # and verify its functionality
         assert expected == nextFree
+
+    @pytest.mark.parametrize("test_input", [
+                            "UNIT_TEST",
+                            "@12345678-9876-53d1-ea5e-0000deadbeef",
+                            "42"])
+    def test_search_valid(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        assert rat_board_fx.search(test_input) == rescue_plain_fx
+
+    @pytest.mark.parametrize("test_input", [
+                            "unit_tes",  # bad client name
+                            "42.5",  # bad case number (decimals)
+                            "100",  # bad case number (int)
+                            '@12345678-9876-53d1-ea5e-0000dead'  # wrong length uuid
+                            ])
+    def test_search_garbage_returns_none(self, test_input, rat_board_fx: RatBoard,
+                                         rescue_plain_fx: Rescue):
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        assert rat_board_fx.search(test_input) is None
+
+    @pytest.mark.parametrize("test_input", [
+                            '@12345678-9876-53d1-ea5e-0000deadbee-',
+                            '@12345678-9876-53d1-ea5e-000deadsheep',
+                            True,
+                            False,
+                            42,
+                            uuid4(),
+                            None])
+    def test_search_garbage_raises_exception(self, test_input, rat_board_fx: RatBoard,
+                                             rescue_plain_fx: Rescue):
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        with pytest.raises((TypeError, ValueError,)):
+            rat_board_fx.search(test_input)

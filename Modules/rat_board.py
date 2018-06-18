@@ -100,7 +100,7 @@ class RatBoard(object):
                           f"createdAt {rescue.created_at} == {other.created_at}")
 
                 # if the IDs match then we know they are the same case.
-                if other.case_id is not None and rescue.case_id == other.case_id:
+                if other.uuid is not None and rescue.uuid == other.uuid:
                     return True
 
                 # check if the key attributes are equal
@@ -151,7 +151,7 @@ class RatBoard(object):
 
         return index
 
-    def find_by_index(self, index: int) -> Rescue or None:
+    def find_by_index(self, index: int) -> Optional[Rescue]:
         """
         Searches for and returns a Rescue at a given `index` position, should it exist
 
@@ -168,12 +168,12 @@ class RatBoard(object):
             found = self.rescues[index]
         except KeyError:
             # the key doesn't exist, therefore no rescue at that index.
-            pass
+            return None
         else:
             # we found something
             return found
 
-    def find_by_name(self, client: str) -> Union[Rescue, None]:
+    def find_by_name(self, client: str) -> Optional[Rescue]:
         """
         Searches for and returns a Rescue for a given client, should it exist.
 
@@ -199,9 +199,38 @@ class RatBoard(object):
 
         """
         for rescue in self.rescues.values():
-            if rescue.case_id == guid:
+            if rescue.uuid == guid:
                 return rescue
         return None
+
+    def search(self, case: str) -> Optional[Rescue]:
+        """
+        Helper for searching for a case using implemented search functions.
+
+        Args:
+            case str: The case string to search on
+
+        Returns:
+            Rescue: found rescue
+            None:   No rescue found
+
+        Raises:
+            ValueError: argument was not an expected type
+        """
+        # ensure a proper type was passed
+        if not isinstance(case, str):
+            raise TypeError(f"Expected str, got {type(case)}")
+        # strings could be any of the valid types, check for the best one.
+        if case.isdigit():
+            case_number = int(case)
+            return self.find_by_index(case_number)
+        # UUIDs always start with @ and are 37 characters, so try to parse it
+        elif case[0] == "@" and len(case) == 37:
+            guid_str = case[1:]
+            guid = UUID(guid_str)
+            return self.find_by_uuid(guid)
+        else:
+            return self.find_by_name(case)
 
     def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """
@@ -269,7 +298,7 @@ class RatBoard(object):
                 # FIXME: change to match API Handler interface, once it exists
                 await self.handler.update_rescue(rescue)
 
-            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.case_id}...")
+            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.uuid}...")
             self.append(rescue=rescue, overwrite=True)
             result = True
 
@@ -289,12 +318,12 @@ class RatBoard(object):
             KeyError: rescue was not on the board.
         """
         if self.handler is not None:
-            log.debug(f"Calling API to remove case by id {rescue.case_id}")
+            log.debug(f"Calling API to remove case by id {rescue.uuid}")
             #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
         log.debug(f"Removing case #{rescue.board_index} "
-                  f"(@{rescue.case_id})from the board.")
+                  f"(@{rescue.uuid})from the board.")
         self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:

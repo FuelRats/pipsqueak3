@@ -32,7 +32,7 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: UUID,
+    def __init__(self, uuid: UUID,
                  client: str,
                  system: str,
                  irc_nickname: str,
@@ -59,7 +59,7 @@ class Rescue(object):
             code_red (bool): is the client on emergency oxygen
             status (Status): status attribute for the rescue
             board (RatBoard): RatBoard instance this rescue is attached to, if any.
-            case_id (str): API id of rescue
+            uuid (str): API id of rescue
             client (str): Commander name of the Commander rescued
             system (str): System name the Commander is stranded in
                 (WILL BE CAST TO UPPER CASE)
@@ -87,7 +87,7 @@ class Rescue(object):
         self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
         self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
-        self._id: UUID = case_id
+        self._id: UUID = uuid
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else []
@@ -123,7 +123,7 @@ class Rescue(object):
             # check equality
 
             conditions = [
-                self.case_id == other.case_id,
+                self.uuid == other.uuid,
                 self.board_index == other.board_index,
                 self.client == other.client,
                 self.rats == other.rats,
@@ -150,7 +150,7 @@ class Rescue(object):
 
         if self._hash is None:
             attributes = (
-                self.case_id,
+                self.uuid,
                 self.board_index,
                 self.client,
                 self.platform,
@@ -336,22 +336,37 @@ class Rescue(object):
             raise TypeError(f"expected int or None, got {type(value)}")
 
     @property
-    def case_id(self) -> UUID:
+    def uuid(self) -> UUID:
         """
         The API Id of the rescue.
 
         Returns: API id
 
-        Notes:
-            This field is **READ ONLY**
         """
 
         return self._id
 
+    @uuid.setter
+    def uuid(self, value: UUID) -> None:
+        """
+        Sets the API uuid associated with the Rescue
+
+        Args:
+            value (UUID): The API ID
+
+        Returns:
+            None
+        """
+        if isinstance(value, UUID):
+            self._id = value
+        else:
+            raise ValueError(f"expected UUID, got type {type(value)}")
+
     @property
     def client(self) -> str:
         """
-        The client associated with the rescue\n
+        The client associated with the rescue
+
         Returns:
             (str) the client
 
@@ -359,16 +374,17 @@ class Rescue(object):
         return self._client
 
     @client.setter
-    def client(self, name) -> None:
+    def client(self, value: str) -> None:
         """
         Sets the client's Commander Name associated with the rescue
+
         Args:
-            name (str): Commander name of the client
+            value (str): Commander name of the client
 
         Returns:
             None
         """
-        self._client = name
+        self._client = value
 
     @property
     def created_at(self) -> datetime:
@@ -800,7 +816,7 @@ class Rescue(object):
             raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
                             f"{type(reason)}")
 
-        log.debug(f"marking rescue @{self.case_id} for deletion. reporter is {reporter} and "
+        log.debug(f"marking rescue @{self.uuid} for deletion. reporter is {reporter} and "
                   f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")
