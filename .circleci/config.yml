@@ -28,6 +28,7 @@ jobs:
           name: Run tests
           command: |
             docker-compose up -d sql
+            sleep 10
             ./cc-test-reporter before-build
             docker-compose up tests
       - run:
