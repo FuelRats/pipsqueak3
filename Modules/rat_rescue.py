@@ -702,14 +702,14 @@ class Rescue(object):
         """
         Sets the Md object
 
-            Args:
-                value (MarkForDeletion): value to set the MD object to.
+        Args:
+            value (MarkForDeletion): value to set the MD object to.
 
-            Returns:
-                None
+        Returns:
+            None
 
-            Raises:
-                TypeError: bad value type
+        Raises:
+            TypeError: bad value type
         """
         if isinstance(value, MarkForDeletion):
             self._mark_for_deletion = value
