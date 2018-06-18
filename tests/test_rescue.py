@@ -100,6 +100,22 @@ def test_updated_at_date_exists(rescue_sop_fx):
     assert rescue_sop_fx.updated_at != datetime(1990, 1, 1, 1, 1, 1)
 
 
+def test_updated_at_raises_typeerror(rescue_sop_fx):
+    """
+    Verify Rescue.updated_at raises TypeError if given incorrect value,
+    or is set to a date in the past.
+    """
+    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1,)
+
+    # Set to a string time
+    with pytest.raises(TypeError):
+        rescue_sop_fx.updated_at = '07:32:01 4-4-2063'
+
+    # Set to the past:
+    with pytest.raises(ValueError):
+        rescue_sop_fx.updated_at = datetime(1990, 1, 1, 1, 1, 1)
+
+
 @pytest.mark.parametrize("expected_rats", [['Joeblow', 'TinyTim', 'White Sheets'],
                                            ['Azel4st', 'Aero_Chamber', 'YoMama_27'],
                                            ['UnitTestingSucks', 'PytestPwns', 'yUnoComplain']])
@@ -207,6 +223,17 @@ def test_rescue_title(rescue_sop_fx, expected_title):
 
     # Assert again
     assert rescue_sop_fx.title == expected_title
+
+
+def test_rescue_title_type_error(rescue_sop_fx):
+    """
+    Verifies Rescue.Title returns a TypeError not passed 'None' or str.
+    """
+    with pytest.raises(TypeError):
+        rescue_sop_fx.title = ['Garbage', 'Pail']
+
+    # Causing an Error when Rescue.title = None fails:
+    rescue_sop_fx.title = None
 
 
 def test_rescue_first_limpet(rescue_sop_fx, rat_good_fx):
@@ -405,6 +432,14 @@ def test_set_unidentified_rats_garbage_in_list(rescue_plain_fx: Rescue):
         rescue_plain_fx.unidentified_rats = garbage
 
 
+def test_set_unidentified_rats_incorrect_type(rescue_plain_fx: Rescue):
+    """
+    Verifies a TypeError is raised if another type other than list is passed.
+    """
+    with pytest.raises(TypeError):
+        rescue_plain_fx.unidentified_rats = 'Snozzberry, Wonka, Doc'
+
+
 @pytest.mark.parametrize("reason,reporter,marked", [
     ([], 42.2, -1),
     (-2.1, {"Potato"}, None),
@@ -542,6 +577,36 @@ def test_rescue_status_default(rescue_sop_fx):
     """
     # Default
     assert rescue_sop_fx.status == Status.OPEN
+
+    # Test Getter
+    assert rescue_sop_fx.open
+
+
+def test_rescue_open_setter_helper(rescue_sop_fx):
+    """
+    Verifies passing a bool to Rescue.open properly sets
+    Rescue.status
+    """
+    rescue_sop_fx.open = True
+    assert rescue_sop_fx.open
+
+
+def test_rescue_open_setter_helper2(rescue_sop_fx):
+    """
+    Verifies passing a bool to Rescue.open properly sets
+    Rescue.status
+    """
+    rescue_sop_fx.open = False
+    assert rescue_sop_fx.open is False
+
+
+def test_rescue_open_type_error(rescue_sop_fx):
+    """
+    Verifies a TypeError is raised if Rescue.Open is passed a
+    non-bool.
+    """
+    with pytest.raises(TypeError):
+        rescue_sop_fx.open = 'Yes'
 
 
 @pytest.mark.parametrize("expected_status", [Status.OPEN, Status.CLOSED, Status.INACTIVE])
