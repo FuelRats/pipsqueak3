@@ -359,7 +359,7 @@ async def test_add_rat_from_cache(rat_good_fx: Rats, rescue_sop_fx: Rescue):
     assert rat_good_fx == rescue_sop_fx.rats[0]
 
 
-@pytest.mark.parametrize("garbage", [(None,), (42,), (-2.2,), (uuid4(),)])
+@pytest.mark.parametrize("garbage", [(None), (42), (-2.2), (uuid4())])
 def test_irc_nickname_garbage(garbage, rescue_plain_fx: Rescue):
     """
     Verifies throwing garbage types at Rescue.irc_nickname results in a TypeError
@@ -452,15 +452,15 @@ def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or
     with pytest.raises(TypeError):
         rescue_sop_fx.marked_for_deletion.reason = reason
 
-        with pytest.raises(TypeError):
-            rescue_sop_fx.marked_for_deletion.reporter = reporter
+    with pytest.raises(TypeError):
+        rescue_sop_fx.marked_for_deletion.reporter = reporter
 
-        with pytest.raises(TypeError):
-            rescue_sop_fx.marked_for_deletion.marked = marked
+    with pytest.raises(TypeError):
+        rescue_sop_fx.marked_for_deletion.marked = marked
 
-        assert rescue_sop_fx.marked_for_deletion.marked is False
-        assert rescue_sop_fx.marked_for_deletion.reason != reason
-        assert rescue_sop_fx.marked_for_deletion.reporter != reporter
+    assert rescue_sop_fx.marked_for_deletion.marked is False
+    assert rescue_sop_fx.marked_for_deletion.reason != reason
+    assert rescue_sop_fx.marked_for_deletion.reporter != reporter
 
 
 @pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
@@ -551,7 +551,7 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
             rescue_sop_fx.mark_delete("unit_test", "")
             
 
-def test(rescue_sop_fx: Rescue):
+def test_mark_for_deletion_unset(rescue_sop_fx: Rescue):
     """
     Verify unmarking a case that was MD'ed works as expected
     """
