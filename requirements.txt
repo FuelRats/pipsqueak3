@@ -5,3 +5,4 @@ pytest-asyncio
 aiounittest
 pyodbc
 pure-sasl
+coverage>=4.0,<4.4
