@@ -3,13 +3,13 @@ Unittest file for the Rat_Board module.
 """
 from copy import deepcopy
 from unittest import TestCase
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import pytest
 
 from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
 from Modules.rat_rescue import Rescue
-from ratlib.names import Platforms
+from utils.ratlib import Platforms
 
 
 class RatBoardTests(TestCase):
@@ -99,7 +99,7 @@ class RatBoardTests(TestCase):
         """
         self.board.append(self.some_rescue)
         with self.subTest(condition="existing"):
-            found = self.board.find_by_uuid(self.some_rescue.case_id)
+            found = self.board.find_by_uuid(self.some_rescue.uuid)
             self.assertIsNotNone(found)
 
         with self.subTest(condition="not found"):
@@ -150,7 +150,7 @@ class RatBoardTests(TestCase):
         # make our assertion
         self.assertTrue(
             # spawn a case with the same uuid, and make our check
-            Rescue(self.some_rescue.case_id, "nope", "i have no idea!", "nope") in self.board)
+            Rescue(self.some_rescue.uuid, "nope", "i have no idea!", "nope") in self.board)
 
     def test_contains_non_existing(self):
         """
@@ -166,74 +166,74 @@ class TestRatBoardPyTest(object):
     """
 
     @pytest.mark.asyncio
-    async def test_remove(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
+    async def test_remove(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
         # append a rescue to the board
-        RatBoard_fx.rescues[RescueSoP_fx.board_index] = RescueSoP_fx
+        rat_board_fx.rescues[rescue_sop_fx.board_index] = rescue_sop_fx
         # and attempt to remove it
-        await RatBoard_fx.remove(rescue=RescueSoP_fx)
+        await rat_board_fx.remove(rescue=rescue_sop_fx)
 
-        assert RescueSoP_fx.board_index not in RatBoard_fx.rescues
+        assert rescue_sop_fx.board_index not in rat_board_fx.rescues
 
     @pytest.mark.asyncio
-    async def test_modify_with_net_change(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
+    async def test_modify_with_net_change(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
         # make a deep copy of the fixture so we can edit it without tainting the board reference
-        myRescue: Rescue = deepcopy(RescueSoP_fx)
+        myRescue: Rescue = deepcopy(rescue_sop_fx)
         # append our rescue to the board
-        RatBoard_fx.rescues[RescueSoP_fx.board_index] = RescueSoP_fx
+        rat_board_fx.rescues[rescue_sop_fx.board_index] = rescue_sop_fx
 
         # make a change, ensure a change actually occured.
         myRescue.platform = Platforms.PC if myRescue.platform is not Platforms.PC else Platforms.XB
-        result = await RatBoard_fx.modify(rescue=myRescue)
+        result = await rat_board_fx.modify(rescue=myRescue)
         # check status OK
         assert result is True
         # check that a change occured
-        assert RatBoard_fx.rescues[RescueSoP_fx.board_index] == myRescue
+        assert rat_board_fx.rescues[rescue_sop_fx.board_index] == myRescue
 
         # double check
-        assert RatBoard_fx.rescues[RescueSoP_fx.board_index] != RescueSoP_fx
+        assert rat_board_fx.rescues[rescue_sop_fx.board_index] != rescue_sop_fx
 
     @pytest.mark.asyncio
-    async def test_modify_no_net_change(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
+    async def test_modify_no_net_change(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
         # append rescue to board
-        RatBoard_fx.rescues[RescueSoP_fx.board_index] = RescueSoP_fx
+        rat_board_fx.rescues[rescue_sop_fx.board_index] = rescue_sop_fx
 
         with pytest.raises(RescueNotChangedException):
-            await RatBoard_fx.modify(rescue=RescueSoP_fx)
+            await rat_board_fx.modify(rescue=rescue_sop_fx)
 
-    def test_contains_by_key_attributes(self, RescueSoP_fx: Rescue, RatBoard_fx: RatBoard):
+    def test_contains_by_key_attributes(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
         """
         Verifies `Ratboard.__contains__` returns true when looking for a case by
             key attributes only
 
         Args:
-            RescueSoP_fx (Rescue): rescue fixture
-            RatBoard_fx (RatBoard): RatBoard fixture
+            rescue_sop_fx (Rescue): rescue fixture
+            rat_board_fx (RatBoard): RatBoard fixture
         """
         # add our rescue to the board
-        RatBoard_fx.append(rescue=RescueSoP_fx)
+        rat_board_fx.append(rescue=rescue_sop_fx)
 
         # overwrite our local rescue objects id
-        RescueSoP_fx._id = None
+        rescue_sop_fx._id = None
 
-        assert RescueSoP_fx in RatBoard_fx
+        assert rescue_sop_fx in rat_board_fx
 
     @pytest.mark.parametrize("garbage", [None, 42, -2.2, uuid4(), []])
-    def test_rescue_setter_garbage(self, RatBoard_fx: RatBoard, garbage):
+    def test_rescue_setter_garbage(self, rat_board_fx: RatBoard, garbage):
         """
         Tests Ratboard.rescue
         Args:
-            RatBoard_fx (RatBoard):  Ratboard fixture
+            rat_board_fx (RatBoard):  Ratboard fixture
             garbage (): Garbage to throw at property
         """
         with pytest.raises(TypeError):
-            RatBoard_fx.rescues = garbage
+            rat_board_fx.rescues = garbage
 
     @pytest.mark.parametrize("index", [i for i in range(0, 5)])
-    def test_next_free_index_free(self, index: int, RatBoard_fx: RatBoard):
+    def test_next_free_index_free(self, index: int, rat_board_fx: RatBoard):
         """Verifies ratboard.next_free_index returns a free index when there are free available"""
 
         # make a copy of the fixture, so we don't taint other tests (this is preemptive)
-        myBoard = deepcopy(RatBoard_fx)
+        myBoard = deepcopy(rat_board_fx)
         # myBoard.regen_index()
 
         # write the key
@@ -249,9 +249,9 @@ class TestRatBoardPyTest(object):
         assert index + 1 == nextFree
 
     @pytest.mark.parametrize("keys,expected", (([0, 1, 2, 4], 3), ([0, 2, 3], 1)))
-    def test_next_free_mixed_board(self, keys: list, expected: int, RatBoard_fx: RatBoard):
+    def test_next_free_mixed_board(self, keys: list, expected: int, rat_board_fx: RatBoard):
         # local duplicate of the fixture
-        myBoard = deepcopy(RatBoard_fx)
+        myBoard = deepcopy(rat_board_fx)
 
         # populate rescues dict
         for i in keys:
@@ -262,3 +262,39 @@ class TestRatBoardPyTest(object):
 
         # and verify its functionality
         assert expected == nextFree
+
+    @pytest.mark.parametrize("test_input", [
+                            "UNIT_TEST",
+                            "@12345678-9876-53d1-ea5e-0000deadbeef",
+                            "42"])
+    def test_search_valid(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        assert rat_board_fx.search(test_input) == rescue_plain_fx
+
+    @pytest.mark.parametrize("test_input", [
+                            "unit_tes",  # bad client name
+                            "42.5",  # bad case number (decimals)
+                            "100",  # bad case number (int)
+                            '@12345678-9876-53d1-ea5e-0000dead'  # wrong length uuid
+                            ])
+    def test_search_garbage_returns_none(self, test_input, rat_board_fx: RatBoard,
+                                         rescue_plain_fx: Rescue):
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        assert rat_board_fx.search(test_input) is None
+
+    @pytest.mark.parametrize("test_input", [
+                            '@12345678-9876-53d1-ea5e-0000deadbee-',
+                            '@12345678-9876-53d1-ea5e-000deadsheep',
+                            True,
+                            False,
+                            42,
+                            uuid4(),
+                            None])
+    def test_search_garbage_raises_exception(self, test_input, rat_board_fx: RatBoard,
+                                             rescue_plain_fx: Rescue):
+        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
+        rat_board_fx.append(rescue_plain_fx)
+        with pytest.raises((TypeError, ValueError,)):
+            rat_board_fx.search(test_input)

@@ -13,15 +13,18 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Union
+from functools import reduce
+from operator import xor
+from typing import Union, Optional, List
 from uuid import UUID
 
+from Modules.epic import Epic
+from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat_quotation import Quotation
 from Modules.rats import Rats
-from config import config
-from ratlib.names import Platforms, Status
+from utils.ratlib import Platforms, Status
 
-LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Rescue(object):
@@ -29,7 +32,7 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, case_id: UUID,
+    def __init__(self, uuid: UUID,
                  client: str,
                  system: str,
                  irc_nickname: str,
@@ -39,13 +42,13 @@ class Rescue(object):
                  unidentified_rats=None,
                  active=True,
                  quotes: list = None,
-                 epic=False,
-                 title: Union[str, None] = None,
-                 first_limpet: UUID or None = None,
-                 board_index: int = None,
-                 mark_for_deletion: dict or None = None,
+                 epic: List[Epic] = None,
+                 title: Optional[str] = None,
+                 first_limpet: Optional[UUID] = None,
+                 board_index: Optional[int] = None,
+                 mark_for_deletion: MarkForDeletion = MarkForDeletion(),
                  lang_id: str = "EN",
-                 rats: list = None,
+                 rats: List[Rats] = None,
                  status: Status = Status.OPEN,
                  code_red=False):
         """
@@ -56,7 +59,7 @@ class Rescue(object):
             code_red (bool): is the client on emergency oxygen
             status (Status): status attribute for the rescue
             board (RatBoard): RatBoard instance this rescue is attached to, if any.
-            case_id (str): API id of rescue
+            uuid (str): API id of rescue
             client (str): Commander name of the Commander rescued
             system (str): System name the Commander is stranded in
                 (WILL BE CAST TO UPPER CASE)
@@ -84,27 +87,24 @@ class Rescue(object):
         self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
         self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
-        self._id: UUID = case_id
+        self._id: UUID = uuid
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else []
         self._system: str = system.upper()
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
-        self._epic: bool = epic
+        self._epic: List[Epic] = epic if epic is not None else []
         self._codeRed: bool = code_red
         self._outcome: None = None
         self._title: Union[str, None] = title
         self._firstLimpet: UUID = first_limpet
         self._board_index = board_index
-        self._mark_for_deletion = mark_for_deletion if mark_for_deletion else {
-            "marked": False,
-            "reason": None,
-            "reporter": None
-        }
+        self._mark_for_deletion = mark_for_deletion
         self._board_index = board_index
         self._lang_id = lang_id
         self._status = status
+        self._hash = None
 
     def __eq__(self, other) -> bool:
         """
@@ -118,12 +118,12 @@ class Rescue(object):
         """
         if not isinstance(other, Rescue):
             # instance type check
-            raise TypeError(f"other was of type {type(other)} expected instance of Rescue")
+            return NotImplemented
         else:
             # check equality
 
             conditions = [
-                self.case_id == other.case_id,
+                self.uuid == other.uuid,
                 self.board_index == other.board_index,
                 self.client == other.client,
                 self.rats == other.rats,
@@ -138,13 +138,37 @@ class Rescue(object):
                 self.outcome == other.outcome,
                 self.title == other.title,
                 self.first_limpet == other.first_limpet,
-                self.mark_for_deletion == other.mark_for_deletion,
+                self.marked_for_deletion == other.marked_for_deletion,
                 self.lang_id == other.lang_id,
                 self.rats == other.rats,
                 self.irc_nickname == other.irc_nickname,
             ]
 
             return all(conditions)
+
+    def __hash__(self):
+
+        if self._hash is None:
+            attributes = (
+                self.uuid,
+                self.board_index,
+                self.client,
+                self.platform,
+                self.first_limpet,
+                self.created_at,
+                self.updated_at,
+                self.system,
+                self.active,
+                self.code_red,
+                self.outcome,
+                self.title,
+                self.first_limpet,
+                self.lang_id,
+                self.irc_nickname,
+            )
+
+            self._hash = reduce(xor, map(hash, attributes))
+        return self._hash
 
     @property
     def status(self) -> Status:
@@ -312,22 +336,37 @@ class Rescue(object):
             raise TypeError(f"expected int or None, got {type(value)}")
 
     @property
-    def case_id(self) -> UUID:
+    def uuid(self) -> UUID:
         """
         The API Id of the rescue.
 
         Returns: API id
 
-        Notes:
-            This field is **READ ONLY**
         """
 
         return self._id
 
+    @uuid.setter
+    def uuid(self, value: UUID) -> None:
+        """
+        Sets the API uuid associated with the Rescue
+
+        Args:
+            value (UUID): The API ID
+
+        Returns:
+            None
+        """
+        if isinstance(value, UUID):
+            self._id = value
+        else:
+            raise ValueError(f"expected UUID, got type {type(value)}")
+
     @property
     def client(self) -> str:
         """
-        The client associated with the rescue\n
+        The client associated with the rescue
+
         Returns:
             (str) the client
 
@@ -335,16 +374,17 @@ class Rescue(object):
         return self._client
 
     @client.setter
-    def client(self, name) -> None:
+    def client(self, value: str) -> None:
         """
         Sets the client's Commander Name associated with the rescue
+
         Args:
-            name (str): Commander name of the client
+            value (str): Commander name of the client
 
         Returns:
             None
         """
-        self._client = name
+        self._client = value
 
     @property
     def created_at(self) -> datetime:
@@ -577,12 +617,12 @@ class Rescue(object):
             raise TypeError(f"expected type bool, got {type(value)}")
 
     @property
-    def epic(self) -> bool:
+    def epic(self) -> List[Epic]:
         """
         Epic status of the rescue.
 
         Returns:
-            bool
+            Epic
 
         Notes:
             This property is **READ ONLY** (for now)
@@ -648,7 +688,7 @@ class Rescue(object):
             raise TypeError(f"expected type None or str, got {type(value)}")
 
     @property
-    def mark_for_deletion(self) -> dict:
+    def marked_for_deletion(self) -> MarkForDeletion:
         """
         Mark for deletion object as used by the API
 
@@ -657,8 +697,8 @@ class Rescue(object):
         """
         return self._mark_for_deletion
 
-    @mark_for_deletion.setter
-    def mark_for_deletion(self, value) -> None:
+    @marked_for_deletion.setter
+    def marked_for_deletion(self, value) -> None:
         """
         Sets the Md object
 
@@ -672,30 +712,13 @@ class Rescue(object):
             TypeError: bad value type
             ValueError: value failed validation
         """
-        if isinstance(value, dict):
-            # checks to ensure only the required fields are present
-            if "marked" in value and "reason" in value and "reporter" in value and len(value) == 3:
-                # now sanity check the values
-                conditions = {
-                    isinstance(value["marked"], bool),
-                    isinstance(value["reason"], str) or value["reason"] is None,
-                    isinstance(value["reporter"], str) or value["reporter"] is None,
-                }
-                if all(conditions):
-                    self._mark_for_deletion = value
-
-                else:
-                    # at least one of the values was not valid
-                    raise ValueError("Data validation failed. at least one key contains invalid"
-                                     "data.")
-            else:
-                LOG.debug(f"data of value is: {value}")
-                raise ValueError("required fields missing and/or keys!")
+        if isinstance(value, MarkForDeletion):
+            self._mark_for_deletion = value
         else:
-            raise TypeError(f"expected type dict, got type {type(value)}")
+            raise TypeError(f"got {type(value)} expected MarkForDeletion object")
 
     @property
-    def rats(self) -> list:
+    def rats(self) -> List[Rats]:
         """
         Identified rats assigned to rescue
 
@@ -757,14 +780,15 @@ class Rescue(object):
 
         if isinstance(name, str):
             # lets check if we already have this rat in the cache (platform, any)
-            found = (await Rats.get_rat_by_name(name, self.platform), await Rats.get_rat_by_name(name))
+            found = (await Rats.get_rat_by_name(name, self.platform),
+                     await Rats.get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
                 return
             elif found[1]:
                 # a generic match (not platform specific) was found
                 # TODO throw a warning so the invoking method can handle this condition
-                LOG.warning("A match was found, but it was not the right platform!")
+                log.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
                 return
 
@@ -776,6 +800,39 @@ class Rescue(object):
 
                 rat = Rats(name=name, uuid=guid)
                 self.rats.append(rat)
+
+    def mark_delete(self, reporter: str, reason: str) -> None:
+        """
+        Marks a rescue for deletion
+
+        Args:
+            reporter (str): person marking rescue as deleted
+            reason (str): reason for the rescue being marked as deleted.
+
+        Raises:
+            TypeError: invalid params
+        """
+        # type enforcement
+        if not isinstance(reporter, str) or not isinstance(reason, str):
+            raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
+                            f"{type(reason)}")
+
+        log.debug(f"marking rescue @{self.uuid} for deletion. reporter is {reporter} and "
+                  f"their reason is '{reason}'.")
+        if reason == "":
+            raise ValueError("Reason required.")
+        self.marked_for_deletion.reporter = reporter
+        self.marked_for_deletion.reason = reason
+        self.marked_for_deletion.marked = True
+
+    def unmark_delete(self) -> None:
+        """
+        helper method for unmarking a rescue for deletion. resets the Md object
+        """
+
+        self.marked_for_deletion.marked = False
+        self.marked_for_deletion.reason = None
+        self.marked_for_deletion.reporter = None
 
     @contextmanager
     def change(self):

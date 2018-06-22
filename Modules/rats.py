@@ -14,12 +14,13 @@ This module is built on top of the Pydle system.
 """
 
 import logging
+from functools import reduce
+from operator import xor
 from uuid import UUID
 
-from config import config
-from ratlib.names import Platforms
+from utils.ratlib import Platforms
 
-LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Rats(object):
@@ -54,6 +55,7 @@ class Rats(object):
         self._platform = platform
         self._uuid = uuid
         self._name = name
+        self._hash = None
         # and update the cache
         if name and name not in Rats.cache_by_name:
             # don't register duplicates
@@ -62,7 +64,7 @@ class Rats(object):
             # don't register duplicates
             Rats.cache_by_id[uuid] = self
 
-    def __eq__(self, other: 'Rats')->bool:
+    def __eq__(self, other: 'Rats') -> bool:
         """
         Compare two Rats objects for equality
 
@@ -71,13 +73,25 @@ class Rats(object):
 
         Returns:
             bool: equal if uuid, platform, and name match
+            NotImplemented: bad type given
         """
+
+        if not isinstance(other, Rats):
+            return NotImplemented
+
         conditions = {
             self.platform == other.platform,
             self.uuid == other.uuid,
             self.name == other.name
         }
         return all(conditions)
+
+    def __hash__(self) -> int:
+        if self._hash is None:
+            attrs = (self.platform, self.uuid, self.uuid, self.name)
+            self._hash = reduce(xor, map(hash, attrs))
+
+        return self._hash
 
     @property
     def uuid(self):
@@ -102,9 +116,9 @@ class Rats(object):
             None
         """
         if isinstance(value, str):
-            LOG.debug(f"value was a string with data '{value}'")
+            log.debug(f"Value was a string with data '{value}'")
             uuid = UUID(value)
-            LOG.debug("parsed value into a valid UUID.")
+            log.debug("Parsed value into a valid UUID.")
             self._uuid = uuid
         elif isinstance(value, UUID):
             self._uuid = value

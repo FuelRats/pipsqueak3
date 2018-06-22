@@ -13,14 +13,14 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
-from typing import Union
+from typing import Union, Optional
 from uuid import UUID
 
 import config
 from Modules.rat_rescue import Rescue
 from config import config
 
-LOG = logging.getLogger(f"{config['logging']['base_logger']}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class RescueBoardException(BaseException):
@@ -29,7 +29,7 @@ class RescueBoardException(BaseException):
     """
 
     def __init__(self, *args: object) -> None:
-        LOG.error(f"Rescueboard Exception raised!\nargs = {args}")
+        log.error(f"Rescueboard Exception raised!\nargs = {args}")
         super().__init__(*args)
 
 
@@ -95,12 +95,12 @@ class RatBoard(object):
             raise TypeError
         else:
             for rescue in self.rescues.values():
-                LOG.debug(f"checking rescue {rescue} against {other}...\n"
+                log.debug(f"Checking rescue {rescue} against {other}...\n"
                           f"client {rescue.client} == {other.client} &&  "
                           f"createdAt {rescue.created_at} == {other.created_at}")
 
                 # if the IDs match then we know they are the same case.
-                if other.case_id is not None and rescue.case_id == other.case_id:
+                if other.uuid is not None and rescue.uuid == other.uuid:
                     return True
 
                 # check if the key attributes are equal
@@ -151,7 +151,7 @@ class RatBoard(object):
 
         return index
 
-    def find_by_index(self, index: int) -> Rescue or None:
+    def find_by_index(self, index: int) -> Optional[Rescue]:
         """
         Searches for and returns a Rescue at a given `index` position, should it exist
 
@@ -168,12 +168,12 @@ class RatBoard(object):
             found = self.rescues[index]
         except KeyError:
             # the key doesn't exist, therefore no rescue at that index.
-            pass
+            return None
         else:
             # we found something
             return found
 
-    def find_by_name(self, client: str) -> Union[Rescue, None]:
+    def find_by_name(self, client: str) -> Optional[Rescue]:
         """
         Searches for and returns a Rescue for a given client, should it exist.
 
@@ -186,7 +186,7 @@ class RatBoard(object):
                 return rescue
         return None
 
-    def find_by_uuid(self, guid: UUID) -> Rescue or None:
+    def find_by_uuid(self, guid: UUID) -> Optional[Rescue]:
         """
         Searches for and returns a rescue by api ID, should it exist.
 
@@ -199,9 +199,38 @@ class RatBoard(object):
 
         """
         for rescue in self.rescues.values():
-            if rescue.case_id == guid:
+            if rescue.uuid == guid:
                 return rescue
         return None
+
+    def search(self, case: str) -> Optional[Rescue]:
+        """
+        Helper for searching for a case using implemented search functions.
+
+        Args:
+            case str: The case string to search on
+
+        Returns:
+            Rescue: found rescue
+            None:   No rescue found
+
+        Raises:
+            ValueError: argument was not an expected type
+        """
+        # ensure a proper type was passed
+        if not isinstance(case, str):
+            raise TypeError(f"Expected str, got {type(case)}")
+        # strings could be any of the valid types, check for the best one.
+        if case.isdigit():
+            case_number = int(case)
+            return self.find_by_index(case_number)
+        # UUIDs always start with @ and are 37 characters, so try to parse it
+        elif case[0] == "@" and len(case) == 37:
+            guid_str = case[1:]
+            guid = UUID(guid_str)
+            return self.find_by_uuid(guid)
+        else:
+            return self.find_by_name(case)
 
     def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """
@@ -257,19 +286,19 @@ class RatBoard(object):
             result = False
         # check if its equal to what we already have
         elif found == rescue:
-            LOG.debug("a call was made to modify, yet the rescue was not changed!")
+            log.debug("A call was made to modify, yet the rescue was not changed!")
             raise RescueNotChangedException
         else:
             # its not what we already have
 
             # lets check if we have a API handler
             if self.handler is not None:
-                LOG.debug("Rescue has been modified, making a call to the API")
+                log.debug("Rescue has been modified, making a call to the API")
                 # if so, let it know we changed the rescue
                 # FIXME: change to match API Handler interface, once it exists
                 await self.handler.update_rescue(rescue)
 
-            LOG.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.case_id}...")
+            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.uuid}...")
             self.append(rescue=rescue, overwrite=True)
             result = True
 
@@ -289,11 +318,12 @@ class RatBoard(object):
             KeyError: rescue was not on the board.
         """
         if self.handler is not None:
-            LOG.debug(f"Calling API to remove case by id {rescue.case_id}")
+            log.debug(f"Calling API to remove case by id {rescue.uuid}")
             #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
-        LOG.debug(f"removing case #{rescue.board_index} (@{rescue.case_id}) from the board.")
+        log.debug(f"Removing case #{rescue.board_index} "
+                  f"(@{rescue.uuid})from the board.")
         self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
@@ -305,7 +335,7 @@ class RatBoard(object):
 
         useful for flushing the board prior to re-retrieving cases from the API
         """
-        LOG.warning("Flushing the Dispatch Board, fire in the hole!")
+        log.warning("Flushing the Dispatch Board, fire in the hole!")
         self.rescues = {}
 
     async def retrieve_open_cases_from_api(self) -> None:
@@ -321,13 +351,13 @@ class RatBoard(object):
         """
         # verify we have an API handler registered
         if self.handler is not None:
-            LOG.debug("a API handler is registered, attempting to fetch open cases")
+            log.debug("API handler is registered, attempting to fetch open cases")
             # FIXME:  modify call to match API handler interface once it is implemented
             self.rescues = await self.handler.get_rescues("open")
 
         else:
             # we don't have a registered API handler, this call cannot succeed,
-            LOG.exception("no API handler is registered, this call will fail!")
+            log.exception("No API handler is registered, this call will fail!")
 
             # TODO: replace this exception with something more specific?
             raise RescueBoardException("no API handler registered!")

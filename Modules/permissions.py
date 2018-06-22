@@ -14,17 +14,18 @@ This module is built on top of the Pydle system.
 import logging
 from functools import wraps
 
-from config import config
+from Modules.context import Context
 
-log = logging.getLogger(f"{config['logging']['base_logger']}.Permissions")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Permission:
     """
     A permission level
     """
+
     def __init__(self, level: int, vhost: str,
-                 deny_message: str="Access denied."):
+                 deny_message: str = "Access denied."):
         """
         Permission required to execute a command
         :param level: Relative permissions level
@@ -32,7 +33,7 @@ class Permission:
         :param deny_message: message to display if user level < level required
         :return:
         """
-        log.debug(f"created new Permission object with permission level")
+        log.debug(f"Created new Permission object with permission {level}")
         self._level = level
         self._vhost = vhost
         self._denied_message = deny_message
@@ -96,7 +97,7 @@ _by_vhost = {
 
 
 def require_permission(permission: Permission,
-                       override_message: str or None=None):
+                       override_message: str or None = None):
     """
     Require an IRC command to be invoked by an authorized user.
 
@@ -113,18 +114,80 @@ def require_permission(permission: Permission,
     """
 
     def real_decorator(func):
-        log.debug("inside real_decorator")
+        log.debug("Inside the real_decorator")
         log.debug(f"Wrapping a command with permission {permission}")
-        # TODO implement require_permission wrapper.
 
         @wraps(func)
-        async def guarded(bot, trigger):
-            if trigger.identified and trigger.hostname in _by_vhost.keys() \
-                    and _by_vhost[trigger.hostname] >= permission:
-                return await func(bot, trigger)
+        async def guarded(context: Context):
+            if context.user.identified and context.user.hostname in _by_vhost.keys() \
+                    and _by_vhost[context.user.hostname] >= permission:
+                return await func(context)
             else:
-                await trigger.reply(override_message if override_message
+                await context.reply(override_message if override_message
                                     else permission.denied_message)
 
         return guarded
+
+    return real_decorator
+
+
+def require_channel(message: str = "This command must be invoked in a channel."):
+    """
+    Require the wrapped IRC command to be invoked in a channel context.
+
+    Usage:
+        ```py
+
+        @require_channel()
+        async def my_command(context: Context):
+            pass
+        ```
+    """
+
+    def real_decorator(func):
+        """wrapps the function in the channel enforcer"""
+        log.debug(f"Wrapping function object {func} with channel enforcement")
+
+        @wraps(func)
+        async def guarded(context: Context):
+            """Enforces channel requirement"""
+            if context.channel is not None:
+                return await func(context)
+            else:
+                log.debug(f"channel was None, enforcing channel requirement...")
+                await context.reply(message)
+
+        return guarded
+
+    return real_decorator
+
+
+def require_dm(message: str = "command {cmd} must be invoked in a private message."):
+    """
+    Require the wrapped IRC command to be invoked in a direct message context.
+
+    Usage:
+        ```py
+
+        @require_channel()
+        async def my_command(context: Context):
+            pass
+        ```
+    """
+
+    def real_decorator(func):
+        """wrapps the function in the DM enforcer"""
+        log.debug(f"Wrapping function object {func} with Direct message enforcement")
+
+        @wraps(func)
+        async def guarded(context: Context):
+            """Enforces channel requirement"""
+            if context.channel is None:
+                return await func(context)
+            else:
+                log.debug(f"Executed from channel context... enforcing restriction...")
+                await context.reply(message.format(cmd=context.words[0]))
+
+        return guarded
+
     return real_decorator

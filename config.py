@@ -16,6 +16,7 @@ See LICENSE
 import json
 import logging
 import os
+import coloredlogs
 from typing import Union
 
 from Modules import cli_manager  # For CLI config-file argument
@@ -23,29 +24,79 @@ from Modules import cli_manager  # For CLI config-file argument
 config: Union[None, dict] = None
 
 
-def setup_logging(root_logger: str, logfile: str):
-    # create a log formatter
-    log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
-                                      style='{')
-    # get Mecha's root logger
-    log = logging.getLogger(root_logger)
-    # Create a file handler for the logger
-    log_file_handler = logging.FileHandler(logfile, 'w')
-    log_file_handler.setFormatter(log_formatter)
-    # create a stream handler ( prints to STDOUT/STDERR )
-    log_stream_handler = logging.StreamHandler()
-    log_stream_handler.setFormatter(log_formatter)
-    # adds the two handlers to the logger so they can do their thing.
-    log.addHandler(log_file_handler)
-    log.addHandler(log_stream_handler)
-    # set the minimum severity the logger will report.
-    # uncomment for production:
-    # log.setLevel(logging.INFO)
-    # uncomment for develop:
-    log.setLevel(logging.DEBUG)
+def setup_logging(logfile: str):
+    # check for CLI verbosity flag
+    if cli_manager.args.verbose:
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.INFO
 
-    logging.info("[Mecha] configuration file loading...")
-    """provides facilities for managing a configuration from disk"""
+    # check for nocolor flag
+    if cli_manager.args.nocolors:
+        logcolors = False
+    else:
+        logcolors = True
+
+    # check for new-log flag, overwriting existing log,
+    # otherwise, append to the file per normal.
+    if cli_manager.args.clean_log:
+        log_filemode = 'w'
+    else:
+        log_filemode = 'a'
+
+    # hook the logger
+    log = logging.getLogger(f"mecha.{__name__}")
+
+    # create a handler for said logger...
+    file_logger = logging.FileHandler(logfile, log_filemode, encoding="utf-8")
+    log_format = '<%(asctime)s %(name)s> [%(levelname)s] %(message)s'
+    log_datefmt = '%Y-%m-%d %H:%M:%S'
+    file_logger_format = logging.Formatter(log_format)
+
+    # set the formatter to actually use it
+    file_logger.setFormatter(file_logger_format)
+
+    # add the handler to the log.
+    logging.getLogger(f"mecha").addHandler(file_logger)
+
+    # set proper severity level
+    log.setLevel(loglevel)
+
+    # add Console logging
+    console = logging.StreamHandler()
+    logging.getLogger(f"mecha.{__name__}").addHandler(console)
+
+    # add console logging format
+    console_format = logging.Formatter(log_format)
+
+    # set console formatter to use our format.
+    console.setFormatter(console_format)
+
+    # coloredlogs hook
+    log_levelstyles = {'critical': {'color': 'red', 'bold': True},
+                       'error': {'color': 'red', 'bright': True},
+                       'warning': {'color': 'yellow', 'bright': True},
+                       'info': {'color': 'white', 'bright': True},
+                       'debug': {'color': 'black', 'bright': True}}
+
+    log_fieldstyles = {'asctime': {'color': 'white', 'bright': True},
+                       'levelname': {'color': 'white', 'bright': True},
+                       'name': {'color': 'yellow', 'bright': True}}
+
+    # coloredlogs hook
+    coloredlogs.install(handler=__name__,
+                        level=loglevel,
+                        fmt=log_format,
+                        level_styles=log_levelstyles,
+                        field_styles=log_fieldstyles,
+                        datefmt=log_datefmt,
+                        isatty=logcolors,
+                        )
+
+    # disable propagation
+    log.propagate = False
+
+    logging.info("Configuration file loading...")
 
 
 def setup(filename: str) -> None:
@@ -65,10 +116,10 @@ def setup(filename: str) -> None:
             config_dict = json.load(infile)
             logging.info("Successfully loaded JSON from file specified!")
 
-        setup_logging(config_dict["logging"]["base_logger"], config_dict['logging']['log_file'])
+        setup_logging(config_dict['logging']['log_file'])
         config = config_dict
     else:
-        raise FileNotFoundError(f"unable to find {filename}")
+        raise FileNotFoundError(f"Unable to find {filename}")
 
 
 # fetch the CLI argument
