@@ -12,6 +12,9 @@ This module is built on top of the Pydle system.
 """
 import pyodbc
 import config
+import logging
+
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Singleton(type):
@@ -52,7 +55,7 @@ class DatabaseManager(metaclass=Singleton):
                             " mecha3_facts (name VARCHAR, lang VARCHAR, response VARCHAR);")
 
     async def _select_rows(self, table_name: str, connector: str, condition: dict = None,
-                           skipdouble_dash_test = False) -> list:
+                           skipdouble_dash_test: bool = False) -> list:
         """
 
         Args:
@@ -68,13 +71,13 @@ class DatabaseManager(metaclass=Singleton):
         if await self._has_table(table_name):
             if not condition:
                 condition = {}
-           # sql_string = "SELECT * FROM {table_name} WHERE ?;".format(table_name=table_name)
             cond_str = ""
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str) and not skipdouble_dash_test:
-                raise ValueError("Suspicion of SQL-Injection. Aborting")
+                raise ValueError("Suspicion of SQL-Injection. Statement: SELECT * FROM {table_name}"
+                                 f" WHERE {cond_str}. Aborting")
             return self.cursor.execute(f"SELECT * FROM {table_name} WHERE {cond_str};").fetchall()
         else:
             raise ValueError(f"Table {table_name} does not exists!")
@@ -83,8 +86,12 @@ class DatabaseManager(metaclass=Singleton):
         """
         checks whether the table exists.
         Unique to PSQL!
-        :param name: name of the table to check
-        :return: false if table does not exist, true otherwise
+
+        Args:
+            name: name of the table to check
+
+        Returns: false if table does not exist, true otherwise
+
         """
         return self.cursor.execute(("SELECT EXISTS ( "
                                     "SELECT 1 FROM pg_tables WHERE tablename = '{name}')"
@@ -92,18 +99,21 @@ class DatabaseManager(metaclass=Singleton):
 
     async def _create_table(self, name: str, types: dict) -> None:
         """
-        Creates the table with the given name and datatypes.
-        All datatypes must be SQL-compliant.
-        :param name: name of table to create
-        :param types: dict of column name and datatype
-        :return: None
-        :raises: ValueError should table already exist
+            Creates the table with the given name and datatypes.
+            All datatypes must be SQL-compliant.
+        Args:
+            name: name of table to create
+            types: ict of column name and datatype
+
+        Returns: None
+        Raises: ValueError should table already exist
         """
+
         if not await self._has_table(name):
             type_str = ""
             for k, v in types.items():
                 type_str += f"{k} {v},"
-            type_str = type_str[0:-1]
+            type_str = type_str[:-1]
             self.cursor.execute(f"CREATE TABLE {name} ({type_str}) ;")
             self.connection.commit()
             return
@@ -112,8 +122,11 @@ class DatabaseManager(metaclass=Singleton):
     async def _drop_table(self, name: str) -> None:
         """
 
-        :param name:
-        :return:
+        Args:
+            name: name of table to drop
+
+        Returns: None
+
         """
         if await self._has_table(name):
             sql_string = "DROP TABLE {name};".format(name=name)
@@ -123,6 +136,15 @@ class DatabaseManager(metaclass=Singleton):
         raise ValueError(f"Table {name} does not exist!")
 
     async def _insert_row(self, table_name: str, values: tuple):
+        """
+
+        Args:
+            table_name: name of table to insert value into
+            values: tuple with values matching the rows to insert into
+
+        Returns: None
+
+        """
         if await self._has_table(table_name):
             sql_string = "INSERT INTO {table_name} VALUES (?);".format(table_name=table_name)
             val_str = ", ".join(values)
@@ -132,6 +154,19 @@ class DatabaseManager(metaclass=Singleton):
 
     async def _update_row(self, table_name: str, connector: str, values: dict, condition=None,
                           skipdouble_dash_test=False):
+        """
+
+        Args:
+            table_name: name of table to update
+            connector: Connector used to connect conditions. Must be suported by the DB
+            values: tuple with values matching the rows to insert into
+            condition: conditions, connected by "equals"
+            skipdouble_dash_test: skip the crude SQLInjection test if it breaks your request,
+                    implement your OWN CHECK!
+
+        Returns:
+
+        """
         if await self._has_table(table_name):
             val_str = ""
             for k, v in values.items():
@@ -142,18 +177,32 @@ class DatabaseManager(metaclass=Singleton):
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str or "--" in val_str) and not skipdouble_dash_test:
-                raise ValueError("Suspicion of SQL-Injection. Aborting")
+                raise ValueError(f"Suspicion of SQL-Injection.Statement: UPDATE {table_name} "
+                                 f"SET {val_str} WHERE {cond_str}. Aborting")
             self.cursor.execute(f"UPDATE {table_name} SET {val_str} WHERE {cond_str};")
         else:
             raise ValueError(f"Table {table_name} does not exists!")
 
     async def _delete_row(self, table_name: str, connector: str, condition=None,
-                          skipdouble_dash_test=False):
+                          skipdouble_dash_test: bool = False):
+        """
+
+        Args:
+            table_name: name of table to delete row form
+            connector: Connector used to connect conditions. Must be suported by the DB
+            condition: onditions, connected by "equals"
+            skipdouble_dash_test: skip the crude SQLInjection test if it breaks your request,
+                    implement your OWN CHECK!
+
+        Returns:
+
+        """
         if await self._has_table(table_name):
             cond_str = ""
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str) and not skipdouble_dash_test:
-                raise ValueError("Suspicion of SQL-Injection. Aborting")
+                raise ValueError(f"Suspicion of SQL-Injection. Statement: DELETE FROM {table_name}"
+                                 f" WHERE {cond_str}. Aborting")
             self.cursor.execute(f"DELETE FROM {table_name} WHERE {cond_str}")
