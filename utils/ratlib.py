@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 """
 from enum import Enum
 import re
+from uuid import UUID, uuid4
 
 MIRC_CONTROL_CODES = ["\x0F", "\x16", "\x1D", "\x1F", "\x02",
                       "\x03([1-9][0-6]?)?,?([1-9][0-6]?)?"]
@@ -84,3 +85,15 @@ def strip_name(nickname: str) -> str:
     """
     split_string = nickname.split("[")
     return split_string[0]
+
+
+def try_parse_uuid(suspect: str) -> UUID:
+    result = None
+
+    try:
+        result = UUID(suspect, version=4)
+    except ValueError:
+        return None
+
+    else:
+        return result

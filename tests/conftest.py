@@ -38,7 +38,7 @@ from utils.ratlib import Platforms
 from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
-
+from Modules.mark_for_deletion import MarkForDeletion
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
                         ("xxXclient", Platforms.XB, "sol", 2),
@@ -188,3 +188,18 @@ def random_string_fx() -> str:
 def epic_fx(rescue_plain_fx, rat_good_fx) -> Epic:
     """Provides an Epic object fixture"""
     return Epic(uuid4(), "my notes package", rescue_plain_fx, rat_good_fx)
+
+
+@pytest.fixture
+def mark_for_deletion_plain_fx() -> MarkForDeletion:
+    """Provides a plain MFD object"""
+    return MarkForDeletion(False)
+
+
+@pytest.fixture(params=[(True, 'White Sheets', 'Disallowable cut of jib'),
+                        (False, 'Shatt', 'Not Enough Cowbell'),
+                        (False, 'unkn0wn', 'Object in mirror appears too close')])
+def mark_for_deletion_fx(request) -> MarkForDeletion:
+    """Provides a parameterized MFD object"""
+    param = request.param
+    return MarkForDeletion(marked=param[0], reporter=param[1], reason=param[2])

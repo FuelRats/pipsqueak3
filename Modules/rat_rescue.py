@@ -703,14 +703,13 @@ class Rescue(object):
         Sets the Md object
 
         Args:
-            value (dict): value to set the MD object to.
+            value (MarkForDeletion): value to set the MD object to.
 
         Returns:
             None
 
         Raises:
             TypeError: bad value type
-            ValueError: value failed validation
         """
         if isinstance(value, MarkForDeletion):
             self._mark_for_deletion = value
