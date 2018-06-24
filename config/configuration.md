@@ -76,13 +76,13 @@ API configuration elements
 |url|base url for the API|
 |tokenfile|name of the API token file, relative to `certs/`|
 
-# DataBase
-Configures the connection to the PSQL-DB  
+# Database
+Configures the connection to the PostgreSQL database
 
 | Element| description |
 |------- |------------ |
 |server| ip address or hostname for the DB server|
 |port| port to connect to|
 |database| name of the database to use|
-|username| name of the user to access the DB|
-|password| password to use for the DB user|
+|username| name of the database user|
+|password| password for the database user|
