@@ -14,6 +14,7 @@ import pytest
 from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4, UUID
+from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rats import Rats
 from Modules.rat_rescue import Rescue
@@ -195,14 +196,17 @@ def test_rescue_quotes(rescue_sop_fx):
 
 def test_epic_rescue_attached(epic_fx):
     """
-    Verifies Epic obj data attached to rescue is returned properly.
+    Verifies attached epic object referenced by rescue is the same object, and
+    that only one rescue has been added.
     """
     # Create local rescue object
     test_rescue = Rescue(uuid4(), 'TestClient', 'Alioth', 'Test_Client', epic=[epic_fx])
 
-    for epic in test_rescue.epic:
-        assert epic.notes == 'my notes package'
-        assert str(epic.uuid) != ''
+    # One rescue added, the List should return only ONE Epic.
+    assert len(test_rescue.epic) == 1
+
+    # Check that the epic object in list is epic_fx
+    assert test_rescue.epic[0] is epic_fx
 
 
 @pytest.mark.parametrize('expected_title', ['Operation Unit Hazing', 'Dumbo Drop', 'Delight'])
