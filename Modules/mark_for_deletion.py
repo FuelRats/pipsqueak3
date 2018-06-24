@@ -32,6 +32,17 @@ class MarkForDeletion(object):
         self._marked = marked
         self._reason = reason
 
+    def __eq__(self, other: 'MarkForDeletion') -> bool:
+        if not isinstance(other, MarkForDeletion):
+            return NotImplemented
+
+        conditions = (
+            self.reason == other.reason,
+            self.reporter == other.reporter,
+            self.marked == other.marked
+        )
+        return all(conditions)
+
     @property
     def marked(self) -> bool:
         """
