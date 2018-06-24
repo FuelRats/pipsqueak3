@@ -16,27 +16,30 @@ from Modules.database_manager import DatabaseManager
 pytestmark = pytest.mark.asyncio
 
 
+@pytest.fixture(scope="class")
+def dropTables():
+    """
+    Drops all the tables
+    :return:
+    """
+    table_names = ("testtablehas",
+                   "testtableselect",
+                   "testtablecreate",
+                   "testtableinsert",
+                   "testtableupdate",
+                   "testtabledelete",
+                   )
+    for name in table_names:
+        try:
+            DatabaseManager().cursor.execute(f"DROP TABLE {name}")
+        except (pyodbc.ProgrammingError, pyodbc.OperationalError, pyodbc.DataError):
+            pass
+
+
 # noinspection PyProtectedMember
+@pytest.mark.useFixture("dropTables")
 class TestStuff(object):
     manager = DatabaseManager()
-
-    @classmethod
-    def setup_class(cls):
-        """ setup any state specific to the execution of the given class (which
-        usually contains tests).
-        """
-        table_names = ("testtablehas",
-                       "testtableselect",
-                       "testtablecreate",
-                       "testtableinsert",
-                       "testtableupdate",
-                       "testtabledelete",
-                       )
-        for name in table_names:
-            try:
-                cls.manager.cursor.execute(f"DROP TABLE {name}")
-            except (pyodbc.ProgrammingError, pyodbc.OperationalError, pyodbc.DataError):
-                pass
 
     async def test_has_table(self):
         if await self.manager._has_table("testtablehas"):

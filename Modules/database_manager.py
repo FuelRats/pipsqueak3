@@ -32,7 +32,6 @@ class DatabaseManager(metaclass=Singleton):
         Creates the default tables should they not exist.
         """
         # connect to PostgreSQL (PSQL) database
-        # FIXME: Insert actual credentials / read from Config
         __config: dict = config.config.get("database")
         connect_str = ("Driver={PostgreSQL UNICODE};"
                        f"Server={__config.get('server')};"
@@ -55,11 +54,16 @@ class DatabaseManager(metaclass=Singleton):
     async def _select_rows(self, table_name: str, connector: str, condition: dict = None,
                            skipdouble_dash_test = False) -> list:
         """
-        returns all rows matching the cconditions in the given table
-        :param table_name(str): name of the table to select from
-        :param connector(str): Connector used to connect conditions. Must be suported by the DB
-        :param condition(dict):
-        :return: a list containing the rows returned
+
+        Args:
+            table_name: name of the table to select from
+            connector: Connector used to connect conditions. Must be suported by the DB
+            condition: conditions, connected by "equals"
+            skipdouble_dash_test: skip the crude SQLInjection test if it breaks your request,
+                    implement your OWN CHECK!
+
+        Returns: a list containing the rows returned
+
         """
         if await self._has_table(table_name):
             if not condition:
@@ -69,7 +73,7 @@ class DatabaseManager(metaclass=Singleton):
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
-            if "--" in cond_str and not skipdouble_dash_test:
+            if ("--" in cond_str) and not skipdouble_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Aborting")
             return self.cursor.execute(f"SELECT * FROM {table_name} WHERE {cond_str};").fetchall()
         else:
@@ -137,7 +141,7 @@ class DatabaseManager(metaclass=Singleton):
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
-            if "--" in cond_str or "--" in val_str and not skipdouble_dash_test:
+            if ("--" in cond_str or "--" in val_str) and not skipdouble_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Aborting")
             self.cursor.execute(f"UPDATE {table_name} SET {val_str} WHERE {cond_str};")
         else:
@@ -150,6 +154,6 @@ class DatabaseManager(metaclass=Singleton):
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
-            if "--" in cond_str and not skipdouble_dash_test:
+            if ("--" in cond_str) and not skipdouble_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Aborting")
             self.cursor.execute(f"DELETE FROM {table_name} WHERE {cond_str}")
