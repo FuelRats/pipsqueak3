@@ -20,7 +20,7 @@ irc client, such as username, server, and channels to connect to.
 | nickname| the bots username|
 | port| irc port to connect to. `3367` for plain, `3397` for ssl|
 | tls| set to true to connect to tls, a false setting disables SASL|
-|channels| list of channels to connec to|
+|channels| list of channels to connect to|
 
 # Authentication
 This section contains details relavent to authenticating against the
@@ -75,3 +75,14 @@ API configuration elements
 |online_mode|should mecha start up in online mode?|
 |url|base url for the API|
 |tokenfile|name of the API token file, relative to `certs/`|
+
+# DataBase
+Configures the connection to the PSQL-DB  
+
+| Element| description |
+|------- |------------ |
+|server| ip address or hostname for the DB server|
+|port| port to connect to|
+|database| name of the database to use|
+|username| name of the user to access the DB|
+|password| password to use for the DB user|
