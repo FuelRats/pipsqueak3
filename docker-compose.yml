@@ -87,6 +87,22 @@ services:
       - type: bind
         source: ./certs
         target: /mechasqueak/certs/
+
     build: .
     image: mecha3
     command: ["python","main.py","--config", "live.json"]
+
+  sql:
+    build: ./postgres-files/.
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+      PGDATA: "/psql-data"
+    ports:
+      - "5432:5432"
+    volumes:
+      - "p-data:/psql-data"
+
+volumes:
+  p-data:
+    external: true

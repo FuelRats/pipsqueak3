@@ -11,7 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import pyodbc
-import config
+from config import config
 import logging
 
 from utils.ratlib import Singleton
@@ -28,7 +28,7 @@ class DatabaseManager(metaclass=Singleton):
         Creates the default tables should they not exist.
         """
         # connect to PostgreSQL (PSQL) database
-        __config: dict = config.config.get("database")
+        __config: dict = config.get("database")
         connect_str = ("Driver={PostgreSQL UNICODE};"
                        f"Server={__config.get('server')};"
                        f"Port={__config.get('port')};"
@@ -48,14 +48,14 @@ class DatabaseManager(metaclass=Singleton):
                             " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
 
     async def select_rows(self, table_name: str, connector: str, condition: dict = None,
-                          skipdouble_dash_test: bool = False) -> list:
+                           skip_double_dash_test: bool = False) -> list:
         """
 
         Args:
             table_name: name of the table to select from
-            connector: Connector used to connect conditions. Must be suported by the DB
+            connector: Connector used to connect conditions. Must be supported by the DB
             condition: conditions, connected by "equals"
-            skipdouble_dash_test: skip the crude SQLInjection test if it breaks your request,
+            skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
                     implement your OWN CHECK!
 
         Returns: a list containing the rows returned
@@ -68,7 +68,7 @@ class DatabaseManager(metaclass=Singleton):
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
-            if ("--" in cond_str) and not skipdouble_dash_test:
+            if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Statement: SELECT * FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
             return self.cursor.execute(f"SELECT * FROM {table_name} WHERE {cond_str};").fetchall()
@@ -146,7 +146,7 @@ class DatabaseManager(metaclass=Singleton):
             raise ValueError(f"Table {table_name} does not exist")
 
     async def update_row(self, table_name: str, connector: str, values: dict, condition=None,
-                         skipdouble_dash_test=False):
+                          skip_double_dash_test=False):
         """
 
         Args:
@@ -154,7 +154,7 @@ class DatabaseManager(metaclass=Singleton):
             connector: Connector used to connect conditions. Must be suported by the DB
             values: tuple with values matching the rows to insert into
             condition: conditions, connected by "equals"
-            skipdouble_dash_test: skip the crude SQLInjection test if it breaks your request,
+            skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
                     implement your OWN CHECK!
 
         Returns:
@@ -169,7 +169,7 @@ class DatabaseManager(metaclass=Singleton):
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
-            if ("--" in cond_str or "--" in val_str) and not skipdouble_dash_test:
+            if ("--" in cond_str or "--" in val_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection.Statement: UPDATE {table_name} "
                                  f"SET {val_str} WHERE {cond_str}. Aborting")
             self.cursor.execute(f"UPDATE {table_name} SET {val_str} WHERE {cond_str};")
@@ -177,14 +177,14 @@ class DatabaseManager(metaclass=Singleton):
             raise ValueError(f"Table {table_name} does not exists!")
 
     async def delete_row(self, table_name: str, connector: str, condition=None,
-                         skipdouble_dash_test: bool = False):
+                          skip_double_dash_test: bool = False):
         """
 
         Args:
             table_name: name of table to delete row form
             connector: Connector used to connect conditions. Must be suported by the DB
             condition: onditions, connected by "equals"
-            skipdouble_dash_test: skip the crude SQLInjection test if it breaks your request,
+            skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
                     implement your OWN CHECK!
 
         Returns:
@@ -195,7 +195,7 @@ class DatabaseManager(metaclass=Singleton):
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
-            if ("--" in cond_str) and not skipdouble_dash_test:
+            if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection. Statement: DELETE FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
             self.cursor.execute(f"DELETE FROM {table_name} WHERE {cond_str}")
