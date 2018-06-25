@@ -11,10 +11,10 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
-import sys
-import string
 import logging
 import random
+import string
+import sys
 from uuid import uuid4, UUID
 
 import pytest
@@ -28,6 +28,7 @@ sys.argv = ["test",
 
 # This import statement is where the config gets read
 from config import setup_logging
+
 setup_logging("logs/unit_tests.log")
 
 from tests.mock_bot import MockBot
@@ -39,6 +40,7 @@ from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
+
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
                         ("xxXclient", Platforms.XB, "sol", 2),
@@ -170,6 +172,7 @@ def logging_fx(caplog) -> logging.Logger:
     """
     caplog.clear()
     return logging.getLogger("mecha.logging_fx")
+
 
 @pytest.fixture
 def random_string_fx() -> str:

@@ -10,14 +10,15 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-import pytest
 from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4, UUID
-from Modules.epic import Epic
+
+import pytest
+
 from Modules.mark_for_deletion import MarkForDeletion
-from Modules.rats import Rats
 from Modules.rat_rescue import Rescue
+from Modules.rats import Rats
 from utils.ratlib import Status
 
 
@@ -100,7 +101,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
     Verify Rescue.updated_at raises TypeError if given incorrect value,
     or is set to a date in the past.
     """
-    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1,)
+    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1, )
 
     # Set to a string time
     with pytest.raises(TypeError):
@@ -437,47 +438,6 @@ def test_set_unidentified_rats_incorrect_type(rescue_plain_fx: Rescue):
         rescue_plain_fx.unidentified_rats = 'Snozzberry, Wonka, Doc'
 
 
-@pytest.mark.parametrize("reason,reporter,marked", [
-    ([], 42.2, -1),
-    (-2.1, {"Potato"}, None),
-    ([], 42, "md reason"),
-    (True, -42.2, uuid4())
-])
-def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or None,
-                                           marked: bool, rescue_sop_fx: Rescue):
-    """
-    Verifies setting the mark for deletion property succeeds when the data is valid
-
-        Args:
-            rescue_sop_fx (): plain rescue fixture
-            reason (str): md reason
-            reporter(str) md reporter
-    """
-    with pytest.raises(TypeError):
-        rescue_sop_fx.marked_for_deletion.reason = reason
-
-    with pytest.raises(TypeError):
-        rescue_sop_fx.marked_for_deletion.reporter = reporter
-
-    with pytest.raises(TypeError):
-        rescue_sop_fx.marked_for_deletion.marked = marked
-
-    assert rescue_sop_fx.marked_for_deletion.marked is False
-    assert rescue_sop_fx.marked_for_deletion.reason != reason
-    assert rescue_sop_fx.marked_for_deletion.reporter != reporter
-
-
-@pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
-def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
-    """
-    Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError
-    """
-    result_rescue = deepcopy(rescue_plain_fx)
-
-    with pytest.raises(TypeError):
-        result_rescue.marked_for_deletion = garbage
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
 async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
@@ -553,7 +513,7 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
 
         with pytest.raises(ValueError):
             rescue_sop_fx.mark_delete("unit_test", "")
-            
+
 
 def test_mark_for_deletion_unset(rescue_sop_fx: Rescue):
     """
@@ -667,3 +627,14 @@ def test_rescue_code_red_setter(rescue_sop_fx):
 
     with pytest.raises(TypeError):
         rescue_sop_fx.code_red = 'Yes'
+
+
+@pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
+def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
+    """
+    Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError
+    """
+    result_rescue = deepcopy(rescue_plain_fx)
+
+    with pytest.raises(TypeError):
+        result_rescue.marked_for_deletion = garbage
