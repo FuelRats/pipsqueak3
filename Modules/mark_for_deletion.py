@@ -10,6 +10,8 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from functools import reduce
+from operator import xor
 from typing import Optional
 
 
@@ -31,6 +33,7 @@ class MarkForDeletion(object):
         self._reporter = reporter
         self._marked = marked
         self._reason = reason
+        self._hash = None
 
     def __eq__(self, other: 'MarkForDeletion') -> bool:
         if not isinstance(other, MarkForDeletion):
@@ -42,6 +45,18 @@ class MarkForDeletion(object):
             self.marked == other.marked
         )
         return all(conditions)
+
+    def __hash__(self):
+
+        if self._hash is None:
+            attributes = (
+                self.marked,
+                self.reason,
+                self.reporter
+            )
+
+            self._hash = reduce(xor, map(hash, attributes))
+        return self._hash
 
     @property
     def marked(self) -> bool:
