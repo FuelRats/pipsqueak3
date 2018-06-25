@@ -30,7 +30,6 @@ def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or
     Verifies setting the mark for deletion property succeeds when the data is valid
 
         Args:
-            rescue_sop_fx (): plain rescue fixture
             reason (str): md reason
             reporter(str) md reporter
     """
@@ -77,5 +76,34 @@ def test_ne(data_a, data_b):
     assert md_a != md_b
 
 
-def test_hash(mark_for_deletion_fx):
+def test_hash_nonzero(mark_for_deletion_fx):
     assert hash(mark_for_deletion_fx) != 0
+
+
+@pytest.mark.parametrize("alpha, beta", [
+    ((False, None, None), (False, None, None)),
+    ((True, "Unit_test", "reasons!"), (True, "Unit_test", "reasons!")),
+    ((True, "potato", "pft!"), (True, "potato", "pft!")),
+
+])
+def test_hash_equal(alpha, beta):
+    """ asserts two equal MD objects have the same hash."""
+
+    alpha = MarkForDeletion(*alpha)
+    beta = MarkForDeletion(*beta)
+
+    assert hash(alpha) == hash(beta)
+
+
+@pytest.mark.parametrize("alpha, beta", [
+    ((False, None, None), (True, None, None)),
+    ((True, "Unit_test", "reasons!"), (True, "potato", "reasons!")),
+    ((True, "potato", "uhh..."), (True, "potato", "pft!")),
+
+])
+def test_hash_unequal(alpha, beta):
+    """asserts two unequal Md objects do not have the same hash."""
+    alpha = MarkForDeletion(*alpha)
+    beta = MarkForDeletion(*beta)
+
+    assert hash(alpha) != hash(beta)
