@@ -1,9 +1,9 @@
 """
-rats.py - Rats object
+rat.py - Rat object
 
 Handles the rats cache and provides facilities for managing rats.
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -23,15 +23,15 @@ from utils.ratlib import Platforms
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class Rats(object):
+class Rat(object):
     """
     This class keeps track of known rats as they are used and stores them in a
     class cache.
 
     Instances of this class are used to represent a unique, individual rat.
 
-    Creation of a `Rats` object will automatically add the created rat to the
-    cache, allowing convenience method `Rats.get_rat_by_name` to return the instance
+    Creation of a `Rat` object will automatically add the created rat to the
+    cache, allowing convenience method `Rat.get_rat_by_name` to return the instance
     when called.
     """
 
@@ -57,26 +57,26 @@ class Rats(object):
         self._name = name
         self._hash = None
         # and update the cache
-        if name and name not in Rats.cache_by_name:
+        if name and name not in Rat.cache_by_name:
             # don't register duplicates
-            Rats.cache_by_name[name] = self
-        if uuid not in Rats.cache_by_id:
+            Rat.cache_by_name[name] = self
+        if uuid not in Rat.cache_by_id:
             # don't register duplicates
-            Rats.cache_by_id[uuid] = self
+            Rat.cache_by_id[uuid] = self
 
-    def __eq__(self, other: 'Rats') -> bool:
+    def __eq__(self, other: 'Rat') -> bool:
         """
         Compare two Rats objects for equality
 
         Args:
-            other (Rats): other object to compare
+            other (Rat): other object to compare
 
         Returns:
             bool: equal if uuid, platform, and name match
             NotImplemented: bad type given
         """
 
-        if not isinstance(other, Rats):
+        if not isinstance(other, Rat):
             return NotImplemented
 
         conditions = {
@@ -156,7 +156,7 @@ class Rats(object):
     @property
     def platform(self) -> Platforms:
         """
-        The Rats platform
+        The Rat platform
 
         Returns:
             Platforms: The platform the rat is registered on
@@ -179,7 +179,7 @@ class Rats(object):
     @classmethod
     async def get_rat_by_name(cls, name: str,
                               platform: Platforms = Platforms.DEFAULT,
-                              ) -> 'Rats' or None:
+                              ) -> 'Rat' or None:
         """
         Finds a rat by name and optionally by platform
 
@@ -192,7 +192,7 @@ class Rats(object):
                 - defaults to any platform (first match)
 
         Returns:
-            Rats - found rat
+            Rat - found rat
         """
         if not isinstance(name, str) or not isinstance(platform, Platforms):
             raise TypeError("invalid types given.")
@@ -201,7 +201,7 @@ class Rats(object):
         found = None
 
         try:
-            found = Rats.cache_by_name[name]
+            found = Rat.cache_by_name[name]
         except KeyError:
             # no such rat in cache
             if cls.api_handler is not None:
@@ -213,7 +213,7 @@ class Rats(object):
             return found if (found.platform == platform or platform == Platforms.DEFAULT) else None
 
     @classmethod
-    async def get_rat_by_uuid(cls, uuid: UUID) -> 'Rats' or None:
+    async def get_rat_by_uuid(cls, uuid: UUID) -> 'Rat' or None:
         """
         Finds a rat by their UUID.
 
@@ -224,7 +224,7 @@ class Rats(object):
             uuid (UUID): api uuid to find a rat for
 
         Returns:
-            Rats: found Rescue
+            Rat: found Rescue
         """
         if not isinstance(uuid, UUID):
             raise TypeError

@@ -1,7 +1,7 @@
 """
 test_user.py - test suite for `Modules.User`
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -59,7 +59,7 @@ def test_process_vhost_garbage(garbage: str):
          'realname': 'WhiteStrips',
          'identified': False,
          'server': 'irc.fuelrats.com',
-         'server_info': 'Fuel Rats IRC Server',
+         'server_info': 'Fuel Rat IRC Server',
          'secure': True,
          'account': 'WhiteStrips'},
         {'oper': True,
@@ -71,7 +71,7 @@ def test_process_vhost_garbage(garbage: str):
          'realname': 'you know',
          'identified': True,
          'server': 'irc.fuelrats.com',
-         'server_info': 'Fuel Rats IRC Server',
+         'server_info': 'Fuel Rat IRC Server',
          'secure': True,
          'account': 'AwesomeAdmin'}
 ))
@@ -167,7 +167,7 @@ async def test_user_from_whois_malformed_return(monkeypatch, bot_fx):
          'realname': 'WhiteStrips',
          'identified': False,
          'server': 'irc.fuelrats.com',
-         'server_info': 'Fuel Rats IRC Server',
+         'server_info': 'Fuel Rat IRC Server',
          'secure': True,
          'account': 'WhiteStrips'},
         {'oper': True,
@@ -179,7 +179,7 @@ async def test_user_from_whois_malformed_return(monkeypatch, bot_fx):
          'realname': 'you know',
          'identified': True,
          'server': 'irc.fuelrats.com',
-         'server_info': 'Fuel Rats IRC Server',
+         'server_info': 'Fuel Rat IRC Server',
          'secure': True,
          'account': 'AwesomeAdmin'}
 ))

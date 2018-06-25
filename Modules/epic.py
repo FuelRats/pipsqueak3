@@ -3,7 +3,7 @@ epic.py - Epic data structure
 
 Provides an Epic object for storing Epic data from the API
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -16,7 +16,7 @@ from operator import xor
 from typing import Optional
 from uuid import UUID
 
-from Modules.rats import Rats
+from Modules.rat import Rat
 
 
 class Epic(object):
@@ -28,7 +28,7 @@ class Epic(object):
                  uuid: UUID,
                  notes: str,
                  rescue: Optional['Rescue'] = None,
-                 rat: Optional[Rats] = None):
+                 rat: Optional[Rat] = None):
         """
         Creates a new Epic object.
 
@@ -38,13 +38,13 @@ class Epic(object):
             uuid (UUID): api id of Epic
             notes (str): Epic's notes
             rescue (Rescue): Associated Rescue
-            rat (Rats):    Associated rat rats
+            rat (Rat):    Associated rat rats
         """
         self._hash: Optional[int] = None
         self._uuid: uuid = uuid
         self._notes: str = notes
         self._rescue: 'Rescue' = rescue
-        self._rat: Rats = rat
+        self._rat: Rat = rat
 
     @property
     def uuid(self) -> UUID:
@@ -77,7 +77,7 @@ class Epic(object):
         return self._rescue
 
     @property
-    def rat(self) -> Rats:
+    def rat(self) -> Rat:
         """
         Rat associated with Epic rescue
 

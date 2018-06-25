@@ -18,8 +18,8 @@ sanitize_test_list = [
     ('Bold Text;;;', 'Bold Text'),
     ('Bold Italic Text', 'Bold Italic Text'),
     ('4Bold Red Text', 'Bold Red Text'),
-    ('Um die Rats zu deiner Freundesliste hinzuzufügen drücke',
-     'Um die Rats zu deiner Freundesliste hinzuzufügen drücke'),
+    ('Um die Rat zu deiner Freundesliste hinzuzufügen drücke',
+     'Um die Rat zu deiner Freundesliste hinzuzufügen drücke'),
     ('которые отдают топливо, нажмите здесь: http://t.fuelr.at/kgbfoamru',
      'которые отдают топливо, нажмите здесь: http://t.fuelr.at/kgbfoamru'),
     ('a;A;B;b;C;c;1\'2\'3', 'aABbCc123'),

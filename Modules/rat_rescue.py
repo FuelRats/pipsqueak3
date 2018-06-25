@@ -1,7 +1,7 @@
 """
 rat_rescue.py - Rescue board and objects
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -21,7 +21,7 @@ from uuid import UUID
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat_quotation import Quotation
-from Modules.rats import Rats
+from Modules.rat import Rat
 from utils.ratlib import Platforms, Status
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -48,7 +48,7 @@ class Rescue(object):
                  board_index: Optional[int] = None,
                  mark_for_deletion: MarkForDeletion = MarkForDeletion(),
                  lang_id: str = "EN",
-                 rats: List[Rats] = None,
+                 rats: List[Rat] = None,
                  status: Status = Status.OPEN,
                  code_red=False):
         """
@@ -717,7 +717,7 @@ class Rescue(object):
             raise TypeError(f"got {type(value)} expected MarkForDeletion object")
 
     @property
-    def rats(self) -> List[Rats]:
+    def rats(self) -> List[Rat]:
         """
         Identified rats assigned to rescue
 
@@ -744,7 +744,7 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rats = None) -> None:
+    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) -> None:
         """
         Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
         be raised as exceptions.
@@ -753,7 +753,7 @@ class Rescue(object):
             spectacular fashion
 
         Args:
-            rat (Rats): Existing Rat object to assign.
+            rat (Rat): Existing Rat object to assign.
             name (str): name of a rat to add
             guid (UUID or str): api uuid of the rat, used if the rat is not found in the cache
                 - if this is a string it will be type coerced into a UUID
@@ -769,7 +769,7 @@ class Rescue(object):
 
             ```
         """
-        if isinstance(rat, Rats):
+        if isinstance(rat, Rat):
             # we already have a rat object, lets verify it has an ID and assign it.
             if rat.uuid is not None:
                 self.rats.append(rat)
@@ -779,8 +779,8 @@ class Rescue(object):
 
         if isinstance(name, str):
             # lets check if we already have this rat in the cache (platform, any)
-            found = (await Rats.get_rat_by_name(name, self.platform),
-                     await Rats.get_rat_by_name(name))
+            found = (await Rat.get_rat_by_name(name, self.platform),
+                     await Rat.get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
                 return
@@ -795,9 +795,9 @@ class Rescue(object):
                 # lets make a new Rat!
                 if self.rat_board:  # PRAGMA: NOCOVER
                     raise NotImplementedError  # TODO fetch rat from API
-                # TODO: fetch rats from API handler, use that data to make a new Rats instance
+                # TODO: fetch rats from API handler, use that data to make a new Rat instance
 
-                rat = Rats(name=name, uuid=guid)
+                rat = Rat(name=name, uuid=guid)
                 self.rats.append(rat)
 
     def mark_delete(self, reporter: str, reason: str) -> None:

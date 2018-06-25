@@ -3,7 +3,7 @@ test_epic.py
 
 Tests for the epic module
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -15,13 +15,13 @@ from uuid import UUID, uuid4
 import pytest
 
 from Modules.epic import Epic
-from Modules.rats import Rats
+from Modules.rat import Rat
 
 pytestmark = pytest.mark.epic
 
 
 @pytest.mark.parametrize("uuid", (uuid4(), uuid4(), uuid4()))
-def test_constructor(rat_good_fx: Rats, uuid: UUID, rescue_plain_fx, random_string_fx: str):
+def test_constructor(rat_good_fx: Rat, uuid: UUID, rescue_plain_fx, random_string_fx: str):
     epic = Epic(uuid, random_string_fx, rescue_plain_fx, rat_good_fx)
 
     assert uuid == epic.uuid
