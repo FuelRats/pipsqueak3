@@ -58,6 +58,11 @@ def test_eq(marked: bool, reason: Optional[str], reporter: Optional[str]):
     assert md_a == md_b
 
 
+@pytest.mark.parametrize("garbage", [None, -1, [], "pft"])
+def test_eq_garbage(garbage, mark_for_deletion_fx):
+    assert not mark_for_deletion_fx == garbage
+
+
 @pytest.mark.parametrize("data_a, data_b", [
     ((False, None, None), (True, "smelly", "fart"),),
     ((True, "reason", "unit_test"), (True, "no reason", "unit_test")),
