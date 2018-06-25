@@ -27,7 +27,7 @@ from Modules.mark_for_deletion import MarkForDeletion
 def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or None,
                                            marked: bool, mark_for_deletion_fx: MarkForDeletion):
     """
-    Verifies setting the mark for deletion property succeeds when the data is valid
+    Verifies setting the mark for deletion property succeeds only when the data is valid
 
         Args:
             reason (str): md reason
