@@ -38,7 +38,7 @@ jobs:
           command: |
             docker-compose up --no-start tests
             docker cp spark-tests:/test-data/coverage.xml ./
-            docker cp spark-tests:/mechasqueak/test-reports ./    
+            docker cp spark-tests:/test-data/test-reports ./    
             docker cp spark-tests:/mechasqueak/logs/ ./
             ./cc-test-reporter after-build --coverage-input-type coverage.py
       - store_test_results:
