@@ -70,7 +70,7 @@ class TestStuff(object):
             await self.manager._create_table("testtableinsert", {"string1": "VARCHAR"})
         await self.manager._insert_row("testtableinsert", ("test",))
         tmp = await self.manager._select_row("testtableinsert")
-        assert tmp[0][0] = ("test",)[0]
+        assert tmp[0][0] == ("test",)[0]
         
         # with pytest.raises(OperationalError):
         #    await self.int_manager._insert_row("testtableinsert", ("test", "test2"))
