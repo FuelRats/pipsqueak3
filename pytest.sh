@@ -7,3 +7,4 @@ if [ $exitcode -ne 0 ]
   then exit 1 
 fi
 cp coverage.xml /test-data/coverage.xml
+cp -r ./test-reports /test-data/.
