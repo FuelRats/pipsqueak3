@@ -30,7 +30,7 @@ jobs:
             docker-compose up -d sql
             sleep 10
             ./cc-test-reporter before-build
-            docker-compose up tests
+            docker-compose run tests
       - run:
           name: Copy workdir from docker container and upload reports
           environment:
