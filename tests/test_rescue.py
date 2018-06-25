@@ -500,7 +500,7 @@ async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Re
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue, rat_cache_fx):
     """
     Verifies `Rescue.add_rat` can add a rat given a guid and a name
     """
@@ -508,7 +508,7 @@ async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
 
     await result_rescue.add_rat(name=name, guid=uuid)
 
-    assert name in Rat.cache_by_name
+    assert name in rat_cache_fx.by_name
 
 
 def test_eq_none(rescue_plain_fx: Rescue):
