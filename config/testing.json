@@ -34,7 +34,7 @@
   "database": {
     "server": "localhost",
     "port": "5432",
-    "database": "mecha2",
+    "database": "mecha3",
     "username": "mecha3",
     "password": "mecha3"
   }
