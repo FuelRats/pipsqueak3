@@ -8,3 +8,7 @@ plugins:
 
   pep8:
     enabled: true
+
+    checks:
+      E251:
+        enabled: false

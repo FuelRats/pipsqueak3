@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 main.py - Mechasqueak3 main program
 
@@ -11,66 +12,62 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from pydle import ClientPool, Client
-from Modules.rat_command import Commands
+
+from config import config
 import logging
-from config import IRC, Logging
+from Modules.context import Context
+from Modules.permissions import require_permission, RAT
+from Modules import rat_command
+from Modules.rat_command import command
+from pydle import ClientPool, Client
+from utils.ratlib import sanitize
 
-##########
-# setup logging stuff
+log = logging.getLogger(f"mecha.{__name__}")
 
-# create a log formatter
-log_formatter = logging.Formatter("{levelname} [{name}::{funcName}]:{message}",
-                                  style='{')
-# get Mecha's root logger
-log = logging.getLogger(Logging.base_logger)
-# Create a file handler for the logger
-log_file_handler = logging.FileHandler("logs/MECHASQUEAK.log", 'w')
-log_file_handler.setFormatter(log_formatter)
-# create a stream handler ( prints to STDOUT/STDERR )
-log_stream_handler = logging.StreamHandler()
-log_stream_handler.setFormatter(log_formatter)
-# adds the two handlers to the logger so they can do their thing.
-log.addHandler(log_file_handler)
-log.addHandler(log_stream_handler)
-# set the minimum severity the logger will report.
-# uncomment for production:
-# log.setLevel(logging.INFO)
-# uncomment for develop:
-log.setLevel(logging.DEBUG)
-
-logging.info("[Mecha] Main file loading...")
-logging.basicConfig(level=logging.DEBUG)  # write all the things
-
-
-# end log Setup
-####
 
 class MechaClient(Client):
     """
     MechaSqueak v3
     """
 
-    version = "3.0a"
+    __version__ = "3.0a"
+
+    def __init__(self, *args, **kwargs):
+        """
+        Custom mechasqueak constructor
+
+        Unused arguments are passed through to pydle's constructor
+
+        Args:
+            *args (list): arguments
+            **kwargs (list): keyword arguments
+
+        """
+        self._api_handler = None  # TODO: replace with handler init once it exists
+        self._database_manager = None  # TODO: replace with dbm once it exists
+        self._rat_cache = None  # TODO: replace with ratcache once it exists
+        super().__init__(*args, **kwargs)
 
     async def on_connect(self):
         """
         Called upon connection to the IRC server
         :return:
         """
-        log.debug("on connect invoked")
+        log.debug(f"Connecting to channels...")
         # join a channel
-        for channel in IRC.channels:
+        for channel in config["irc"]["channels"]:
+            log.debug(f"Configured channel {channel}")
             await self.join(channel)
 
         log.debug("joined channels.")
         # call the super
         super().on_connect()
+
     #
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
 
-    async def on_message(self, channel, user, message):
+    async def on_message(self, channel, user, message: str):
         """
         Triggered when a message is received
         :param channel: Channel the message arrived in
@@ -78,53 +75,109 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        log.info(f"trigger! Sender is {user}\t in channel {channel}\twith data"
-                 f"{message}")
-        if user == IRC.presence:
+        log.debug(f"{channel}: <{user}> {message}")
+        if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
-            log.debug("received message from myself ignoring!.")
+            log.debug(f"Ignored {message} (anti-loop)")
+            return None
+
+        if not message.startswith(rat_command.prefix):
+            # prevent bot from processing commands without the set prefix
+            log.debug(f"Ignored {message} (not a command)")
             return None
 
         else:  # await command execution
-            await Commands.trigger(message=message,
-                                   sender=user,
-                                   channel=channel)
+            # sanitize input string headed to command executor
+            sanitized_message = sanitize(message)
+            log.debug(f"Sanitized {sanitized_message}, Original: {message}")
+            await rat_command.trigger(message=sanitized_message,
+                                      sender=user,
+                                      channel=channel)
+
+    @property
+    def rat_cache(self) -> object:
+        """
+        Mecha's rat cache
+        """
+        return self._rat_cache
+
+    @property
+    def database_mgr(self) -> object:
+        """
+        Mecha's database connection
+        """
+        return self._database_mgr
+
+    @property
+    def api_handler(self) -> object:
+        """
+        Mecha's API connection
+        """
+        return self._api_handler
 
 
-@Commands.command("ping")
-async def cmd_ping(bot, trigger):
+@require_permission(RAT)
+@command("ping")
+async def cmd_ping(context: Context):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
-    :param bot: Pydle instance.
-    :param trigger: `Trigger` object for the command call.
+    :param context: `Context` object for the command call.
     """
-    log.warning(f"cmd_ping triggered on channel '{trigger.channel}' for user "
-                f"'{trigger.nickname}'")
-    await trigger.reply(f"{trigger.nickname} pong!")
+    log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
+                f"'{context.user.nickname}'")
+    await context.reply(f"{context.user.nickname} pong!")
 
 
 # entry point
 if __name__ == "__main__":
-    log.info("hello world!")
+    log.info("Initializing...")
 
     pool = ClientPool()
-    log.debug("starting bot for server...")
+    log.debug("Starting bot...")
     try:
-        log.debug("spawning new bot instance...")
-        client = MechaClient(IRC.presence)
+        log.debug("Spawning instance...")
+        if config['authentication']['method'] == "PLAIN":
+            log.info("Authentication method set to PLAIN.")
+            # authenticate via sasl PLAIN mechanism (username & password)
+            client = MechaClient(config['irc']['nickname'],
+                                 sasl_username=config['authentication']['plain']['username'],
+                                 sasl_password=config['authentication']['plain']['password'],
+                                 sasl_identity=config['authentication']['plain']['identity'])
 
-        log.info(f"connecting to {IRC.server}:{IRC.port}")
-        pool.connect(client, IRC.server, IRC.port, tls=IRC.tls)
+        elif config['authentication']['method'] == "EXTERNAL":
+            log.info("Authentication method set to EXTERNAL")
+            # authenticate using provided client certificate
+            # key and cert may be stored as separate files, as long as mecha can read them.
+            cert = config['authentication']['external']['tls_client_cert']
+            # key = config['authentication']['external']['tls_client_key']
+
+            client = MechaClient(
+                config['irc']['nickname'],
+                sasl_mechanism='EXTERNAL',
+                tls_client_cert=f"certs/{cert}",
+                # tls_client_key=f"certs/{key}"
+            )
+        else:
+            # Pydle doesn't appear to support anything else
+            raise TypeError(f"unknown authentication mechanism "
+                            f"{config['authentication']['method']}.\n"
+                            f"loading cannot continue.")
+
+        log.info(f"Connecting to {config['irc']['server']}:{config['irc']['port']}...")
+        pool.connect(client,
+                     config['irc']['server'],
+                     config['irc']['port'],
+                     tls=config['irc']['tls'])
     except Exception as ex:
-        log.error(f"unable to connect to {IRC.server}:{IRC.port} "
+        log.error(f"Unable to connect to {config['irc']['server']}:"
+                  f"{config['irc']['port']}"
                   f"due to an error.")
         log.error(ex)
-        from sys import exit
-        exit(42)
+        raise ex
     else:
         # hand the bot instance to commands
-        Commands.bot = client
+        rat_command.bot = client
         # and run the event loop
         log.info("running forever...")
         pool.handle_forever()

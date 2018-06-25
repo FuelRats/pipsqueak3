@@ -1,10 +1,10 @@
 import logging
 from datetime import datetime
 
-import config
-from Modules.trigger import Trigger
+from Modules.context import Context
+from config import config
 
-LOG = logging.getLogger(f"{config.Logging.base_logger}.{__name__}")
+log = logging.getLogger(f"mecha.{__name__}")
 
 
 class Quotation(object):
@@ -134,12 +134,12 @@ class Quotation(object):
         else:
             raise ValueError(f"Expected string got {type(value)}")
 
-    def modify(self, event_trigger: Trigger, message: str) -> None:
+    def modify(self, context: Context, message: str) -> None:
         """
         Helper method for modifying a quote
 
         Args:
-            event_trigger (Trigger): Trigger object of invoking user
+            context (Trigger): Trigger object of invoking user
             message (str): message to set as quoted text
 
         Returns: None
@@ -147,4 +147,4 @@ class Quotation(object):
         """
         self._message = message
         self._updated_at = datetime.utcnow()
-        self._last_author = event_trigger.nickname
+        self._last_author = context.user.nickname
