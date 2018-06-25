@@ -14,16 +14,9 @@ import pyodbc
 import config
 import logging
 
+from utils.ratlib import Singleton
+
 log = logging.getLogger(f"mecha.{__name__}")
-
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
 
 
 # noinspection SqlNoDataSourceInspection
@@ -52,10 +45,10 @@ class DatabaseManager(metaclass=Singleton):
         self.cursor = self.connection.cursor()
         # Ensure all the default tables are defined
         self.cursor.execute("CREATE TABLE IF NOT EXISTS"
-                            " mecha3_facts (name VARCHAR, lang VARCHAR, response VARCHAR);")
+                            " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
 
-    async def _select_rows(self, table_name: str, connector: str, condition: dict = None,
-                           skipdouble_dash_test: bool = False) -> list:
+    async def select_rows(self, table_name: str, connector: str, condition: dict = None,
+                          skipdouble_dash_test: bool = False) -> list:
         """
 
         Args:
@@ -68,7 +61,7 @@ class DatabaseManager(metaclass=Singleton):
         Returns: a list containing the rows returned
 
         """
-        if await self._has_table(table_name):
+        if await self.has_table(table_name):
             if not condition:
                 condition = {}
             cond_str = ""
@@ -82,7 +75,7 @@ class DatabaseManager(metaclass=Singleton):
         else:
             raise ValueError(f"Table {table_name} does not exists!")
 
-    async def _has_table(self, name: str) -> bool:
+    async def has_table(self, name: str) -> bool:
         """
         checks whether the table exists.
         Unique to PSQL!
@@ -97,7 +90,7 @@ class DatabaseManager(metaclass=Singleton):
                                     "SELECT 1 FROM pg_tables WHERE tablename = '{name}')"
                                     " as result;").format(name=name)).fetchone()[0] != '0'
 
-    async def _create_table(self, name: str, types: dict) -> None:
+    async def create_table(self, name: str, types: dict) -> None:
         """
             Creates the table with the given name and datatypes.
             All datatypes must be SQL-compliant.
@@ -109,7 +102,7 @@ class DatabaseManager(metaclass=Singleton):
         Raises: ValueError should table already exist
         """
 
-        if not await self._has_table(name):
+        if not await self.has_table(name):
             type_str = ""
             for k, v in types.items():
                 type_str += f"{k} {v},"
@@ -119,7 +112,7 @@ class DatabaseManager(metaclass=Singleton):
             return
         raise ValueError(f"Table {name} already exists!")
 
-    async def _drop_table(self, name: str) -> None:
+    async def drop_table(self, name: str) -> None:
         """
 
         Args:
@@ -128,14 +121,14 @@ class DatabaseManager(metaclass=Singleton):
         Returns: None
 
         """
-        if await self._has_table(name):
+        if await self.has_table(name):
             sql_string = "DROP TABLE {name};".format(name=name)
             self.cursor.execute(sql_string)
             self.connection.commit()
             return
         raise ValueError(f"Table {name} does not exist!")
 
-    async def _insert_row(self, table_name: str, values: tuple):
+    async def insert_row(self, table_name: str, values: tuple):
         """
 
         Args:
@@ -145,15 +138,15 @@ class DatabaseManager(metaclass=Singleton):
         Returns: None
 
         """
-        if await self._has_table(table_name):
+        if await self.has_table(table_name):
             sql_string = "INSERT INTO {table_name} VALUES (?);".format(table_name=table_name)
             val_str = ", ".join(values)
             self.cursor.execute(sql_string, (val_str,))
         else:
             raise ValueError(f"Table {table_name} does not exist")
 
-    async def _update_row(self, table_name: str, connector: str, values: dict, condition=None,
-                          skipdouble_dash_test=False):
+    async def update_row(self, table_name: str, connector: str, values: dict, condition=None,
+                         skipdouble_dash_test=False):
         """
 
         Args:
@@ -167,7 +160,7 @@ class DatabaseManager(metaclass=Singleton):
         Returns:
 
         """
-        if await self._has_table(table_name):
+        if await self.has_table(table_name):
             val_str = ""
             for k, v in values.items():
                 val_str += f"{k} = '{v}',"
@@ -183,8 +176,8 @@ class DatabaseManager(metaclass=Singleton):
         else:
             raise ValueError(f"Table {table_name} does not exists!")
 
-    async def _delete_row(self, table_name: str, connector: str, condition=None,
-                          skipdouble_dash_test: bool = False):
+    async def delete_row(self, table_name: str, connector: str, condition=None,
+                         skipdouble_dash_test: bool = False):
         """
 
         Args:
@@ -197,7 +190,7 @@ class DatabaseManager(metaclass=Singleton):
         Returns:
 
         """
-        if await self._has_table(table_name):
+        if await self.has_table(table_name):
             cond_str = ""
             for k, v in condition.items():
                 cond_str += f"{k} = '{v}' {connector}"
