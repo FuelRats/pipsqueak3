@@ -69,12 +69,12 @@ class TestStuff(object):
         if not await self.manager._has_table("testtableinsert"):
             await self.manager._create_table("testtableinsert", {"string1": "VARCHAR"})
         await self.manager._insert_row("testtableinsert", ("test",))
-
+        tmp = await self.manager._select_row("testtableinsert")
+        assert tmp[0][0] = ("test",)[0]
+        
         # with pytest.raises(OperationalError):
         #    await self.int_manager._insert_row("testtableinsert", ("test", "test2"))
 
-        if await self.manager._has_table("testtableinsert"):
-            await self.manager._drop_table("testtableinsert")
 
     async def test_update_row(self):
         if not await self.manager._has_table("testtableupdate"):
@@ -83,9 +83,8 @@ class TestStuff(object):
         await self.manager._update_row("testtableupdate", "AND", {"string1": "FizzBuzz"},
                                        {"string1": "thest"})
 
-        assert \
-            (await self.manager._select_rows("testtableupdate", "AND", {"string1": "FizzBuzz"}))\
-            [0][0] == "FizzBuzz"
+        tmp = await self.manager._select_rows("testtableupdate", "AND", {"string1": "FizzBuzz"})
+        assert tmp[0][0] == "FizzBuzz"
 
     async def test_delete_row(self):
         if not await self.manager._has_table("testtabledelete"):
