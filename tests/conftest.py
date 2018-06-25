@@ -20,6 +20,8 @@ from uuid import uuid4, UUID
 import pytest
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
+from Modules.rat_cache import RatCache
+
 sys.argv = ["test",
             "--config-file", "testing.json",
             "--clean-log",
@@ -206,3 +208,15 @@ def mark_for_deletion_fx(request) -> MarkForDeletion:
     """Provides a parameterized MFD object"""
     param = request.param
     return MarkForDeletion(marked=param[0], reporter=param[1], reason=param[2])
+
+
+@pytest.fixture
+def rat_cache_fx():
+    """provides a empty rat_cache"""
+    return RatCache()
+
+
+@pytest.fixture(autouse=True)
+def prepare_rat_fx(rat_cache_fx):
+    """Prepares the Rat class for usage"""
+    Rat.cache = rat_cache_fx
