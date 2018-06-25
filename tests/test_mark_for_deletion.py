@@ -70,3 +70,7 @@ def test_ne(data_a, data_b):
     marked_b, reason_b, reporter_b = data_b
     md_b = MarkForDeletion(marked_b, reporter_b, reason_b)
     assert md_a != md_b
+
+
+def test_hash(mark_for_deletion_fx):
+    assert hash(mark_for_deletion_fx) != 0
