@@ -24,11 +24,18 @@
     "log_file": "logs/mechasqueak.log"
   },
   "commands": {
-    "prefix": "!"
+    "prefix": "?"
   },
   "api": {
     "online_mode":false,
     "url":null,
     "tokenfile":null
+  },
+  "database": {
+    "server": "localhost",
+    "port": "5432",
+    "database": "",
+    "username": "",
+    "password": ""
   }
 }

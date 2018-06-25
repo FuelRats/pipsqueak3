@@ -22,24 +22,46 @@
 version: '3.2'
 services:
   tests:
+    network_mode: "host"
+    container_name: "spark-tests"
     volumes:
       - type: bind
         source: ./logs
         target: /mechasqueak/logs/
+      
+      - type: bind
+        source: ./.git
+        target: /mechasqueak/.git
 
       - type: bind
         source: ./config
         target: /mechasqueak/config/
-
+       
       - type: bind
         source: ./certs
-        target: /mechasqueak/certs/
-
+        target: /mechasqueak/certs/ 
+      
+      - "test-data:/test-data"
+      
     build: .
-    image: mecha3
-    command: ["pytest"]
-
+    command: "sh ./pytest.sh"
+    environment:
+      - P_HOST=localhost
+  
+  sql:
+    network_mode: "host"
+    build: ./postgres-files
+    volumes:
+      - "p-data:/psql-data"
+    image: sql
+    ports:
+      - "5432:5432"
+    environment:
+      - PGPORT = 5432
+      - PGDATA = /psql-data 
+      
   mecha3-dev:
+    network_mode: "host"
     volumes:
       - type: bind
         source: ./logs
@@ -52,11 +74,15 @@ services:
       - type: bind
         source: ./certs
         target: /mechasqueak/certs/
+
     build: .
     image: mecha3
     command: ["python","main.py","--config", "develop.json"]
+    environment:
+      - P_HOST = localhost
 
   drillsqueak:
+    network_mode: "host"
     volumes:
       - type: bind
         source: ./logs
@@ -69,12 +95,14 @@ services:
       - type: bind
         source: ./certs
         target: /mechasqueak/certs/
-
     build: .
     image: mecha3
     command: ["python","main.py","--config", "drill.json"]
+    environment:
+      - P_HOST = localhost
 
   mechasqueak:
+    network_mode: "host"
     volumes:
       - type: bind
         source: ./logs
@@ -90,3 +118,11 @@ services:
     build: .
     image: mecha3
     command: ["python","main.py","--config", "live.json"]
+    environment:
+      - P_HOST = localhost
+
+volumes:
+  p-data:
+    external: true
+  test-data:
+    external: true

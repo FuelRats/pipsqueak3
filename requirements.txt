@@ -2,5 +2,7 @@
 pytest
 pytest-cov
 pytest-asyncio
+pyodbc
 pure-sasl
+coverage>=4.0,<4.4
 coloredlogs
