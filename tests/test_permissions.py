@@ -37,6 +37,7 @@ def Setup_fx(bot_fx):
     Commands.command("restricted")(restricted)
 
 
+@pytest.mark.permissions
 @pytest.mark.usefixtures("Setup_fx")
 class TestPermissions(object):
 

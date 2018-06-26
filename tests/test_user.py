@@ -11,7 +11,7 @@ See LICENSE.md
 import pytest
 
 from Modules.user import User
-
+pytestmark = pytest.mark.user
 
 @pytest.mark.parametrize("expected_host", [
     "recruit.fuelrats.com",
