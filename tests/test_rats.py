@@ -84,23 +84,3 @@ class TestRatsPyTest(object):
         # because object is nullable, therefore must be able to handle None.
         assert rat_good_fx != None
 
-    @pytest.mark.asyncio
-    async def test_find_rat_by_name_existing(self, rat_good_fx: Rat, rat_cache_fx):
-        """
-        Verifies that cached rats can be found by name
-        """
-        found_rat = await rat_cache_fx.get_rat_by_name(name=rat_good_fx.name)
-        assert rat_good_fx == found_rat
-
-    @pytest.mark.asyncio
-    async def test_find_rat_incorrect_platform(self, rat_cache_fx):
-        """
-        Verifies that `Rat.get_rat_by_name` called with a specific platform that does not match
-            the stored platform returns None
-        """
-        Rat(name="UNIT_TEST", uuid=None, platform=Platforms.PC)
-
-        found_rat = await rat_cache_fx.get_rat_by_name(name="UNIT_TEST", platform=Platforms.XB)
-
-        assert found_rat is None
-        # pytest.fail("not awaited!")
