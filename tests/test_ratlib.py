@@ -1,5 +1,8 @@
-import utils.ratlib
 import pytest
+
+import utils.ratlib
+
+pytestmark = pytest.mark.ratlib
 
 nickname_test_list = [
     ('ThisIsATest[BOT]', "ThisIsATest"),

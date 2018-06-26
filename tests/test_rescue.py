@@ -21,6 +21,8 @@ from Modules.rat_rescue import Rescue
 from Modules.rats import Rats
 from utils.ratlib import Status
 
+pytestmark = pytest.mark.rescue
+
 
 @pytest.mark.parametrize("expected_client", ['DeadBeef', 'Commander_Test', '11Alpha1',
                                              'Xxx22K1ng2xxX'])

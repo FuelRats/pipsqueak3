@@ -15,6 +15,7 @@ import logging
 
 import pytest
 
+pytestmark = pytest.mark.logging
 
 def log_severity_call(logger, severity, random_string):
     logging_string = f"Test String {random_string}"

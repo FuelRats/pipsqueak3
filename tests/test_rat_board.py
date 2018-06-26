@@ -11,6 +11,7 @@ from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedExcep
 from Modules.rat_rescue import Rescue
 from utils.ratlib import Platforms
 
+pytestmark = pytest.mark.ratboard
 
 class RatBoardTests(TestCase):
     """

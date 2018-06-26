@@ -14,6 +14,7 @@ import pytest
 
 from Modules.context import Context
 
+pytestmark = pytest.mark.context
 
 def test_constructor(bot_fx, user_fx):
     """verifies the constructor functions"""

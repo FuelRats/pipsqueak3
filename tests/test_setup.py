@@ -14,7 +14,7 @@ See LICENSE.md
 import pytest
 import config
 
-
+@pytest.mark.setup_tests
 def test_bad_filename(random_string_fx):
     """
     Intentionally insert a bad filename to ensure FileNotFoundError

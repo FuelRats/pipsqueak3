@@ -32,6 +32,7 @@ def Setup_fx(bot_fx):
     Commands.bot = bot_fx
 
 
+@pytest.mark.commands
 @pytest.mark.usefixtures("Setup_fx")
 class TestRatCommand(object):
 

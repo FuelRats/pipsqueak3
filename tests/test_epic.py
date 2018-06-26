@@ -17,6 +17,8 @@ import pytest
 from Modules.epic import Epic
 from Modules.rats import Rats
 
+pytestmark = pytest.mark.epic
+
 
 @pytest.mark.parametrize("uuid", (uuid4(), uuid4(), uuid4()))
 def test_constructor(rat_good_fx: Rats, uuid: UUID, rescue_plain_fx, random_string_fx: str):
