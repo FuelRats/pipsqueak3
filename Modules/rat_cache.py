@@ -40,7 +40,8 @@ class RatCache(object):
 
     @api_handler.setter
     def api_handler(self, value):
-        pass
+        self._api_handler = value
+        # FIXME: add type check once the API gets merged in
 
     @property
     def by_uuid(self) -> Dict[UUID, Rat]:
