@@ -79,8 +79,29 @@ class TestRatsPyTest(object):
         """Verifies Rat.__eq__ functions correctly against equal objects"""
         assert rat_good_fx == rat_good_fx
 
-    def test_rat_eq_None(self, rat_good_fx: Rat):
+    def test_rat_eq_none(self, rat_good_fx: Rat):
         """Verifies Rat.__eq__ functions correctly against None"""
         # because object is nullable, therefore must be able to handle None.
+        # noinspection PyComparisonWithNone
         assert rat_good_fx != None
 
+    def test_constructor_cache(self, rat_cache_fx):
+        """Verifies constructor behavior with a cache present"""
+        uuid = uuid4()
+        rat = Rat(uuid, "unit_test[BOT]", Platforms.PC)
+
+        assert Platforms.PC == rat.platform
+        assert uuid == rat.uuid
+        assert "unit_test[BOT]" == rat.name
+
+        assert rat.name in rat_cache_fx.by_name
+
+    @pytest.mark.parametrize("name", ["snafu", "h0tSh0t99", "clu3l3ss_3xpl0rer99"])
+    def test_name_valid(self, name, rat_good_fx: Rat):
+        rat_good_fx.name = name
+        assert name == rat_good_fx.name
+
+    @pytest.mark.parametrize("garbage", [-1, 4.2, None, ()])
+    def test_name_garbage(self, garbage, rat_good_fx):
+        with pytest.raises(TypeError):
+            rat_good_fx.name = garbage
