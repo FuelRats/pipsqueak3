@@ -14,9 +14,9 @@ class TestRatsPyTest(object):
         Platforms.PS,
         Platforms.DEFAULT
     ])
-    def test_rat_platforms(self, platform: Platforms):
-        my_rat = Rat(uuid=uuid4(), name="foo", platform=platform)
-        assert platform == my_rat.platform
+    def test_rat_platforms(self, platform: Platforms, rat_good_fx):
+        rat_good_fx.platform = platform
+        assert rat_good_fx.platform == platform
 
     @pytest.mark.parametrize("garbage", [
         None,
