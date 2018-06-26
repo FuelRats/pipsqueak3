@@ -8,6 +8,7 @@ from Modules.rats import Rats
 from utils.ratlib import Platforms
 
 
+@pytest.mark.rat
 class TestRat(TestCase):
     """
     Test suite for `Rescue.Rats`
