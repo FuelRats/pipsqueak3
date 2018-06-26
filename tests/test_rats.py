@@ -1,4 +1,4 @@
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import pytest
 
@@ -105,3 +105,23 @@ class TestRatsPyTest(object):
     def test_name_garbage(self, garbage, rat_good_fx):
         with pytest.raises(TypeError):
             rat_good_fx.name = garbage
+
+    def test_uuid_strings_invalid(self, rat_good_fx: Rat, random_string_fx):
+        with pytest.raises(ValueError):
+            rat_good_fx.uuid = random_string_fx
+
+    @pytest.mark.parametrize("uuid_str", ["beeffeed-feed-bad-beef0-00000000beef",
+                                          "faff1222-dead-fee-d4412-111111111111"])
+    def test_uuid_strings_valid(self, uuid_str: str, rat_good_fx):
+        rat_good_fx.uuid = uuid_str
+        assert rat_good_fx.uuid == UUID(uuid_str)
+
+    @pytest.mark.parametrize("uuid", [uuid4(), uuid4(), uuid4()])
+    def test_uuid_uuids(self, uuid: UUID, rat_good_fx):
+        rat_good_fx.uuid = uuid
+        assert uuid == rat_good_fx.uuid
+
+    @pytest.mark.parametrize("garbage", [-1, 4.2, None, ()])
+    def test_uuid_garbage(self, garbage, rat_good_fx):
+        with pytest.raises(TypeError):
+            rat_good_fx.uuid = garbage
