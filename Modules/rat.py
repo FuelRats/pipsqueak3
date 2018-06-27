@@ -18,6 +18,7 @@ from functools import reduce
 from operator import xor
 from uuid import UUID
 
+from Modules.rat_cache import RatCache
 from utils.ratlib import Platforms
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -33,8 +34,7 @@ class Rat(object):
     Creation of a `Rat` object will automatically add the created rat to the
     cache.
     """
-
-    cache: 'RatCache' = None
+    cache = RatCache()
 
     def __init__(self, uuid: UUID, name: str = None, platform: Platforms = Platforms.DEFAULT):
         """
@@ -51,13 +51,13 @@ class Rat(object):
         self._name = name
         self._hash = None
         # and update the cache, should it exist
-        if self.cache is not None:
-            if name and name not in self.cache.by_name:
-                # don't register duplicates
-                self.cache.by_name[name] = self
-            if uuid not in self.cache.by_uuid:
-                # don't register duplicates
-                self.cache.by_uuid[uuid] = self
+
+        if name and name not in self.cache.by_name:
+            # don't register duplicates
+            self.cache.by_name[name] = self
+        if uuid not in self.cache.by_uuid:
+            # don't register duplicates
+            self.cache.by_uuid[uuid] = self
 
     def __eq__(self, other: 'Rat') -> bool:
         """
