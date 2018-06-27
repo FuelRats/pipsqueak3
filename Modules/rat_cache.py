@@ -14,7 +14,6 @@ See LICENSE.md
 from typing import Dict, Optional
 from uuid import UUID
 
-from Modules.rat import Rat
 from utils.ratlib import Platforms
 
 
@@ -23,13 +22,23 @@ class RatCache(object):
     A cache of rat objects
     """
 
+    _instance = None  # reference to the singleton
+
+    def __new__(cls, *args, **kwargs):
+        # make this class a singleton
+        if cls._instance is None:
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def __init__(self, api_handler=None):
         """
-        Creates a new, empty RatCache
+        Creates the ratcache, if it does not already exist
         """
-        self._cache_by_id: Dict[UUID, Rat] = {}
-        self._cache_by_name: Dict[str, Rat] = {}
-        self._api_handler = api_handler
+        if not hasattr(self, "_initalized"):
+            self._initalized = True
+            self._cache_by_id: Dict[UUID, 'Rat'] = {}
+            self._cache_by_name: Dict[str, 'Rat'] = {}
+            self._api_handler = api_handler
 
     @property
     def api_handler(self):
@@ -44,7 +53,7 @@ class RatCache(object):
         # FIXME: add type check once the API gets merged in
 
     @property
-    def by_uuid(self) -> Dict[UUID, Rat]:
+    def by_uuid(self) -> Dict[UUID, 'Rat']:
         """
         Cache indexed by rat's UUID
 
@@ -54,12 +63,12 @@ class RatCache(object):
         return self._cache_by_id
 
     @by_uuid.setter
-    def by_uuid(self, value: Dict[UUID, Rat]) -> None:
+    def by_uuid(self, value: Dict[UUID, 'Rat']) -> None:
         """
         Sets the ratcache's by_uuid property
 
         Args:
-            value (Dict[UUID, Rat]): new value for the
+            value (Dict[UUID, Rat]): new value for the cache
 
         Returns: None
 
@@ -72,7 +81,7 @@ class RatCache(object):
         self._cache_by_id = value
 
     @property
-    def by_name(self) -> Dict[str, Rat]:
+    def by_name(self) -> Dict[str, 'Rat']:
         """
         Rats cache indexed by rat names
 
@@ -82,7 +91,7 @@ class RatCache(object):
         return self._cache_by_name
 
     @by_name.setter
-    def by_name(self, value: Dict[str, Rat]) -> None:
+    def by_name(self, value: Dict[str, 'Rat']) -> None:
         if not isinstance(value, Dict):
             raise TypeError(f"expected a dict, got {type(value)}")
         self._cache_by_name = value
@@ -122,7 +131,7 @@ class RatCache(object):
             # we found a rat
             return found if (found.platform == platform or platform == Platforms.DEFAULT) else None
 
-    async def get_rat_by_uuid(self, uuid: UUID) -> Optional[Rat]:
+    async def get_rat_by_uuid(self, uuid: UUID) -> Optional['Rat']:
         """
         Finds a rat by their UUID.
 
