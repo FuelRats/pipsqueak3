@@ -18,7 +18,8 @@ Please note, that while some organization members have direct write access, all 
 8. Make requested changes, if any.
 9. Obtain cold beverage and celebrate when your PR is merged.
 
-(If you are working off of a registered issue, please include the issue number in your PR title: `Spark 99 / Update to Documentation`)
+(If you are working off of a registered issue, please include the issue number in your PR title:
+`Spark 99 / Update to Documentation`)
 
 ## Feature Branches
 
@@ -57,11 +58,11 @@ return False
 ### Build Integrity
 
 All pull requests must pass integrated standards:
-1. Build must be be successful and functional (obviously!)
-2. CodeClimate diff-coverage (85% required)
-3. CodeClimate total-coverage (>95% required)
-4. PEP8 Standards
-5. Circleci deployment testing (if applicable)
+* Build must be be successful and functional (obviously!)
+* CodeClimate diff-coverage (85% required)
+* CodeClimate total-coverage (>95% required)
+* PEP8 Standards
+* Circleci deployment testing (if applicable)
 
 ## Hygiene
 
