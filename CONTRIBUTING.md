@@ -82,7 +82,7 @@ The easiest way to do that is to make the main repo a remote using `git remote a
 
 ## Testing
 
-**NOTICE: New tests must be done with py.test!  Furthermore, no new features may break the existing grandfathered unit tests.  They will be rewritten at a later date**
+>**NOTICE: New tests must be done with py.test!  Furthermore, no new features may break the existing grandfathered unit tests.  They will be rewritten at a later date**
 
 New functionality should not compromise existing tests. They should also contain a docstring with the intended purpose of the testing function.
 
