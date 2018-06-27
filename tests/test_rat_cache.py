@@ -87,3 +87,11 @@ async def test_flush(rat_cache_fx: RatCache):
     rat_cache_fx.flush()
     assert {} == rat_cache_fx.by_uuid
     assert {} == rat_cache_fx.by_name
+
+
+@pytest.mark.usefixtures('reset_rat_cache_fx')
+async def test_singleton():
+    """Verifies rat_cache acts as a singleton"""
+    alpha = RatCache()
+    beta = RatCache()
+    assert alpha is beta
