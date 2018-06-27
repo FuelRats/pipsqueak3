@@ -217,6 +217,10 @@ def rat_cache_fx():
 
 
 @pytest.fixture(autouse=True)
-def prepare_rat_fx(rat_cache_fx):
-    """Prepares the Rat class for usage"""
-    Rat.cache = rat_cache_fx
+def reset_rat_cache_fx(rat_cache_fx: RatCache):
+    """"cleans up the rat_cache's cache"""
+    # ensure the cache is clean during setup
+    rat_cache_fx.flush()
+    yield
+    # and clean up after ourselves
+    rat_cache_fx.flush()
