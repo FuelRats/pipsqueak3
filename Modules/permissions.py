@@ -151,19 +151,7 @@ NETADMIN = Permission(6, {'netadmin.fuelrats.com'})
 # Best you don't hear from one of these...
 ADMIN = Permission(6, {'admin.fuelrats.com'})
 # OrangeSheets. why do we have this permission again?
-ORANGE = Permission(10, ["i.see.all"])
-
-_by_vhost = {
-    "recruit.fuelrats.com": RECRUIT,
-    "rat.fuelrats.com": RAT,
-    "dispatch.fuelrats.com": DISPATCH,
-    "overseer.fuelrats.com": OVERSEER,
-    "op.fuelrats.com": OP,
-    "techrat.fuelrats.com": TECHRAT,
-    "netadmin.fuelrats.com": NETADMIN,
-    "admin.fuelrats.com": ADMIN,
-    "i.see.all": ORANGE
-}
+ORANGE = Permission(10, {"i.see.all"})
 
 
 # RECRUIT = Permission(0)
