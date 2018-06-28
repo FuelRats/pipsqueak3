@@ -14,13 +14,14 @@ This module is built on top of the Pydle system.
 
 """
 from itertools import product
+from typing import Set
 
 import pytest
 
 import Modules.rat_command as Commands
 from Modules import permissions
 from Modules.context import Context
-from Modules.permissions import require_permission, require_channel, require_dm
+from Modules.permissions import require_permission, require_channel, require_dm, Permission
 
 
 # registration is done in setUp
@@ -57,7 +58,7 @@ class TestPermissions(object):
         """
         assert permissions.RECRUIT < permissions.RAT
         assert permissions.RAT < permissions.TECHRAT
-        assert not permissions.ORANGE < permissions.TECHRAT
+        assert not permissions.OVERSEER < permissions.TECHRAT
 
     def test_permission_le(self):
         """
@@ -66,7 +67,7 @@ class TestPermissions(object):
         """
         assert permissions.ADMIN <= permissions.ADMIN
         assert not permissions.ADMIN <= permissions.RAT
-        assert permissions.ADMIN <= permissions.ORANGE
+        assert permissions.ADMIN <= permissions.OVERSEER
 
     def test_permission_ge(self):
         """
@@ -75,7 +76,7 @@ class TestPermissions(object):
         """
         assert permissions.ADMIN >= permissions.ADMIN
         assert permissions.ADMIN >= permissions.RAT
-        assert not permissions.ADMIN >= permissions.ORANGE
+        assert not permissions.ADMIN >= permissions.OVERSEER
 
     def test_permission_equal(self):
         """
@@ -84,7 +85,7 @@ class TestPermissions(object):
         """
         assert permissions.RAT == permissions.RAT
         assert permissions.TECHRAT == permissions.TECHRAT
-        assert permissions.ADMIN == permissions.NETADMIN
+        assert permissions.ADMIN == permissions.ADMIN
 
     def test_permission_not_equal(self):
         """
@@ -92,7 +93,7 @@ class TestPermissions(object):
         :return:
         """
         assert permissions.RAT != permissions.TECHRAT
-        assert permissions.DISPATCH != permissions.ORANGE
+        assert permissions.RAT != permissions.OVERSEER
 
     @pytest.mark.asyncio
     async def test_restricted_command_inferior(self, bot_fx):
@@ -236,3 +237,43 @@ class TestPermissions(object):
 
         retn = await potato(context_channel_fx)
         assert retn != "oh noes!"
+
+    @pytest.mark.parametrize("vhost",
+                             [{"unittest.fuelrats.com"}, {"potato.fuelrats.com"}, {"i.see.all"}])
+    def test_permission_registers_vhost(self, vhost, monkeypatch):
+        """Verifies a created Permission registers its vhosts"""
+
+        # ensure _by_vhost is clean prior to running test
+        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+
+        permission = Permission(1, vhost)
+        assert vhost == (set(permissions._by_vhost.keys()))
+
+    @pytest.mark.parametrize("vhost_alpha", [{"techrat.fuelrats.com", "op.fuelrats.com"},
+                                             {"cannonfodder.fuelrats.com"}])
+    @pytest.mark.parametrize("vhost_beta", [
+        {"i.see.all"},
+        {"rats.fuelrats.com", "dispatch.fuelrats.com"}
+    ])
+    def test_permission_change_vhosts(self,
+                                      monkeypatch,
+                                      vhost_alpha: Set[str],
+                                      vhost_beta: Set[str]):
+        """Verifies the functionality of changing a Permission's vhosts property"""
+        # ensure _by_vhost is clean prior to running test
+        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+
+        alpha = Permission(1, {"snafu.com"})
+        beta = Permission(2, {"FUBAR.com"})
+
+        alpha.vhosts = vhost_alpha
+        beta.vhosts = vhost_beta
+        for vhost in vhost_alpha:
+            assert vhost in permissions._by_vhost
+
+        for vhost in vhost_beta:
+            assert vhost in permissions._by_vhost
+
+        assert "snafu.com" not in permissions._by_vhost.keys()
+        assert "FUBAR.com" not in permissions._by_vhost.keys()
+
