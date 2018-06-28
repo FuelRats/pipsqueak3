@@ -202,6 +202,8 @@ class TestPermissions(object):
 
         alpha.vhosts = vhost_alpha
         beta.vhosts = vhost_beta
+        # assert the new keys got into the _by_vhost dict
+
         for vhost in vhost_alpha:
             assert vhost in permissions._by_vhost
 
@@ -211,3 +213,7 @@ class TestPermissions(object):
         assert "snafu.com" not in permissions._by_vhost.keys()
         assert "FUBAR.com" not in permissions._by_vhost.keys()
 
+    @pytest.mark.parametrize("garbage", [None, dict(), 42, -1])
+    def test_permission_setter_garbage(self, garbage):
+        with pytest.raises(TypeError):
+            permissions.TECHRAT.vhosts = garbage
