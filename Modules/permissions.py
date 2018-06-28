@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 from functools import wraps
-from typing import List
+from typing import List, Dict, Set
 
 from Modules.context import Context
 
@@ -25,19 +25,21 @@ class Permission:
     A permission level
     """
 
-    def __init__(self, level: int, vhost: List[str],
+    def __init__(self, level: int, vhosts: Set[str],
                  deny_message: str = "Access denied."):
         """
         Permission required to execute a command
         :param level: Relative permissions level
-        :param vhost: associated vhost
+        :param vhosts: associated vhost
         :param deny_message: message to display if user level < level required
         :return:
         """
         log.debug(f"Created new Permission object with permission {level}")
         self._level = level
-        self._vhosts = vhost
+        self._vhosts = vhosts
         self._denied_message = deny_message
+
+        _by_vhost.update({vhost: self for vhost in self._vhosts})
 
     @property
     def level(self) -> int:
@@ -50,7 +52,7 @@ class Permission:
         return self._level
 
     @property
-    def vhosts(self) -> List[str]:
+    def vhosts(self) -> Set[str]:
         """
         Registered vhosts that fall under this permission level
 
@@ -60,7 +62,7 @@ class Permission:
         return self._vhosts
 
     @vhosts.setter
-    def vhosts(self, value: List[str]) -> None:
+    def vhosts(self, value: Set[str]) -> None:
         """
         Updates the registered vhosts for this permission object
 
@@ -70,9 +72,32 @@ class Permission:
         Returns:
             None
         """
-        if not isinstance(value, list):
+        if not isinstance(value, set):
             raise TypeError(f"expected list got {type(value)}")
 
+        # determine which items have been removed
+        removed = self.vhosts - value
+
+        # determine which items are new
+        added = value - self.vhosts
+
+        # recompute _by_vhost to exclude removed vhosts we have removed
+        # ( as there is no bulk-remove method, this avoids a for loop and some function calls )
+        all_vhosts = {vhost: permission for vhost, permission in _by_vhost.items() if
+                      vhost not in removed}
+
+        # create a dict of new vhosts to register
+        new_vhosts = {vhost: self for vhost in added}
+
+        # append new vhosts to the main dict
+        all_vhosts.update(new_vhosts)
+
+        # clear the master dict (can't assign directly due to scope)
+        _by_vhost.clear()
+        # and write it all back to the master
+        _by_vhost.update(all_vhosts)
+
+        # oh and update our set whilst we are here <3
         self._vhosts = value
 
     @property
@@ -107,22 +132,24 @@ class Permission:
         return hash(self.level)
 
 
+_by_vhost: Dict[str, Permission] = {}
+
 # the uninitiated
-RECRUIT = Permission(0, ["recruit.fuelrats.com"])
+RECRUIT = Permission(0, {"recruit.fuelrats.com"})
 # the initiated
-RAT = Permission(1, ["rat.fuelrats.com"])
+RAT = Permission(1, {"rat.fuelrats.com"})
 # The mad hatters
-DISPATCH = Permission(2, ["dispatch.fuelrats.com"])
+DISPATCH = Permission(2, {"dispatch.fuelrats.com"})
 # Those that oversee the mad house
-OVERSEER = Permission(3, ['overseer.fuelrats.com'])
+OVERSEER = Permission(3, {'overseer.fuelrats.com'})
 # Those that hold the keys
-OP = Permission(4, ["op.fuelrats.com"])
+OP = Permission(4, {"op.fuelrats.com"})
 # Those that make all the shiny toys
-TECHRAT = Permission(5, ['techrat.fuelrats.com'])
+TECHRAT = Permission(5, {'techrat.fuelrats.com'})
 # Those that you don't want to upset
-NETADMIN = Permission(6, ['netadmin.fuelrats.com'])
+NETADMIN = Permission(6, {'netadmin.fuelrats.com'})
 # Best you don't hear from one of these...
-ADMIN = Permission(6, ['admin.fuelrats.com'])
+ADMIN = Permission(6, {'admin.fuelrats.com'})
 # OrangeSheets. why do we have this permission again?
 ORANGE = Permission(10, ["i.see.all"])
 
