@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 from functools import wraps
+from typing import List
 
 from Modules.context import Context
 
@@ -24,7 +25,7 @@ class Permission:
     A permission level
     """
 
-    def __init__(self, level: int, vhost: str,
+    def __init__(self, level: int, vhost: List[str],
                  deny_message: str = "Access denied."):
         """
         Permission required to execute a command
@@ -35,12 +36,54 @@ class Permission:
         """
         log.debug(f"Created new Permission object with permission {level}")
         self._level = level
-        self._vhost = vhost
+        self._vhosts = vhost
         self._denied_message = deny_message
 
-    level = property(lambda self: self._level)
-    vhost = property(lambda self: self._vhost)
-    denied_message = property(lambda self: self._denied_message)
+    @property
+    def level(self) -> int:
+        """
+        Permission level
+
+        Returns:
+            int
+        """
+        return self._level
+
+    @property
+    def vhosts(self) -> List[str]:
+        """
+        Registered vhosts that fall under this permission level
+
+        Returns:
+            List[str]: list of registered vhosts
+        """
+        return self._vhosts
+
+    @vhosts.setter
+    def vhosts(self, value: List[str]) -> None:
+        """
+        Updates the registered vhosts for this permission object
+
+        Args:
+            value (List[str]): list of vhosts
+
+        Returns:
+            None
+        """
+        if not isinstance(value, list):
+            raise TypeError(f"expected list got {type(value)}")
+
+        self._vhosts = value
+
+    @property
+    def denied_message(self) -> str:
+        """
+        message displayed when someone's permission level does not exceed the threshold `self.level`
+
+        Returns:
+            str: access denied message
+        """
+        return self._denied_message
 
     def __eq__(self, other: 'Permission') -> bool:
         return self.level == other.level
@@ -65,23 +108,23 @@ class Permission:
 
 
 # the uninitiated
-RECRUIT = Permission(0, "recruit.fuelrats.com")
+RECRUIT = Permission(0, ["recruit.fuelrats.com"])
 # the initiated
-RAT = Permission(1, "rat.fuelrats.com")
+RAT = Permission(1, ["rat.fuelrats.com"])
 # The mad hatters
-DISPATCH = Permission(2, "dispatch.fuelrats.com")
+DISPATCH = Permission(2, ["dispatch.fuelrats.com"])
 # Those that oversee the mad house
-OVERSEER = Permission(3, 'overseer.fuelrats.com')
+OVERSEER = Permission(3, ['overseer.fuelrats.com'])
 # Those that hold the keys
-OP = Permission(4, "op.fuelrats.com")
+OP = Permission(4, ["op.fuelrats.com"])
 # Those that make all the shiny toys
-TECHRAT = Permission(5, 'techrat.fuelrats.com')
+TECHRAT = Permission(5, ['techrat.fuelrats.com'])
 # Those that you don't want to upset
-NETADMIN = Permission(6, 'netadmin.fuelrats.com')
+NETADMIN = Permission(6, ['netadmin.fuelrats.com'])
 # Best you don't hear from one of these...
-ADMIN = Permission(6, 'admin.fuelrats.com')
+ADMIN = Permission(6, ['admin.fuelrats.com'])
 # OrangeSheets. why do we have this permission again?
-ORANGE = Permission(10, "i.see.all")
+ORANGE = Permission(10, ["i.see.all"])
 
 _by_vhost = {
     "recruit.fuelrats.com": RECRUIT,
@@ -94,6 +137,9 @@ _by_vhost = {
     "admin.fuelrats.com": ADMIN,
     "i.see.all": ORANGE
 }
+
+
+# RECRUIT = Permission(0)
 
 
 def require_permission(permission: Permission,
