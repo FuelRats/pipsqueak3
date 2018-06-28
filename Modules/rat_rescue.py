@@ -20,6 +20,7 @@ from uuid import UUID
 
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
 from Modules.rat import Rat
 from utils.ratlib import Platforms, Status
@@ -779,8 +780,8 @@ class Rescue(object):
 
         if isinstance(name, str):
             # lets check if we already have this rat in the cache (platform, any)
-            found = (await Rat.cache.get_rat_by_name(name, self.platform),
-                     await Rat.cache.get_rat_by_name(name))
+            found = (await RatCache().get_rat_by_name(name, self.platform),
+                     await RatCache().get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
                 return

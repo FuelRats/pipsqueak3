@@ -34,7 +34,6 @@ class Rat(object):
     Creation of a `Rat` object will automatically add the created rat to the
     cache.
     """
-    cache = RatCache()
 
     def __init__(self, uuid: UUID, name: str = None, platform: Platforms = Platforms.DEFAULT):
         """
@@ -52,12 +51,12 @@ class Rat(object):
         self._hash = None
         # and update the cache, should it exist
 
-        if name and name not in self.cache.by_name:
+        if name and name not in RatCache().by_name:
             # don't register duplicates
-            self.cache.by_name[name] = self
-        if uuid not in self.cache.by_uuid:
+            RatCache().by_name[name] = self
+        if uuid not in RatCache().by_uuid:
             # don't register duplicates
-            self.cache.by_uuid[uuid] = self
+            RatCache().by_uuid[uuid] = self
 
     def __eq__(self, other: 'Rat') -> bool:
         """
