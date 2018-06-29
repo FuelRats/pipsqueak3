@@ -27,26 +27,18 @@ jobs:
           command: |
             docker-compose build
             docker volume create --name=p-data
-          # docker volume create --name=test-data
-          #   docker-compose up --no-start tests
-          #   docker cp ./config/ spark-tests:/mechasqueak/
       - run:
           name: Run tests
           command: |
             docker-compose up -d sql
             sleep 5
             ./cc-test-reporter before-build
-         #  docker-compose run tests
              pytest -v --cov --cov-report xml --junit-xml=test-reports/junit.xml
       - run:
           name: Copy workdir from docker container and upload reports
           environment:
             - CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
           command: |
-          #  docker-compose up --no-start tests
-          #  docker cp spark-tests:/test-data/coverage.xml ./
-          #  docker cp spark-tests:/test-data/test-reports ./
-          #  docker cp spark-tests:/mechasqueak/logs/ ./
             ./cc-test-reporter after-build --coverage-input-type coverage.py
 
       - store_test_results:
