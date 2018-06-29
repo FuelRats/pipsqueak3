@@ -3,7 +3,7 @@
 #    this script will create the runtime environment necessary to run the bot and, by default
 #    invocation, run the Unit Tests.
 #
-#Copyright (c) 2018 The Fuel Rats Mischief,
+#Copyright (c) 2018 The Fuel Rat Mischief,
 #All rights reserved.
 #
 #Licensed under the BSD 3-Clause License.

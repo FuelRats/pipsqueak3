@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/FuelRats/pipsqueak3.svg?branch=develop)](https://travis-ci.org/FuelRats/pipsqueak3) [![Maintainability](https://api.codeclimate.com/v1/badges/83b536889d48ddfe2557/maintainability)](https://codeclimate.com/github/FuelRats/pipsqueak3/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/83b536889d48ddfe2557/test_coverage)](https://codeclimate.com/github/FuelRats/pipsqueak3/test_coverage)
 
-SPARK is the all-in-one wonderbot written and utilized by *The Fuel Rats* for rescue management.
+SPARK is the all-in-one wonderbot written and utilized by *The Fuel Rat* for rescue management.
 This project is under active development.  As such, features may be added or removed without notice.
 
 > As this project is under heavy development, we cannot offer support at this time.  However, please do report bugs or issues on our project [here.](http://t.fuelr.at/help)

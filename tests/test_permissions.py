@@ -3,7 +3,7 @@ test_permissions.py
 
 Tests for the permissions module
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -37,6 +37,7 @@ def Setup_fx(bot_fx):
     Commands.command("restricted")(restricted)
 
 
+@pytest.mark.permissions
 @pytest.mark.usefixtures("Setup_fx")
 class TestPermissions(object):
 
