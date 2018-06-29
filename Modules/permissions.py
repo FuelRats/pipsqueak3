@@ -14,9 +14,9 @@ This module is built on top of the Pydle system.
 import logging
 from functools import wraps
 from typing import List, Dict, Set
-from config import config
 
 from Modules.context import Context
+from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -29,12 +29,15 @@ class Permission:
     def __init__(self, level: int, vhosts: Set[str],
                  deny_message: str = "Access denied."):
         """
-        Permission required to execute a command
-        :param level: Relative permissions level
-        :param vhosts: associated vhost
-        :param deny_message: message to display if user level < level required
-        :return:
+        creates a representation of a permission level required to execute an IRC command
+
+        Args:
+            level (Permission): required Permission level
+            vhosts (Set[str]): set of vhost strings that fall under this permission level
+            deny_message (str): message displayed on message to display if user level < level
+                required
         """
+
         log.debug(f"Created new Permission object with permission {level}")
         self._level = level
         self._vhosts = vhosts
