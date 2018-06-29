@@ -3,7 +3,7 @@ test_logging.py
 
 Tests for the logging module
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -15,6 +15,7 @@ import logging
 
 import pytest
 
+pytestmark = pytest.mark.logging
 
 def log_severity_call(logger, severity, random_string):
     logging_string = f"Test String {random_string}"

@@ -1,7 +1,7 @@
 """
 test_rescue.py - tests for Rescue and RescueBoard objects
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -10,16 +10,17 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
+import pytest
 from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4, UUID
-
-import pytest
-
+from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.rat import Rat
 from Modules.rat_rescue import Rescue
-from Modules.rats import Rats
 from utils.ratlib import Status
+
+pytestmark = pytest.mark.rescue
 
 
 @pytest.mark.parametrize("expected_client", ['DeadBeef', 'Commander_Test', '11Alpha1',
@@ -101,7 +102,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
     Verify Rescue.updated_at raises TypeError if given incorrect value,
     or is set to a date in the past.
     """
-    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1, )
+    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1,)
 
     # Set to a string time
     with pytest.raises(TypeError):
@@ -347,7 +348,7 @@ async def test_add_rats_ok(rat_good_fx, rescue_sop_fx):
     """
         Verifies adding a existing rat with a UUID works
         Args:
-            rat_good_fx (Rats): Good Rat object Test Fixture
+            rat_good_fx (Rat): Good Rat object Test Fixture
             rescue_sop_fx (Rescue):  Rescue object Test Fixture
     """
     # rescue_sop_fx:Rescue
@@ -356,7 +357,7 @@ async def test_add_rats_ok(rat_good_fx, rescue_sop_fx):
 
 
 @pytest.mark.asyncio
-async def test_add_rat_from_cache(rat_good_fx: Rats, rescue_sop_fx: Rescue):
+async def test_add_rat_from_cache(rat_good_fx: Rat, rescue_sop_fx: Rescue):
     """
     Verifies rat added from cache matches rat object in Rescue
     """
@@ -422,7 +423,7 @@ def test_lang_id_strings(test_input, rescue_plain_fx: Rescue):
 
 def test_set_unidentified_rats_garbage_in_list(rescue_plain_fx: Rescue):
     """
-    Verifies a ValueError is raised if the list passed to Rats.unidentified_Rats contains
+    Verifies a ValueError is raised if the list passed to Rat.unidentified_Rats contains
     illegal values
     """
     garbage = [12, -42.2, None]
@@ -438,18 +439,59 @@ def test_set_unidentified_rats_incorrect_type(rescue_plain_fx: Rescue):
         rescue_plain_fx.unidentified_rats = 'Snozzberry, Wonka, Doc'
 
 
+@pytest.mark.parametrize("reason,reporter,marked", [
+    ([], 42.2, -1),
+    (-2.1, {"Potato"}, None),
+    ([], 42, "md reason"),
+    (True, -42.2, uuid4())
+])
+def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or None,
+                                           marked: bool, rescue_sop_fx: Rescue):
+    """
+    Verifies setting the mark for deletion property succeeds when the data is valid
+
+        Args:
+            rescue_sop_fx (): plain rescue fixture
+            reason (str): md reason
+            reporter(str) md reporter
+    """
+    with pytest.raises(TypeError):
+        rescue_sop_fx.marked_for_deletion.reason = reason
+
+    with pytest.raises(TypeError):
+        rescue_sop_fx.marked_for_deletion.reporter = reporter
+
+    with pytest.raises(TypeError):
+        rescue_sop_fx.marked_for_deletion.marked = marked
+
+    assert rescue_sop_fx.marked_for_deletion.marked is False
+    assert rescue_sop_fx.marked_for_deletion.reason != reason
+    assert rescue_sop_fx.marked_for_deletion.reporter != reporter
+
+
+@pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
+def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
+    """
+    Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError
+    """
+    result_rescue = deepcopy(rescue_plain_fx)
+
+    with pytest.raises(TypeError):
+        result_rescue.marked_for_deletion = garbage
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
 async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
     """
-    Verifies `Rescue.add_rat` can add a rat given a `Rats` object
+    Verifies `Rescue.add_rat` can add a rat given a `Rat` object
     """
     # rats_raw = [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")]
-    # rats = [Rats(x, y) for x, y in rats_raw]
+    # rats = [Rat(x, y) for x, y in rats_raw]
 
     result_rescue = deepcopy(rescue_plain_fx)
 
-    rat = Rats(uuid=uuid, name=name)
+    rat = Rat(uuid=uuid, name=name)
 
     await result_rescue.add_rat(rat=rat)
 
@@ -458,7 +500,7 @@ async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Re
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue, rat_cache_fx):
     """
     Verifies `Rescue.add_rat` can add a rat given a guid and a name
     """
@@ -466,7 +508,7 @@ async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
 
     await result_rescue.add_rat(name=name, guid=uuid)
 
-    assert name in Rats.cache_by_name
+    assert name in rat_cache_fx.by_name
 
 
 def test_eq_none(rescue_plain_fx: Rescue):
@@ -513,7 +555,7 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
 
         with pytest.raises(ValueError):
             rescue_sop_fx.mark_delete("unit_test", "")
-
+            
 
 def test_mark_for_deletion_unset(rescue_sop_fx: Rescue):
     """
@@ -627,14 +669,3 @@ def test_rescue_code_red_setter(rescue_sop_fx):
 
     with pytest.raises(TypeError):
         rescue_sop_fx.code_red = 'Yes'
-
-
-@pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
-def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
-    """
-    Verifies attempting to set Rescue.mark_for_deletion to bad types results in a TypeError
-    """
-    result_rescue = deepcopy(rescue_plain_fx)
-
-    with pytest.raises(TypeError):
-        result_rescue.marked_for_deletion = garbage

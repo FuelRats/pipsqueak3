@@ -3,7 +3,7 @@ test_context.py - Tests for Context
 
 test suite for the Context module
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -14,6 +14,7 @@ import pytest
 
 from Modules.context import Context
 
+pytestmark = pytest.mark.context
 
 def test_constructor(bot_fx, user_fx):
     """verifies the constructor functions"""

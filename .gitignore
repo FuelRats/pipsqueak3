@@ -103,12 +103,6 @@ ENV/
 # mypy
 .mypy_cache/
 
-# could contain psql-databse files
-/postgres-files/data/
-
-# ownCloud sync artifacts
-._sync_*
-
 #configuration
 config/config.json
 config/live.json
