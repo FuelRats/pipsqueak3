@@ -80,11 +80,11 @@ The easiest way to do that is to make the main repo a remote using `git remote a
 
 ## Testing
 
-**NOTICE: New tests must be done with py.test!  Furthermore, no new features may break the existing grandfathered unit tests.  They will be rewritten at a later date**
+**NOTICE: New tests must be done with py.test!  Furthermore, no Pull Request may break any existing test.**
 
-New functionality should not compromise existing tests. They should also contain a docstring with the intended purpose of the testing function.
+New functionality should not compromise existing tests. Test definitions shall contain a docstring with the intended purpose of the testing function.
 
-Please see our [Testing](TESTING.MD) file for in-depth requirements on this topic.
+Please see our [Testing](./TESTING.md) file for in-depth requirements on this topic.
 
 ## Reporting Issues
 
