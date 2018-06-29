@@ -58,7 +58,7 @@ class TestPermissions(object):
         """
         assert permissions.RECRUIT < permissions.RAT
         assert permissions.RAT < permissions.TECHRAT
-        assert not permissions.OVERSEER < permissions.TECHRAT
+        assert permissions.OVERSEER < permissions.TECHRAT
 
     def test_permission_le(self):
         """
@@ -67,7 +67,8 @@ class TestPermissions(object):
         """
         assert permissions.ADMIN <= permissions.ADMIN
         assert not permissions.ADMIN <= permissions.RAT
-        assert permissions.ADMIN <= permissions.OVERSEER
+        assert permissions.OVERSEER <= permissions.ADMIN
+        assert not permissions.ADMIN <= permissions.OVERSEER
 
     def test_permission_ge(self):
         """
@@ -76,7 +77,7 @@ class TestPermissions(object):
         """
         assert permissions.ADMIN >= permissions.ADMIN
         assert permissions.ADMIN >= permissions.RAT
-        assert not permissions.ADMIN >= permissions.OVERSEER
+        assert not permissions.RAT >= permissions.OVERSEER
 
     def test_permission_equal(self):
         """
