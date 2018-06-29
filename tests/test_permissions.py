@@ -214,6 +214,22 @@ class TestPermissions(object):
         assert "FUBAR.com" not in permissions._by_vhost.keys()
 
     @pytest.mark.parametrize("garbage", [None, dict(), 42, -1])
-    def test_permission_setter_garbage(self, garbage):
+    def test_permission_vhost_setter_garbage(self, garbage):
         with pytest.raises(TypeError):
             permissions.TECHRAT.vhosts = garbage
+
+    def test_permission_denied_message(self, monkeypatch):
+        # ensure _by_vhost is clean prior to running test
+        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+        permission = Permission(0, {"test.fuelrats.com"}, "heck no.")
+        assert permission.denied_message == "heck no."
+
+        permission.denied_message = "nope.avi"
+        assert permission.denied_message == "nope.avi"
+
+    @pytest.mark.parametrize("garbage", [None, dict(), 42, -1])
+    def test_denied_message_garbage(self, garbage, permission_fx: Permission):
+        # ensure _by_vhost is clean prior to running test
+
+        with pytest.raises(TypeError):
+            permission_fx.denied_message = garbage
