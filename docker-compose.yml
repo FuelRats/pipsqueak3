@@ -62,5 +62,5 @@ services:
 volumes:
   p-data:
     external: true
-  test-data:
-    external: true
+#  test-data:
+#    external: true
