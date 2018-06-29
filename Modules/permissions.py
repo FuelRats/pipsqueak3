@@ -145,6 +145,20 @@ class Permission:
         """
         return self._denied_message
 
+    @denied_message.setter
+    def denied_message(self, value: str) -> None:
+        """
+        Set the access denied message
+
+        Args:
+            value (str): new message
+
+        Returns:
+            None
+        """
+        if not isinstance(value, str):
+            raise TypeError(f"expected type str got {type(value)}")
+
     def __eq__(self, other: 'Permission') -> bool:
         return self.level == other.level
 
