@@ -6,10 +6,16 @@ Because py.test is a 'black box' testing suite, we follow suit.  Black Box testi
 
 This project is also an excellent example of 'offensive programming.'  Input is not trusted at the function level, and errors not explicitly raised are breaking.  Keep this in mind when writing your tests.
 
+Every definition should have multiple tests, in the form of multiple definitions.
+* (Expected Data) Test input must match expected output.
+* (Garbage Data) Garbage input must be handled in some way without breaking.
+* (Error Handling) .get and .set methods have internal error handling, and raise errors as appropriate.
+
+
 Please see [py.test](https://docs.pytest.org/en/latest/contents.html) documentation for information.
 
 ## Methodology
-* Garbage handling.  All functions should be tested with 'garbage' data and types.
+* Garbage handling.  All functions should be tested with 'garbage' data and types.  Send incorrect types, integers, integers as strings, and other objects along with valid input to ensure your definition reacts appropriately.
 * Data Assertions.  Tests should include assert statements to verify data passed, handled, or modified is expected at input or output.
 * Handled Exceptions.  If a function raises a specific error, a test function asserting the correct ErrorType was/was not raised is critical.
 
@@ -27,7 +33,7 @@ with pytest.raises(SomeErrorType):
     # Call that should raise Error here:
     should_not_be_a_list = ['Rebellious', 'List']
 ```
-if the above function raised _SomeErrorType_, this test would pass.  Raising a different error or if nothing is raised, fails the test.
+If the above function raised _SomeErrorType_, this test would pass.  Raising a different error or if nothing is raised, fails the test.
 
 
 * Use Parametrize to reduce test function count.  There is no need to copy/paste a test with a different set of input values.
@@ -67,3 +73,23 @@ The first returns a simple, uninitialized rat object, while the second one is pa
 
 Most importantly, these fixtures make module calls to their appropriate sub objects, and can be used without breaking scope in other unit tests, and are disposed so that each iteration of parameters uses a 'clean' object.
 
+# Marking Tests
+
+Tests are categorized by module using ``pytest.mark`` so that specific tests may be excluded.  Each module's decorator is set using the ``pytestmark`` global:
+
+```python
+# Replace 'category' with an unused one for your module, after it has been added to pytest.ini
+pytestmark = pytest.mark.category
+```
+
+Test categories are listed in [pytest.ini](./pytest.ini).  It may be necessary to run tests locally without using the ``database`` or ``api`` markers if you do not have these available.  This can be done by running py.test in the following manner:
+```
+pytest -m "not (database or api)"
+```
+
+To exclude a single category:
+```
+pytest -m "not database"
+```
+
+All tests will run without using these arguments, and when a branch is sent to the repo as a pull request.
