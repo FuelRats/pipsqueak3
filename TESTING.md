@@ -74,18 +74,19 @@ The first returns a simple, uninitialized rat object, while the second one is pa
 Most importantly, these fixtures make module calls to their appropriate sub objects, and can be used without breaking scope in other unit tests, and are disposed so that each iteration of parameters uses a 'clean' object.
 
 Here's an example of a valid and complete test:
+
 ```python
 @pytest.mark.asyncio
-    @pytest.mark.parametrize("garbage", [22.1, -42, 42, 0, False, True])
-    async def test_find_rat_by_name_bad_type(self, garbage):
-        """
-        Verifies that attempting to throw garbage at Rats.search() raises the proper exception
-        """
-        with pytest.raises(TypeError):
-            await Rats.get_rat_by_name(name=garbage)
+@pytest.mark.parametrize("garbage", [22.1, -42, 42, 0, False, True])
+async def test_find_rat_by_name_bad_type(self, garbage):
+    """
+    Verifies that attempting to throw garbage at Rats.search() raises the proper exception
+    """
+    with pytest.raises(TypeError):
+        await Rats.get_rat_by_name(name=garbage)
 
-        with pytest.raises(TypeError):
-            await Rats.get_rat_by_name(name="foo", platform=garbage)
+    with pytest.raises(TypeError):
+        await Rats.get_rat_by_name(name="foo", platform=garbage)
 ```
 
 # Marking Tests
@@ -97,7 +98,7 @@ Tests are categorized by module using ``pytest.mark`` so that specific tests may
 pytestmark = pytest.mark.category
 ```
 
-Test categories are listed in [pytest.ini](./pytest.ini).  It may be necessary to run tests locally without using the ``database`` or ``api`` markers if you do not have these available.  This can be done by running py.test in the following manner:
+Test categories are listed in [pytest.ini](./pytest.ini).  It may be necessary to run tests locally without using the ``database`` or ``api``.  This can be done by running py.test in the following manner:
 ```
 pytest -m "not (database or api)"
 ```
@@ -105,6 +106,11 @@ pytest -m "not (database or api)"
 To exclude a single category:
 ```
 pytest -m "not database"
+```
+
+To run tests ONLY in a specific category:
+```
+pytest -m permissions
 ```
 
 All tests will run without using these arguments, and when a branch is sent to the repo as a pull request.
