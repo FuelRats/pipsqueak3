@@ -34,13 +34,13 @@
   "permissions": {
     "recruit": {
       "vhosts": [
-        "recruits.fuelrats.com"
+        "recruit.fuelrats.com"
       ],
       "level": 0
     },
     "rat": {
       "vhosts": [
-        "recruits.fuelrats.com"
+        "rat.fuelrats.com"
       ],
       "level": 1
     },
