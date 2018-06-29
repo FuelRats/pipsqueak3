@@ -57,6 +57,8 @@ class Permission:
         if not isinstance(value, str):
             raise TypeError(f"expected type str got {type(value)}")
 
+        self._denied_message = value
+
     def __eq__(self, other: 'Permission') -> bool:
         return self.level == other.level
 
