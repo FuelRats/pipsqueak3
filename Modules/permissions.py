@@ -181,23 +181,24 @@ class Permission:
         return hash(self.level)
 
 
+# mapping between vhosts and permissions
 _by_vhost: Dict[str, Permission] = {}
 
 _permissions_dict = config['permissions']
+# the uninitiated
 RECRUIT = Permission.from_dict(_permissions_dict['recruit'])
-# # the uninitiated
-# RECRUIT = Permission(0, {"recruit.fuelrats.com"})
-# # the initiated
+
+# the run of the mill
 RAT = Permission(1, _permissions_dict['rat'])
 
+# the overseers of the mad house
 OVERSEER = Permission.from_dict(_permissions_dict['overseer'])
 
+# The rats that provide all the shiny toys
 TECHRAT = Permission.from_dict(_permissions_dict['techrat'])
 
+# The Administrator.
 ADMIN = Permission.from_dict(_permissions_dict['administrator'])
-
-
-# RECRUIT = Permission(0)
 
 
 def require_permission(permission: Permission,
