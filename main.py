@@ -104,33 +104,13 @@ class MechaClient(Client):
             except CommandNotFoundException:
                 # command was not found
                 log.debug("Command invoked from \"{message}\" not found.")
+
             except Exception as ex:
-                # generate a uuid for the exception
-                error_uuid = uuid4()
-                # get the exception's type
-                ex_type = type(ex)
-                # insert a marker into the logstream
-                log.error(f"========== ERROR MARK ==========\n{error_uuid}")
-                # write the exception to the logstream
-                log.exception(ex)
-
-                # determine if we have a graceful error for this exception type
-                if ex_type in graceful_errors.by_error:
-                    log.debug("error in registry")
-
-                    # fetch the graceful error
-                    graceful_message = graceful_errors.by_error[ex_type]
-                    # make our fstring
-                    error_message = f"{graceful_message}\t please squeak a tech!" \
-                                    f" reference code: {uuid4()}"
-
-                    # and report it to the user
-                    await self.message(channel, error_message)
-                else:
-                    log.debug("error not in registry")
-                    error_message = f"Unknown error encountered. Squeak a tech!" \
-                                    f" Reference code: {error_uuid}"
-                    await self.message(channel, error_message)
+                ex_uuid = uuid4()
+                log.exception(ex_uuid)
+                error_message = graceful_errors.make_graceful(ex, ex_uuid)
+                # and report it to the user
+                await self.message(channel, error_message)
 
     @property
     def rat_cache(self) -> object:
