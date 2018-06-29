@@ -15,7 +15,7 @@ jobs:
             sudo apt update
             sudo apt install odbc-postgresql
             sudo apt install curl
-            sudo pip install --trusted-host pypi.python.org -r /requirements.txt
+            sudo pip install --trusted-host pypi.python.org -r ./requirements.txt
 
       - run:
           name: acquire coverage-reporter
