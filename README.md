@@ -47,7 +47,7 @@ docker-compose run mechasqueak
 > If you are not using pip, please see requirements.txt for the list of required libraries.  These will need to be installed manually if pip is not available.
 
 1. Clone the repository from the ``master`` branch, or for bleeding edge, use ``develop``.  Please keep in mind, Develop changes frequently and may be broken.
-2. Copy ``config.template.json`` to a new file, such as ``configuration.json`` and edit your options.
+2. Build your configuration file.  Please see the [Configuration](#Configuration) section.
 3. Execute Mecha with ``python main.py --config <your configuration file>``  (You may need to use the python3 alias)
 
 |    Flag         |    Description                     |
