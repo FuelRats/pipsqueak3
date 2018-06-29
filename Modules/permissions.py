@@ -14,6 +14,7 @@ This module is built on top of the Pydle system.
 import logging
 from functools import wraps
 from typing import List, Dict, Set
+from config import config
 
 from Modules.context import Context
 
@@ -66,6 +67,11 @@ class Permission:
         """
         Updates the registered vhosts for this permission object
 
+        This also has the side effect of updating the _by_vhost bindings for this object.
+
+        - Items removed from `vhosts` are removed from _by_vhost and
+        - Items that are not in `vhosts` already are added to `_by_vhost`
+
         Args:
             value (List[str]): list of vhosts
 
@@ -99,6 +105,32 @@ class Permission:
 
         # oh and update our set whilst we are here <3
         self._vhosts = value
+
+    @classmethod
+    def from_dict(cls, data: Dict):
+        """
+        Parses the provided `data` dict into a Permissions object
+
+        Args:
+            data (dict): dictionary to parse
+
+        Returns:
+            Permission: initialized permission object
+
+        Examples:
+            >>> permission = Permission.from_dict({'vhosts': ['recruits.fuelrats.com'], 'level': 0})
+            >>> permission.vhosts
+            {'recruits.fuelrats.com'}
+            >>> permission.level
+            0
+        """
+        if not isinstance(data, dict):
+            raise TypeError(f"expected dict got {type(data)}")
+
+        vhosts = set(data['vhosts'])
+        level = data['level']
+
+        return cls(level=level, vhosts=vhosts)
 
     @property
     def denied_message(self) -> str:
@@ -134,24 +166,18 @@ class Permission:
 
 _by_vhost: Dict[str, Permission] = {}
 
-# the uninitiated
-RECRUIT = Permission(0, {"recruit.fuelrats.com"})
-# the initiated
-RAT = Permission(1, {"rat.fuelrats.com"})
-# The mad hatters
-DISPATCH = Permission(2, {"dispatch.fuelrats.com"})
-# Those that oversee the mad house
-OVERSEER = Permission(3, {'overseer.fuelrats.com'})
-# Those that hold the keys
-OP = Permission(4, {"op.fuelrats.com"})
-# Those that make all the shiny toys
-TECHRAT = Permission(5, {'techrat.fuelrats.com'})
-# Those that you don't want to upset
-NETADMIN = Permission(6, {'netadmin.fuelrats.com'})
-# Best you don't hear from one of these...
-ADMIN = Permission(6, {'admin.fuelrats.com'})
-# OrangeSheets. why do we have this permission again?
-ORANGE = Permission(10, {"i.see.all"})
+_permissions_dict = config['permissions']
+RECRUIT = Permission.from_dict(_permissions_dict['recruit'])
+# # the uninitiated
+# RECRUIT = Permission(0, {"recruit.fuelrats.com"})
+# # the initiated
+RAT = Permission(1, _permissions_dict['rat'])
+
+OVERSEER = Permission.from_dict(_permissions_dict['overseer'])
+
+TECHRAT = Permission.from_dict(_permissions_dict['techrat'])
+
+ADMIN = Permission.from_dict(_permissions_dict['administrator'])
 
 
 # RECRUIT = Permission(0)
