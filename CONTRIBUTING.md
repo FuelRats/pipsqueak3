@@ -38,7 +38,7 @@ For other types of PRs please use one of the following:
 Use docstrings and comments to document how your features function and why. Docstrings should be formatted to the flavour of [Google](https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments)
 Example:
 ```python
-def example_function(param1: int, param2: str) -> Optional[bool]:
+def example_function(param1: int, param2: str) -> bool:
 """
 This is an example doc string.  It may span multiple lines, however
 it may not break the 100 characters per line PEP8 standard.  It is a
@@ -50,15 +50,16 @@ Args:
     param2 (str): Second Parameter.
 
 Returns:
-    Optional[bool]: True if successful, False otherwise.
+    bool: True if successful, False otherwise.
 """
 return False
 ```
 
 ### Build Integrity
 
-All pull requests must pass integrated standards:
+All pull requests must pass standard checks:
 * Build must be be successful and functional (obviously!)
+* Must pass all integrity checks
 * CodeClimate diff-coverage (85% required)
 * CodeClimate total-coverage (>95% required)
 * PEP8 Standards
