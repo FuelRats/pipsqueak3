@@ -1,4 +1,4 @@
 # Use alpine image
 FROM postgres:alpine
-# Bind a directory to store PostGres data and databases
-ENV PGDATA /psql-data
+COPY init.sh /docker-entrypoint-initdb.d/init.sh
+RUN chmod +x /docker-entrypoint-initdb.d/init.sh
