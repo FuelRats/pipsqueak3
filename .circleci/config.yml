@@ -35,6 +35,7 @@ jobs:
           command: |
             docker-compose up -d sql
             sleep 5
+            source ./venv/bin/activate
             ./cc-test-reporter before-build
              pytest -v --cov --cov-report xml --junit-xml=test-reports/junit.xml
       - run:
