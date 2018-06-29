@@ -5,10 +5,14 @@ jobs:
     
     docker:
       - image: circleci/python:3.6.5
+      - image: circleci/postgres:10.4-alpine-ram
+        environmanet:
+          POSTGRES_USER: mecha3
+          POSTGRES_PASSWORD: mecha3
+          POSTGRES_DB: mecha3
     
     steps:
       - checkout
-      - setup_remote_docker
       - run:
           name: install dependencies
           command: |
@@ -24,22 +28,16 @@ jobs:
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
-      
-      - run:
-          name: Build containers
-          command: |
-            docker-compose build
-            docker volume create --name=p-data
+
       - run:
           name: Run tests
           command: |
-            docker-compose up -d sql
-            sleep 5
+            sleep 10
             source ./venv/bin/activate
             ./cc-test-reporter before-build
              pytest -v --cov --cov-report xml --junit-xml=test-reports/junit.xml
       - run:
-          name: Copy workdir from docker container and upload reports
+          name: upload reports to CodeClimate
           environment:
             - CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
           command: |
