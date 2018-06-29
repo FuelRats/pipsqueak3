@@ -2,12 +2,12 @@
 
 > The Enrichment Center once again reminds you that Android Hell is a real place where you will be sent at the first sign of defiance. --GLaDOS (Portal)
 
-Because py.test is a 'black box' testing suite, we follow suit.  Black Box testing is a concept in which data is entered into a 'box' and the output is evaluted, without knowing the internal workings of the box.  Py.test operates in this way.
+As py.test is a 'black box' testing suite, we follow suit.  Black Box testing is a concept in which data is entered into a 'box' and the output is evaluated without knowing the internal workings of the box.  Py.test operates in this way.
 
 This project is also an excellent example of 'offensive programming.'  Input is not trusted at the function level, and errors not explicitly raised are breaking.  Keep this in mind when writing your tests.
 
 Every definition should have multiple tests, in the form of multiple definitions.
-* (Expected Data) Test input must match expected output.
+* (Expected Data) Function output should match asserted output.
 * (Garbage Data) Garbage input must be handled in some way without breaking.
 * (Error Handling) .get and .set methods have internal error handling, and raise errors as appropriate.
 
@@ -26,14 +26,14 @@ Please see [py.test](https://docs.pytest.org/en/latest/contents.html) documentat
 ## Common Pitfalls
 * Not using included fixtures.  These are common objects used in multiple tests as a known good source.  Many are parameterized to include important things, such as multiple platforms, systems, or users. Available fixtures are located in the [conftest.py](./tests/conftest.py) file.  If they can be re-used, add them.  Otherwise, purpose-built fixtures can be used locally.
 * Include an ``assert`` statement for each test function.  Set up a scenario with your test function, and check required conditions are expected.
-* Avoid Try/Catch blocks in testing.  Check for a _specific_ raised exception in this way:
+* Try/catch blocks should not be used in tests.  You may assert an exception was raised as follows:
 
 ```python
 with pytest.raises(SomeErrorType):
     # Call that should raise Error here:
     should_not_be_a_list = ['Rebellious', 'List']
 ```
-If the above function raised _SomeErrorType_, this test would pass.  Raising a different error or if nothing is raised, fails the test.
+If the above function raised _SomeErrorType_, this test would pass.  Raising a different error or if nothing is raised, fails the test.  If you are not asserting an exception was raised, it should not be caught.
 
 
 * Use Parametrize to reduce test function count.  There is no need to copy/paste a test with a different set of input values.
@@ -72,6 +72,21 @@ def rat_good_fx(request) -> Rats:
 The first returns a simple, uninitialized rat object, while the second one is parametrized to run any test its used in three times, initialized three times; once for each platform.
 
 Most importantly, these fixtures make module calls to their appropriate sub objects, and can be used without breaking scope in other unit tests, and are disposed so that each iteration of parameters uses a 'clean' object.
+
+Here's an example of a valid and complete test:
+```python
+@pytest.mark.asyncio
+    @pytest.mark.parametrize("garbage", [22.1, -42, 42, 0, False, True])
+    async def test_find_rat_by_name_bad_type(self, garbage):
+        """
+        Verifies that attempting to throw garbage at Rats.search() raises the proper exception
+        """
+        with pytest.raises(TypeError):
+            await Rats.get_rat_by_name(name=garbage)
+
+        with pytest.raises(TypeError):
+            await Rats.get_rat_by_name(name="foo", platform=garbage)
+```
 
 # Marking Tests
 

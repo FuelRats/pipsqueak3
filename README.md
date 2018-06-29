@@ -5,27 +5,28 @@
 SPARK is the all-in-one wonderbot written and utilized by *The Fuel Rat* for rescue management.
 This project is under active development.  As such, features may be added or removed without notice.
 
+> As this project is under heavy development, we cannot offer support at this time.  However, please do report bugs or issues on our project [here.](http://t.fuelr.at/help)
+
 SPARK is currently **incomplete**.
 
 ## Requirements
-* Python 3.6.x
-* Postgres server
+* Python 3.6.5
+* PostgreSQL
 * [Pydle, asyncio branch](https://github.com/Shizmob/pydle/tree/asyncio) ``git://github.com/Shizmob/pydle.git@asyncio#egg=pydle``
 
 ## Installation
-This script can be run as either a Dockerized service or run locally.
+This script can be run as a Docker image or run locally.
 
 To run as a docker image, you may use the provided docker-compose.
-Before you can use the docker-compose, you need to create a volume called: ``p-data``
 
-If you would prefer to run the service locally, bare in mind you may need to run a local 
-Postgres Database or the provided sql service via docker-compose for mecha's fact module.
+If you would prefer to run the service locally, bare in mind you may need to run a local PostgreSQL Database for the fact module.
 
-###Building via Docker
-We have provided a `docker-compose.yml` suitably configured for building and running mechasqueak
+### Building via Docker
+We have provided a `docker-compose.yml` suitably configured for building and running Mecha
 as a Alpine Linux multi-container service. 
 
-To build Mechasqueak via docker, run the following command:
+## Run with Docker
+To build Mecha via docker, run the following command:
 ```bash
 docker-compose build mechasqueak
 ```
@@ -41,13 +42,28 @@ command:
 ```bash
 docker-compose run mechasqueak
 ```
+
+## Run Locally
+> If you are not using pip, please see requirements.txt for the list of required libraries.  These will need to be installed manually if pip is not available.
+
+1. Clone the repository from the ``master`` branch, or for bleeding edge, use ``develop``.  Please keep in mind, Develop changes frequently and may be broken.
+2. Copy ``config.template.json`` to a new file, such as ``configuration.json`` and edit your options.
+3. Execute Mecha with ``python main.py --config <your configuration file>``  (You may need to use the python3 alias)
+
+|    Flag         |    Description                     |
+| :--------------:|------------------------------------|
+| --clean-log     | New log file.  Old one is deleted. |
+| --config-file file.json   | Use configuration file _file.json_      |
+| --verbose |  Verbose mode. (Logging level set to Debug) |
+| --nocolors | Disable ANSI color coding in console. |
+
 ## Configuration
 Configuration settings are stored in the `config/` subfolder as JSON files. 
 
 By default, Mecha will attempt to load `configuration.json` (file not provided) from this subdirectory.
 
-To configure mecha locally, please copy the provided `config.template.json` to a new file
+To configure Mecha locally, please copy the provided `config.template.json` to a new file.
 `configuration.json` and fill in the appropriate fields, see `config/configuration.md` for details.
 
-please note that, when run via docker, it is not necessary to rebuild the image after changing
+Please note that, when run via docker, it is not necessary to rebuild the image after changing
 configuration options as that directory is shared with the container (see `config/configuration.md`)
