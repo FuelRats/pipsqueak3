@@ -14,9 +14,22 @@ See LICENSE.md
 from typing import Dict
 from uuid import UUID
 
+from Modules.rat_board import IndexNotFreeError, RescueBoardException, RescueNotChangedException, \
+    RescueNotFoundException
+from Modules.rat_command import InvalidCommandException, NameCollisionException
+
 by_error: Dict[type(Exception), str] = {
-    ZeroDivisionError: "Rotten cheddar",
-    TypeError: "Bad Tangerines",
+    AttributeError: "Overripe",
+    IndexError: "Stale",
+    TypeError: "Stinky",
+    ValueError: "Moldy",
+    IndexNotFreeError: "Low-grade",
+    InvalidCommandException: "Vile",
+    NameCollisionException: "Expired",
+    RescueBoardException: "Unsavory",
+    RescueNotChangedException: "Malodorous",
+    RescueNotFoundException: "Repulsive",
+
 }
 
 
