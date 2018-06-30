@@ -15,8 +15,6 @@ jobs:
           POSTGRES_PASSWORD: mecha3
           POSTGRES_DB: mecha3
 
-    working_directory: ~/repo
-
     steps:
       - checkout
            # Download and cache dependencies
@@ -54,7 +52,7 @@ jobs:
             source ./venv/bin/activate
             ./cc-test-reporter before-build
              pytest -v --cov --cov-report xml --junit-xml=test-reports/junit.xml --doctest-modules
-             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
+            ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
           environment:
             - CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
       - store_test_results:
