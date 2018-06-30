@@ -26,6 +26,7 @@ def make_graceful(ex: Exception, ex_uuid: UUID) -> str:
 
     Args:
         ex (Exception): the raised exception to make graceful
+        ex_uuid(UUID): uuid identifying exception in the logs
 
     Returns:
         str: graceful error message
