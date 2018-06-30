@@ -18,6 +18,8 @@ In order to use Mechasqueak within a container, you will need to build
 1. clone the project down
         - no need to install dependencies or anything, this is handled
         in the next step
+2. create the volume
+        - execute ``docker volume create --name=p-data``
 2. run `docker-compose build`
         - this builds the mecha3 container
         - you may be asked to grant Docker permission to access the
