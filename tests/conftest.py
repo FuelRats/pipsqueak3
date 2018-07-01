@@ -231,10 +231,7 @@ def reset_rat_cache_fx(rat_cache_fx: RatCache):
 @pytest.fixture(scope="session")
 def dbm_fx():
     """returns a DBM instance"""
-    try:
-        return DatabaseManager()
-    except:
-        return None
+    return DatabaseManager()
 
 
 @pytest.fixture(scope="session")
