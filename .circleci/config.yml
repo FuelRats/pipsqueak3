@@ -27,7 +27,7 @@ jobs:
           name: install dependencies
           command: |
             sudo apt update
-            sudo apt install odbc-postgresql unixODBC-dev
+            sudo apt install odbc-postgresql unixodbc-dev
             sudo apt install curl
             python3 -m venv ./venv/.
             source ./venv/bin/activate
