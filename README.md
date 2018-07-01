@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/FuelRats/pipsqueak3.svg?branch=develop)](https://travis-ci.org/FuelRats/pipsqueak3) [![Maintainability](https://api.codeclimate.com/v1/badges/83b536889d48ddfe2557/maintainability)](https://codeclimate.com/github/FuelRats/pipsqueak3/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/83b536889d48ddfe2557/test_coverage)](https://codeclimate.com/github/FuelRats/pipsqueak3/test_coverage)
 
-SPARK is the all-in-one wonderbot written and utilized by *The Fuel Rats* for rescue management.
+SPARK is the all-in-one wonderbot written and utilized by *The Fuel Rat* for rescue management.
 This project is under active development.  As such, features may be added or removed without notice.
 
 SPARK is currently **incomplete**.
@@ -16,9 +16,11 @@ SPARK is currently **incomplete**.
 This script can be run as either a Dockerized service or run locally.
 
 To run as a docker image, you may use the provided docker-compose.
+Before you can use the docker-compose, you need to create a volume called: ``p-data``
 
 If you would prefer to run the service locally, bare in mind you may need to run a local 
-Postgres Database for mecha's fact module.
+Postgres Database or the provided sql service via docker-compose for mecha's fact module.
+
 ###Building via Docker
 We have provided a `docker-compose.yml` suitably configured for building and running mechasqueak
 as a Alpine Linux multi-container service. 

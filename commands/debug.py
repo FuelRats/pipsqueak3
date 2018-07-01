@@ -4,7 +4,7 @@ debug.py - Debug and diagnostics commands
 Provides IRC commands geared towards debugging mechasqueak itself.
 This module should **NOT** be loaded in a production environment
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.

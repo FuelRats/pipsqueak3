@@ -1,7 +1,7 @@
 """
 rat_rescue.py - Rescue board and objects
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -16,7 +16,7 @@ import pytest
 
 from Modules.rat_quotation import Quotation
 
-
+@pytest.mark.quotation
 class TestQuotes(object):
 
     def test_message(self):

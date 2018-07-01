@@ -4,7 +4,7 @@ conftest.py - PyTest configuration and shared resources
 Reusable test fixtures 'n stuff
 
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -20,6 +20,8 @@ from uuid import uuid4, UUID
 import pytest
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
+from Modules.rat_cache import RatCache
+
 sys.argv = ["test",
             "--config-file", "testing.json",
             "--clean-log",
@@ -34,12 +36,13 @@ setup_logging("logs/unit_tests.log")
 from tests.mock_bot import MockBot
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
-from Modules.rats import Rats
+from Modules.rat import Rat
 from utils.ratlib import Platforms
 from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.database_manager import DatabaseManager
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -80,7 +83,7 @@ def rat_no_id_fx():
     Returns: (Rescue): Rescue test fixture without an api ID
 
     """
-    return Rats(None, "noIdRat")
+    return Rat(None, "noIdRat")
 
 
 @pytest.fixture(params=[("myPcRat", Platforms.PC, UUID("dead4ac0-0000-0000-0000-00000000beef")),
@@ -88,12 +91,12 @@ def rat_no_id_fx():
                         ("psRatToTheRescue", Platforms.PS,
                          UUID("FEE1DEA-DFAC-0000-000001BADB001FEED"))],
                 )
-def rat_good_fx(request) -> Rats:
+def rat_good_fx(request) -> Rat:
     """
     Testing fixture containing good and registered rats
     """
     params = request.param
-    myRat = Rats(params[2], name=params[0], platform=params[1])
+    myRat = Rat(params[2], name=params[0], platform=params[1])
     return myRat
 
 
@@ -206,3 +209,25 @@ def mark_for_deletion_fx(request) -> MarkForDeletion:
     """Provides a parameterized MFD object"""
     param = request.param
     return MarkForDeletion(marked=param[0], reporter=param[1], reason=param[2])
+
+
+@pytest.fixture
+def rat_cache_fx():
+    """provides a empty rat_cache"""
+    return RatCache()
+
+
+@pytest.fixture(autouse=True)
+def reset_rat_cache_fx(rat_cache_fx: RatCache):
+    """"cleans up the rat_cache's cache"""
+    # ensure the cache is clean during setup
+    rat_cache_fx.flush()
+    yield
+    # and clean up after ourselves
+    rat_cache_fx.flush()
+
+
+@pytest.fixture(scope="module")
+def dbm_fx():
+    """returns a DBM instance"""
+    return DatabaseManager()

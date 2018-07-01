@@ -13,7 +13,7 @@ class MockBot(object):
                                'realname': 'you know',
                                'identified': True,
                                'server': 'irc.fuelrats.com',
-                               'server_info': 'Fuel Rats IRC Server',
+                               'server_info': 'Fuel Rat IRC Server',
                                'secure': True,
                                'account': None,
                                'nickname': 'unit_test[BOT]'},
@@ -30,7 +30,7 @@ class MockBot(object):
                 "realname": "tree hugger",
                 "secure": False,
                 "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rats IRC server"
+                "server_info": "Fuel Rat IRC server"
             },
             "some_recruit": {
                 "nickname": "some_recruit",
@@ -45,7 +45,7 @@ class MockBot(object):
                 "realname": "some pun-ter",
                 "secure": False,
                 "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rats IRC server"
+                "server_info": "Fuel Rat IRC server"
             },
             "some_ov": {
                 "nickname": "some_ov",
@@ -60,7 +60,7 @@ class MockBot(object):
                 "realname": "Stop sign",
                 "secure": False,
                 "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rats IRC server"
+                "server_info": "Fuel Rat IRC server"
             },
             "some_admin": {
                 "nickname": "some_admin",
@@ -75,7 +75,7 @@ class MockBot(object):
                 "realname": "SirRaymond",
                 "secure": True,
                 "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rats IRC server"
+                "server_info": "Fuel Rat IRC server"
             },
             "authorized_but_not_identified": {
                 "nickname": "authorized_but_not_identified",
@@ -90,7 +90,7 @@ class MockBot(object):
                 "realname": "White Sheets",
                 "secure": False,
                 "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rats IRC server"
+                "server_info": "Fuel Rat IRC server"
             }
         }
 
