@@ -14,7 +14,7 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime
 from typing import Union, Optional, List
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
@@ -38,7 +38,7 @@ class Rescue(object):
                  board_index: Optional[int] = None,
                  mark_for_deletion: MarkForDeletion = MarkForDeletion(), lang_id: str = "EN",
                  rats: List[Rat] = None, status: Status = Status.OPEN, code_red=False,
-                 rescue_uuid=None):
+                 rescue_uuid: Optional[UUID] =None):
         """
         creates a unique rescue
 
@@ -98,7 +98,7 @@ class Rescue(object):
         self._lang_id = lang_id
         self._status = status
         self._hash = None
-        self.__rescue_id = rescue_uuid
+        self.__rescue_id = rescue_uuid if rescue_uuid is not None else uuid4()
         """Internal UUID used to generate the hash for this rescue object"""
 
     def __eq__(self, other) -> bool:
