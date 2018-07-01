@@ -10,7 +10,7 @@ jobs:
     docker:
       - image: circleci/python:3.6.5
       - image: circleci/postgres:10.4-alpine-ram
-        environmanet:
+        environment:
           POSTGRES_USER: mecha3
           POSTGRES_PASSWORD: mecha3
           POSTGRES_DB: mecha3
