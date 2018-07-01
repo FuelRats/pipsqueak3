@@ -66,7 +66,7 @@ class DatabaseManager(metaclass=Singleton):
                 condition = {}
             cond_str = ""
             for k, v in condition.items():
-                cond_str += f"{k} = '{v}' {connector}"
+                cond_str += f" {k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Statement: SELECT * FROM {table_name}"
@@ -96,7 +96,7 @@ class DatabaseManager(metaclass=Singleton):
             All datatypes must be SQL-compliant.
         Args:
             name: name of table to create
-            types: ict of column name and datatype
+            types: dict of column name and datatype
 
         Returns: None
         Raises: ValueError should table already exist
@@ -167,7 +167,7 @@ class DatabaseManager(metaclass=Singleton):
             val_str = val_str[:-1]
             cond_str = ""
             for k, v in condition.items():
-                cond_str += f"{k} = '{v}' {connector}"
+                cond_str += f" {k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str or "--" in val_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection.Statement: UPDATE {table_name} "
@@ -193,7 +193,7 @@ class DatabaseManager(metaclass=Singleton):
         if await self.has_table(table_name):
             cond_str = ""
             for k, v in condition.items():
-                cond_str += f"{k} = '{v}' {connector}"
+                cond_str += f" {k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection. Statement: DELETE FROM {table_name}"
