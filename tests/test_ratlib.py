@@ -45,3 +45,18 @@ def test_sanitize(input_message, expected_message):
     Verifies sanitize routine is properly removing string elements.
     """
     assert utils.ratlib.sanitize(input_message) == expected_message
+
+
+def test_Singleton():
+    """
+    Verifies that the classes are indeed Singletons
+    """
+    class Test1(metaclass=utils.ratlib.Singleton):
+        pass
+
+    class Test2(metaclass=utils.ratlib.Singleton):
+        pass
+
+    assert Test1() is Test1()
+    assert Test2() is Test2()
+    assert Test1() is not Test2()
