@@ -13,16 +13,14 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
-from functools import reduce
-from operator import xor
 from typing import Union, Optional, List
 from uuid import UUID
 
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
-from Modules.rat import Rat
 from utils.ratlib import Platforms, Status
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -33,30 +31,20 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, uuid: UUID,
-                 client: str,
-                 system: str,
-                 irc_nickname: str,
-                 board: 'RatBoard' = None,
-                 created_at: datetime = None,
-                 updated_at: datetime = None,
-                 unidentified_rats=None,
-                 active=True,
-                 quotes: list = None,
-                 epic: List[Epic] = None,
-                 title: Optional[str] = None,
-                 first_limpet: Optional[UUID] = None,
+    def __init__(self, uuid: UUID, client: str, system: str, irc_nickname: str,
+                 board: 'RatBoard' = None, created_at: datetime = None, updated_at: datetime = None,
+                 unidentified_rats=None, active=True, quotes: list = None, epic: List[Epic] = None,
+                 title: Optional[str] = None, first_limpet: Optional[UUID] = None,
                  board_index: Optional[int] = None,
-                 mark_for_deletion: MarkForDeletion = MarkForDeletion(),
-                 lang_id: str = "EN",
-                 rats: List[Rat] = None,
-                 status: Status = Status.OPEN,
-                 code_red=False):
+                 mark_for_deletion: MarkForDeletion = MarkForDeletion(), lang_id: str = "EN",
+                 rats: List[Rat] = None, status: Status = Status.OPEN, code_red=False,
+                 rescue_uuid=None):
         """
         creates a unique rescue
 
         Args:
 
+            rescue_uuid ():
             code_red (bool): is the client on emergency oxygen
             status (Status): status attribute for the rescue
             board (RatBoard): RatBoard instance this rescue is attached to, if any.
@@ -82,6 +70,10 @@ class Rescue(object):
             irc_nickname (str): clients IRC nickname, may deffer from their
                 commander name.
             rats (list): identified (Rat)s assigned to rescue.
+            rescue_uuid(UUID): Internal uuid used for hashing
+                ** this property is READ ONLY **
+
+
         """
         self._platform: Platforms = Platforms.DEFAULT
         self.rat_board: 'RatBoard' = board
@@ -106,6 +98,8 @@ class Rescue(object):
         self._lang_id = lang_id
         self._status = status
         self._hash = None
+        self.__rescue_id = rescue_uuid
+        """Internal UUID used to generate the hash for this rescue object"""
 
     def __eq__(self, other) -> bool:
         """
@@ -150,25 +144,10 @@ class Rescue(object):
     def __hash__(self):
 
         if self._hash is None:
-            attributes = (
-                self.uuid,
-                self.board_index,
-                self.client,
-                self.platform,
-                self.first_limpet,
-                self.created_at,
-                self.updated_at,
-                self.system,
-                self.active,
-                self.code_red,
-                self.outcome,
-                self.title,
-                self.first_limpet,
-                self.lang_id,
-                self.irc_nickname,
-            )
+            # compute the hash of the internally generated uuid and use that as our hash
+            # this resolves SPARK-52
+            self._hash = hash(self.__rescue_id)
 
-            self._hash = reduce(xor, map(hash, attributes))
         return self._hash
 
     @property
