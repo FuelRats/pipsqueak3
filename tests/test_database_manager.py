@@ -16,10 +16,9 @@ from Modules.database_manager import DatabaseManager
 
 
 @pytest.fixture(scope="class")
-def dropTables():
+def prepare_dbm(dbm_fx):
     """
     Drops all the tables
-    :return:
     """
     table_names = ("testtablehas",
                    "testtableselect",
@@ -30,13 +29,13 @@ def dropTables():
                    )
     for name in table_names:
         try:
-            DatabaseManager().cursor.execute(f"DROP TABLE {name}")
+            dbm_fx.cursor.execute(f"DROP TABLE {name}")
         except (pyodbc.ProgrammingError, pyodbc.OperationalError, pyodbc.DataError):
-            pass
+            raise
 
 
 # noinspection PyProtectedMember
-@pytest.mark.useFixture("dropTables")
+@pytest.mark.usefixture("prepare_dbm")
 @pytest.mark.asyncio
 @pytest.mark.database
 class TestStuff(object):
