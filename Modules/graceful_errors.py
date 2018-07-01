@@ -11,6 +11,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+import random
 from typing import Dict
 from uuid import UUID
 
@@ -18,7 +19,7 @@ from Modules.rat_board import IndexNotFreeError, RescueBoardException, RescueNot
     RescueNotFoundException
 from Modules.rat_command import InvalidCommandException, NameCollisionException
 
-by_error: Dict[type(Exception), str] = {
+BY_ERROR: Dict[type(Exception), str] = {
     AttributeError: "Overripe",
     IndexError: "Stale",
     TypeError: "Stinky",
@@ -32,6 +33,8 @@ by_error: Dict[type(Exception), str] = {
 
 }
 
+CHEESES = ['Cheddar', 'Gouda', "Mozzerella", "Asiago", "Monterey Jack", "Brie", "Roquefort", "Edam"]
+
 
 def make_graceful(ex: Exception, ex_uuid: UUID) -> str:
     """
@@ -43,17 +46,19 @@ def make_graceful(ex: Exception, ex_uuid: UUID) -> str:
 
     Returns:
         str: graceful error message
+
     """
 
-    base = "Oh noes! {message} encountered! please contact a tech! Reference code {uuid}"
+    base = "Oh noes! {message} {cheese} encountered! please contact a tech! Reference code {uuid}"
 
     ex_type = type(ex)
 
     # gets the first octet from the uuid
     octet = str(ex_uuid)[:8]
 
-    message = by_error[ex_type] if ex_type in by_error else "unknown error"
+    message = BY_ERROR[ex_type] if ex_type in BY_ERROR else "unknown error"
 
-    output = base.format(message=message, uuid=octet)
+    cheese = random.choice(CHEESES)
+    output = base.format(message=message, uuid=octet, cheese=cheese)
 
     return output
