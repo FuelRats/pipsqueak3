@@ -18,7 +18,7 @@ from Modules import graceful_errors
 @pytest.mark.graceful_error
 class TestGracefulErrors(object):
     """
-    Snafu
+    Tests for the graceful_errors module
     """
 
     def test_make_graceful(self, monkeypatch):
