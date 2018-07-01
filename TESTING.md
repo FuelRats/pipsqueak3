@@ -69,7 +69,7 @@ def rat_good_fx(request) -> Rats:
     return myRat
 ````
 
-The first returns a simple, uninitialized rat object, while the second one is parametrized to run any test its used in three times, initialized three times; once for each platform.
+The first returns a simple rat object with no attributes, while the second one is parametrized to run any test its used in three times, initialized three times; once for each platform.
 
 Most importantly, these fixtures make module calls to their appropriate sub objects, and can be used without breaking scope in other unit tests, and are disposed so that each iteration of parameters uses a 'clean' object.
 
@@ -98,7 +98,7 @@ Tests are categorized by module using ``pytest.mark`` so that specific tests may
 pytestmark = pytest.mark.category
 ```
 
-Test categories are listed in [pytest.ini](./pytest.ini).  It may be necessary to run tests locally without using the ``database`` or ``api``.  This can be done by running py.test in the following manner:
+Test categories are listed in [pytest.ini](./pytest.ini).  It may be necessary to run tests without using the ``database`` or ``api``.  This can be done by running py.test in the following manner:
 ```
 pytest -m "not (database or api)"
 ```

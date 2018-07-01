@@ -19,7 +19,7 @@ This script can be run as a Docker image or run locally.
 
 To run as a docker image, you may use the provided docker-compose.
 
-If you would prefer to run the service locally, bare in mind you may need to run a local PostgreSQL Database for the fact module.
+If you would prefer to run the service locally, bear in mind you may need to run a local PostgreSQL Database for the fact module.
 
 ### Building via Docker
 We have provided a `docker-compose.yml` suitably configured for building and running Mecha
@@ -65,5 +65,5 @@ By default, Mecha will attempt to load `configuration.json` (file not provided) 
 To configure Mecha locally, please copy the provided `config.template.json` to a new file.
 `configuration.json` and fill in the appropriate fields, see `config/configuration.md` for details.
 
-Please note that, when run via docker, it is not necessary to rebuild the image after changing
+When run via docker, it is not necessary to rebuild the image after changing
 configuration options as that directory is shared with the container (see `config/configuration.md`)
