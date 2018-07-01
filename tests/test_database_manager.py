@@ -40,8 +40,7 @@ def dropTables():
 @pytest.mark.asyncio
 @pytest.mark.database
 class TestStuff(object):
-    #manager = DatabaseManager()
-
+    
     async def test_has_table(self, dbm_fx):
         if await dbm_fx.has_table("testtablehas"):
             await dbm_fx.drop_table("testtablehas")
