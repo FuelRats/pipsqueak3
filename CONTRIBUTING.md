@@ -35,8 +35,9 @@ For other types of PRs please use one of the following:
 * PRs for new features without **meaningful** testing will _**NOT**_ be accepted.
 * PRs that are out of scope or modify unnecessary files will _**NOT**_ be accepted.
 
-Use docstrings and comments to document how your features function and why. Docstrings should be formatted to the flavour of [Google](https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments)
-Example:
+Use docstrings and comments to document how your features function and why. Docstrings should be formatted to the flavour of [Google](https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments).
+
+Example docstring:
 ```python
 def example_function(param1: int, param2: str) -> bool:
 """
@@ -69,7 +70,7 @@ All pull requests must pass standard checks:
 
 **Please do not squash your commits prior to your PR.**  If this is necessary, it will be brought up during the review process.
 
-Your PR should have sensible commits with sensible commit messages.
+Your PR should have sensible commits and messages.
 
 All new features are required to contain tests sufficient for newly added code to be evaluated without reducing coverage.
 
