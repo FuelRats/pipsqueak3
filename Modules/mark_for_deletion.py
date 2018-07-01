@@ -3,7 +3,7 @@ mark_for_deletion.py - Mark for Deletion object
 
 Provides a class model for the FR API Mark for Deletion(tm) object
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.

@@ -6,7 +6,7 @@ Provides fixtures for loading a configuration from disk.
 This modules `setup()` function does not need to be called directly, it will be called
     automatically upon first import.
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.

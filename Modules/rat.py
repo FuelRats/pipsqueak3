@@ -1,9 +1,9 @@
 """
-rats.py - Rats object
+rat.py - Rat object
 
 Handles the rats cache and provides facilities for managing rats.
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -18,29 +18,22 @@ from functools import reduce
 from operator import xor
 from uuid import UUID
 
+from Modules.rat_cache import RatCache
 from utils.ratlib import Platforms
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class Rats(object):
+class Rat(object):
     """
     This class keeps track of known rats as they are used and stores them in a
     class cache.
 
     Instances of this class are used to represent a unique, individual rat.
 
-    Creation of a `Rats` object will automatically add the created rat to the
-    cache, allowing convenience method `Rats.get_rat_by_name` to return the instance
-    when called.
+    Creation of a `Rat` object will automatically add the created rat to the
+    cache.
     """
-
-    cache_by_id = {}
-    """Cache of rat objects by their UUID"""
-    cache_by_name = {}
-    """Cache of rat objects by rat name (str)"""
-    api_handler = None
-    """API handler"""
 
     def __init__(self, uuid: UUID, name: str = None, platform: Platforms = Platforms.DEFAULT):
         """
@@ -56,27 +49,28 @@ class Rats(object):
         self._uuid = uuid
         self._name = name
         self._hash = None
-        # and update the cache
-        if name and name not in Rats.cache_by_name:
-            # don't register duplicates
-            Rats.cache_by_name[name] = self
-        if uuid not in Rats.cache_by_id:
-            # don't register duplicates
-            Rats.cache_by_id[uuid] = self
+        # and update the cache, should it exist
 
-    def __eq__(self, other: 'Rats') -> bool:
+        if name and name not in RatCache().by_name:
+            # don't register duplicates
+            RatCache().by_name[name] = self
+        if uuid not in RatCache().by_uuid:
+            # don't register duplicates
+            RatCache().by_uuid[uuid] = self
+
+    def __eq__(self, other: 'Rat') -> bool:
         """
         Compare two Rats objects for equality
 
         Args:
-            other (Rats): other object to compare
+            other (Rat): other object to compare
 
         Returns:
             bool: equal if uuid, platform, and name match
             NotImplemented: bad type given
         """
 
-        if not isinstance(other, Rats):
+        if not isinstance(other, Rat):
             return NotImplemented
 
         conditions = {
@@ -156,7 +150,7 @@ class Rats(object):
     @property
     def platform(self) -> Platforms:
         """
-        The Rats platform
+        The Rat platform
 
         Returns:
             Platforms: The platform the rat is registered on
@@ -175,75 +169,3 @@ class Rats(object):
             self._platform = value
         else:
             raise TypeError(f"Expected a {Platforms} object, got type {type(value)}")
-
-    @classmethod
-    async def get_rat_by_name(cls, name: str,
-                              platform: Platforms = Platforms.DEFAULT,
-                              ) -> 'Rats' or None:
-        """
-        Finds a rat by name and optionally by platform
-
-        Will also accept both, and only return if the rat name matches its
-        uuid entry.
-
-        Args:
-            name (str): name to search for
-            platform (Platforms): platform to narrow search results by, if any.
-                - defaults to any platform (first match)
-
-        Returns:
-            Rats - found rat
-        """
-        if not isinstance(name, str) or not isinstance(platform, Platforms):
-            raise TypeError("invalid types given.")
-
-        # initialize before use
-        found = None
-
-        try:
-            found = Rats.cache_by_name[name]
-        except KeyError:
-            # no such rat in cache
-            if cls.api_handler is not None:
-                found = await cls.api_handler.someApiCall(name=name)  # pragma: no cover
-                # FIXME: replace SomeApiCall with the actual call once we have the interface
-            return found
-        else:
-            # we found a rat
-            return found if (found.platform == platform or platform == Platforms.DEFAULT) else None
-
-    @classmethod
-    async def get_rat_by_uuid(cls, uuid: UUID) -> 'Rats' or None:
-        """
-        Finds a rat by their UUID.
-
-        This method will first check the local cache and, in the event of a cache miss, will make an
-            API call.
-
-        Args:
-            uuid (UUID): api uuid to find a rat for
-
-        Returns:
-            Rats: found Rescue
-        """
-        if not isinstance(uuid, UUID):
-            raise TypeError
-        else:
-            found = None
-            if uuid in cls.cache_by_id:
-                found = cls.cache_by_id[uuid]
-            elif cls.api_handler is not None:  # pragma: no cover
-                found = await cls.api_handler.get_rat_by_id(id=uuid)
-
-            return found
-
-    @classmethod
-    def flush(cls) -> None:
-        """
-        Flushes the caches.
-
-        Returns:
-            None
-        """
-        cls.cache_by_id = {}
-        cls.cache_by_name = {}
