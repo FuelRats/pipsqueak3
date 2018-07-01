@@ -42,6 +42,7 @@ from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.database_manager import DatabaseManager
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -224,3 +225,9 @@ def reset_rat_cache_fx(rat_cache_fx: RatCache):
     yield
     # and clean up after ourselves
     rat_cache_fx.flush()
+
+
+@pytest.fixture(scope="module")
+def dbm_fx():
+    """returns a DBM instance"""
+    return DatabaseManager()
