@@ -99,8 +99,8 @@ async def trigger(message: str, sender: str, channel: str):
         else:
             words.append(word)
 
-    if words[0].lower() in _registered_commands.keys():
-        cmd = _registered_commands[words[0].lower()]
+    if words[0].casefold() in _registered_commands.keys():
+        cmd = _registered_commands[words[0].casefold()]
     else:
         for key, value in _rules.items():
             if key.match(words[0]) is not None:
@@ -126,7 +126,7 @@ def _register(func, names: list or str) -> bool:
         names = [names]  # idiot proofing
 
     # transform commands to lowercase
-    names = [name.lower() for name in names]
+    names = [name.casefold() for name in names]
 
     if func is None or not callable(func):
         # command not callable
