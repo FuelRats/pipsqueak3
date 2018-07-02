@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 from functools import wraps
+from typing import Any
 
 from Modules.context import Context
 
@@ -131,7 +132,8 @@ def require_permission(permission: Permission,
     return real_decorator
 
 
-def require_channel(message: str = "This command must be invoked in a channel."):
+# def require_channel(message: str = "This command must be invoked in a channel."):
+def require_channel(*args, **kwargs):
     """
     Require the wrapped IRC command to be invoked in a channel context.
 
@@ -143,23 +145,46 @@ def require_channel(message: str = "This command must be invoked in a channel.")
             pass
         ```
     """
+    func = None
+    # determine if the form is @require_channel(*args, **kwargs)
+    if len(args) == 1 and callable(args[0]):
+        # form is @require_channel(*args, **kwargs)
+        func = args[0]
 
-    def real_decorator(func):
-        """wrapps the function in the channel enforcer"""
-        log.debug(f"Wrapping function object {func} with channel enforcement")
+    # fetch the `message` kwarg if it exists, default otherwise
+    message = kwargs.get("message", "This command must be invoked in a channel.")
 
-        @wraps(func)
-        async def guarded(context: Context):
-            """Enforces channel requirement"""
+    # this wrapper is necessary to prevent coro object not callable in
+    # @require_channel(*args, **kwargs) form
+    def real_decorator(wrapped):
+        """
+        The actual function decorator that implements the `guarded` local
+        Args:
+            wrapped (function): the function being decorated
+
+        Returns:
+            callable: guarded function
+        """
+        @wraps(wrapped)
+        async def guarded(context: Context) -> Any:
+            """
+            Enforces channel requirement
+
+            Args:
+                context (Context): IRC command context
+
+            Returns:
+                Any: whatever the called function returned
+            """
             if context.channel is not None:
-                return await func(context)
+                return await wrapped(context)
             else:
                 log.debug(f"channel was None, enforcing channel requirement...")
                 await context.reply(message)
 
         return guarded
-
-    return real_decorator
+    log.debug(f"wrapping function {func} with channel enforecement. messasge='{message}'")
+    return real_decorator(func) if func else real_decorator
 
 
 def require_dm(message: str = "command {cmd} must be invoked in a private message."):
