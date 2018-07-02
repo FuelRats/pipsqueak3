@@ -14,7 +14,7 @@ This module is built on top of the Pydle system.
 
 import logging
 import re
-from typing import Callable
+from typing import Callable, Dict, Pattern, NamedTuple
 
 from pydle import BasicClient
 
@@ -55,7 +55,7 @@ class NameCollisionException(CommandException):
 
 
 _registered_commands = {}
-_rules = {}
+_rules: Dict[Pattern, "_RuleTuple"] = {}
 
 # character/s that must prefix a message for it to be parsed as a command.
 prefix = config['commands']['prefix']
@@ -105,10 +105,17 @@ async def trigger(message: str, sender: str, channel: str):
     if words[0].casefold() in _registered_commands.keys():
         return await _registered_commands[words[0].casefold()](context)
     else:
-        for key, value in _rules.items():
-            match = key.match(words[0])
+        for pattern, (coro, full_message, pass_match) in _rules.items():
+            if full_message:
+                match = pattern.match(words_eol[0])
+            else:
+                match = pattern.match(words[0])
+
             if match is not None:
-                return await value(context, match)
+                if pass_match:
+                    return await coro(context, match)
+                else:
+                    return await coro(context)
         else:
             raise CommandNotFoundException(f"Unable to find command {words[0]}")
 
@@ -180,15 +187,28 @@ def command(*aliases):
     return real_decorator
 
 
-def rule(regex: str, case_sensitive: bool=False):
+_RuleTuple = NamedTuple("_RuleTuple", underlying=Callable, full_message=bool, pass_match=bool)
+
+def rule(regex: str, case_sensitive: bool=False, full_message: bool=False, pass_match: bool=False):
     """
     Decorator to have the underlying coroutine be called when two conditions apply:
     1. No conventional command was found for the incoming message.
     2. The command matches the here provided regular expression.
 
     Arguments:
-        regex (str): Regular expression to match the command.
-        case_sensitive (bool): Whether to match case-sensitively (using the re.IGNORECASE flag).
+        regex (str):
+            Regular expression to match the command.
+        case_sensitive (bool):
+            Whether to match case-sensitively (using the re.IGNORECASE flag).
+        full_message (bool):
+            If this is True, will try to match against the full message. Otherwise,
+            only the word will be matched against.
+        pass_match (bool):
+            If this is True, the match object will be passed as an argument toward the command
+            function.
+
+    Please note that *regex* can match anywhere within the string, it need not match the entire
+    string. If you wish to change this behaviour, use '^' and '$' in your regex.
     """
     def decorator(coro: Callable):
         if case_sensitive:
@@ -196,7 +216,7 @@ def rule(regex: str, case_sensitive: bool=False):
         else:
             pattern = re.compile(regex, re.IGNORECASE)
 
-        _rules[pattern] = coro
+        _rules[pattern] = _RuleTuple(coro, full_message, pass_match)
         log.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
                  f" created.")
         return coro
