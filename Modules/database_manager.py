@@ -13,10 +13,41 @@ This module is built on top of the Pydle system.
 import pyodbc
 from config import config
 import logging
-
+from functools import wraps
 from utils.ratlib import Singleton
 
 log = logging.getLogger(f"mecha.{__name__}")
+
+enabled = True
+
+
+def check_dbm_enabled(*args):
+    """
+    checks if the dbm-module is enabled or not.
+    """
+
+    def real_decorator(func):
+        """
+        The actual decorator
+
+        Args:
+            func (function): wrapped function
+
+        Returns:
+            function
+        """
+
+        @wraps(func)
+        async def wrapper():
+            """
+            Returns:
+                whatever the called function returns (probably None)
+            """
+            if not enabled:
+                raise ValueError("Module is disabled!")
+            return await func()
+        return wrapper
+    return real_decorator
 
 
 # noinspection SqlNoDataSourceInspection
@@ -47,6 +78,7 @@ class DatabaseManager(metaclass=Singleton):
         self.cursor.execute("CREATE TABLE IF NOT EXISTS"
                             " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
 
+    @check_dbm_enabled
     async def select_rows(self, table_name: str, connector: str, condition: dict = None,
                            skip_double_dash_test: bool = False) -> list:
         """
@@ -75,6 +107,7 @@ class DatabaseManager(metaclass=Singleton):
         else:
             raise ValueError(f"Table {table_name} does not exists!")
 
+    @check_dbm_enabled()
     async def has_table(self, name: str) -> bool:
         """
         checks whether the table exists.
@@ -90,6 +123,7 @@ class DatabaseManager(metaclass=Singleton):
                                     "SELECT 1 FROM pg_tables WHERE tablename = '{name}')"
                                     " as result;").format(name=name)).fetchone()[0] != '0'
 
+    @check_dbm_enabled
     async def create_table(self, name: str, types: dict) -> None:
         """
             Creates the table with the given name and datatypes.
@@ -112,6 +146,7 @@ class DatabaseManager(metaclass=Singleton):
             return
         raise ValueError(f"Table {name} already exists!")
 
+    @check_dbm_enabled
     async def drop_table(self, name: str) -> None:
         """
 
@@ -128,6 +163,7 @@ class DatabaseManager(metaclass=Singleton):
             return
         raise ValueError(f"Table {name} does not exist!")
 
+    @check_dbm_enabled
     async def insert_row(self, table_name: str, values: tuple,
                          skip_double_dash_test: bool = False):
         """
@@ -155,6 +191,7 @@ class DatabaseManager(metaclass=Singleton):
         else:
             raise ValueError(f"Table {table_name} does not exist")
 
+    @check_dbm_enabled
     async def update_row(self, table_name: str, connector: str, values: dict, condition=None,
                          skip_double_dash_test=False):
         """
@@ -186,6 +223,7 @@ class DatabaseManager(metaclass=Singleton):
         else:
             raise ValueError(f"Table {table_name} does not exists!")
 
+    @check_dbm_enabled
     async def delete_row(self, table_name: str, connector: str, condition=None,
                          skip_double_dash_test: bool = False):
         """
@@ -193,7 +231,7 @@ class DatabaseManager(metaclass=Singleton):
         Args:
             table_name: name of table to delete row form
             connector: Connector used to connect conditions. Must be suported by the DB
-            condition: onditions, connected by "equals"
+            condition: conditions, connected by "equals"
             skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
                     implement your OWN CHECK!
 
