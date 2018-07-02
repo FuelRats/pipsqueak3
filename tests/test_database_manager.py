@@ -32,7 +32,7 @@ def prepare_dbm(dbm_fx):
         try:
             dbm_fx.cursor.execute(f"DROP TABLE {name};")
         except (pyodbc.ProgrammingError, pyodbc.OperationalError, pyodbc.DataError):
-            raise
+            pass
 
 
 # noinspection PyProtectedMember
