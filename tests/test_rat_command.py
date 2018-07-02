@@ -161,7 +161,7 @@ class TestRatCommand(object):
         """
         Commands._flush()
         ftrigger = f"!{name} {trigger_message}"
-        words = [name.lower()] + trigger_message.split(" ")
+        words = [name] + trigger_message.split(" ")
 
         @Commands.command(name)
         async def the_command(context: Context):
