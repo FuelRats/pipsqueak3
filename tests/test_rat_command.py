@@ -15,6 +15,7 @@ This module is built on top of the Pydle system.
 """
 
 import asyncio
+from typing import Match
 from unittest import mock
 
 import pydle
@@ -119,6 +120,25 @@ class TestRatCommand(object):
         with pytest.raises(CommandNotFoundException):
             await Commands.trigger("!banan", "unit_test", "theOneWithTheHills")
         assert not underlying.called
+
+    @pytest.mark.asyncio
+    async def test_rule_passes_match(self):
+        """
+        Verifies that the rules get passed the match object correctly.
+        """
+        called = False
+
+        @Commands.rule("her(lo)")
+        async def my_rule(context: Context, match: Match):
+            assert isinstance(context, Context)
+            assert isinstance(match, Match)
+            assert match.groups() == ("lo",)
+
+            nonlocal called
+            called = True
+
+        await Commands.trigger("!herlo", "unit_test", "#unit_test")
+        assert called
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', "fireball"])
