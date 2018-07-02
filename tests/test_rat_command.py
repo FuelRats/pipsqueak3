@@ -102,23 +102,37 @@ class TestRatCommand(object):
         assert Commands._register(garbage, ['foo']) is False
 
     @pytest.mark.asyncio
-    async def test_rule_matching(self):
+    @pytest.mark.parametrize("regex,case_sensitive,full_message,message", [
+        ("^banan(a|e)$", True, False, "!banana"),
+        ("^banan(a|e)$", True, False, "!banane"),
+        ("^dabadoop$", False, False, "!DABADOOP"),
+        ("na na", False, True, "!na na")
+    ])
+    async def test_rule_matching(self, regex: str, case_sensitive: bool, full_message: bool,
+                                 message: str):
         """Verifies that the rule decorator works as expected."""
         underlying = mock.MagicMock()
-        Commands.rule("banan(a|e)")(asyncio.coroutine(underlying))
+        Commands.rule(regex, case_sensitive, full_message)(asyncio.coroutine(underlying))
 
-        await Commands.trigger("!banana", "unit_test", "#mordor")
+        await Commands.trigger(message, "unit_test", "#mordor")
         assert underlying.called
 
         underlying.reset_mock()
 
     @pytest.mark.asyncio
-    async def test_rule_not_matching(self):
+    @pytest.mark.parametrize("regex,case_sensitive,full_message,message", [
+        ("^banan(a|e)$", True, False, "!banan"),
+        ("^banan(a|e)$", True, False, "!bananae"),
+        ("^dabadoop$", True, False, "!DABADOOP"),
+        ("na na", False, False, "!na na")
+    ])
+    async def test_rule_not_matching(self, regex: str, case_sensitive: bool, full_message: bool,
+                                     message: str):
         """verifies that the rule decorator works as expected."""
         underlying = mock.MagicMock()
-        Commands.rule("banan(a|e)")(asyncio.coroutine(underlying))
+        Commands.rule(regex, case_sensitive, full_message)(asyncio.coroutine(underlying))
         with pytest.raises(CommandNotFoundException):
-            await Commands.trigger("!banan", "unit_test", "theOneWithTheHills")
+            await Commands.trigger(message, "unit_test", "theOneWithTheHills")
         assert not underlying.called
 
     @pytest.mark.asyncio
@@ -128,7 +142,7 @@ class TestRatCommand(object):
         """
         called = False
 
-        @Commands.rule("her(lo)")
+        @Commands.rule("her(lo)", pass_match=True)
         async def my_rule(context: Context, match: Match):
             assert isinstance(context, Context)
             assert isinstance(match, Match)
