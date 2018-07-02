@@ -13,10 +13,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-
-import asyncio
 from typing import Match
-from unittest import mock
 
 import pydle
 import pytest
@@ -24,6 +21,7 @@ import pytest
 import Modules.rat_command as Commands
 from Modules.context import Context
 from Modules.rat_command import CommandNotFoundException, NameCollisionException
+from tests.mocks import AsyncCallableMock
 
 
 @pytest.fixture
@@ -108,16 +106,13 @@ class TestRatCommand(object):
         ("^dabadoop$", False, False, "!DABADOOP"),
         ("na na", False, True, "!na na")
     ])
-    async def test_rule_matching(self, regex: str, case_sensitive: bool, full_message: bool,
-                                 message: str):
+    async def test_rule_matching(self, async_callable_fx: AsyncCallableMock, regex: str,
+                                 case_sensitive: bool, full_message: bool, message: str):
         """Verifies that the rule decorator works as expected."""
-        underlying = mock.MagicMock()
-        Commands.rule(regex, case_sensitive, full_message)(asyncio.coroutine(underlying))
+        Commands.rule(regex, case_sensitive, full_message)(async_callable_fx)
 
         await Commands.trigger(message, "unit_test", "#mordor")
-        assert underlying.called
-
-        underlying.reset_mock()
+        assert async_callable_fx.was_called_once
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("regex,case_sensitive,full_message,message", [
@@ -126,14 +121,13 @@ class TestRatCommand(object):
         ("^dabadoop$", True, False, "!DABADOOP"),
         ("na na", False, False, "!na na")
     ])
-    async def test_rule_not_matching(self, regex: str, case_sensitive: bool, full_message: bool,
-                                     message: str):
+    async def test_rule_not_matching(self, async_callable_fx: AsyncCallableMock, regex: str,
+                                     case_sensitive: bool, full_message: bool, message: str):
         """verifies that the rule decorator works as expected."""
-        underlying = mock.MagicMock()
-        Commands.rule(regex, case_sensitive, full_message)(asyncio.coroutine(underlying))
+        Commands.rule(regex, case_sensitive, full_message)(async_callable_fx)
         with pytest.raises(CommandNotFoundException):
             await Commands.trigger(message, "unit_test", "theOneWithTheHills")
-        assert not underlying.called
+        assert not async_callable_fx.was_called
 
     @pytest.mark.asyncio
     async def test_rule_passes_match(self):
