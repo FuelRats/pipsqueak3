@@ -15,11 +15,12 @@ import pyodbc
 from Modules.database_manager import DatabaseManager
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def prepare_dbm(dbm_fx):
     """
     Drops all the tables
     """
+    #yield
     table_names = ("testtablehas",
                    "testtableselect",
                    "testtablecreate",
@@ -29,15 +30,15 @@ def prepare_dbm(dbm_fx):
                    )
     for name in table_names:
         try:
-            dbm_fx.cursor.execute(f"DROP TABLE {name}")
+            dbm_fx.cursor.execute(f"DROP TABLE {name};")
         except (pyodbc.ProgrammingError, pyodbc.OperationalError, pyodbc.DataError):
             raise
 
 
 # noinspection PyProtectedMember
-@pytest.mark.usefixture("prepare_dbm")
 @pytest.mark.asyncio
 @pytest.mark.database
+@pytest.mark.usefixtures("prepare_dbm")
 class TestStuff(object):
     
     async def test_has_table(self, dbm_fx):

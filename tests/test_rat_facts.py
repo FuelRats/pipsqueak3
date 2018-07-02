@@ -17,25 +17,21 @@ import pytest
 from Modules import rat_facts, database_manager
 
 
-@pytest.fixture(scope="session")
-@pytest.mark.useFixture("dbm_fx")
+@pytest.fixture
 @pytest.mark.asyncio
 async def prepare_facts(dbm_fx: database_manager.DatabaseManager):
-    pass
+    if not len((await dbm_fx.select_rows("fact", "AND", {"name": "test1", "lang": "en"}))) > 0:
+        await dbm_fx.insert_row("fact", ("test1", "en", "THIS IS TEST No. 1", "TestRat"))
+        await dbm_fx.insert_row("fact", ("test1", "de", "Icke bin Test #1", "TestRat"))
+    yield
+    await dbm_fx.insert_row("fact", ("test1", "de", "Icke bin Test #1", "TestRat"))
+    await dbm_fx.delete_row("fact", "AND", {"name": "test2", "lang": "en"})
 
 
 @pytest.mark.database
 @pytest.mark.asyncio
+@pytest.mark.usefixtures("prepare_facts")
 class TestFacts(object):
-
-    @pytest.mark.asyncio
-    @classmethod
-    async def setup_class(cls):
-        dbm_fx = database_manager.DatabaseManager()
-        await dbm_fx.create_table("testfacts",
-                                  {"name": "VARCHAR", "lang": "VARCHAR", "message": "VARCHAR", "author": "VARCHAR"})
-        await dbm_fx.insert_row("testfacts", ("test1", "en", "THIS IS TEST No. 1", "TestRat"))
-        await dbm_fx.insert_row("testfacts", ("test1", "de", "Icke bin Test #1", "TestRat"))
 
     async def test_get_fact(self, facts_fx: rat_facts.FactsManager):
         value = await facts_fx.get_fact("test1", "en")
@@ -58,7 +54,7 @@ class TestFacts(object):
         value = await facts_fx.is_fact("test2", "en")
         assert not value
 
-        await facts_fx.set_fact("test2", "I want my cake!", "RatFest", "en")
+        await facts_fx.set_fact("test2", "I want my cake!", "FatRat", "en")
         value = await facts_fx.get_fact("test2", "en")
         assert value == "I want my cake!"
 

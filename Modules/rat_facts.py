@@ -26,7 +26,7 @@ class FactsManager(metaclass=Singleton):
     async def get_fact(self, name: str, lang: str = "en") -> str or None:
         result = await self.dbm.select_rows("fact", "AND", {"lang": lang, "name": name})
         if result:
-            return result[2]
+            return result[0][2]
         else:
             return None
 
