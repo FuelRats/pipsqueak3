@@ -99,20 +99,18 @@ async def trigger(message: str, sender: str, channel: str):
         else:
             words.append(word)
 
-    if words[0].casefold() in _registered_commands.keys():
-        cmd = _registered_commands[words[0].casefold()]
-    else:
-        for key, value in _rules.items():
-            if key.match(words[0]) is not None:
-                cmd = value
-                break
-        else:
-            raise CommandNotFoundException(f"Unable to find command {words[0]}")
-
     user = await User.from_whois(bot, sender)
     context = Context(bot, user, channel, words, words_eol)
 
-    return await cmd(context)
+    if words[0].casefold() in _registered_commands.keys():
+        return await _registered_commands[words[0].casefold()](context)
+    else:
+        for key, value in _rules.items():
+            match = key.match(words[0])
+            if match is not None:
+                return await value(context, match)
+        else:
+            raise CommandNotFoundException(f"Unable to find command {words[0]}")
 
 
 def _register(func, names: list or str) -> bool:
