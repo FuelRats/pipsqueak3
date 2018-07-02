@@ -14,7 +14,7 @@ This module is built on top of the Pydle system.
 
 import logging
 import re
-from functools import wraps
+from typing import Callable
 
 from pydle import BasicClient
 
@@ -166,37 +166,22 @@ def command(*aliases):
 
     """
 
-    def real_decorator(func):
+    def real_decorator(func: Callable):
         """
         The actual commands decorator
 
         Args:
-            func (function): wrapped function
+            func (Callable): wrapped function
 
         Returns:
-            function
+            Callable: *func*, unmodified.
         """
-
-        @wraps(func)
-        async def wrapper(context):
-            """
-            command executor
-
-            Args:
-                context: Command IRC context
-
-            Returns:
-                whatever the called function returns (probably None)
-            """
-            return await func(context)
-
-        # we want to register the wrapper, not the underlying function
         log.debug(f"Registering command aliases: {aliases}...")
-        if not _register(wrapper, aliases):
+        if not _register(func, aliases):
             raise InvalidCommandException("unable to register commands.")
         log.debug(f"Registration of {aliases} completed.")
 
-        return wrapper
+        return func
     return real_decorator
 
 
@@ -209,11 +194,8 @@ def rule(regex: str):
     Arguments:
         regex (str): Regular expression to match the command.
     """
-    def decorator(coro):
-        async def wrapper(context):
-            return await coro(context)
-
-        _rules[re.compile(regex, re.IGNORECASE)] = wrapper
+    def decorator(coro: Callable):
+        _rules[re.compile(regex, re.IGNORECASE)] = coro
         log.info(f"New rule matching '{regex}' was created.")
-        return wrapper
+        return coro
     return decorator
