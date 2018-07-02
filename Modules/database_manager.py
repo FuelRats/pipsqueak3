@@ -66,7 +66,7 @@ class DatabaseManager(metaclass=Singleton):
                 condition = {}
             cond_str = ""
             for k, v in condition.items():
-                cond_str += f"{k} = '{v}' {connector}"
+                cond_str += f" {k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Statement: SELECT * FROM {table_name}"
@@ -96,7 +96,7 @@ class DatabaseManager(metaclass=Singleton):
             All datatypes must be SQL-compliant.
         Args:
             name: name of table to create
-            types: ict of column name and datatype
+            types: dict of column name and datatype
 
         Returns: None
         Raises: ValueError should table already exist
@@ -128,25 +128,35 @@ class DatabaseManager(metaclass=Singleton):
             return
         raise ValueError(f"Table {name} does not exist!")
 
-    async def insert_row(self, table_name: str, values: tuple):
+    async def insert_row(self, table_name: str, values: tuple,
+                         skip_double_dash_test: bool = False):
         """
 
         Args:
             table_name: name of table to insert value into
             values: tuple with values matching the rows to insert into
+            skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
+                    implement your OWN CHECK!
 
         Returns: None
 
         """
         if await self.has_table(table_name):
-            sql_string = "INSERT INTO {table_name} VALUES (?);".format(table_name=table_name)
-            val_str = ", ".join(values)
-            self.cursor.execute(sql_string, (val_str,))
+            val_str = ""
+            for string in values:
+                val_str += f" '{string}',"
+            val_str = val_str[:-1]
+            if '--' in val_str and not skip_double_dash_test:
+                raise ValueError(f"Suspicion of SQL-Injection. "
+                                 f"Statement: INSERT INTO {table_name} VALUES ({val_str})")
+            sql_string = f"INSERT INTO {table_name} VALUES ({val_str});"
+
+            self.cursor.execute(sql_string)
         else:
             raise ValueError(f"Table {table_name} does not exist")
 
     async def update_row(self, table_name: str, connector: str, values: dict, condition=None,
-                          skip_double_dash_test=False):
+                         skip_double_dash_test=False):
         """
 
         Args:
@@ -167,7 +177,7 @@ class DatabaseManager(metaclass=Singleton):
             val_str = val_str[:-1]
             cond_str = ""
             for k, v in condition.items():
-                cond_str += f"{k} = '{v}' {connector}"
+                cond_str += f" {k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str or "--" in val_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection.Statement: UPDATE {table_name} "
@@ -177,7 +187,7 @@ class DatabaseManager(metaclass=Singleton):
             raise ValueError(f"Table {table_name} does not exists!")
 
     async def delete_row(self, table_name: str, connector: str, condition=None,
-                          skip_double_dash_test: bool = False):
+                         skip_double_dash_test: bool = False):
         """
 
         Args:
@@ -193,7 +203,7 @@ class DatabaseManager(metaclass=Singleton):
         if await self.has_table(table_name):
             cond_str = ""
             for k, v in condition.items():
-                cond_str += f"{k} = '{v}' {connector}"
+                cond_str += f" {k} = '{v}' {connector}"
             cond_str = cond_str[0:-len(connector) - 1]
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection. Statement: DELETE FROM {table_name}"
