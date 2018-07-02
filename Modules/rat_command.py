@@ -180,7 +180,7 @@ def command(*aliases):
     return real_decorator
 
 
-def rule(regex: str):
+def rule(regex: str, case_sensitive: bool=False):
     """
     Decorator to have the underlying coroutine be called when two conditions apply:
     1. No conventional command was found for the incoming message.
@@ -188,9 +188,16 @@ def rule(regex: str):
 
     Arguments:
         regex (str): Regular expression to match the command.
+        case_sensitive (bool): Whether to match case-sensitively (using the re.IGNORECASE flag).
     """
     def decorator(coro: Callable):
-        _rules[re.compile(regex, re.IGNORECASE)] = coro
-        log.info(f"New rule matching '{regex}' was created.")
+        if case_sensitive:
+            pattern = re.compile(regex)
+        else:
+            pattern = re.compile(regex, re.IGNORECASE)
+
+        _rules[pattern] = coro
+        log.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
+                 f" created.")
         return coro
     return decorator
