@@ -183,7 +183,6 @@ def require_channel(*args, **kwargs):
                 await context.reply(message)
 
         return guarded
-    log.debug(f"wrapping function {func} with channel enforecement. messasge='{message}'")
     return real_decorator(func) if func else real_decorator
 
 
