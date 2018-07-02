@@ -132,7 +132,6 @@ def require_permission(permission: Permission,
     return real_decorator
 
 
-# def require_channel(message: str = "This command must be invoked in a channel."):
 def require_channel(*args, **kwargs):
     """
     Require the wrapped IRC command to be invoked in a channel context.
@@ -154,17 +153,20 @@ def require_channel(*args, **kwargs):
     # fetch the `message` kwarg if it exists, default otherwise
     message = kwargs.get("message", "This command must be invoked in a channel.")
 
-    # this wrapper is necessary to prevent coro object not callable in
-    # @require_channel(*args, **kwargs) form
     def real_decorator(wrapped):
         """
-        The actual function decorator that implements the `guarded` local
+        The function decorator that implements the `guarded` local
+
+        this wrapper is necessary to prevent coro object not callable in
+        @require_channel(*args, **kwargs) form
+
         Args:
             wrapped (function): the function being decorated
 
         Returns:
             callable: guarded function
         """
+
         @wraps(wrapped)
         async def guarded(context: Context) -> Any:
             """
@@ -183,35 +185,68 @@ def require_channel(*args, **kwargs):
                 await context.reply(message)
 
         return guarded
+
+    # if the form is @require_decorator(*args, **kwargs) we need to call and return real_decorator
+    # otherwise we can just return real_decorator directly
     return real_decorator(func) if func else real_decorator
 
 
-def require_dm(message: str = "command {cmd} must be invoked in a private message."):
+# def require_dm(message: str = "command {cmd} must be invoked in a private message."):
+
+def require_dm(*args, **kwargs):
     """
-    Require the wrapped IRC command to be invoked in a direct message context.
+    Require the wrapped IRC command to be invoked in a DM context.
 
     Usage:
         ```py
-
-        @require_channel()
+        @require_dm
         async def my_command(context: Context):
             pass
         ```
     """
+    func = None
+    # determine if the form is @require_channel(*args, **kwargs)
+    if len(args) == 1 and callable(args[0]):
+        # form is @require_dm(*args, **kwargs)
+        func = args[0]
 
-    def real_decorator(func):
-        """wrapps the function in the DM enforcer"""
-        log.debug(f"Wrapping function object {func} with Direct message enforcement")
+    # fetch the `message` kwarg if it exists, default otherwise
+    message = kwargs.get("message", "this command must be invoked in a private message.")
 
-        @wraps(func)
-        async def guarded(context: Context):
-            """Enforces channel requirement"""
+    def real_decorator(wrapped):
+        """
+        The function decorator that implements the `guarded` local
+
+
+        this wrapper is necessary to prevent coro object not callable in
+        @require_dm(*args, **kwargs) form
+
+        Args:
+            wrapped (function): the function being decorated
+
+        Returns:
+            callable: guarded function
+        """
+
+        @wraps(wrapped)
+        async def guarded(context: Context) -> Any:
+            """
+            Enforces channel requirement
+
+            Args:
+                context (Context): IRC command context
+
+            Returns:
+                Any: whatever the called function returned
+            """
             if context.channel is None:
-                return await func(context)
+                return await wrapped(context)
             else:
-                log.debug(f"Executed from channel context... enforcing restriction...")
-                await context.reply(message.format(cmd=context.words[0]))
+                log.debug(f"channel was None, enforcing channel requirement...")
+                await context.reply(message)
 
         return guarded
 
-    return real_decorator
+    # if the form is @require_dm(*args, **kwargs) we need to call and return real_decorator
+    # otherwise we can just return real_decorator directly
+    return real_decorator(func) if func else real_decorator
