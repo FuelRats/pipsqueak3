@@ -99,11 +99,8 @@ async def trigger(message: str, sender: str, channel: str):
         else:
             words.append(word)
 
-        # casts the command to lower case, for case insensitivity
-    words[0] = words[0].lower()
-
-    if words[0] in _registered_commands.keys():
-        cmd = _registered_commands[words[0]]
+    if words[0].lower() in _registered_commands.keys():
+        cmd = _registered_commands[words[0].lower()]
     else:
         for key, value in _rules.items():
             if key.match(words[0]) is not None:
