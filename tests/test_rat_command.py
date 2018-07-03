@@ -143,6 +143,32 @@ class TestRatCommand(object):
         assert async_callable_fx.calls[0].args[1].groups() == ("lo",)
 
     @pytest.mark.asyncio
+    async def test_prefixless_rule_called(self, async_callable_fx: AsyncCallableMock):
+        """
+        Verifies that prefixless rules are considered when the prefix is not present.
+        """
+        Commands.rule("da_da(_da)?", prefixless=True)(async_callable_fx)
+        await Commands.trigger("da_da", "unit_test", "#unit_test")
+
+        assert async_callable_fx.was_called_once
+        assert async_callable_fx.was_called_with(InstanceOf(Context))
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("regex,message", [
+        ("woof", "!woof woof"),
+        ("!woof", "!woof woof")
+    ])
+    async def test_prefixless_rule_not_called(self, regex: str, message: str,
+                                              async_callable_fx: AsyncCallableMock):
+        """
+        Verifies that prefixless rules are not considered if the prefix is present.
+        """
+        Commands.rule(regex, prefixless=True)(async_callable_fx)
+        await Commands.trigger(message, "unit_test", "#unit_test")
+
+        assert not async_callable_fx.was_called
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', "fireball"])
     async def test_command_decorator_single(self, alias: str):
         """
