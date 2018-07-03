@@ -48,10 +48,17 @@ class DatabaseManager(metaclass=Singleton):
                         continue
                     else:
                         raise
+                except pyodbc.Error as e:
+                    self.last_error = e
+                    if "the connection lost" in str(e):
+                        self.init_connection()
+                        continue
+                    else:
+                        raise
             self.enabled = False
             raise self.last_error
         else:
-            log.warning("Tried to execute a DB call with the DB access being disabled")
+            log.warning("Tried to execute a DB call with the DB access being disabled.")
             return None
 
     # noinspection PyAttributeOutsideInit
