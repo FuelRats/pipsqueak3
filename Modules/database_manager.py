@@ -91,7 +91,7 @@ class DatabaseManager(metaclass=Singleton):
                       " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
 
     async def select_rows(self, table_name: str, connector: str, condition: dict = None,
-                           skip_double_dash_test: bool = False) -> list:
+                          skip_double_dash_test: bool = False) -> list:
         """
 
         Args:
@@ -107,10 +107,7 @@ class DatabaseManager(metaclass=Singleton):
         if await self.has_table(table_name):
             if not condition:
                 condition = {}
-            cond_str = ""
-            for k, v in condition.items():
-                cond_str += f" {k} = '{v}' {connector}"
-            cond_str = cond_str[0:-len(connector) - 1]
+            cond_str = f" {connector} ".join(f"{key} = '{value}'" for key, value in condition.items())
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Statement: SELECT * FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
@@ -146,12 +143,8 @@ class DatabaseManager(metaclass=Singleton):
         """
 
         if not await self.has_table(name):
-            type_str = ""
-            for k, v in types.items():
-                type_str += f"{k} {v},"
-            type_str = type_str[:-1]
+            type_str = ", ".join(f"{k} {v}" for k, v in types.items())
             self._execute(f"CREATE TABLE {name} ({type_str}) ;")
-            self.connection.commit()
             return
         raise ValueError(f"Table {name} already exists!")
 
@@ -185,10 +178,7 @@ class DatabaseManager(metaclass=Singleton):
 
         """
         if await self.has_table(table_name):
-            val_str = ""
-            for string in values:
-                val_str += f" '{string}',"
-            val_str = val_str[:-1]
+            val_str = ", ".join(f"'{v}'" for v in values)
             if '--' in val_str and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection. "
                                  f"Statement: INSERT INTO {table_name} VALUES ({val_str})")
@@ -214,14 +204,9 @@ class DatabaseManager(metaclass=Singleton):
 
         """
         if await self.has_table(table_name):
-            val_str = ""
-            for k, v in values.items():
-                val_str += f"{k} = '{v}',"
-            val_str = val_str[:-1]
-            cond_str = ""
-            for k, v in condition.items():
-                cond_str += f" {k} = '{v}' {connector}"
-            cond_str = cond_str[0:-len(connector) - 1]
+            val_str = ", ".join(f"{k} = '{v}'" for k, v in values.items())
+            cond_str = f" {connector} ".join(f"{key} = '{value}'" for key, value in condition.items())
+
             if ("--" in cond_str or "--" in val_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection.Statement: UPDATE {table_name} "
                                  f"SET {val_str} WHERE {cond_str}. Aborting")
@@ -244,10 +229,7 @@ class DatabaseManager(metaclass=Singleton):
 
         """
         if await self.has_table(table_name):
-            cond_str = ""
-            for k, v in condition.items():
-                cond_str += f" {k} = '{v}' {connector}"
-            cond_str = cond_str[0:-len(connector) - 1]
+            cond_str = f" {connector} ".join(f"{key} = '{value}'" for key, value in condition.items())
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection. Statement: DELETE FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
