@@ -145,7 +145,6 @@ class Rescue(object):
 
         if self._hash is None:
             # compute the hash of the internally generated uuid and use that as our hash
-            # this resolves SPARK-52
             self._hash = hash(self.__hashing_uuid)
 
         return self._hash
