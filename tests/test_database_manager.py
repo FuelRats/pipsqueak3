@@ -111,7 +111,8 @@ class TestStuff(object):
 
         try:
             await dbm_fx.delete_row("testtabledelete", "AND", {"test": "OR TRUE; -- "}, True)
-            await dbm_fx.update_row("testtableupdate", "AND", {"string1": " OR FALSE; -- "}, None, True)
+            await dbm_fx.update_row("testtableupdate", "AND", {"string1": " OR FALSE; -- "},
+                                    None, True)
             await dbm_fx.insert_row("testtableinsert", ("stuff", "more stuff", "DIE; -- "), True)
             await dbm_fx.select_rows("testtableselect", "AND", {"test; -- ": "stuff"}, True)
         except pyodbc.Error:
