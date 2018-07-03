@@ -87,12 +87,6 @@ class MechaClient(Client):
             # self-stimulated positive feedback loop.
             log.debug(f"Ignored {message} (anti-loop)")
             return None
-
-        if not message.startswith(rat_command.prefix):
-            # prevent bot from processing commands without the set prefix
-            log.debug(f"Ignored {message} (not a command)")
-            return None
-
         else:  # await command execution
             # sanitize input string headed to command executor
             sanitized_message = sanitize(message)
