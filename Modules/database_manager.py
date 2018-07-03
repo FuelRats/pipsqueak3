@@ -13,59 +13,57 @@ This module is built on top of the Pydle system.
 import pyodbc
 from config import config
 import logging
-from functools import wraps
 from utils.ratlib import Singleton
 
 log = logging.getLogger(f"mecha.{__name__}")
 
-enabled = True
-
-
-def check_dbm_enabled(*args):
-    """
-    checks if the dbm-module is enabled or not.
-    """
-
-    def real_decorator(func):
-        """
-        The actual decorator
-
-        Args:
-            func (function): wrapped function
-
-        Returns:
-            function
-        """
-
-        @wraps(func)
-        async def wrapper():
-            """
-            Returns:
-                whatever the called function returns (probably None)
-            """
-            if not enabled:
-                raise ValueError("Module is disabled!")
-            return await func()
-        return wrapper
-    return real_decorator
-
 
 # noinspection SqlNoDataSourceInspection
 class DatabaseManager(metaclass=Singleton):
+    _enabled = True
 
-    def __init__(self):
-        """
-        Connects to the DB, sets up the connection, retrieves the cursor.
-        Creates the default tables should they not exist.
-        """
+    @property
+    def enabled(self):
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value: bool):
+        if value:
+            try:
+                self.init_connection()
+            except pyodbc.Error as e:
+                log.error(f"Connection reinitialization failed! {e}")
+        else:
+            self.connection.close()
+
+    def _execute(self, *args, **kwargs):
+        if self.enabled:
+            for retry in range(3):
+                try:
+                    return self.cursor.execute(*args, **kwargs)
+                except pyodbc.ProgrammingError as e:
+                    self.last_error = e
+                    if str(e) == "The cursor's connection has been closed.":
+                        self.init_connection()
+                        continue
+                    else:
+                        raise
+            self.enabled = False
+            raise self.last_error
+        else:
+            log.warning("Tried to execute a DB call with the DB access being disabled")
+            return None
+
+    # noinspection PyAttributeOutsideInit
+    def init_connection(self):
         # connect to PostgreSQL (PSQL) database
-        __config: dict = config.get("database")
+        config_: dict = config["database"]
         connect_str = ("Driver={PostgreSQL UNICODE};"
-                       f"Server={__config.get('server')};"
-                       f"Port={__config.get('port')};"
-                       f"Database={__config.get('database')};"
-                       f"Uid={__config.get('username')};"
-                       f"Pwd={__config.get('password')};"
+                       f"Server={config_['server']};"
+                       f"Port={config_['port']};"
+                       f"Database={config_['database']};"
+                       f"Uid={config_['username']};"
+                       f"Pwd={config_['password']};"
                        "MaxVarcharSize=1024 * 1024 * 1024"
                        # Allow bigger VarcharSize to allow faster interaction
                        )
@@ -74,11 +72,17 @@ class DatabaseManager(metaclass=Singleton):
         self.connection.setencoding(encoding='utf-8')
         self.connection.maxwrite = 1024 * 1024 * 1024  # Again, increase this for faster access
         self.cursor = self.connection.cursor()
-        # Ensure all the default tables are defined
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS"
-                            " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
 
-    @check_dbm_enabled
+    def __init__(self):
+        """
+        Connects to the DB, sets up the connection, retrieves the cursor.
+        Creates the default tables should they not exist.
+        """
+        self.init_connection()
+        # Ensure all the default tables are defined
+        self._execute("CREATE TABLE IF NOT EXISTS"
+                      " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
+
     async def select_rows(self, table_name: str, connector: str, condition: dict = None,
                            skip_double_dash_test: bool = False) -> list:
         """
@@ -103,11 +107,10 @@ class DatabaseManager(metaclass=Singleton):
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Statement: SELECT * FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
-            return self.cursor.execute(f"SELECT * FROM {table_name} WHERE {cond_str};").fetchall()
+            return self._execute(f"SELECT * FROM {table_name} WHERE {cond_str};").fetchall()
         else:
             raise ValueError(f"Table {table_name} does not exists!")
 
-    @check_dbm_enabled()
     async def has_table(self, name: str) -> bool:
         """
         checks whether the table exists.
@@ -119,11 +122,10 @@ class DatabaseManager(metaclass=Singleton):
         Returns: false if table does not exist, true otherwise
 
         """
-        return self.cursor.execute(("SELECT EXISTS ( "
+        return self._execute(("SELECT EXISTS ( "
                                     "SELECT 1 FROM pg_tables WHERE tablename = '{name}')"
                                     " as result;").format(name=name)).fetchone()[0] != '0'
 
-    @check_dbm_enabled
     async def create_table(self, name: str, types: dict) -> None:
         """
             Creates the table with the given name and datatypes.
@@ -141,12 +143,11 @@ class DatabaseManager(metaclass=Singleton):
             for k, v in types.items():
                 type_str += f"{k} {v},"
             type_str = type_str[:-1]
-            self.cursor.execute(f"CREATE TABLE {name} ({type_str}) ;")
+            self._execute(f"CREATE TABLE {name} ({type_str}) ;")
             self.connection.commit()
             return
         raise ValueError(f"Table {name} already exists!")
 
-    @check_dbm_enabled
     async def drop_table(self, name: str) -> None:
         """
 
@@ -158,12 +159,11 @@ class DatabaseManager(metaclass=Singleton):
         """
         if await self.has_table(name):
             sql_string = "DROP TABLE {name};".format(name=name)
-            self.cursor.execute(sql_string)
+            self._execute(sql_string)
             self.connection.commit()
             return
         raise ValueError(f"Table {name} does not exist!")
 
-    @check_dbm_enabled
     async def insert_row(self, table_name: str, values: tuple,
                          skip_double_dash_test: bool = False):
         """
@@ -187,11 +187,10 @@ class DatabaseManager(metaclass=Singleton):
                                  f"Statement: INSERT INTO {table_name} VALUES ({val_str})")
             sql_string = f"INSERT INTO {table_name} VALUES ({val_str});"
 
-            self.cursor.execute(sql_string)
+            self._execute(sql_string)
         else:
             raise ValueError(f"Table {table_name} does not exist")
 
-    @check_dbm_enabled
     async def update_row(self, table_name: str, connector: str, values: dict, condition=None,
                          skip_double_dash_test=False):
         """
@@ -219,11 +218,10 @@ class DatabaseManager(metaclass=Singleton):
             if ("--" in cond_str or "--" in val_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection.Statement: UPDATE {table_name} "
                                  f"SET {val_str} WHERE {cond_str}. Aborting")
-            self.cursor.execute(f"UPDATE {table_name} SET {val_str} WHERE {cond_str};")
+            self._execute(f"UPDATE {table_name} SET {val_str} WHERE {cond_str};")
         else:
             raise ValueError(f"Table {table_name} does not exists!")
 
-    @check_dbm_enabled
     async def delete_row(self, table_name: str, connector: str, condition=None,
                          skip_double_dash_test: bool = False):
         """
@@ -246,4 +244,4 @@ class DatabaseManager(metaclass=Singleton):
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection. Statement: DELETE FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
-            self.cursor.execute(f"DELETE FROM {table_name} WHERE {cond_str}")
+            self._execute(f"DELETE FROM {table_name} WHERE {cond_str}")
