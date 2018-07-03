@@ -96,11 +96,8 @@ class DatabaseManager(metaclass=Singleton):
             return
         self.init_connection()
         # Ensure all the default tables are defined
-        try:
-            self._execute("CREATE TABLE IF NOT EXISTS"
-                          " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
-        except RuntimeError:
-            self.enabled = False
+        self._execute("CREATE TABLE IF NOT EXISTS"
+                      " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
 
     async def select_rows(self, table_name: str, connector: str, condition: dict = None,
                           skip_double_dash_test: bool = False) -> list or None:
