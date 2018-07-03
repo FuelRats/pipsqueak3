@@ -69,7 +69,8 @@ class FactsManager(metaclass=Singleton):
 
         """
         if await self.is_fact(name, lang):
-            await self.dbm.update_row("fact", "AND", {"message": message}, {"name": name, "lang": lang})
+            await self.dbm.update_row("fact", "AND", {"message": message}, {"name": name,
+                                                                            "lang": lang})
         else:
             await self.dbm.insert_row("fact", (name, lang, message, author))
 
