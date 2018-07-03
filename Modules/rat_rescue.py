@@ -31,24 +31,24 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, uuid: UUID, client: str, system: str, irc_nickname: str,
+    def __init__(self, api_id: UUID, client: str, system: str, irc_nickname: str,
                  board: 'RatBoard' = None, created_at: datetime = None, updated_at: datetime = None,
                  unidentified_rats=None, active=True, quotes: list = None, epic: List[Epic] = None,
                  title: Optional[str] = None, first_limpet: Optional[UUID] = None,
                  board_index: Optional[int] = None,
                  mark_for_deletion: MarkForDeletion = MarkForDeletion(), lang_id: str = "EN",
                  rats: List[Rat] = None, status: Status = Status.OPEN, code_red=False,
-                 rescue_uuid: Optional[UUID] =None):
+                 hashing_uuid: Optional[UUID] =None):
         """
         creates a unique rescue
 
         Args:
 
-            rescue_uuid ():
+            hashing_uuid ():
             code_red (bool): is the client on emergency oxygen
             status (Status): status attribute for the rescue
             board (RatBoard): RatBoard instance this rescue is attached to, if any.
-            uuid (str): API id of rescue
+            api_id (str): API id of rescue
             client (str): Commander name of the Commander rescued
             system (str): System name the Commander is stranded in
                 (WILL BE CAST TO UPPER CASE)
@@ -70,7 +70,7 @@ class Rescue(object):
             irc_nickname (str): clients IRC nickname, may deffer from their
                 commander name.
             rats (list): identified (Rat)s assigned to rescue.
-            rescue_uuid(UUID): Internal uuid used for hashing
+            hashing_uuid(UUID): Internal api_id used for hashing
                 ** this property is READ ONLY **
 
 
@@ -80,7 +80,8 @@ class Rescue(object):
         self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
         self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
-        self._id: UUID = uuid
+        self._api_id: UUID = api_id
+        """ID of the rescue as stored in the API"""
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else []
@@ -98,7 +99,7 @@ class Rescue(object):
         self._lang_id = lang_id
         self._status = status
         self._hash = None
-        self.__rescue_id = rescue_uuid if rescue_uuid is not None else uuid4()
+        self.__hashing_uuid = hashing_uuid if hashing_uuid is not None else uuid4()
         """Internal UUID used to generate the hash for this rescue object"""
 
     def __eq__(self, other) -> bool:
@@ -118,7 +119,6 @@ class Rescue(object):
             # check equality
 
             conditions = [
-                self.uuid == other.uuid,
                 self.board_index == other.board_index,
                 self.client == other.client,
                 self.rats == other.rats,
@@ -146,7 +146,7 @@ class Rescue(object):
         if self._hash is None:
             # compute the hash of the internally generated uuid and use that as our hash
             # this resolves SPARK-52
-            self._hash = hash(self.__rescue_id)
+            self._hash = hash(self.__hashing_uuid)
 
         return self._hash
 
@@ -316,7 +316,7 @@ class Rescue(object):
             raise TypeError(f"expected int or None, got {type(value)}")
 
     @property
-    def uuid(self) -> UUID:
+    def api_id(self) -> UUID:
         """
         The API Id of the rescue.
 
@@ -324,12 +324,12 @@ class Rescue(object):
 
         """
 
-        return self._id
+        return self._api_id
 
-    @uuid.setter
-    def uuid(self, value: UUID) -> None:
+    @api_id.setter
+    def api_id(self, value: UUID) -> None:
         """
-        Sets the API uuid associated with the Rescue
+        Sets the API api_id associated with the Rescue
 
         Args:
             value (UUID): The API ID
@@ -338,7 +338,7 @@ class Rescue(object):
             None
         """
         if isinstance(value, UUID):
-            self._id = value
+            self._api_id = value
         else:
             raise ValueError(f"expected UUID, got type {type(value)}")
 
@@ -735,7 +735,7 @@ class Rescue(object):
         Args:
             rat (Rat): Existing Rat object to assign.
             name (str): name of a rat to add
-            guid (UUID or str): api uuid of the rat, used if the rat is not found in the cache
+            guid (UUID or str): api api_id of the rat, used if the rat is not found in the cache
                 - if this is a string it will be type coerced into a UUID
         Returns:
             None:
@@ -796,7 +796,7 @@ class Rescue(object):
             raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
                             f"{type(reason)}")
 
-        log.debug(f"marking rescue @{self.uuid} for deletion. reporter is {reporter} and "
+        log.debug(f"marking rescue @{self.api_id} for deletion. reporter is {reporter} and "
                   f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")

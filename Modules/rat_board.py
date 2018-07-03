@@ -75,10 +75,10 @@ class RatBoard(object):
         """
         Checks if a rescue exists on this
 
-        First, this method will check if the `other` object has a uuid that matches an existing
+        First, this method will check if the `other` object has a api_id that matches an existing
             rescue on the board. If
 
-        If the uuid is not known, it will check the `other` objects key attributes against all
+        If the api_id is not known, it will check the `other` objects key attributes against all
             tracked rescues to try and find a match
 
             Key attributes are:
@@ -100,7 +100,7 @@ class RatBoard(object):
                           f"createdAt {rescue.created_at} == {other.created_at}")
 
                 # if the IDs match then we know they are the same case.
-                if other.uuid is not None and rescue.uuid == other.uuid:
+                if other.api_id is not None and rescue.api_id == other.api_id:
                     return True
 
                 # check if the key attributes are equal
@@ -191,7 +191,7 @@ class RatBoard(object):
         Searches for and returns a rescue by api ID, should it exist.
 
         Args:
-            guid (UUID): uuid to search for
+            guid (UUID): api_id to search for
 
         Returns:
             Rescue: found rescue
@@ -199,7 +199,7 @@ class RatBoard(object):
 
         """
         for rescue in self.rescues.values():
-            if rescue.uuid == guid:
+            if rescue.api_id == guid:
                 return rescue
         return None
 
@@ -298,7 +298,7 @@ class RatBoard(object):
                 # FIXME: change to match API Handler interface, once it exists
                 await self.handler.update_rescue(rescue)
 
-            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.uuid}...")
+            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.api_id}...")
             self.append(rescue=rescue, overwrite=True)
             result = True
 
@@ -318,12 +318,12 @@ class RatBoard(object):
             KeyError: rescue was not on the board.
         """
         if self.handler is not None:
-            log.debug(f"Calling API to remove case by id {rescue.uuid}")
+            log.debug(f"Calling API to remove case by id {rescue.api_id}")
             #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
         log.debug(f"Removing case #{rescue.board_index} "
-                  f"(@{rescue.uuid})from the board.")
+                  f"(@{rescue.api_id})from the board.")
         self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
