@@ -85,9 +85,14 @@ async def trigger(message: str, sender: str, channel: str):
             command_fun, extra_args = _get_rule(words, words_eol, _rules)
             if command_fun:
                 log.debug(f"Rule {getattr(command_fun, '__name__', '')} matching {words[0]} found.")
+            else:
+                log.warning(f"Could not find command or rule for {prefix}{words[0]}.")
     else:
         # Might still be a prefixless rule
         command_fun, extra_args = _get_rule(words, words_eol, _prefixless_rules)
+        if command_fun:
+            log.debug(f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {words[0]} "
+                      f"found.")
 
     if command_fun:
         user = await User.from_whois(bot, sender)
