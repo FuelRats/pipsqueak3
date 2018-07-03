@@ -22,6 +22,9 @@ log = logging.getLogger(f"mecha.{__name__}")
 class DatabaseManager(metaclass=Singleton):
     _enabled = True
 
+    # for testing only, as a makeshift "session" scope
+    marker = None
+
     @property
     def enabled(self):
         return self._enabled
@@ -31,10 +34,12 @@ class DatabaseManager(metaclass=Singleton):
         if value:
             try:
                 self.init_connection()
+                self._enabled = True
             except pyodbc.Error as e:
                 log.error(f"Connection reinitialization failed! {e}")
         else:
             self.connection.close()
+            self._enabled = False
 
     def _execute(self, *args, **kwargs):
         if self.enabled:
@@ -56,10 +61,12 @@ class DatabaseManager(metaclass=Singleton):
                     else:
                         raise
             self.enabled = False
-            raise self.last_error
+            # raise self.last_error
+            # would raise the above catched exceptions after failing three times
         else:
             log.warning("Tried to execute a DB call with the DB access being disabled.")
-            return None
+            raise RuntimeError("Check if the DB-module is enabled before executing code!"
+                               " Currently it is NOT!")
 
     # noinspection PyAttributeOutsideInit
     def init_connection(self):
@@ -85,13 +92,18 @@ class DatabaseManager(metaclass=Singleton):
         Connects to the DB, sets up the connection, retrieves the cursor.
         Creates the default tables should they not exist.
         """
+        if not self.enabled:
+            return
         self.init_connection()
         # Ensure all the default tables are defined
-        self._execute("CREATE TABLE IF NOT EXISTS"
-                      " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
+        try:
+            self._execute("CREATE TABLE IF NOT EXISTS"
+                          " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
+        except RuntimeError:
+            self.enabled = False
 
     async def select_rows(self, table_name: str, connector: str, condition: dict = None,
-                          skip_double_dash_test: bool = False) -> list:
+                          skip_double_dash_test: bool = False) -> list or None:
         """
 
         Args:
@@ -107,7 +119,8 @@ class DatabaseManager(metaclass=Singleton):
         if await self.has_table(table_name):
             if not condition:
                 condition = {}
-            cond_str = f" {connector} ".join(f"{key} = '{value}'" for key, value in condition.items())
+            cond_str = f" {connector} ".join(f"{key} = '{value}'"
+                                             for key, value in condition.items())
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Statement: SELECT * FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
@@ -115,7 +128,7 @@ class DatabaseManager(metaclass=Singleton):
         else:
             raise ValueError(f"Table {table_name} does not exists!")
 
-    async def has_table(self, name: str) -> bool:
+    async def has_table(self, name: str) -> bool or None:
         """
         checks whether the table exists.
         Unique to PSQL!
@@ -123,12 +136,13 @@ class DatabaseManager(metaclass=Singleton):
         Args:
             name: name of the table to check
 
-        Returns: false if table does not exist, true otherwise
+        Returns: false if table does not exist, true if it exists
 
         """
+
         return self._execute(("SELECT EXISTS ( "
-                                    "SELECT 1 FROM pg_tables WHERE tablename = '{name}')"
-                                    " as result;").format(name=name)).fetchone()[0] != '0'
+                              "SELECT 1 FROM pg_tables WHERE tablename = '{name}')"
+                              " as result;").format(name=name)).fetchone()[0] != '0'
 
     async def create_table(self, name: str, types: dict) -> None:
         """
@@ -160,14 +174,12 @@ class DatabaseManager(metaclass=Singleton):
         if await self.has_table(name):
             sql_string = "DROP TABLE {name};".format(name=name)
             self._execute(sql_string)
-            self.connection.commit()
             return
         raise ValueError(f"Table {name} does not exist!")
 
     async def insert_row(self, table_name: str, values: tuple,
-                         skip_double_dash_test: bool = False):
+                         skip_double_dash_test: bool = False) -> None:
         """
-
         Args:
             table_name: name of table to insert value into
             values: tuple with values matching the rows to insert into
@@ -189,7 +201,7 @@ class DatabaseManager(metaclass=Singleton):
             raise ValueError(f"Table {table_name} does not exist")
 
     async def update_row(self, table_name: str, connector: str, values: dict, condition=None,
-                         skip_double_dash_test=False):
+                         skip_double_dash_test=False) -> None:
         """
 
         Args:
@@ -200,12 +212,13 @@ class DatabaseManager(metaclass=Singleton):
             skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
                     implement your OWN CHECK!
 
-        Returns:
+        Returns: None
 
         """
         if await self.has_table(table_name):
             val_str = ", ".join(f"{k} = '{v}'" for k, v in values.items())
-            cond_str = f" {connector} ".join(f"{key} = '{value}'" for key, value in condition.items())
+            cond_str = f" {connector} ".join(f"{key} = '{value}'"
+                                             for key, value in condition.items())
 
             if ("--" in cond_str or "--" in val_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection.Statement: UPDATE {table_name} "
@@ -215,7 +228,7 @@ class DatabaseManager(metaclass=Singleton):
             raise ValueError(f"Table {table_name} does not exists!")
 
     async def delete_row(self, table_name: str, connector: str, condition=None,
-                         skip_double_dash_test: bool = False):
+                         skip_double_dash_test: bool = False) -> None:
         """
 
         Args:
@@ -225,11 +238,12 @@ class DatabaseManager(metaclass=Singleton):
             skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
                     implement your OWN CHECK!
 
-        Returns:
+        Returns: None
 
         """
         if await self.has_table(table_name):
-            cond_str = f" {connector} ".join(f"{key} = '{value}'" for key, value in condition.items())
+            cond_str = f" {connector} ".join(f"{key} = '{value}'"
+                                             for key, value in condition.items())
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection. Statement: DELETE FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
