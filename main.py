@@ -24,7 +24,7 @@ from Modules import graceful_errors
 from Modules import rat_command
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
-from Modules.rat_command import command, CommandNotFoundException
+from Modules.rat_command import command
 from config import config
 from utils.ratlib import sanitize
 
