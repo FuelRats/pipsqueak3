@@ -119,7 +119,7 @@ class TestStuff(object):
             pass
 
     @pytest.mark.last
-    async def test_connection_error_handling(self, dbm_fx):
+    async def test_connection_error_handling(self, dbm_fx: DatabaseManager):
         # disable the module, causing it to disconnect
         dbm_fx.enabled = False
 
@@ -139,6 +139,25 @@ class TestStuff(object):
         # this won't fail as it reconnects
         await dbm_fx.select_rows("testtableselect", "AND", {"string1": "thest"})
 
-        # bodge fix: call teardown after this test, as its always being the last one
-        self.finalize(dbm_fx)
+        # this is a fake cursor
+        class I_am_a_duck():
+            def execute(self, *args, **kwargs):
+                raise pyodbc.Error("('08S01', '[08S01] SQLExecDirectW unable due to the connection"
+                                   " lost (35) (SQLExecDirectW)')")
 
+        # inject fake cursor
+        dbm_fx.cursor = I_am_a_duck()
+
+        # this should NOT disable the module, as it re-inits the connection
+        await dbm_fx.select_rows("testtableselect", "AND", {"string1": "thest"})
+
+        # lets test that
+        assert dbm_fx.enabled
+
+        # make sure it fixed itself
+        if not isinstance(dbm_fx.cursor, I_am_a_duck):
+            dbm_fx.enabled = True
+
+        # bodge fix: call teardown after this test, as its always being the last one
+        # otherwise, asyncio complains about the fixture being held too long
+        self.finalize(dbm_fx)

@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 """
 from utils.ratlib import Singleton
 from Modules.database_manager import DatabaseManager
+import pyodbc
 
 
 class FactsManager(metaclass=Singleton):
@@ -24,7 +25,7 @@ class FactsManager(metaclass=Singleton):
         """
         try:
             self.dbm = DatabaseManager()
-        except:
+        except pyodbc.Error:
             self.dbm = None
 
     async def get_fact(self, name: str, lang: str = "en") -> str or None:
