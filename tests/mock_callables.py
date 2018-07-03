@@ -8,8 +8,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.
 """
-from typing import List, NamedTuple, Dict, Any
-
+from typing import List, NamedTuple, Dict, Any, Tuple
 
 _Call = NamedTuple("_Call", args=tuple, kwargs=Dict[str, Any])
 
@@ -73,7 +72,12 @@ class CallableMock(object):
 
     was_called_once: bool = property(lambda self: len(self._calls) == 1)
     """
-    Was this instance called exactly one?
+    Was this instance called exactly once?
+    """
+
+    calls: Tuple[_Call, ...] = property(lambda self: tuple(self._calls))
+    """
+    A read-only view of the calls that were made to this object.
     """
 
     def was_called_with(self, *args, **kwargs) -> bool:
