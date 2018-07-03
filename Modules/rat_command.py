@@ -40,13 +40,6 @@ class InvalidCommandException(CommandException):
     pass
 
 
-class CommandNotFoundException(CommandException):
-    """
-    Command not found.
-    """
-    pass
-
-
 class NameCollisionException(CommandException):
     """
     Someone attempted to register a command already registered.
