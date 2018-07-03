@@ -229,8 +229,9 @@ def command(*aliases):
 
 _RuleTuple = NamedTuple("_RuleTuple", underlying=Callable, full_message=bool, pass_match=bool)
 
-def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False, pass_match: bool=False,
-         prefixless: bool=False):
+
+def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
+         pass_match: bool=False, prefixless: bool=False):
     """
     Decorator to have the underlying coroutine be called when two conditions apply:
     1. No conventional command was found for the incoming message.
