@@ -14,7 +14,7 @@ This module is built on top of the Pydle system.
 
 import logging
 import re
-from typing import Callable, Dict, Pattern, NamedTuple
+from typing import Callable, Dict, Pattern, NamedTuple, Optional, List, Tuple
 
 from pydle import BasicClient
 
@@ -56,6 +56,7 @@ class NameCollisionException(CommandException):
 
 _registered_commands = {}
 _rules: Dict[Pattern, "_RuleTuple"] = {}
+_prefixless_rules: Dict[Pattern, "_RuleTuple"] = {}
 
 # character/s that must prefix a message for it to be parsed as a command.
 prefix = config['commands']['prefix']
@@ -76,18 +77,77 @@ async def trigger(message: str, sender: str, channel: str):
         # someone didn't set me.
         raise CommandException(f"Bot client has not been created"
                                f" or not handed to Commands.")
+    if message.strip() == "":
+        return
 
-    # check for trigger
-    assert message.startswith(prefix), f"message passed that did not contain prefix."
+    words, words_eol = _split_message(message.lstrip(prefix))
+    if message.startswith(prefix):
+        if words[0].casefold() in _registered_commands.keys():
+            # A regular command
+            command_fun = _registered_commands[words[0].casefold()]
+            extra_args = ()
+            log.debug(f"Regular command {words[0]} invoked.")
+        else:
+            # Might be a regular rule
+            command_fun, extra_args = _get_rule(words, words_eol, _rules)
+            if command_fun:
+                log.debug(f"Rule {getattr(command_fun, '__name__', '')} matching {words[0]} found.")
+    else:
+        # Might still be a prefixless rule
+        command_fun, extra_args = _get_rule(words, words_eol, _prefixless_rules)
 
-    log.debug(f"Trigger! {message}")
+    if command_fun:
+        user = await User.from_whois(bot, sender)
+        context = Context(bot, user, channel, words, words_eol)
+        return await command_fun(context, *extra_args)
 
-    # remove command prefix
-    raw_command: str = message.lstrip(prefix)
 
+def _get_rule(words: List[str], words_eol: List[str],
+              from_dict: Dict[Pattern, "_RuleTuple"]) -> Tuple[Optional[Callable], tuple]:
+    """
+    Attempt to find a rule in the given dict of patterns and rules.
+
+    Args:
+        words: Words of the message.
+        words_eol: Words of the message, but each including everything to the end of it.
+        from_dict: Dict mapping patterns to their rules.
+
+    Returns:
+        (Callable or None, tuple):
+            2-tuple of the command function and the extra args that it should
+            be called with.
+    """
+    for pattern, (fun, full_message, pass_match) in from_dict.items():
+        if full_message:
+            match = pattern.match(words_eol[0])
+        else:
+            match = pattern.match(words[0])
+
+        if match is not None:
+            if pass_match:
+                return fun, (match,)
+            else:
+                return fun, ()
+    else:
+        return None, ()
+
+
+def _split_message(string: str) -> Tuple[List[str], List[str]]:
+    """
+    Split up a string into words and words_eol
+
+    Args:
+        string: Any string.
+
+    Returns:
+        (list of str, list of str):
+            A 2-tuple of (words, words_eol), where words is a list of the words of *string*,
+            seperated by whitespace, and words_eol is a list of the same length, with each element
+            including the word and everything up to the end of *string*
+    """
     words = []
     words_eol = []
-    remaining = raw_command
+    remaining = string
     while True:
         words_eol.append(remaining)
         try:
@@ -99,25 +159,7 @@ async def trigger(message: str, sender: str, channel: str):
         else:
             words.append(word)
 
-    user = await User.from_whois(bot, sender)
-    context = Context(bot, user, channel, words, words_eol)
-
-    if words[0].casefold() in _registered_commands.keys():
-        return await _registered_commands[words[0].casefold()](context)
-    else:
-        for pattern, (coro, full_message, pass_match) in _rules.items():
-            if full_message:
-                match = pattern.match(words_eol[0])
-            else:
-                match = pattern.match(words[0])
-
-            if match is not None:
-                if pass_match:
-                    return await coro(context, match)
-                else:
-                    return await coro(context)
-        else:
-            raise CommandNotFoundException(f"Unable to find command {words[0]}")
+    return words, words_eol
 
 
 def _register(func, names: list or str) -> bool:
@@ -189,7 +231,8 @@ def command(*aliases):
 
 _RuleTuple = NamedTuple("_RuleTuple", underlying=Callable, full_message=bool, pass_match=bool)
 
-def rule(regex: str, case_sensitive: bool=False, full_message: bool=False, pass_match: bool=False):
+def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False, pass_match: bool=False,
+         prefixless: bool=False):
     """
     Decorator to have the underlying coroutine be called when two conditions apply:
     1. No conventional command was found for the incoming message.
@@ -206,6 +249,10 @@ def rule(regex: str, case_sensitive: bool=False, full_message: bool=False, pass_
         pass_match (bool):
             If this is True, the match object will be passed as an argument toward the command
             function.
+        prefixless (bool):
+            If this is True, the rule can match whether or not the prefix is present. Otherwise, it
+            acts similarly to a command, only being considered if the message starts with our
+            prefix. The prefix itself should not be part of the regex for non-prefixless rules.
 
     Please note that *regex* can match anywhere within the string, it need not match the entire
     string. If you wish to change this behaviour, use '^' and '$' in your regex.
@@ -216,7 +263,11 @@ def rule(regex: str, case_sensitive: bool=False, full_message: bool=False, pass_
         else:
             pattern = re.compile(regex, re.IGNORECASE)
 
-        _rules[pattern] = _RuleTuple(coro, full_message, pass_match)
+        if prefixless:
+            _prefixless_rules[pattern] = _RuleTuple(coro, full_message, pass_match)
+        else:
+            _rules[pattern] = _RuleTuple(coro, full_message, pass_match)
+
         log.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
                  f" created.")
         return coro
