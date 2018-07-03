@@ -20,8 +20,8 @@ import pytest
 
 import Modules.rat_command as Commands
 from Modules.context import Context
-from Modules.rat_command import CommandNotFoundException, NameCollisionException
-from tests.mocks import AsyncCallableMock
+from Modules.rat_command import NameCollisionException
+from tests.mock_callables import AsyncCallableMock, InstanceOf
 
 
 @pytest.fixture
@@ -34,16 +34,16 @@ def Setup_fx(bot_fx):
 @pytest.mark.commands
 @pytest.mark.usefixtures("Setup_fx")
 class TestRatCommand(object):
-
     @pytest.mark.asyncio
     async def test_invalid_command(self):
         """
-        Ensures the proper exception is raised when a command is not found.
-        :return:
+        Ensures that nothing happens and `trigger` exits quietly when no command can be found.
         """
-        with pytest.raises(CommandNotFoundException):
+        try:
             await Commands.trigger(message="!nope", sender="unit_test",
                                    channel="foo")
+        except BaseException as e:
+            pytest.fail("trigger raised " + type(e).__name__)
 
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     def test_double_command_registration(self, alias):
@@ -109,7 +109,8 @@ class TestRatCommand(object):
     async def test_rule_matching(self, async_callable_fx: AsyncCallableMock, regex: str,
                                  case_sensitive: bool, full_message: bool, message: str):
         """Verifies that the rule decorator works as expected."""
-        Commands.rule(regex, case_sensitive, full_message)(async_callable_fx)
+        Commands.rule(regex, case_sensitive=case_sensitive,
+                      full_message=full_message)(async_callable_fx)
 
         await Commands.trigger(message, "unit_test", "#mordor")
         assert async_callable_fx.was_called_once
@@ -124,29 +125,22 @@ class TestRatCommand(object):
     async def test_rule_not_matching(self, async_callable_fx: AsyncCallableMock, regex: str,
                                      case_sensitive: bool, full_message: bool, message: str):
         """verifies that the rule decorator works as expected."""
-        Commands.rule(regex, case_sensitive, full_message)(async_callable_fx)
-        with pytest.raises(CommandNotFoundException):
-            await Commands.trigger(message, "unit_test", "theOneWithTheHills")
+        Commands.rule(regex, case_sensitive=case_sensitive,
+                      full_message=full_message)(async_callable_fx)
+        await Commands.trigger(message, "unit_test", "theOneWithTheHills")
         assert not async_callable_fx.was_called
 
     @pytest.mark.asyncio
-    async def test_rule_passes_match(self):
+    async def test_rule_passes_match(self, async_callable_fx: AsyncCallableMock):
         """
         Verifies that the rules get passed the match object correctly.
         """
-        called = False
-
-        @Commands.rule("her(lo)", pass_match=True)
-        async def my_rule(context: Context, match: Match):
-            assert isinstance(context, Context)
-            assert isinstance(match, Match)
-            assert match.groups() == ("lo",)
-
-            nonlocal called
-            called = True
-
+        Commands.rule("her(lo)", pass_match=True)(async_callable_fx)
         await Commands.trigger("!herlo", "unit_test", "#unit_test")
-        assert called
+
+        assert async_callable_fx.was_called_once
+        assert async_callable_fx.was_called_with(InstanceOf(Context), InstanceOf(Match))
+        assert async_callable_fx.calls[0].args[1].groups() == ("lo",)
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', "fireball"])
