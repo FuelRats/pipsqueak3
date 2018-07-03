@@ -45,7 +45,7 @@ from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
-from tests.mocks import CallableMock, AsyncCallableMock
+from tests.mock_callables import CallableMock, AsyncCallableMock
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),

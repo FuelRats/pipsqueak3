@@ -1,5 +1,5 @@
 """
-mocks.py - Small, miscellaneous mock classes.
+mocks.py - Mock callables. Objects that can be called and later inquired as to how they were called.
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
