@@ -21,6 +21,7 @@ from pydle import BasicClient
 from Modules.context import Context
 from Modules.user import User
 from config import config
+from Modules.rat_facts import FactsManager
 
 # set the logger for rat_command
 log = logging.getLogger(f"mecha.{__name__}")
@@ -62,6 +63,9 @@ prefix = config['commands']['prefix']
 
 # Pydle bot instance.
 bot: BasicClient = None
+
+# facts manager instance
+facts_m: FactsManager = FactsManager()
 
 
 async def trigger(message: str, sender: str, channel: str):
@@ -110,12 +114,17 @@ async def trigger(message: str, sender: str, channel: str):
                 cmd = value
                 break
         else:
-            raise CommandNotFoundException(f"Unable to find command {words[0]}")
+            cmd = facts_m.handle_fact
+            # raise CommandNotFoundException(f"Unable to find command {words[0]}")
 
     user = await User.from_whois(bot, sender)
     context = Context(bot, user, channel, words, words_eol)
-
-    return await cmd(context)
+    if cmd == facts_m.handle_fact:
+        return_value = await cmd(context)
+        if not return_value:
+            raise CommandNotFoundException(f"Unable to find command {words[0]}")
+    else:
+        return await cmd(context)
 
 
 def _register(func, names: list or str) -> bool:

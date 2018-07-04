@@ -13,12 +13,11 @@ This module is built on top of the Pydle system.
 """
 from utils.ratlib import Singleton
 from Modules.database_manager import DatabaseManager
-from Modules.rat_command import rule
 from Modules.context import Context
 import re
 import pyodbc
 
-internal_facts = ("!go",)
+internal_facts = ("!go", "!assign", "!add")
 
 
 class FactsManager(metaclass=Singleton):
@@ -92,28 +91,28 @@ class FactsManager(metaclass=Singleton):
         """
         await self.dbm.delete_row("fact", "AND", {"name": name, "lang": lang})
 
+    async def handle_fact(self, context: Context) -> bool:
+        regex = re.compile(r"!(?P<name>[a-zA-Z\d]+)-(?P<lang>[a-zA-Z]{2})|!(?P<name2>[a-zA-Z\d]+)")
+        result = re.match(regex, context.words[0])
 
-fact_m: FactsManager = FactsManager()
+        if result is None:
+            return False
 
+        name = result.group("name")
+        lang = None
 
-@rule("!.*")
-async def respond_with_fact(context: Context):
-    regex = re.compile(r"!(?P<name>[a-zA-Z\d]+)-(?P<lang>[a-zA-Z]{2})|!(?P<name2>[a-zA-Z\d]+)")
-    result = re.match(regex,
-                      context.words[0])
-    name = result.group("name")
-    lang = None
+        if not name:
+            name = result.group("name2")
+        else:
+            lang = result.group("lang")
 
-    if not name:
-        name = result.group("name2")
-    else:
-        lang = result.group("lang")
+        if not lang:
+            lang = "en"
 
-    if not lang:
-        lang = "en"
-
-    if name in internal_facts:
-        return
-    if await fact_m.is_fact(name, lang):
-        message = await fact_m.get_fact(name, lang)
-        context.reply(message)
+        if name in internal_facts:
+            return True
+        if await self.is_fact(name, lang):
+            message = await self.get_fact(name, lang)
+            context.reply(message)
+            return True
+        return False
