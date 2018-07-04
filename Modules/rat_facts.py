@@ -98,9 +98,20 @@ fact_m: FactsManager = FactsManager()
 
 @rule("!.*")
 async def respond_with_fact(context: Context):
-    result = re.fullmatch("!([^\s]*)-([^\s]{2})", context.words[0])
-    name = result.groups()[0]
-    lang = result.groups()[1]
+    regex = re.compile(r"!(?P<name>[a-zA-Z\d]+)-(?P<lang>[a-zA-Z]{2})|!(?P<name2>[a-zA-Z\d]+)")
+    result = re.match(regex,
+                      context.words[0])
+    name = result.group("name")
+    lang = None
+
+    if not name:
+        name = result.group("name2")
+    else:
+        lang = result.group("lang")
+
+    if not lang:
+        lang = "en"
+
     if name in internal_facts:
         return
     if await fact_m.is_fact(name, lang):

@@ -70,3 +70,24 @@ class TestFacts(object):
 
         value = await facts_fx.is_fact("test1", "de")
         assert not value
+
+    async def test_rule(self):
+        import tests.mock_bot
+        tests.mock_bot.MockBot.rat_facts_reply = ""
+
+        class mock_context:
+            words = ("!go",)
+
+            def reply(msg: str): # Note: no self here, works without
+                tests.mock_bot.MockBot.rat_facts_reply = msg
+
+        # noinspection PyTypeChecker
+        await rat_facts.respond_with_fact(mock_context)
+        assert tests.mock_bot.MockBot.rat_facts_reply == ""
+
+        mock_context.words = ("!test1-en",)
+        # noinspection PyTypeChecker
+        await rat_facts.respond_with_fact(mock_context)
+
+        message = tests.mock_bot.MockBot.rat_facts_reply
+        assert message == "THIS IS TEST No. 1"
