@@ -24,6 +24,7 @@ class DatabaseManager(metaclass=Singleton):
 
     # for testing only, as a makeshift "session" scope
     marker = None
+    cursor = None
 
     @property
     def enabled(self):

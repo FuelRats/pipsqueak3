@@ -58,6 +58,10 @@ class TestFacts(object):
         value = await facts_fx.get_fact("test2", "en")
         assert value == "I want my cake!"
 
+        await facts_fx.set_fact("test2", "You promised me some Cake!", "AngryFatRat", "en")
+        value = await facts_fx.get_fact("test2", "en")
+        assert value == "You promised me some Cake!"
+
     async def test_delete_fact(self, facts_fx: rat_facts.FactsManager):
         value = await facts_fx.is_fact("test1", "de")
         assert value

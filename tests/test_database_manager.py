@@ -162,6 +162,7 @@ class TestStuff(object):
         if not isinstance(dbm_fx.cursor, I_am_a_duck):
             dbm_fx.enabled = True
 
+        # and lets make sure, it is in Fact a new connection AND a new cursor object
         assert old_conn != dbm_fx.connection
         assert old_cursor != dbm_fx.cursor
 
