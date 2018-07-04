@@ -745,7 +745,7 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) -> None:
+    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) -> Rat:
         """
         Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
         be raised as exceptions.
@@ -759,7 +759,7 @@ class Rescue(object):
             guid (UUID or str): api uuid of the rat, used if the rat is not found in the cache
                 - if this is a string it will be type coerced into a UUID
         Returns:
-            None:
+            Rat: the added rat object
 
         Raises:
             ValueError: guid was of type `str` and could not be coerced.
@@ -774,7 +774,7 @@ class Rescue(object):
             # we already have a rat object, lets verify it has an ID and assign it.
             if rat.uuid is not None:
                 self.rats.append(rat)
-                return
+                return rat
             else:
                 raise ValueError("Assigned rat does not have a known API ID")
 
@@ -784,22 +784,23 @@ class Rescue(object):
                      await RatCache().get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
-                return
+                return found[0]
             elif found[1]:
                 # a generic match (not platform specific) was found
                 # TODO throw a warning so the invoking method can handle this condition
                 log.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
-                return
+                return found[1]
 
             else:
                 # lets make a new Rat!
                 if self.rat_board:  # PRAGMA: NOCOVER
-                    raise NotImplementedError  # TODO fetch rat from API
+                    pass  # TODO fetch rat from API
                 # TODO: fetch rats from API handler, use that data to make a new Rat instance
 
                 rat = Rat(name=name, uuid=guid)
                 self.rats.append(rat)
+                return rat
 
     def mark_delete(self, reporter: str, reason: str) -> None:
         """
