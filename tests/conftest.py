@@ -228,13 +228,13 @@ def reset_rat_cache_fx(rat_cache_fx: RatCache):
     rat_cache_fx.flush()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def dbm_fx():
     """returns a DBM instance"""
     return DatabaseManager()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def facts_fx():
     """returns a FactsManager"""
     return FactsManager()
