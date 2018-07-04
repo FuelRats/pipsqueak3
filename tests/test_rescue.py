@@ -511,6 +511,21 @@ async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue, 
     assert name in rat_cache_fx.by_name
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
+async def test_add_rat_returns_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+    """
+    Verifies `Rescue.add_rat` returns a proper `Rat` object
+    """
+    result_rescue = deepcopy(rescue_plain_fx)
+
+    rat = Rat(uuid=uuid, name=name)
+
+    result = await result_rescue.add_rat(rat=rat)
+
+    assert isinstance(result, Rat)
+
+
 def test_eq_none(rescue_plain_fx: Rescue):
     """
     Verifies behavior of `Rescue.__eq__` when comparing against None
