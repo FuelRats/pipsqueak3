@@ -13,7 +13,12 @@ This module is built on top of the Pydle system.
 """
 from utils.ratlib import Singleton
 from Modules.database_manager import DatabaseManager
+from Modules.rat_command import rule
+from Modules.context import Context
+import re
 import pyodbc
+
+internal_facts = ("!go",)
 
 
 class FactsManager(metaclass=Singleton):
@@ -86,3 +91,18 @@ class FactsManager(metaclass=Singleton):
 
         """
         await self.dbm.delete_row("fact", "AND", {"name": name, "lang": lang})
+
+
+fact_m: FactsManager = FactsManager()
+
+
+@rule("!.*")
+async def respond_with_fact(context: Context):
+    result = re.fullmatch("!([^\s]*)-([^\s]{2})", context.words[0])
+    name = result.groups()[0]
+    lang = result.groups()[1]
+    if name in internal_facts:
+        return
+    if await fact_m.is_fact(name, lang):
+        message = await fact_m.get_fact(name, lang)
+        context.reply(message)
