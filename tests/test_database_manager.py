@@ -139,6 +139,10 @@ class TestStuff(object):
         # this won't fail as it reconnects
         await dbm_fx.select_rows("testtableselect", "AND", {"string1": "thest"})
 
+        # store the old cursor and connection
+        old_cursor = dbm_fx.cursor
+        old_conn = dbm_fx.connection
+
         # this is a fake cursor
         class I_am_a_duck():
             def execute(self, *args, **kwargs):
@@ -157,6 +161,9 @@ class TestStuff(object):
         # make sure it fixed itself
         if not isinstance(dbm_fx.cursor, I_am_a_duck):
             dbm_fx.enabled = True
+
+        assert old_conn != dbm_fx.connection
+        assert old_cursor != dbm_fx.cursor
 
         # bodge fix: call teardown after this test, as its always being the last one
         # otherwise, asyncio complains about the fixture being held too long
