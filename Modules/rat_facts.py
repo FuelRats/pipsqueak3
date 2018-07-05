@@ -16,8 +16,27 @@ from Modules.database_manager import DatabaseManager
 from Modules.context import Context
 import re
 import pyodbc
+import datetime
 
-internal_facts = ("!go", "!assign", "!add")
+internal_facts = ("!go", "!assign", "!add")  # any fact name in here will not be handled by the
+                                             # handler
+
+
+class Fact:
+    name = None
+    language = None
+    message = None
+    author = None
+    # for SPARK-57
+    timestamp = None
+
+    def __init__(self, name: str, lang: str, message: str, author: str,
+                 timestamp: datetime.datetime = None):
+        self.name = name
+        self.lang = lang
+        self.message = message
+        self.author = author
+        self.timestamp = timestamp
 
 
 class FactsManager(metaclass=Singleton):
@@ -32,7 +51,7 @@ class FactsManager(metaclass=Singleton):
         except pyodbc.Error:
             self.dbm = None
 
-    async def get_fact(self, name: str, lang: str = "en") -> str or None:
+    async def get_fact(self, name: str, lang: str = "en") -> Fact or None:
         """
         retrieves a fact from the DB.
         Args:
@@ -43,8 +62,15 @@ class FactsManager(metaclass=Singleton):
 
         """
         result = await self.dbm.select_rows("fact", "AND", {"lang": lang, "name": name})
+        print(result)
         if result:
-            return result[0][2]
+            return Fact(
+                result[0][0],
+                result[0][1],
+                result[0][2],
+                result[0][3]
+                # FIXME: use timestamp once SPARK-57 is implemented
+            )
         else:
             return None
 
@@ -61,23 +87,19 @@ class FactsManager(metaclass=Singleton):
         result = await self.dbm.select_rows("fact", "AND", {"lang": lang, "name": name})
         return len(result) > 0
 
-    async def set_fact(self, name: str, message: str, author: str, lang: str = "en") -> None:
+    async def set_fact(self, fact: Fact) -> None:
         """
         sets a fact
         Args:
-            name: name of the fact to set
-            message: response of the fact
-            author: name of the rat responsible for the change/Addition
-            lang: language of the fact
-
+            fact (Fact): the fact to push into the DB
         Returns: None
 
         """
-        if await self.is_fact(name, lang):
-            await self.dbm.update_row("fact", "AND", {"message": message}, {"name": name,
-                                                                            "lang": lang})
+        if await self.is_fact(fact.name, fact.lang):
+            await self.dbm.update_row("fact", "AND", {"message": fact.message}, {"name": fact.name,
+                                                                                 "lang": fact.lang})
         else:
-            await self.dbm.insert_row("fact", (name, lang, message, author))
+            await self.dbm.insert_row("fact", (fact.name, fact.lang, fact.message, fact.author))
 
     async def delete_fact(self, name: str, lang: str) -> None:
         """
@@ -112,7 +134,7 @@ class FactsManager(metaclass=Singleton):
         if name in internal_facts:
             return True
         if await self.is_fact(name, lang):
-            message = await self.get_fact(name, lang)
+            message = (await self.get_fact(name, lang)).message
             context.reply(message)
             return True
         return False
