@@ -533,8 +533,8 @@ async def test_add_rat_returns_rat_by_object(uuid: uuid4, name: str, rescue_plai
     (uuid4(), "bar", Platforms.XB),
     (uuid4(), "potato", Platforms.PS),
     (uuid4(), "DerpMcDerp", Platforms.DEFAULT)])
-async def test_add_rat_returns_rat_by_name(rat_cache_fx, uuid: uuid4, name: str, rescue_plain_fx: Rescue,
-                                           platform: Platforms):
+async def test_add_rat_returns_rat_by_name(rat_cache_fx, uuid: uuid4, name: str,
+                                           rescue_plain_fx: Rescue, platform: Platforms):
     """
     Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid name of a rat
     """
@@ -556,8 +556,8 @@ async def test_add_rat_returns_rat_by_name(rat_cache_fx, uuid: uuid4, name: str,
     (uuid4(), "bar", Platforms.XB),
     (uuid4(), "potato", Platforms.PS),
     (uuid4(), "DerpMcDerp", Platforms.DEFAULT)])
-async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, uuid: uuid4, name: str, rescue_plain_fx: Rescue,
-                                           platform: Platforms):
+async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, uuid: uuid4, name: str,
+                                           rescue_plain_fx: Rescue, platform: Platforms):
     """
     Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid name of a rat
     """
