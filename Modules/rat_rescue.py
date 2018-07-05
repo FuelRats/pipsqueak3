@@ -745,7 +745,7 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) -> Rat:
+    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) -> Optional[Rat]:
         """
         Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
         be raised as exceptions.
@@ -770,11 +770,13 @@ class Rescue(object):
 
             ```
         """
+        found_rat: Rat = None
+
         if isinstance(rat, Rat):
             # we already have a rat object, lets verify it has an ID and assign it.
             if rat.uuid is not None:
                 self.rats.append(rat)
-                return rat
+                found_rat = rat
             else:
                 raise ValueError("Assigned rat does not have a known API ID")
 
@@ -784,13 +786,13 @@ class Rescue(object):
                      await RatCache().get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
-                return found[0]
+                found_rat = found[0]
             elif found[1]:
                 # a generic match (not platform specific) was found
                 # TODO throw a warning so the invoking method can handle this condition
                 log.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
-                return found[1]
+                found_rat = found[1]
 
             else:
                 # lets make a new Rat!
@@ -800,7 +802,25 @@ class Rescue(object):
 
                 rat = Rat(name=name, uuid=guid)
                 self.rats.append(rat)
-                return rat
+                found_rat = rat
+
+        if isinstance(guid, UUID):
+            # lets check if we already have this rat in the cache
+            found = await RatCache().get_rat_by_uuid(guid)
+            if found:
+                self.rats.append(found)
+                found_rat = found
+            else:
+                # lets make a new Rat!
+                if self.rat_board:  # PRAGMA: NOCOVER
+                    pass  # TODO fetch rat from API
+                # TODO: fetch rats from API handler, use that data to make a new Rat instance
+
+                rat = Rat(name=name, uuid=guid)
+                self.rats.append(rat)
+                found_rat = rat
+
+        return found_rat
 
     def mark_delete(self, reporter: str, reason: str) -> None:
         """

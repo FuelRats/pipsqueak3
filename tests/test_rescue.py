@@ -18,6 +18,7 @@ from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat import Rat
 from Modules.rat_rescue import Rescue
+from Modules.rat_cache import RatCache, Platforms
 from utils.ratlib import Status
 
 pytestmark = pytest.mark.rescue
@@ -513,17 +514,61 @@ async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue, 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_returns_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+async def test_add_rat_returns_rat_by_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
     """
-    Verifies `Rescue.add_rat` returns a proper `Rat` object
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid Rat object
     """
-    result_rescue = deepcopy(rescue_plain_fx)
+    result_rescue = rescue_plain_fx
 
-    rat = Rat(uuid=uuid, name=name)
+    test_rat = Rat(uuid, name)
 
-    result = await result_rescue.add_rat(rat=rat)
+    result = await result_rescue.add_rat(rat=test_rat)
 
-    assert isinstance(result, Rat)
+    assert test_rat == result
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("uuid,name,platform", [
+    (uuid4(), "foo", Platforms.PC),
+    (uuid4(), "bar", Platforms.XB),
+    (uuid4(), "potato", Platforms.PS),
+    (uuid4(), "DerpMcDerp", Platforms.DEFAULT)])
+async def test_add_rat_returns_rat_by_name(rat_cache_fx, uuid: uuid4, name: str, rescue_plain_fx: Rescue, platform: Platforms):
+    """
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid name of a rat
+    """
+    result_rescue = rescue_plain_fx
+
+    test_rat = Rat(uuid, name)
+    test_rat.platform = platform
+    # add our test rat to the cache so add_rat can find it
+    RatCache().by_name[name] = test_rat
+
+    result = await result_rescue.add_rat(name=name)
+
+    assert test_rat == result
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("uuid,name,platform", [
+    (uuid4(), "foo", Platforms.PC),
+    (uuid4(), "bar", Platforms.XB),
+    (uuid4(), "potato", Platforms.PS),
+    (uuid4(), "DerpMcDerp", Platforms.DEFAULT)])
+async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, uuid: uuid4, name: str, rescue_plain_fx: Rescue, platform: Platforms):
+    """
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid name of a rat
+    """
+    result_rescue = rescue_plain_fx
+
+    test_rat = Rat(uuid, name)
+    test_rat.platform = platform
+    # add our test rat to the cache so add_rat can find it
+    rat_cache_fx.by_uuid[uuid] = test_rat
+
+    result = await result_rescue.add_rat(guid=uuid)
+
+    assert test_rat == result
 
 
 def test_eq_none(rescue_plain_fx: Rescue):
