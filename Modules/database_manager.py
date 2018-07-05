@@ -83,9 +83,11 @@ class DatabaseManager(metaclass=Singleton):
                        # Allow bigger VarcharSize to allow faster interaction
                        )
         self.connection: pyodbc.Connection = pyodbc.connect(connect_str, autocommit=True)
+        # configure the connection
         self.connection.setdecoding(pyodbc.SQL_WCHAR, encoding='utf-8')
         self.connection.setencoding(encoding='utf-8')
         self.connection.maxwrite = 1024 * 1024 * 1024  # Again, increase this for faster access
+        # and create a cursor
         self.cursor = self.connection.cursor()
 
     def __init__(self):
@@ -93,9 +95,12 @@ class DatabaseManager(metaclass=Singleton):
         Connects to the DB, sets up the connection, retrieves the cursor.
         Creates the default tables should they not exist.
         """
+        # if we are not supposed to connect on start-up, we just sit tight and do nothing
         if not self.enabled:
             return
+        # we init the connection, as we are supposed to do
         self.init_connection()
+
         # Ensure all the default tables are defined
         self._execute("CREATE TABLE IF NOT EXISTS"
                       " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
@@ -114,19 +119,24 @@ class DatabaseManager(metaclass=Singleton):
         Returns: a list containing the rows returned
 
         """
+        # if we don't have that table, somebody didn't do their homework, so we just raise them.
         if await self.has_table(table_name):
             if not condition:
                 condition = {}
+            # we need the conditions written out as a string
             cond_str = f" {connector} ".join(f"{key} = '{value}'"
                                              for key, value in condition.items())
+            # this is just a crude check trying to prevent SQL-Injection by disallowing comments
             if ("--" in cond_str) and not skip_double_dash_test:
                 raise ValueError("Suspicion of SQL-Injection. Statement: SELECT * FROM {table_name}"
                                  f" WHERE {cond_str}. Aborting")
+            # throw out the result of the query
             return self._execute(f"SELECT * FROM {table_name} WHERE {cond_str};").fetchall()
         else:
+            # let's raise them to be responsible adults
             raise ValueError(f"Table {table_name} does not exists!")
 
-    async def has_table(self, name: str) -> bool or None:
+    async def has_table(self, name: str) -> bool:
         """
         checks whether the table exists.
         Unique to PSQL!
@@ -138,6 +148,8 @@ class DatabaseManager(metaclass=Singleton):
 
         """
 
+        # query whether that table exists in the index, than checking if that value isn't false
+        # the result gets returned
         return self._execute(("SELECT EXISTS ( "
                               "SELECT 1 FROM pg_tables WHERE tablename = '{name}')"
                               " as result;").format(name=name)).fetchone()[0] != '0'
@@ -154,10 +166,15 @@ class DatabaseManager(metaclass=Singleton):
         Raises: ValueError should table already exist
         """
 
+        # You didn't do your homework AGAIN‽ let me raise you again....
         if not await self.has_table(name):
+            # even the column definitions have to be in string form. its SQL after all
             type_str = ", ".join(f"{k} {v}" for k, v in types.items())
+            # nicely asking the odbc-driver to create it for us
             self._execute(f"CREATE TABLE {name} ({type_str}) ;")
+            #  and I'm outta here
             return
+        # let's hope we don't have to raise him again
         raise ValueError(f"Table {name} already exists!")
 
     async def drop_table(self, name: str) -> None:
@@ -169,10 +186,15 @@ class DatabaseManager(metaclass=Singleton):
         Returns: None
 
         """
+        # can't bin what isn't there
         if await self.has_table(name):
+            # preparing the nuke
             sql_string = "DROP TABLE {name};".format(name=name)
+            # and BOOM goes the nuke
             self._execute(sql_string)
+            # lets vacate this irradiated area
             return
+        # please, kid, do your homework
         raise ValueError(f"Table {name} does not exist!")
 
     async def insert_row(self, table_name: str, values: tuple,
