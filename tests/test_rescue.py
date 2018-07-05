@@ -543,7 +543,7 @@ async def test_add_rat_returns_rat_by_name(rat_cache_fx, uuid: uuid4, name: str,
     test_rat = Rat(uuid, name)
     test_rat.platform = platform
     # add our test rat to the cache so add_rat can find it
-    RatCache().by_name[name] = test_rat
+    rat_cache_fx.by_name[name] = test_rat
 
     result = await result_rescue.add_rat(name=name)
 
@@ -559,7 +559,7 @@ async def test_add_rat_returns_rat_by_name(rat_cache_fx, uuid: uuid4, name: str,
 async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, uuid: uuid4, name: str,
                                            rescue_plain_fx: Rescue, platform: Platforms):
     """
-    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid name of a rat
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid UUID of a rat
     """
     result_rescue = rescue_plain_fx
 
