@@ -745,8 +745,8 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) \
-            -> Optional[Rat]:
+    async def add_rat(self, name: str = None, guid: UUID or str = None,
+                      rat: Rat = None) -> Optional[Rat]:
         """
         Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
         be raised as exceptions.
