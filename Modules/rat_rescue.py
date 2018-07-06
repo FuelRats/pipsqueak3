@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Union, Optional, List
+from typing import Union, Optional, List, TYPE_CHECKING, Set
 from uuid import UUID, uuid4
 
 from Modules.epic import Epic
@@ -22,6 +22,12 @@ from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
 from utils.ratlib import Platforms, Status
+
+if TYPE_CHECKING:
+    # A special constant that is assumed to be True by 3rd party static type checkers.
+    # It is False at runtime.
+    # see https://docs.python.org/3.6/library/typing.html#typing.TYPE_CHECKING
+    from Modules.rat_board import RatBoard
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -99,6 +105,8 @@ class Rescue(object):
         self._hash = None
         self.__hashing_uuid = hashing_uuid if hashing_uuid is not None else uuid4()
         """Internal UUID used to generate the hash for this rescue object"""
+        self._modified_attrs: Set[str] = set()
+        """Set of attributes modified during a .modify call"""
 
     def __eq__(self, other) -> bool:
         """
@@ -228,7 +236,7 @@ class Rescue(object):
         return self._firstLimpet
 
     @first_limpet.setter
-    def first_limpet(self, value: UUID) -> None:
+    def first_limpet(self, value: Union[UUID, str]) -> None:
         """
         Set the value of the first limpet rat
 
@@ -698,6 +706,18 @@ class Rescue(object):
 
         else:
             raise TypeError(f"expected type list got {type(value)}")
+
+    @property
+    def modified_attrs(self) -> Set[str]:
+        """Attributes that have been modified"""
+        return self._modified_attrs
+
+    @modified_attrs.setter
+    def modified_attrs(self, value: Set[str]):
+        if not isinstance(value, set):
+            raise TypeError(f"expected set got {type(value)}")
+
+        self._modified_attrs = value
 
     async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) -> None:
         """
