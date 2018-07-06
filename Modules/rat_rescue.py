@@ -114,30 +114,8 @@ class Rescue(object):
             # instance type check
             return NotImplemented
         else:
-            # check equality
-
-            conditions = [
-                self.board_index == other.board_index,
-                self.client == other.client,
-                self.rats == other.rats,
-                self.platform == other.platform,
-                self.first_limpet == other.first_limpet,
-                self.created_at == other.created_at,
-                self.updated_at == other.updated_at,
-                self.system == other.system,
-                self.unidentified_rats == other.unidentified_rats,
-                self.active == other.active,
-                self.code_red == other.code_red,
-                self.outcome == other.outcome,
-                self.title == other.title,
-                self.first_limpet == other.first_limpet,
-                self.marked_for_deletion == other.marked_for_deletion,
-                self.lang_id == other.lang_id,
-                self.rats == other.rats,
-                self.irc_nickname == other.irc_nickname,
-            ]
-
-            return all(conditions)
+            # abide by python equality contract.
+            return hash(self) == hash(other)
 
     def __hash__(self):
 
