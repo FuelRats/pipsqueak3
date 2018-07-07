@@ -748,7 +748,9 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    async def add_rat(self, name: str = None, guid: UUID or str = None,
+    async def add_rat(self,
+                      name: str = None,
+                      guid: UUID or str = None,
                       rat: Rat = None) -> Optional[Rat]:
         """
         Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
@@ -774,7 +776,7 @@ class Rescue(object):
 
             ```
         """
-        assigned_rat: Rat = None
+        assigned_rat: Optional[Rat] = None
 
         if isinstance(rat, Rat):
             # we already have a rat object, lets verify it has an ID and assign it.
@@ -814,7 +816,17 @@ class Rescue(object):
             if found:
                 self.rats.append(found)
                 assigned_rat = found
-            # if the specified UUID wasn't found, return None for "no rat added"
+            # else:  TODO: placeholder for fetching rats from the API handler
+                # if the specified UUID wasn't found, we need to search the API
+
+        elif isinstance(guid, str):
+            # attempt to coerce into a UUID
+            parsed_guid = UUID(guid)
+            found = await RatCache().get_rat_by_uuid(parsed_guid)
+            if found:
+                self.rats.append(found)
+                assigned_rat = found
+            # else: TODO: placeholder for fetching rats from the API handler
 
         return assigned_rat
 

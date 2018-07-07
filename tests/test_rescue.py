@@ -519,7 +519,7 @@ async def test_add_rat_returns_rat_by_object(rat_good_fx: Rat, rescue_plain_fx: 
     """
     result = await rescue_plain_fx.add_rat(rat=rat_good_fx)
 
-    assert result == rat_good_fx
+    assert result is rat_good_fx
 
 
 @pytest.mark.asyncio
@@ -532,7 +532,7 @@ async def test_add_rat_returns_rat_by_name(rat_cache_fx, rescue_plain_fx: Rescue
 
     result = await rescue_plain_fx.add_rat(name=rat_good_fx.name)
 
-    assert result == rat_good_fx
+    assert result is rat_good_fx
 
 
 @pytest.mark.asyncio
@@ -540,13 +540,27 @@ async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, rescue_plain_fx: Rescue
     """
     Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid UUID of a rat
     """
-    result_rescue = rescue_plain_fx
     # add our test rat to the cache so add_rat can find it
     rat_cache_fx.by_uuid[rat_good_fx.uuid] = rat_good_fx
 
-    result = await result_rescue.add_rat(guid=rat_good_fx.uuid)
+    result = await rescue_plain_fx.add_rat(guid=rat_good_fx.uuid)
 
-    assert result == rat_good_fx
+    assert result is rat_good_fx
+
+
+@pytest.mark.asyncio
+async def test_add_rat_returns_rat_by_uuid_string(rat_cache_fx,
+                                                  rescue_plain_fx: Rescue,
+                                                  rat_good_fx: Rat):
+    """
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid UUID string of a rat
+    """
+    # add our test rat to the cache so add_rat can find it
+    rat_cache_fx.by_uuid[rat_good_fx.uuid] = rat_good_fx
+
+    result = await rescue_plain_fx.add_rat(guid=str(rat_good_fx.uuid))
+
+    assert result is rat_good_fx
 
 
 def test_eq_none(rescue_plain_fx: Rescue):
