@@ -774,13 +774,13 @@ class Rescue(object):
 
             ```
         """
-        found_rat: Rat = None
+        assigned_rat: Rat = None
 
         if isinstance(rat, Rat):
             # we already have a rat object, lets verify it has an ID and assign it.
             if rat.uuid is not None:
                 self.rats.append(rat)
-                found_rat = rat
+                assigned_rat = rat
             else:
                 raise ValueError("Assigned rat does not have a known API ID")
 
@@ -790,13 +790,13 @@ class Rescue(object):
                      await RatCache().get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
-                found_rat = found[0]
+                assigned_rat = found[0]
             elif found[1]:
                 # a generic match (not platform specific) was found
                 # TODO throw a warning so the invoking method can handle this condition
                 log.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
-                found_rat = found[1]
+                assigned_rat = found[1]
 
             else:
                 # lets make a new Rat!
@@ -806,17 +806,17 @@ class Rescue(object):
 
                 rat = Rat(name=name, uuid=guid)
                 self.rats.append(rat)
-                found_rat = rat
+                assigned_rat = rat
 
         if isinstance(guid, UUID):
             # lets check if we already have this rat in the cache
             found = await RatCache().get_rat_by_uuid(guid)
             if found:
                 self.rats.append(found)
-                found_rat = found
+                assigned_rat = found
             # if the specified UUID wasn't found, return None for "no rat added"
 
-        return found_rat
+        return assigned_rat
 
     def mark_delete(self, reporter: str, reason: str) -> None:
         """

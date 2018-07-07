@@ -483,7 +483,7 @@ def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+async def test_add_rat_by_rat_object(uuid: UUID, name: str, rescue_plain_fx: Rescue):
     """
     Verifies `Rescue.add_rat` can add a rat given a `Rat` object
     """
@@ -501,7 +501,7 @@ async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Re
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue, rat_cache_fx):
+async def test_add_rat_by_uuid(uuid: UUID, name: str, rescue_plain_fx: Rescue, rat_cache_fx):
     """
     Verifies `Rescue.add_rat` can add a rat given a guid and a name
     """
@@ -513,64 +513,40 @@ async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue, 
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_returns_rat_by_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+async def test_add_rat_returns_rat_by_object(rat_good_fx: Rat, rescue_plain_fx: Rescue):
     """
     Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid Rat object
     """
-    result_rescue = rescue_plain_fx
+    result = await rescue_plain_fx.add_rat(rat=rat_good_fx)
 
-    test_rat = Rat(uuid, name)
-
-    result = await result_rescue.add_rat(rat=test_rat)
-
-    assert test_rat == result
+    assert result == rat_good_fx
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("uuid,name,platform", [
-    (uuid4(), "foo", Platforms.PC),
-    (uuid4(), "bar", Platforms.XB),
-    (uuid4(), "potato", Platforms.PS),
-    (uuid4(), "DerpMcDerp", Platforms.DEFAULT)])
-async def test_add_rat_returns_rat_by_name(rat_cache_fx, uuid: uuid4, name: str,
-                                           rescue_plain_fx: Rescue, platform: Platforms):
+async def test_add_rat_returns_rat_by_name(rat_cache_fx, rescue_plain_fx: Rescue, rat_good_fx: Rat):
     """
     Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid name of a rat
     """
-    result_rescue = rescue_plain_fx
-
-    test_rat = Rat(uuid, name)
-    test_rat.platform = platform
     # add our test rat to the cache so add_rat can find it
-    rat_cache_fx.by_name[name] = test_rat
+    rat_cache_fx.by_name[rat_good_fx.name] = rat_good_fx
 
-    result = await result_rescue.add_rat(name=name)
+    result = await rescue_plain_fx.add_rat(name=rat_good_fx.name)
 
-    assert test_rat == result
+    assert result == rat_good_fx
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("uuid,name,platform", [
-    (uuid4(), "foo", Platforms.PC),
-    (uuid4(), "bar", Platforms.XB),
-    (uuid4(), "potato", Platforms.PS),
-    (uuid4(), "DerpMcDerp", Platforms.DEFAULT)])
-async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, uuid: uuid4, name: str,
-                                           rescue_plain_fx: Rescue, platform: Platforms):
+async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, rescue_plain_fx: Rescue, rat_good_fx: Rat):
     """
     Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid UUID of a rat
     """
     result_rescue = rescue_plain_fx
-
-    test_rat = Rat(uuid, name)
-    test_rat.platform = platform
     # add our test rat to the cache so add_rat can find it
-    rat_cache_fx.by_uuid[uuid] = test_rat
+    rat_cache_fx.by_uuid[rat_good_fx.uuid] = rat_good_fx
 
-    result = await result_rescue.add_rat(guid=uuid)
+    result = await result_rescue.add_rat(guid=rat_good_fx.uuid)
 
-    assert test_rat == result
+    assert result == rat_good_fx
 
 
 def test_eq_none(rescue_plain_fx: Rescue):
