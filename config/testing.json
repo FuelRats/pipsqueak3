@@ -9,14 +9,14 @@
     ]
   },
   "authentication": {
-    "method":"PLAIN",
+    "method": "PLAIN",
     "plain": {
       "username": "",
       "password": "",
       "identity": ""
     },
-    "external":{
-      "tls_client_cert":"file"
+    "external": {
+      "tls_client_cert": "file"
     }
   },
   "logging": {
@@ -27,8 +27,43 @@
     "prefix": "!"
   },
   "api": {
-    "online_mode":false,
-    "url":null,
-    "tokenfile":null
+    "online_mode": false,
+    "url": null,
+    "tokenfile": null
+  },
+  "permissions": {
+    "recruit": {
+      "vhosts": [
+        "recruit.fuelrats.com"
+      ],
+      "level": 0
+    },
+    "rat": {
+      "vhosts": [
+        "rat.fuelrats.com"
+      ],
+      "level": 1
+    },
+    "overseer":{
+      "vhosts": [
+        "overseer.fuelrats.com"
+      ],
+      "level":2
+    },
+    "techrat":{
+      "vhosts":[
+        "techrat.fuelrats.com"
+      ],
+      "level":3
+    },
+    "administrator":{
+      "vhosts":[
+        "op.fuelrats.com",
+        "netadmin.fuelrats.com",
+        "admin.fuelrats.com",
+        "i.see.all"
+      ],
+      "level":4
+    }
   }
 }
