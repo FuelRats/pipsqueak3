@@ -156,6 +156,7 @@ class Rescue(object):
         """
         if isinstance(value, Status):
             self._status = value
+            self.modified_attrs.add("status")
         else:
             raise TypeError
 
@@ -182,6 +183,7 @@ class Rescue(object):
         """
         if isinstance(value, str):
             self._irc_nick = value
+            self.modified_attrs.add("irc_nickname")
         else:
             raise TypeError
 
@@ -204,6 +206,7 @@ class Rescue(object):
         """
         if isinstance(value, str):
             self._lang_id = value
+            self.modified_attrs.add("lang_id")
         else:
             raise TypeError
 
@@ -222,6 +225,7 @@ class Rescue(object):
         """
         if isinstance(value, Platforms):
             self._platform = value
+            self.modified_attrs.add("platform")
         else:
             raise TypeError(f"expected a Platforms, got type {type(value)}")
 
@@ -265,6 +269,8 @@ class Rescue(object):
                 # the attempt succeeded, lets assign it.
                 self._firstLimpet = guid
 
+        self.modified_attrs.add("first_limpet")
+
     @property
     def board_index(self) -> int or None:
         """
@@ -292,6 +298,7 @@ class Rescue(object):
         if isinstance(value, int) or value is None:
             if value is None or value >= 0:
                 self._board_index = value
+                self.modified_attrs.add("board_index")
             else:
                 raise ValueError("Value must be greater than or equal to zero,"
                                  " or None.")
@@ -322,6 +329,7 @@ class Rescue(object):
         """
         if isinstance(value, UUID):
             self._api_id = value
+            self.modified_attrs.add("api_id")
         else:
             raise ValueError(f"expected UUID, got type {type(value)}")
 
@@ -347,7 +355,10 @@ class Rescue(object):
         Returns:
             None
         """
-        self._client = value
+        if isinstance(value, str):
+            self._client = value
+        else:
+            raise TypeError(f"expected type str got {type(value)}")
 
     @property
     def created_at(self) -> datetime:
@@ -392,10 +403,18 @@ class Rescue(object):
         Notes:
             this method will cast `value` to upper case, as to comply with
             Fuelrats Api v2.1
+
+        Examples:
+            >>> rescue = Rescue(None, "client", "sol", "client")
+            >>> rescue.system = "al qaum"
+            >>> rescue.system
+            AL QAUM
         """
 
         # for API v2.1 compatibility reasons we cast to upper case
         self._system = value.upper()
+
+        self.modified_attrs.add("system")
 
     @property
     def active(self) -> bool:
@@ -425,6 +444,8 @@ class Rescue(object):
                 self.status = Status.OPEN
             else:
                 self.status = Status.INACTIVE
+
+            self.modified_attrs.add("active")
         else:
             raise ValueError(f"expected bool, got type {type(value)}")
 
@@ -441,7 +462,7 @@ class Rescue(object):
         return self._quotes
 
     @quotes.setter
-    def quotes(self, value) -> None:
+    def quotes(self, value: List[Quotation]) -> None:
         """
         Sets the value of the quotes property to whatever `value` is.
 
@@ -456,10 +477,11 @@ class Rescue(object):
         """
         if isinstance(value, list):
             self._quotes = value
+            self.modified_attrs.add("quotes")
         else:
             raise ValueError(f"expected type list, got {type(value)}")
 
-    def add_quote(self, message: str, author: str or None = None) -> None:
+    def add_quote(self, message: str, author: Optional[str] = None) -> None:
         """
         Helper method, adds a `Quotation` object to the list.
 
@@ -492,7 +514,7 @@ class Rescue(object):
         return self._updatedAt
 
     @updated_at.setter
-    def updated_at(self, value):
+    def updated_at(self, value: datetime):
         """
         Updates `Rescue.updated_at` property
 
@@ -513,8 +535,10 @@ class Rescue(object):
         else:
             self._updatedAt = value
 
+            self.modified_attrs.add("updated_at")
+
     @property
-    def unidentified_rats(self) -> list:
+    def unidentified_rats(self) -> List[str]:
         """
         List of unidentified rats by their IRC nicknames
 
@@ -524,7 +548,7 @@ class Rescue(object):
         return self._unidentified_rats
 
     @unidentified_rats.setter
-    def unidentified_rats(self, value) -> None:
+    def unidentified_rats(self, value: List[str]) -> None:
         """
         Sets the value of unidentified_rats
 
@@ -540,6 +564,7 @@ class Rescue(object):
             for name in value:
                 if isinstance(name, str):
                     self._unidentified_rats.append(name)
+                    self.modified_attrs.add("unidentified_rats")
                 else:
                     raise ValueError(f"Element '{name}' expected to be of type str"
                                      f"str, got {type(name)}")
@@ -576,6 +601,7 @@ class Rescue(object):
                 self.status = Status.OPEN
             else:
                 self.status = Status.CLOSED
+            self.modified_attrs.add("open")
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
@@ -606,6 +632,8 @@ class Rescue(object):
     def code_red(self, value: bool):
         if isinstance(value, bool):
             self._codeRed = value
+            self.modified_attrs.add("code_red")
+
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
@@ -620,7 +648,7 @@ class Rescue(object):
         return self._outcome
 
     @property
-    def title(self) -> str or None:
+    def title(self) -> Optional[str]:
         """
         The rescues operation title, if any
 
@@ -632,12 +660,12 @@ class Rescue(object):
         return self._title
 
     @title.setter
-    def title(self, value: str or None) -> None:
+    def title(self, value: Optional[str]) -> None:
         """
         Set the operations title.
 
         Args:
-            value (str or None): Operation name.
+            value (Optional[str]): Operation name.
 
         Returns:
             None
@@ -647,6 +675,7 @@ class Rescue(object):
         """
         if value is None or isinstance(value, str):
             self._title = value
+            self.modified_attrs.add("title")
         else:
             raise TypeError(f"expected type None or str, got {type(value)}")
 
@@ -661,7 +690,7 @@ class Rescue(object):
         return self._mark_for_deletion
 
     @marked_for_deletion.setter
-    def marked_for_deletion(self, value) -> None:
+    def marked_for_deletion(self, value: MarkForDeletion) -> None:
         """
         Sets the Md object
 
@@ -676,6 +705,7 @@ class Rescue(object):
         """
         if isinstance(value, MarkForDeletion):
             self._mark_for_deletion = value
+            self.modified_attrs.add("marked_for_deletion")
         else:
             raise TypeError(f"got {type(value)} expected MarkForDeletion object")
 
@@ -690,7 +720,7 @@ class Rescue(object):
         return self._rats
 
     @rats.setter
-    def rats(self, value):
+    def rats(self, value: List[Rat]):
         """
         Sets the rats property directly, it is recommended to use the helper
         methods to add/remove rats.
@@ -703,6 +733,8 @@ class Rescue(object):
         """
         if isinstance(value, list):
             self._rats = value
+
+            self.modified_attrs.add("rats")
 
         else:
             raise TypeError(f"expected type list got {type(value)}")
@@ -719,7 +751,8 @@ class Rescue(object):
 
         self._modified_attrs = value
 
-    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) -> None:
+    async def add_rat(self, name: str = None, guid: Union[UUID, str] = None,
+                      rat: Rat = None) -> None:
         """
         Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
         be raised as exceptions.
