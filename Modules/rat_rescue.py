@@ -800,8 +800,8 @@ class Rescue(object):
 
             else:
                 # lets make a new Rat!
-                if self.rat_board:  # PRAGMA: NOCOVER
-                    pass  # TODO fetch rat from API
+                # if self.rat_board:  # PRAGMA: NOCOVER
+                #    pass  # TODO fetch rat from API
                 # TODO: fetch rats from API handler, use that data to make a new Rat instance
 
                 rat = Rat(name=name, uuid=guid)
