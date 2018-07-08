@@ -98,7 +98,7 @@ class TestFacts(object):
             words = ("!go",)
 
             # noinspection PyMethodParameters
-            def reply(msg: str): # Note: no self here, works without
+            def reply(msg: str):  # Note: no self here, works without
                 tests.mock_bot.MockBot.rat_facts_reply = msg
 
         # noinspection PyTypeChecker

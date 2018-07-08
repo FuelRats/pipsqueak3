@@ -16,8 +16,14 @@
 FROM python:3.6.5-alpine
 
 COPY ./requirements.txt ./
+COPY ./odbcinst.ini /etc/odbcinst.ini
 # fetch git, as we will need it.
 RUN apk add --no-cache git
+
+# PSQL stuff
+RUN apk add --no-cache unixodbc unixodbc-dev psqlodbc postgresql-client
+# build deps
+RUN apk add --no-cache build-base
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r /requirements.txt

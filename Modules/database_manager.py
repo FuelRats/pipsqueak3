@@ -32,6 +32,9 @@ class DatabaseManager(metaclass=Singleton):
 
     @enabled.setter
     def enabled(self, value: bool):
+        if value == self._enabled:
+            # no need to change it if no change is required
+            return
         if value:
             try:
                 self.init_connection()
@@ -89,6 +92,11 @@ class DatabaseManager(metaclass=Singleton):
         self.connection.maxwrite = 1024 * 1024 * 1024  # Again, increase this for faster access
         # and create a cursor
         self.cursor = self.connection.cursor()
+        self._enabled = True
+        # Ensure all the default tables are defined
+        self._execute("CREATE TABLE IF NOT EXISTS"
+                      " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
+        # FIXME once SPARK-57 is implemented
 
     def __init__(self):
         """
@@ -99,11 +107,14 @@ class DatabaseManager(metaclass=Singleton):
         if not self.enabled:
             return
         # we init the connection, as we are supposed to do
-        self.init_connection()
-
-        # Ensure all the default tables are defined
-        self._execute("CREATE TABLE IF NOT EXISTS"
-                      " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
+        try:
+            self.init_connection()
+        except pyodbc.Error:
+            # something went terribly wrong and excrements hit the ventilation device
+            # using internal here to skip disconnection part as it might (and probably would) call
+            # stuff on a NoneType
+            self._enabled = False
+            return
 
     async def select_rows(self, table_name: str, connector: str, condition: dict = None,
                           skip_double_dash_test: bool = False) -> list or None:
