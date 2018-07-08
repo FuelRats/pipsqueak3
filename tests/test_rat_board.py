@@ -7,9 +7,8 @@ from uuid import uuid4, UUID
 
 import pytest
 
-from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
+from Modules.rat_board import RatBoard, IndexNotFreeError
 from Modules.rat_rescue import Rescue
-from utils.ratlib import Platforms
 
 pytestmark = pytest.mark.ratboard
 
@@ -175,30 +174,6 @@ class TestRatBoardPyTest(object):
         await rat_board_fx.remove(rescue=rescue_sop_fx)
 
         assert rescue_sop_fx.board_index not in rat_board_fx.rescues
-
-    @pytest.mark.asyncio
-    async def test_modify_with_net_change(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
-
-        rat_board_fx.rescues[rescue_sop_fx.board_index] = rescue_sop_fx
-
-        # make a change, ensure a change actually occured.
-        rescue_sop_fx.platform = Platforms.PC if rescue_sop_fx.platform is not Platforms.PC else Platforms.XB
-        result = await rat_board_fx.modify(rescue=rescue_sop_fx)
-        # check status OK
-        assert result is True
-        # check that a change occured
-        assert rat_board_fx.rescues[rescue_sop_fx.board_index] == rescue_sop_fx
-
-        # double check
-        assert rat_board_fx.rescues[rescue_sop_fx.board_index] != rescue_sop_fx
-
-    @pytest.mark.asyncio
-    async def test_modify_no_net_change(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
-        # append rescue to board
-        rat_board_fx.rescues[rescue_sop_fx.board_index] = rescue_sop_fx
-
-        with pytest.raises(RescueNotChangedException):
-            await rat_board_fx.modify(rescue=rescue_sop_fx)
 
     def test_contains_by_key_attributes(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
         """
