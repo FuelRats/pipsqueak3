@@ -4,3 +4,4 @@ pytest-cov
 pytest-asyncio
 pure-sasl
 coloredlogs
+async_generator

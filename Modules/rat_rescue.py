@@ -11,7 +11,6 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
-from contextlib import contextmanager
 from datetime import datetime
 from typing import Union, Optional, List, TYPE_CHECKING, Set
 from uuid import UUID, uuid4
@@ -22,6 +21,7 @@ from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
 from utils.ratlib import Platforms, Status
+from async_generator import asynccontextmanager
 
 if TYPE_CHECKING:
     # A special constant that is assumed to be True by 3rd party static type checkers.
@@ -44,7 +44,7 @@ class Rescue(object):
                  board_index: Optional[int] = None,
                  mark_for_deletion: MarkForDeletion = MarkForDeletion(), lang_id: str = "EN",
                  rats: List[Rat] = None, status: Status = Status.OPEN, code_red=False,
-                 hashing_uuid: Optional[UUID] =None):
+                 hashing_uuid: Optional[UUID] = None):
         """
         creates a unique rescue
 
@@ -841,22 +841,13 @@ class Rescue(object):
         self.marked_for_deletion.reason = None
         self.marked_for_deletion.reporter = None
 
-    @contextmanager
-    def change(self):
+    @asynccontextmanager
+    async def change(self):
         """
         Convenience method for making safe attribute changes.
 
-        FIXME: currently just ensures rescue.updated_at is updated.
-
-        TODO: replace with Board context manager once its implemented
-
-        TODO: replace current context manager with a dummy once the Board
-            context manager is a thing.
-
-        TODO: implement API integration (probably in the board Contextmanager
-
-        Returns:
-            contextManager
+        Yields:
+            RatBoard: RatBoard this rescue is assigned to
 
 
         Examples:
@@ -867,9 +858,14 @@ class Rescue(object):
 
             ```
         """
-        yield
-        self.updated_at = datetime.utcnow()
+        log.debug(f"entering change context manager for rescue #{self.api_id}({self.client})")
+        self.modified_attrs = set()
 
-    # TODO: to/from json
-    # TODO: track changes
-    # TODO: helper method for adding / editing quotes
+        yield self.rat_board
+        if len(self.modified_attrs) != 0:
+            self.updated_at = datetime.utcnow()
+        else:
+            log.warning(f"rescue #{self.api_id}({self.client}) was not changed within .change!")
+
+        if self.rat_board is not None:
+            await self.rat_board.update(rescue=self)
