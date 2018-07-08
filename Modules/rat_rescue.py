@@ -853,13 +853,12 @@ class Rescue(object):
         Examples:
             ```
 
-            with rescue.change():
+            async with rescue.change():
                 rescue.client = foo
 
             ```
         """
         log.debug(f"entering change context manager for rescue #{self.api_id}({self.client})")
-        self.modified_attrs = set()
 
         yield self.rat_board
         if len(self.modified_attrs) != 0:

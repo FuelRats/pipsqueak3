@@ -284,8 +284,10 @@ class RatBoard(object):
         if len(rescue.modified_attrs) == 0:
             raise RescueNotChangedException
 
-        if self.handler is not None:
+        if self.handler is not None:  # PRAGMA: NOCOVER
             self.handler.update_rescue(rescue)  # TODO: replace with API call
+        # clear modified_attrs as we have now noted the changes
+        rescue.modified_attrs.clear()
 
     async def remove(self, rescue: Rescue) -> None:
         """
