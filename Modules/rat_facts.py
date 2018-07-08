@@ -31,7 +31,7 @@ class Fact:
     timestamp = None
 
     def __init__(self, name: str, lang: str, message: str, author: str,
-                 timestamp: datetime.datetime = None):
+                 timestamp: datetime.datetime):
         self.name = name
         self.lang = lang
         self.message = message
@@ -58,14 +58,20 @@ class FactsManager(metaclass=Singleton):
 
         """
         result = await self.dbm.select_rows("fact", "AND", {"lang": lang, "name": name})
+        timestamp = (await self.dbm.select_rows("fact_timestamps", "AND",
+                                                {"lang": lang, "name": name}))
+        if len(timestamp) > 0:
+            timestamp = timestamp[0].last_modified
+        else:
+            timestamp = datetime.datetime.utcfromtimestamp(0)
         if result:
             result = result[0]
             return Fact(
                 result[0],
                 result[1],
                 result[2],
-                result[3]
-                # FIXME: use timestamp once SPARK-57 is implemented
+                result[3],
+                timestamp
             )
         else:
             return None
@@ -95,12 +101,20 @@ class FactsManager(metaclass=Singleton):
             if await self.is_fact(fact.name, fact.lang):
                 await self.dbm.update_row("fact", "AND", {"message": fact.message}, {"name": fact.name,
                                                                                      "lang": fact.lang})
-                return True
             else:
                 await self.dbm.insert_row("fact", (fact.name, fact.lang, fact.message, fact.author))
-                return True
         except ValueError:
             return False
+        else:
+            time = datetime.datetime.now(tz=datetime.timezone.utc)
+            self.dbm._execute("INSERT INTO fact_timestamps (name, lang, last_modified) "
+                                    "VALUES("
+                                    f"'{fact.name}', '{fact.lang}', ?)"
+                                    "ON CONFLICT (name, lang)"
+                                    "DO UPDATE SET last_modified = ?",
+                                    time, time  # time is doubled on purpose
+                                    )
+            return True
 
     async def delete_fact(self, name: str, lang: str) -> bool or None:
         """
@@ -129,7 +143,7 @@ class FactsManager(metaclass=Singleton):
         Args:
             context: the context as passed by rat_command
 
-        Returns: True if it was a fact, Falso if not. Will also return False,
+        Returns: True if it was a fact, False if not. Will also return False,
             should the DBM be disabled.
 
         """
