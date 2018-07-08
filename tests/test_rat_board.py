@@ -178,18 +178,16 @@ class TestRatBoardPyTest(object):
 
     @pytest.mark.asyncio
     async def test_modify_with_net_change(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
-        # make a deep copy of the fixture so we can edit it without tainting the board reference
-        myRescue: Rescue = deepcopy(rescue_sop_fx)
-        # append our rescue to the board
+
         rat_board_fx.rescues[rescue_sop_fx.board_index] = rescue_sop_fx
 
         # make a change, ensure a change actually occured.
-        myRescue.platform = Platforms.PC if myRescue.platform is not Platforms.PC else Platforms.XB
-        result = await rat_board_fx.modify(rescue=myRescue)
+        rescue_sop_fx.platform = Platforms.PC if rescue_sop_fx.platform is not Platforms.PC else Platforms.XB
+        result = await rat_board_fx.modify(rescue=rescue_sop_fx)
         # check status OK
         assert result is True
         # check that a change occured
-        assert rat_board_fx.rescues[rescue_sop_fx.board_index] == myRescue
+        assert rat_board_fx.rescues[rescue_sop_fx.board_index] == rescue_sop_fx
 
         # double check
         assert rat_board_fx.rescues[rescue_sop_fx.board_index] != rescue_sop_fx
