@@ -21,6 +21,7 @@ from Modules import rat_command
 from Modules.rat_command import command
 from pydle import ClientPool, Client
 from utils.ratlib import sanitize
+from Modules.database_manager import DatabaseManager
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -44,7 +45,7 @@ class MechaClient(Client):
 
         """
         self._api_handler = None  # TODO: replace with handler init once it exists
-        self._database_manager = None  # TODO: replace with dbm once it exists
+        self._database_manager = DatabaseManager()
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         super().__init__(*args, **kwargs)
 
