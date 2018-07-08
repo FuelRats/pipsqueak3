@@ -13,12 +13,10 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
-from typing import Union, Optional
+from typing import Optional, Dict
 from uuid import UUID
 
-import config
 from Modules.rat_rescue import Rescue
-from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -66,7 +64,7 @@ class RatBoard(object):
         """
         self.handler = handler
         """API handler used by the board"""
-        self._rescues = {}
+        self._rescues: Dict[int, Rescue] = {}
         """Rescue objects tracked by this board"""
         self._last_index: int = None
         """Last index used by the board during case creation"""
@@ -110,7 +108,7 @@ class RatBoard(object):
             return False
 
     @property
-    def rescues(self) -> dict:
+    def rescues(self) -> Dict[int, Rescue]:
         """
         Rescues tracked by the board
 
@@ -263,46 +261,31 @@ class RatBoard(object):
             rescue.board_index = self.next_free_index()
             self.rescues[rescue.board_index] = rescue
 
-    async def modify(self, rescue: Rescue) -> bool:
+        # let the rescue know we are handling it now
+        rescue.rat_board = self
+
+    async def update(self, rescue: Rescue) -> None:
         """
         Modify an existing Rescue on the board
 
         Args:
             rescue (Rescue): new Rescue object to replace existing
 
-        Returns:
-            True IF rescue exists and was replaced
-            False if rescue does not exist.
-
         Raises:
-            RescueNotChangedException: rescue was not actually changed
+            TypeError: something other than a rescue was passed in
+            ValueError: rescue does not belong to this board
         """
+        if not isinstance(rescue, Rescue):
+            raise TypeError(f"expected Rescue, got {type(rescue)}")
 
-        # find the case in question
-        found = self.find_by_index(rescue.board_index)
+        if rescue.rat_board is not self:
+            raise ValueError("This rescue is not one of mine!")
 
-        if found is None:
-            # we did not find a rescue to modify
-            result = False
-        # check if its equal to what we already have
-        elif found == rescue:
-            log.debug("A call was made to modify, yet the rescue was not changed!")
+        if len(rescue.modified_attrs) == 0:
             raise RescueNotChangedException
-        else:
-            # its not what we already have
 
-            # lets check if we have a API handler
-            if self.handler is not None:
-                log.debug("Rescue has been modified, making a call to the API")
-                # if so, let it know we changed the rescue
-                # FIXME: change to match API Handler interface, once it exists
-                await self.handler.update_rescue(rescue)
-
-            log.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.api_id}...")
-            self.append(rescue=rescue, overwrite=True)
-            result = True
-
-        return result
+        if self.handler is not None:
+            self.handler.update_rescue(rescue)  # TODO: replace with API call
 
     async def remove(self, rescue: Rescue) -> None:
         """
