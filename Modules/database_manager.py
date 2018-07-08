@@ -94,9 +94,22 @@ class DatabaseManager(metaclass=Singleton):
         self.cursor = self.connection.cursor()
         self._enabled = True
         # Ensure all the default tables are defined
-        self._execute("CREATE TABLE IF NOT EXISTS"
-                      " fact (name VARCHAR, lang VARCHAR, message VARCHAR, author VARCHAR);")
-        # FIXME once SPARK-57 is implemented
+        self._execute("CREATE TABLE IF NOT EXISTS fact ("
+                      "name VARCHAR,"
+                      "lang VARCHAR,"
+                      "message VARCHAR,"
+                      "author VARCHAR"
+                      ");"
+                      )
+        # FIXME ask Absolver for actual signature
+
+        self._execute("CREATE TABLE IF NOT EXISTS fact_timestamps ("
+                      "name VARCHAR NOT NULL,"
+                      "lang VARCHAR NOT NULL,"
+                      "last_modified TIMESTAMP WITH TIME ZONE NOT NULL,"
+                      "PRIMARY KEY (name, lang)"
+                      ");"
+                      )
 
     def __init__(self):
         """

@@ -16,6 +16,7 @@ This module is built on top of the Pydle system.
 import pytest
 from Modules import rat_facts, database_manager
 from Modules.rat_facts import Fact
+import datetime
 
 
 @pytest.fixture
@@ -62,16 +63,21 @@ class TestFacts(object):
         assert not value
 
         # we set the fact and make sure it's there
-        await facts_fx.set_fact(Fact("test2", "en", "I want my cake!", "FatRat"))
-        value = (await facts_fx.get_fact("test2", "en")).message
-        assert value == "I want my cake!"
+        await facts_fx.set_fact(Fact("test2", "en", "I want my cake!", "FatRat",
+                                     datetime.datetime.now(tz=datetime.timezone.utc)))
+        value = (await facts_fx.get_fact("test2", "en"))
+        assert value.message == "I want my cake!"
+        first_ts = datetime.datetime.utcnow()
+        assert value.timestamp < first_ts
 
         # and now we re-set it, effectively updating it.
-        await facts_fx.set_fact(Fact("test2", "en", "You promised me some Cake!", "AngryFatRat"))
+        await facts_fx.set_fact(Fact("test2", "en", "You promised me some Cake!", "AngryFatRat",
+                                     datetime.datetime.now(tz=datetime.timezone.utc)))
 
         # as well as making sure it did what we asked for
-        value = (await facts_fx.get_fact("test2", "en")).message
-        assert value == "You promised me some Cake!"
+        value = (await facts_fx.get_fact("test2", "en"))
+        assert value.message == "You promised me some Cake!"
+        assert first_ts < value.timestamp
 
         # and no, you ain't getting your cake!
 
