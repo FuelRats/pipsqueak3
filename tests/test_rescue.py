@@ -10,15 +10,17 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-import pytest
 from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4, UUID
-from Modules.epic import Epic
+
+import pytest
+
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat import Rat
+from Modules.rat_board import RatBoard, RescueNotChangedException
 from Modules.rat_rescue import Rescue
-from utils.ratlib import Status
+from utils.ratlib import Status, Platforms
 
 pytestmark = pytest.mark.rescue
 
@@ -85,13 +87,14 @@ def test_created_at_date_exists(rescue_sop_fx):
     assert expected_time_differential != 0
 
 
-def test_updated_at_date_exists(rescue_sop_fx):
+@pytest.mark.asyncio
+async def test_updated_at_date_exists(rescue_sop_fx):
     """
     Verifies rescue.updated_at is correct
     """
     rescue_sop_fx._updatedAt = datetime(1990, 1, 1, 1, 1, 1)
 
-    with rescue_sop_fx.change():
+    async with rescue_sop_fx.change():
         rescue_sop_fx.system = 'UpdatedSystem'
 
     assert rescue_sop_fx.updated_at != datetime(1990, 1, 1, 1, 1, 1)
@@ -102,7 +105,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
     Verify Rescue.updated_at raises TypeError if given incorrect value,
     or is set to a date in the past.
     """
-    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1,)
+    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1, )
 
     # Set to a string time
     with pytest.raises(TypeError):
@@ -555,7 +558,7 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
 
         with pytest.raises(ValueError):
             rescue_sop_fx.mark_delete("unit_test", "")
-            
+
 
 def test_mark_for_deletion_unset(rescue_sop_fx: Rescue):
     """
@@ -669,3 +672,28 @@ def test_rescue_code_red_setter(rescue_sop_fx):
 
     with pytest.raises(TypeError):
         rescue_sop_fx.code_red = 'Yes'
+
+
+@pytest.mark.asyncio
+async def test_modify_with_net_change(rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
+    rat_board_fx.append(rescue_sop_fx)
+
+    new_platform = Platforms.PC if rescue_sop_fx.platform is not Platforms.PC else Platforms.XB
+    # make a change, ensure a change actually occured.
+    async with rescue_sop_fx.change():
+        rescue_sop_fx.platform = new_platform
+
+    # check that a change occured
+    assert rat_board_fx.rescues[rescue_sop_fx.board_index].platform == new_platform
+
+
+@pytest.mark.asyncio
+async def test_modify_no_net_change(rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
+    # append rescue to board
+    rat_board_fx.append(rescue_sop_fx)
+
+    rescue_sop_fx.modified_attrs = set()
+
+    with pytest.raises(RescueNotChangedException):
+        async with rescue_sop_fx.change():
+            pass
