@@ -273,3 +273,16 @@ class TestRatBoardPyTest(object):
         rat_board_fx.append(rescue_plain_fx)
         with pytest.raises((TypeError, ValueError,)):
             rat_board_fx.search(test_input)
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("garbage", [None, 42, -2.2, uuid4(), []])
+    async def test_update_garbage(self, garbage, rat_board_fx: RatBoard):
+        with pytest.raises(TypeError):
+            await rat_board_fx.update(garbage)
+
+    @pytest.mark.asyncio
+    async def test_update_wrong_board(self, rescue_sop_fx: Rescue, rat_board_fx: RatBoard):
+        """verifies what happens when someone tries to update a Rescue that is not on the board"""
+        rescue_sop_fx.rat_board = None
+        with pytest.raises(ValueError):
+            await rat_board_fx.update(rescue_sop_fx)

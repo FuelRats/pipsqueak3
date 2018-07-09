@@ -284,7 +284,7 @@ class RatBoard(object):
         if len(rescue.modified_attrs) == 0:
             raise RescueNotChangedException
 
-        if self.handler is not None:  # PRAGMA: NOCOVER
+        if self.handler is not None:  # pragma: no cover
             self.handler.update_rescue(rescue)  # TODO: replace with API call
         # clear modified_attrs as we have now noted the changes
         rescue.modified_attrs.clear()
@@ -302,9 +302,9 @@ class RatBoard(object):
         Raises:
             KeyError: rescue was not on the board.
         """
-        if self.handler is not None:
+        if self.handler is not None: # pragma: no cover
+
             log.debug(f"Calling API to remove case by id {rescue.api_id}")
-            #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
         log.debug(f"Removing case #{rescue.board_index} "
