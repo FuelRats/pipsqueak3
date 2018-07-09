@@ -41,6 +41,14 @@ class Fact:
 
 class FactsManager(metaclass=Singleton):
 
+    @property
+    def enabled(self):
+        return self.dbm.enabled
+
+    @enabled.setter
+    def enabled(self, value):
+        raise RuntimeError("You cant set this. Really. If you want me disable, disable the DBM.")
+
     def __init__(self):
         """
         retrieves the DBM object.

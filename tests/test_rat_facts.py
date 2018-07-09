@@ -121,3 +121,8 @@ class TestFacts(object):
         # make sure it pulled the right message
         message = tests.mock_bot.MockBot.rat_facts_reply
         assert message == "THIS IS TEST No. 1"
+
+    async def test_enabled_property(self, dbm_fx, facts_fx):
+        assert dbm_fx.enabled == facts_fx.enabled
+        with pytest.raises(RuntimeError):
+            facts_fx.enabled = False
