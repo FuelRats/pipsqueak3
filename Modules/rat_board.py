@@ -302,7 +302,7 @@ class RatBoard(object):
         Raises:
             KeyError: rescue was not on the board.
         """
-        if self.handler is not None: # pragma: no cover
+        if self.handler is not None:  # pragma: no cover
 
             log.debug(f"Calling API to remove case by id {rescue.api_id}")
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
