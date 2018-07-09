@@ -48,7 +48,7 @@ from Modules.mark_for_deletion import MarkForDeletion
                         ("xxXclient", Platforms.XB, "sol", 2),
                         ("psCoolKid", Platforms.PS, "NLTT 48288", 33)],
                 )
-def rescue_sop_fx(request) -> Rescue:
+def rescue_sop_fx(request, rat_board_fx) -> Rescue:
     """
     A Rescue fixture providing Rescue objects for the 3 supported platforms
 
@@ -60,7 +60,7 @@ def rescue_sop_fx(request) -> Rescue:
     """
     params = request.param
     myRescue = Rescue(uuid4(), client=params[0], system=params[2], irc_nickname=params[0],
-                      board_index=params[3])
+                      board_index=params[3], board=rat_board_fx)
     myRescue.platform = params[1]
     return myRescue
 
