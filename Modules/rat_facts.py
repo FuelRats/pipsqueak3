@@ -106,20 +106,17 @@ class FactsManager(metaclass=Singleton):
 
         """
         try:
-            if await self.is_fact(fact.name, fact.lang):
-                await self.dbm.update_row("fact", "AND", {"message": fact.message},
-                                          {"name": fact.name, "lang": fact.lang})
-            else:
-                await self.dbm.insert_row("fact", (fact.name, fact.lang, fact.message, fact.author))
+            await self.dbm.insert_row("fact", {"name": fact.name, "lang": fact.lang, "message": fact.message,
+                                               "author": fact.author}, ("name", "lang",))
         except ValueError:
             return False
         else:
             time = datetime.datetime.now(tz=datetime.timezone.utc)
-            self.dbm._execute("INSERT INTO fact_timestamps (name, lang, last_modified) "
-                              "VALUES("
-                             f"'{fact.name}', '{fact.lang}', ?)"
-                              "ON CONFLICT (name, lang)"
-                              "DO UPDATE SET last_modified = ?",
+            self.dbm._execute(r"INSERT INTO fact_timestamps (name, lang, last_modified) "
+                              r"VALUES("
+                              f"'{fact.name}', '{fact.lang}', ?)"
+                              r"ON CONFLICT (name, lang)"
+                              r"DO UPDATE SET last_modified = ?",
                               time, time  # time is doubled on purpose
                               )
             return True

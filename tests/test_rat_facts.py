@@ -22,12 +22,22 @@ import datetime
 @pytest.fixture
 @pytest.mark.asyncio
 async def prepare_facts(dbm_fx: database_manager.DatabaseManager):
-    if not len((await dbm_fx.select_rows("fact", "AND", {"name": "test1", "lang": "en"}))) > 0:
-        await dbm_fx.insert_row("fact", ("test1", "en", "THIS IS TEST No. 1", "TestRat"))
-        await dbm_fx.insert_row("fact", ("test1", "de", "Icke bin Test #1", "TestRat"))
-    yield
-    await dbm_fx.insert_row("fact", ("test1", "de", "Icke bin Test #1", "TestRat"))
-    await dbm_fx.delete_row("fact", "AND", {"name": "test2", "lang": "en"})
+    if not dbm_fx.marker:
+        dbm_fx.marker_facts = True
+        await dbm_fx.insert_row("fact",
+                                {"name": "test1", "lang": "en", "message": "THIS IS TEST No. 1",
+                                 "author": "TestRat"},
+                                ("name", "lang"))
+        await dbm_fx.insert_row("fact",
+                                {"name": "test1", "lang": "de", "message": "Icke bin Test #1",
+                                 "author": "TestRat"},
+                                ("name", "lang"))
+        yield
+        await dbm_fx.insert_row("fact",
+                                {"name": "test1", "lang": "de", "message": "Icke bin Test #1",
+                                 "author": "TestRat"},
+                                ("name", "lang"))
+        await dbm_fx.delete_row("fact", "AND", {"name": "test2", "lang": "en"})
 
 
 @pytest.mark.database
