@@ -95,13 +95,13 @@ class DatabaseManager(metaclass=Singleton):
         self._enabled = True
         # Ensure all the default tables are defined
         self._execute("CREATE TABLE IF NOT EXISTS fact ("
-                      "name VARCHAR,"
-                      "lang VARCHAR,"
-                      "message VARCHAR,"
-                      "author VARCHAR"
+                      "name VARCHAR NOT NULL,"
+                      "lang VARCHAR NOT NULL,"
+                      "message VARCHAR NOT NULL,"
+                      "author VARCHAR,"
+                      "PRIMARY KEY (name, lang)"
                       ");"
                       )
-        # FIXME ask Absolver for actual signature
 
         self._execute("CREATE TABLE IF NOT EXISTS fact_timestamps ("
                       "name VARCHAR NOT NULL,"
