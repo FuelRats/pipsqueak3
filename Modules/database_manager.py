@@ -98,8 +98,9 @@ class DatabaseManager(metaclass=Singleton):
                       "name VARCHAR NOT NULL,"
                       "lang VARCHAR NOT NULL,"
                       "message VARCHAR NOT NULL,"
-                      "author VARCHAR,"
-                      "PRIMARY KEY (name, lang)"
+                      "author VARCHAR, "
+                      "PRIMARY KEY (name, lang) "
+                      #  "UNIQUE (name, lang)"
                       ");"
                       )
 
@@ -221,10 +222,14 @@ class DatabaseManager(metaclass=Singleton):
         # please, kid, do your homework
         raise ValueError(f"Table {name} does not exist!")
 
-    async def insert_row(self, table_name: str, values: tuple,
+    async def insert_row(self, table_name: str, values: dict, constraint_column_name: tuple,
+                         no_conflict_resolution: bool = False,
                          skip_double_dash_test: bool = False) -> None:
         """
         Args:
+            constraint_column_name: names of the unique columns.
+                These MUST be set as unique at table-creation
+            no_conflict_resolution: If there are no unique columns in your table, set this to True
             table_name: name of table to insert value into
             values: tuple with values matching the rows to insert into
             skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
@@ -234,11 +239,26 @@ class DatabaseManager(metaclass=Singleton):
 
         """
         if await self.has_table(table_name):
-            val_str = ", ".join(f"'{v}'" for v in values)
+            val_str = col_str = val_col_str = ""
+            for k, v in values.items():
+                val_str += f"'{v}', "
+                col_str += f"{k}, "
+                val_col_str += f"{k} = '{v}', "
+
+            val_col_str = val_col_str[:-2]
+            val_str = val_str[:-2]
+            col_str = col_str[:-2]
+
+            # print(f"val_str = {val_str}\ncol_str = {col_str}\nval_col_str = {val_col_str}")
+
+            constraint_str = ", ".join(constraint_column_name)
             if '--' in val_str and not skip_double_dash_test:
                 raise ValueError(f"Suspicion of SQL-Injection. "
                                  f"Statement: INSERT INTO {table_name} VALUES ({val_str})")
-            sql_string = f"INSERT INTO {table_name} VALUES ({val_str});"
+            sql_string = f"INSERT INTO {table_name} ({col_str}) VALUES ({val_str})"
+            if not no_conflict_resolution:
+                sql_string += (f"ON CONFLICT ({constraint_str}) DO "
+                               f"UPDATE SET {val_col_str};")
 
             self._execute(sql_string)
         else:
@@ -248,17 +268,17 @@ class DatabaseManager(metaclass=Singleton):
                          skip_double_dash_test=False) -> None:
         """
 
-        Args:
-            table_name: name of table to update
-            connector: Connector used to connect conditions. Must be suported by the DB
-            values: tuple with values matching the rows to insert into
-            condition: conditions, connected by "equals"
-            skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
-                    implement your OWN CHECK!
+         Args:
+             table_name: name of table to update
+             connector: Connector used to connect conditions. Must be suported by the DB
+             values: tuple with values matching the rows to insert into
+             condition: conditions, connected by "equals"
+             skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
+                     implement your OWN CHECK!
 
-        Returns: None
+         Returns: None
 
-        """
+         """
         if await self.has_table(table_name):
             val_str = ", ".join(f"{k} = '{v}'" for k, v in values.items())
             cond_str = f" {connector} ".join(f"{key} = '{value}'"

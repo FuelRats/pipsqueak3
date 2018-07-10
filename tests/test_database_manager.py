@@ -47,57 +47,57 @@ class TestStuff(object):
     def finalize(self, dbm_fx):
         dbm_fx.enabled = False
 
-    async def test_has_table(self, dbm_fx):
+    async def test_has_table(self, dbm_fx: DatabaseManager):
         if await dbm_fx.has_table("testtablehas"):
             await dbm_fx.drop_table("testtablehas")
         assert not await dbm_fx.has_table("testtablehas")
-        await dbm_fx.create_table("testtablehas", {"string1": "VARCHAR"})
+        await dbm_fx.create_table("testtablehas", {"string1": "VARCHAR UNIQUE"})
         assert await dbm_fx.has_table("testtablehas")
 
-    async def test_select_row(self, dbm_fx):
+    async def test_select_row(self, dbm_fx: DatabaseManager):
         if not await dbm_fx.has_table("testtableselect"):
-            await dbm_fx.create_table("testtableselect", {"string1": "VARCHAR"})
-        await dbm_fx.insert_row("testtableselect", ("thest",))
+            await dbm_fx.create_table("testtableselect", {"string1": "VARCHAR UNIQUE"})
+        await dbm_fx.insert_row("testtableselect", {"string1": "thest"}, ("string1",))
 
         assert (await dbm_fx.select_rows("testtableselect", "AND", {"string1": "thest"}))[0][0]\
             == ("thest",)[0]
 
-    async def test_create_table(self, dbm_fx):
+    async def test_create_table(self, dbm_fx: DatabaseManager):
         if await dbm_fx.has_table("testtablecreate"):
             await dbm_fx.drop_table("testtablecreate")
         if not await dbm_fx.has_table("testtablecreate"):
-            await dbm_fx.create_table("testtablecreate", {"string1": "VARCHAR"})
+            await dbm_fx.create_table("testtablecreate", {"string1": "VARCHAR UNIQUE"})
         with pytest.raises(ValueError):
-            await dbm_fx.create_table("testtablecreate", {"test": "VARCHAR"})
+            await dbm_fx.create_table("testtablecreate", {"test": "VARCHAR UNIQUE"})
 
     async def test_drop_table(self, dbm_fx: DatabaseManager):
         if not await dbm_fx.has_table("testtabledrop"):
-            await dbm_fx.create_table("testtabledrop", {"string1": "TIMESTAMP"})
+            await dbm_fx.create_table("testtabledrop", {"string1": "TIMESTAMP UNIQUE"})
         assert await dbm_fx.has_table("testtabledrop")
         await dbm_fx.drop_table("testtabledrop")
         assert not await dbm_fx.has_table("testtabledrop")
 
-    async def test_insert_row(self, dbm_fx):
+    async def test_insert_row(self, dbm_fx: DatabaseManager):
         if not await dbm_fx.has_table("testtableinsert"):
-            await dbm_fx.create_table("testtableinsert", {"string1": "VARCHAR"})
-        await dbm_fx.insert_row("testtableinsert", ("test",))
+            await dbm_fx.create_table("testtableinsert", {"string1": "VARCHAR UNIQUE"})
+        await dbm_fx.insert_row("testtableinsert", {"string1": "test"}, ("string1",))
         tmp = await dbm_fx.select_rows("testtableinsert", "AND", {"string1": "test"})
         assert tmp[0][0] == ("test",)[0]
 
-    async def test_update_row(self, dbm_fx):
+    async def test_update_row(self, dbm_fx: DatabaseManager):
         if not await dbm_fx.has_table("testtableupdate"):
-            await dbm_fx.create_table("testtableupdate", {"string1": "VARCHAR"})
-        await dbm_fx.insert_row("testtableupdate", ("thest",))
+            await dbm_fx.create_table("testtableupdate", {"string1": "VARCHAR UNIQUE"})
+        await dbm_fx.insert_row("testtableupdate", {"string1": "thest"}, ("string1",))
         await dbm_fx.update_row("testtableupdate", "AND", {"string1": "FizzBuzz"},
-                                      {"string1": "thest"})
+                                {"string1": "thest"})
 
         tmp = await dbm_fx.select_rows("testtableupdate", "AND", {"string1": "FizzBuzz"})
         assert tmp[0][0] == "FizzBuzz"
 
-    async def test_delete_row(self, dbm_fx):
+    async def test_delete_row(self, dbm_fx: DatabaseManager):
         if not await dbm_fx.has_table("testtabledelete"):
-            await dbm_fx.create_table("testtabledelete", {"string1": "VARCHAR"})
-        await dbm_fx.insert_row("testtabledelete", ("thest",))
+            await dbm_fx.create_table("testtabledelete", {"string1": "VARCHAR UNIQUE"})
+        await dbm_fx.insert_row("testtabledelete", {"string1": "thest"}, ("string1",))
         await dbm_fx.delete_row("testtabledelete", "AND", {"string1": "thest"})
         tmp = await dbm_fx.select_rows("testtabledelete", "AND", {"string1": "thest"})
         assert len(tmp) == 0
@@ -106,14 +106,14 @@ class TestStuff(object):
         with pytest.raises(ValueError):
             await dbm_fx.delete_row("testtabledelete", "AND", {"test": "OR TRUE; -- "})
             await dbm_fx.update_row("testtableupdate", "AND", {"string1": " OR FALSE; -- "})
-            await dbm_fx.insert_row("testtableinsert", ("stuff", "more stuff", "DIE; -- "))
+            await dbm_fx.insert_row("testtableinsert", {"string1": "stuff"}, ("string1",))
             await dbm_fx.select_rows("testtableselect", "AND", {"test; -- ": "stuff"})
 
         try:
             await dbm_fx.delete_row("testtabledelete", "AND", {"test": "OR TRUE; -- "}, True)
             await dbm_fx.update_row("testtableupdate", "AND", {"string1": " OR FALSE; -- "},
                                     None, True)
-            await dbm_fx.insert_row("testtableinsert", ("stuff", "more stuff", "DIE; -- "), True)
+            await dbm_fx.insert_row("testtableinsert", {"string1": "stuff; -- "}, ("string1",), True)
             await dbm_fx.select_rows("testtableselect", "AND", {"test; -- ": "stuff"}, True)
         except pyodbc.Error:
             pass
