@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 from functools import wraps
-from typing import Any
+from typing import Any, Union, Callable
 
 from Modules.context import Context
 
@@ -148,26 +148,35 @@ def require_permission(permission: Permission,
     return real_decorator
 
 
-def require_channel(*args, **kwargs):
+def require_channel(func: Union[str, Callable] = None,
+                    message: str = "This command must be invoked in a channel."):
     """
     Require the wrapped IRC command to be invoked in a channel context.
 
+    Args:
+        func(Union[str, Callable]): wrapped function / message
+        message(str): message to display on check fail
+
     Usage:
-        ```py
+        >>> @require_channel
+        ... async def my_command(context: Context):
+        ...     pass
 
-        @require_channel()
-        async def my_command(context: Context):
-            pass
-        ```
+        >>> @require_channel("access denied.")
+        ... async def my_command(context: Context):
+        ...     pass
+
+        >>> @require_channel(message="access denied.")
+        ... async def my_command(context: Context):
+        ...     pass
     """
-    func = None
-    # determine if the form is @require_channel(*args, **kwargs)
-    if len(args) == 1 and callable(args[0]):
-        # form is @require_channel(*args, **kwargs)
-        func = args[0]
+    # form of @decorate("message")
+    if isinstance(func, str):
+        message = func
 
-    # fetch the `message` kwarg if it exists, default otherwise
-    message = kwargs.get("message", "This command must be invoked in a channel.")
+    # direct decoration
+    if not callable(func):
+        func = None
 
     def real_decorator(wrapped):
         """
