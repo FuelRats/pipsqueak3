@@ -53,7 +53,7 @@ class Singleton(object):
         >>> foo = Potato()
         >>> bar = Potato()
         >>> foo is bar
-        true
+        True
     """
 
     def __new__(cls, *args, **kwargs):
