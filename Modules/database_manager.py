@@ -15,12 +15,12 @@ from config import config
 import logging
 from utils.ratlib import Singleton
 from utils.abstract import Abstract
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class DBMApi(Abstract):
+class DBMApi(ABC):
     @abstractmethod
     async def select_rows(self, table_name: str, connector: str, condition: dict = None,
                           skip_double_dash_test: bool = False) -> list or None:
