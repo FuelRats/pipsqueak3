@@ -13,9 +13,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 from functools import wraps
-
-from typing import Any, Union, Callable,List, Dict, Set
-
+from typing import Any, Union, Callable, List, Dict, Set
 
 from Modules.context import Context
 from config import config
