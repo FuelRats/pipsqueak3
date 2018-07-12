@@ -1,6 +1,7 @@
 import pytest
 
 import utils.ratlib
+from utils.ratlib import Singleton
 
 pytestmark = pytest.mark.ratlib
 
@@ -45,3 +46,40 @@ def test_sanitize(input_message, expected_message):
     Verifies sanitize routine is properly removing string elements.
     """
     assert utils.ratlib.sanitize(input_message) == expected_message
+
+
+def test_singleton_direct_inheritance():
+    """
+    Verifies the Singleton class behaves as expected for classes directly inheriting
+    """
+
+    class Potato(Singleton):
+        pass
+
+    # noinspection PyUnresolvedReferences
+    assert Potato._instance is None
+    foo = Potato()
+    bar = Potato()
+    assert foo is bar
+    # noinspection PyUnresolvedReferences
+    assert Potato._instance is foo
+
+
+def test_singleton_indirect_inheritance():
+    """
+    Verifies the Singleton class behaves as expected for classes ultimately derived from Singleton
+    """
+
+    class Potato(Singleton):
+        pass
+
+    class Snafu(Potato):
+        pass
+
+    # noinspection PyUnresolvedReferences
+    assert Snafu._instance is None
+    foo = Snafu()
+    bar = Snafu()
+    assert foo is bar
+    # noinspection PyUnresolvedReferences
+    assert Snafu._instance is foo
