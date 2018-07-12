@@ -106,8 +106,12 @@ class FactsManager(Singleton):
         """
         try:
             await self.dbm.insert_row("fact",
-                                      {"name": fact.name, "lang": fact.lang, "message": fact.message,
-                                       "author": fact.author}, ("name", "lang",))
+                                      {"name": fact.name,
+                                       "lang": fact.lang,
+                                       "message": fact.message,
+                                       "author": fact.author},
+                                      ("name", "lang",)
+                                      )
         except ValueError:
             return False
         else:
