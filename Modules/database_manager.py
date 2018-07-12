@@ -14,12 +14,120 @@ import pyodbc
 from config import config
 import logging
 from utils.ratlib import Singleton
+from utils.abstract import Abstract
+from abc import abstractmethod
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
+class DBMApi(Abstract):
+    @abstractmethod
+    async def select_rows(self, table_name: str, connector: str, condition: dict = None,
+                          skip_double_dash_test: bool = False) -> list or None:
+        """
+
+        Args:
+            table_name: name of the table to select from
+            connector: Connector used to connect conditions. Must be supported by the DB
+            condition: conditions, connected by "equals"
+            skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
+                    implement your OWN CHECK!
+
+        Returns: a list containing the rows returned
+
+        """
+
+    @abstractmethod
+    async def has_table(self, name: str) -> bool:
+        """
+        checks whether the table exists.
+        Unique to PSQL!
+
+        Args:
+            name: name of the table to check
+
+        Returns: false if table does not exist, true if it exists
+
+        """
+
+    @abstractmethod
+    async def create_table(self, name: str, types: dict) -> None:
+        """
+            Creates the table with the given name and datatypes.
+            All datatypes must be SQL-compliant.
+        Args:
+            name: name of table to create
+            types: dict of column name and datatype
+
+        Returns: None
+        Raises: ValueError should table already exist
+        """
+
+    @abstractmethod
+    async def drop_table(self, name: str) -> None:
+        """
+
+        Args:
+            name: name of table to drop
+
+        Returns: None
+
+        """
+
+    @abstractmethod
+    async def insert_row(self, table_name: str, values: dict, constraint_column_name: tuple,
+                         no_conflict_resolution: bool = False,
+                         skip_double_dash_test: bool = False) -> None:
+        """
+        Args:
+            constraint_column_name: names of the unique columns.
+                These MUST be set as unique at table-creation
+            no_conflict_resolution: If there are no unique columns in your table, set this to True
+            table_name: name of table to insert value into
+            values: tuple with values matching the rows to insert into
+            skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
+                    implement your OWN CHECK!
+
+        Returns: None
+
+        """
+
+    @abstractmethod
+    async def update_row(self, table_name: str, connector: str, values: dict, condition=None,
+                         skip_double_dash_test=False) -> None:
+        """
+
+         Args:
+             table_name: name of table to update
+             connector: Connector used to connect conditions. Must be suported by the DB
+             values: tuple with values matching the rows to insert into
+             condition: conditions, connected by "equals"
+             skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
+                     implement your OWN CHECK!
+
+         Returns: None
+
+         """
+
+    @abstractmethod
+    async def delete_row(self, table_name: str, connector: str, condition=None,
+                         skip_double_dash_test: bool = False) -> None:
+        """
+
+        Args:
+            table_name: name of table to delete row form
+            connector: Connector used to connect conditions. Must be suported by the DB
+            condition: conditions, connected by "equals"
+            skip_double_dash_test: skip the crude SQLInjection test if it breaks your request,
+                    implement your OWN CHECK!
+
+        Returns: None
+
+        """
+
+
 # noinspection SqlNoDataSourceInspection
-class DatabaseManager(metaclass=Singleton):
+class DatabaseManager(metaclass=Singleton, DBMApi):
     _enabled = True
 
     # for testing only, as a makeshift "session" scope
