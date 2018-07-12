@@ -24,6 +24,7 @@ BY_ERROR: Dict[type(Exception), str] = {
     IndexError: "Stale",
     TypeError: "Stinky",
     ValueError: "Moldy",
+    RuntimeError: "Abominable",
     IndexNotFreeError: "Low-grade",
     InvalidCommandException: "Vile",
     NameCollisionException: "Expired",
