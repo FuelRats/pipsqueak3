@@ -127,7 +127,7 @@ class DBMApi(Abstract):
 
 
 # noinspection SqlNoDataSourceInspection
-class DatabaseManager(metaclass=Singleton, DBMApi):
+class DatabaseManager(DBMApi, metaclass=Singleton):
     _enabled = True
 
     # for testing only, as a makeshift "session" scope
