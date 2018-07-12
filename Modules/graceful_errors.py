@@ -57,7 +57,7 @@ def make_graceful(ex: Exception, ex_uuid: UUID) -> str:
     # gets the first octet from the uuid
     octet = str(ex_uuid)[:8]
 
-    message = BY_ERROR[ex_type] if ex_type in BY_ERROR else "unknown error"
+    message = BY_ERROR[ex_type] if ex_type in BY_ERROR else "Putrid"
 
     cheese = random.choice(CHEESES)
     output = base.format(message=message, uuid=octet, cheese=cheese)
