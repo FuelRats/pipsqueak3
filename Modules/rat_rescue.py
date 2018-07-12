@@ -807,23 +807,22 @@ class Rescue(object):
                 self.rats.append(rat)
                 assigned_rat = rat
 
-        if isinstance(guid, UUID):
-            # lets check if we already have this rat in the cache
-            found = await RatCache().get_rat_by_uuid(guid)
-            if found:
-                self.rats.append(found)
-                assigned_rat = found
-            # else:  TODO: placeholder for fetching rats from the API handler
-                # if the specified UUID wasn't found, we need to search the API
+        elif guid is not None:
+            if isinstance(guid, str):
+                # attempt to coerce into a UUID
+                parsed_guid = UUID(guid)
+            elif isinstance(guid, UUID):
+                parsed_guid = guid
+            else:
+                raise ValueError(f"Expected str/UUID, got {type(guid)}")
 
-        elif isinstance(guid, str):
-            # attempt to coerce into a UUID
-            parsed_guid = UUID(guid)
+            # lets check if we already have this rat in the cache
             found = await RatCache().get_rat_by_uuid(parsed_guid)
             if found:
                 self.rats.append(found)
                 assigned_rat = found
-            # else: TODO: placeholder for fetching rats from the API handler
+            else:
+                pass  # TODO: placeholder for fetching rats from the API handler
 
         return assigned_rat
 
