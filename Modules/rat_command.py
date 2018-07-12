@@ -98,6 +98,8 @@ async def trigger(message: str, sender: str, channel: str):
         user = await User.from_whois(bot, sender)
         context = Context(bot, user, channel, words, words_eol)
         return await command_fun(context, *extra_args)
+    else:
+        log.debug(f"Ignoring message '{message}'. Not a command or rule.")
 
 
 def _get_rule(words: List[str], words_eol: List[str],
