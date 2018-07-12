@@ -144,6 +144,10 @@ def _split_message(string: str) -> Tuple[List[str], List[str]]:
             A 2-tuple of (words, words_eol), where words is a list of the words of *string*,
             seperated by whitespace, and words_eol is a list of the same length, with each element
             including the word and everything up to the end of *string*
+
+    Example:
+        >>> _split_message("pink fluffy unicorns")
+        (['pink', 'fluffy', 'unicorns'], ['pink fluffy unicorns', 'fluffy unicorns', 'unicorns'])
     """
     words = []
     words_eol = []
