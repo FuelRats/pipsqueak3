@@ -27,7 +27,6 @@ class Fact:
     language = None
     message = None
     author = None
-    # for SPARK-57
     timestamp = None
 
     def __init__(self, name: str, lang: str, message: str, author: str,
@@ -39,7 +38,7 @@ class Fact:
         self.timestamp = timestamp
 
 
-class FactsManager(metaclass=Singleton):
+class FactsManager(Singleton):
 
     @property
     def enabled(self):

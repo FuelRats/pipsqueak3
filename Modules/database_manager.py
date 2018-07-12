@@ -14,7 +14,6 @@ import pyodbc
 from config import config
 import logging
 from utils.ratlib import Singleton
-from utils.abstract import Abstract
 from abc import abstractmethod, ABC
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -127,7 +126,7 @@ class DBMApi(ABC):
 
 
 # noinspection SqlNoDataSourceInspection
-class DatabaseManager(DBMApi, metaclass=Singleton):
+class DatabaseManager(DBMApi, Singleton):
     _enabled = True
 
     # for testing only, as a makeshift "session" scope
