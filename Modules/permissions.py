@@ -170,7 +170,7 @@ def require_channel(func: Union[str, Callable] = None,
         ... async def my_command(context: Context):
         ...     pass
     """
-    # form of @decorate("message")
+    # form of @decorator("message") and @decorator(message=str)
     if isinstance(func, str):
         message = func
 
@@ -218,25 +218,35 @@ def require_channel(func: Union[str, Callable] = None,
 
 # def require_dm(message: str = "command {cmd} must be invoked in a private message."):
 
-def require_dm(*args, **kwargs):
+def require_dm(func: Union[str, Callable] = None,
+               message: str = "This command must be invoked in a channel."):
     """
     Require the wrapped IRC command to be invoked in a DM context.
 
-    Usage:
-        ```py
-        @require_dm
-        async def my_command(context: Context):
-            pass
-        ```
-    """
-    func = None
-    # determine if the form is @require_channel(*args, **kwargs)
-    if len(args) == 1 and callable(args[0]):
-        # form is @require_dm(*args, **kwargs)
-        func = args[0]
+    Args:
+        func(Callable): wrapped function / access denied string override
+        message(str): access denied string
 
-    # fetch the `message` kwarg if it exists, default otherwise
-    message = kwargs.get("message", "this command must be invoked in a private message.")
+    Usage:
+        >>> @require_dm
+        ... async def my_command(context: Context):
+        ...     pass
+
+        >>> @require_dm("access denied.")
+        ... async def my_command(context: Context):
+        ...     pass
+
+        >>> @require_dm(message="access denied.")
+        ... async def my_command(context: Context):
+        ...     pass
+    """
+    # form of @decorator("message") and @decorator(message=str)
+    if isinstance(func, str):
+        message = func
+
+    # direct decoration
+    if not callable(func):
+        func = None
 
     def real_decorator(wrapped):
         """
