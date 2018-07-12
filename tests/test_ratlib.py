@@ -1,6 +1,7 @@
 import pytest
 
 import utils.ratlib
+from utils.ratlib import Singleton
 
 pytestmark = pytest.mark.ratlib
 
@@ -47,16 +48,39 @@ def test_sanitize(input_message, expected_message):
     assert utils.ratlib.sanitize(input_message) == expected_message
 
 
-def test_Singleton():
+def test_singleton_direct_inheritance():
     """
-    Verifies that the classes are indeed Singletons
+    Verifies the Singleton class behaves as expected for classes directly inheriting
     """
-    class Test1(metaclass=utils.ratlib.Singleton):
+
+    class Potato(Singleton):
         pass
 
-    class Test2(metaclass=utils.ratlib.Singleton):
+    # noinspection PyUnresolvedReferences
+    assert Potato._instance is None
+    foo = Potato()
+    bar = Potato()
+    assert foo is bar
+    # noinspection PyUnresolvedReferences
+    assert Potato._instance is foo
+
+
+def test_singleton_indirect_inheritance():
+    """
+    Verifies the Singleton class behaves as expected for classes ultimately derived from Singleton
+    """
+
+    class Potato(Singleton):
         pass
 
-    assert Test1() is Test1()
-    assert Test2() is Test2()
-    assert Test1() is not Test2()
+    class Snafu(Potato):
+        pass
+
+    # noinspection PyUnresolvedReferences
+    assert Snafu._instance is None
+    foo = Snafu()
+    bar = Snafu()
+    assert foo is bar
+    # noinspection PyUnresolvedReferences
+    assert Snafu._instance is foo
+

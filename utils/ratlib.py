@@ -11,9 +11,9 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from enum import Enum
 import re
-from uuid import UUID, uuid4
+from enum import Enum
+from uuid import UUID
 
 MIRC_CONTROL_CODES = ["\x0F", "\x16", "\x1D", "\x1F", "\x02",
                       "\x03([1-9][0-6]?)?,?([1-9][0-6]?)?"]
@@ -39,6 +39,37 @@ class Status(Enum):
     """The rescue is currently closed"""
     INACTIVE = 2
     """The rescue is open, but is marked inactive"""
+
+
+class Singleton(object):
+    """
+    Provides a singleton base class.
+
+    Any class derived from this base will be a singleton.
+
+    Examples:
+        >>> class Potato(Singleton):
+        ...     pass
+        >>> foo = Potato()
+        >>> bar = Potato()
+        >>> foo is bar
+        True
+    """
+
+    def __new__(cls, *args, **kwargs):
+        # checks if this class already has an instance.
+        if cls._instance is None:
+            # class does not already have an instance, lets make one!
+            cls._instance = super().__new__(cls, *args, **kwargs)
+        # return the instance
+        return cls._instance
+
+    def __init_subclass__(cls, **kwargs):
+
+        # implements ._instance in all children
+        cls._instance = None
+        # and ensure the super gets called
+        super().__init_subclass__(**kwargs)
 
 
 def sanitize(message: str) -> str:
