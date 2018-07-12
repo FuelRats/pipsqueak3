@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 from functools import wraps
-from typing import List, Dict, Set
+from typing import Any, Union, Callable, List, Dict, Set
 
 from Modules.context import Context
 from config import config
@@ -238,63 +238,140 @@ def require_permission(permission: Permission,
     return real_decorator
 
 
-def require_channel(message: str = "This command must be invoked in a channel."):
+def require_channel(func: Union[str, Callable] = None,
+                    message: str = "This command must be invoked in a channel."):
     """
     Require the wrapped IRC command to be invoked in a channel context.
 
+    Args:
+        func(Union[str, Callable]): wrapped function / message
+        message(str): message to display on check fail
+
     Usage:
-        ```py
+        >>> @require_channel
+        ... async def my_command(context: Context):
+        ...     pass
 
-        @require_channel()
-        async def my_command(context: Context):
-            pass
-        ```
+        >>> @require_channel("access denied.")
+        ... async def my_command(context: Context):
+        ...     pass
+
+        >>> @require_channel(message="access denied.")
+        ... async def my_command(context: Context):
+        ...     pass
     """
+    # form of @decorator("message") and @decorator(message=str)
+    if isinstance(func, str):
+        message = func
 
-    def real_decorator(func):
-        """wrapps the function in the channel enforcer"""
-        log.debug(f"Wrapping function object {func} with channel enforcement")
+    # direct decoration
+    if not callable(func):
+        func = None
 
-        @wraps(func)
-        async def guarded(context: Context):
-            """Enforces channel requirement"""
+    def real_decorator(wrapped):
+        """
+        The function decorator that implements the `guarded` local
+
+        this wrapper is necessary to prevent coro object not callable in
+        @require_channel(*args, **kwargs) form
+
+        Args:
+            wrapped (function): the function being decorated
+
+        Returns:
+            callable: guarded function
+        """
+
+        @wraps(wrapped)
+        async def guarded(context: Context) -> Any:
+            """
+            Enforces channel requirement
+
+            Args:
+                context (Context): IRC command context
+
+            Returns:
+                Any: whatever the called function returned
+            """
             if context.channel is not None:
-                return await func(context)
+                return await wrapped(context)
             else:
                 log.debug(f"channel was None, enforcing channel requirement...")
                 await context.reply(message)
 
         return guarded
 
-    return real_decorator
+    # if the form is @require_decorator(*args, **kwargs) we need to call and return real_decorator
+    # otherwise we can just return real_decorator directly
+    return real_decorator(func) if func else real_decorator
 
 
-def require_dm(message: str = "command {cmd} must be invoked in a private message."):
+# def require_dm(message: str = "command {cmd} must be invoked in a private message."):
+
+def require_dm(func: Union[str, Callable] = None,
+               message: str = "This command must be invoked in a channel."):
     """
-    Require the wrapped IRC command to be invoked in a direct message context.
+    Require the wrapped IRC command to be invoked in a DM context.
+
+    Args:
+        func(Callable): wrapped function / access denied string override
+        message(str): access denied string
 
     Usage:
-        ```py
+        >>> @require_dm
+        ... async def my_command(context: Context):
+        ...     pass
 
-        @require_channel()
-        async def my_command(context: Context):
-            pass
-        ```
+        >>> @require_dm("access denied.")
+        ... async def my_command(context: Context):
+        ...     pass
+
+        >>> @require_dm(message="access denied.")
+        ... async def my_command(context: Context):
+        ...     pass
     """
+    # form of @decorator("message") and @decorator(message=str)
+    if isinstance(func, str):
+        message = func
 
-    def real_decorator(func):
-        """wrapps the function in the DM enforcer"""
-        log.debug(f"Wrapping function object {func} with Direct message enforcement")
+    # direct decoration
+    if not callable(func):
+        func = None
 
-        @wraps(func)
-        async def guarded(context: Context):
-            """Enforces channel requirement"""
+    def real_decorator(wrapped):
+        """
+        The function decorator that implements the `guarded` local
+
+
+        this wrapper is necessary to prevent coro object not callable in
+        @require_dm(*args, **kwargs) form
+
+        Args:
+            wrapped (function): the function being decorated
+
+        Returns:
+            callable: guarded function
+        """
+
+        @wraps(wrapped)
+        async def guarded(context: Context) -> Any:
+            """
+            Enforces channel requirement
+
+            Args:
+                context (Context): IRC command context
+
+            Returns:
+                Any: whatever the called function returned
+            """
             if context.channel is None:
-                return await func(context)
+                return await wrapped(context)
             else:
-                log.debug(f"Executed from channel context... enforcing restriction...")
-                await context.reply(message.format(cmd=context.words[0]))
+                log.debug(f"channel was None, enforcing channel requirement...")
+                await context.reply(message)
 
         return guarded
 
-    return real_decorator
+    # if the form is @require_dm(*args, **kwargs) we need to call and return real_decorator
+    # otherwise we can just return real_decorator directly
+    return real_decorator(func) if func else real_decorator
