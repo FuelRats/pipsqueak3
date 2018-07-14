@@ -43,7 +43,6 @@ def prepare_dbm(dbm_fx: DatabaseManager):
 @pytest.mark.usefixtures("prepare_dbm")
 class TestStuff(object):
 
-    @pytest.mark.skip(reason="Not a test")
     def finalize(self, dbm_fx):
         dbm_fx.enabled = False
 
