@@ -18,10 +18,11 @@ SPARK is currently **incomplete**.
 This script can be run as a Docker image or run locally.
 
 To run as a docker image, you may use the provided docker-compose.
+Before you can use the docker-compose, you need to create a volume called: ``p-data``
 
-If you would prefer to run the service locally, bear in mind you may need to run a local PostgreSQL Database for the fact module.
-
-### Building via Docker
+If you would prefer to run the service locally, bear in mind you may need to run a local
+PostgreSQL Database or the provided sql service via docker-composefor the fact module.
+###Building via Docker
 We have provided a `docker-compose.yml` suitably configured for building and running Mecha
 as a Alpine Linux multi-container service. 
 

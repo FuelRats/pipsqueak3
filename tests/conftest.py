@@ -4,7 +4,7 @@ conftest.py - PyTest configuration and shared resources
 Reusable test fixtures 'n stuff
 
 
-Copyright (c) 2018 The Fuel Rat Mischief,
+Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -33,6 +33,7 @@ from config import setup_logging
 
 setup_logging("logs/unit_tests.log")
 
+from Modules.permissions import Permission
 from tests.mock_bot import MockBot
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
@@ -238,3 +239,20 @@ def dbm_fx():
 def facts_fx():
     """returns a FactsManager"""
     return FactsManager()
+
+@pytest.fixture
+def permission_fx(monkeypatch) -> Permission:
+    """
+    Provides a permission fixture
+
+    Args:
+        monkeypatch ():
+
+    Returns:
+
+    """
+    # ensure _by_vhost is clean prior to running test
+    monkeypatch.setattr("Modules.permissions._by_vhost", {})
+    permission = Permission(0, {"testing.fuelrats.com", "cheddar.fuelrats.com"})
+    return permission
+
