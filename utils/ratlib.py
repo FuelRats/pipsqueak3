@@ -39,6 +39,29 @@ class Status(Enum):
     """The rescue is open, but is marked inactive"""
 
 
+class COLORS:
+    """
+    Contains mIRC-style color codes (the standard)
+    Reference: https://www.mirc.com/colors.html
+    """
+    WHITE = '\x030'
+    BLACK = '\x031'
+    BLUE = '\x032'
+    GREEN = '\x033'
+    RED = '\x034'
+    BROWN = '\x035'
+    PURPLE = '\x036'
+    ORANGE = '\x037'
+    YELLOW = '\x038'
+    LIGHT_GREEN = '\x039'
+    CYAN = '\x0310'
+    LIGHT_CYAN = '\x0311'
+    LIGHT_BLUE = '\x0312'
+    PINK = '\x0313'
+    GREY = '\x0314'
+    LIGHT_GREY = '\x0315'
+
+
 class Singleton(object):
     """
     Provides a singleton base class.
