@@ -20,9 +20,9 @@ from uuid import UUID
 
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
-from Modules.rat import Rat
 from utils.ratlib import Platforms, Status
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -50,7 +50,7 @@ class Rescue(object):
                  mark_for_deletion: MarkForDeletion = MarkForDeletion(),
                  lang_id: str = "EN",
                  rats: List[Rat] = None,
-                 status: Status = Status.OPEN,
+                 status: Status = Status.OPEN | Status.ACTIVE,
                  code_red=False):
         """
         creates a unique rescue
