@@ -462,16 +462,12 @@ class Rescue(object):
             None
         """
         if isinstance(value, bool):
-            if value:
-                # we want to mark the case as active
-                if not self.active:
-                    # the case is not currently active
-                    self.status ^= Status.ACTIVE
-            else:
-                # we want to make the case inactive
-                if self.active:
-                    # and it is currently active
-                    self.status ^= Status.ACTIVE
+            if value and not self.active or not value and self.active:
+                # we want to mark the case as active and it is not active
+                # or if we want to mark the case inactive and it is currently active:
+                # flip the bit
+                self.status ^= Status.ACTIVE
+
         else:
             raise ValueError(f"expected bool, got type {type(value)}")
 
