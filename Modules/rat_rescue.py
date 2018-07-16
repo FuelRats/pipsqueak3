@@ -15,15 +15,18 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import reduce
 from operator import xor
-from typing import Union, Optional, List
+from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID
 
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
-from Modules.rat import Rat
 from utils.ratlib import Platforms, Status
+
+if TYPE_CHECKING:
+    from Modules.rat_board import RatBoard
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -50,7 +53,7 @@ class Rescue(object):
                  mark_for_deletion: MarkForDeletion = MarkForDeletion(),
                  lang_id: str = "EN",
                  rats: List[Rat] = None,
-                 status: Status = Status.OPEN,
+                 status: Status = Status.OPEN | Status.ACTIVE,
                  code_red=False):
         """
         creates a unique rescue
@@ -445,7 +448,7 @@ class Rescue(object):
         Returns:
             bool: Active state
         """
-        return False if self.status == Status.INACTIVE else True
+        return Status.ACTIVE in self.status
 
     @active.setter
     def active(self, value: bool) -> None:
@@ -459,10 +462,12 @@ class Rescue(object):
             None
         """
         if isinstance(value, bool):
-            if value:
-                self.status = Status.OPEN
-            else:
-                self.status = Status.INACTIVE
+            if value and not self.active or not value and self.active:
+                # we want to mark the case as active and it is not active
+                # or if we want to mark the case inactive and it is currently active:
+                # flip the bit
+                self.status ^= Status.ACTIVE
+
         else:
             raise ValueError(f"expected bool, got type {type(value)}")
 
@@ -593,7 +598,7 @@ class Rescue(object):
             bool: is case open?
 
         """
-        return self.status is not Status.CLOSED
+        return Status.OPEN in self.status
 
     @open.setter
     def open(self, value: bool) -> None:
@@ -610,10 +615,10 @@ class Rescue(object):
             TypeError: value was not a boolean
         """
         if isinstance(value, bool):
-            if value:
-                self.status = Status.OPEN
-            else:
-                self.status = Status.CLOSED
+            if value and Status.OPEN not in self.status \
+                    or not value and Status.OPEN in self.status:
+                self.status ^= Status.OPEN
+
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
