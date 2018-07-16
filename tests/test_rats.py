@@ -12,14 +12,14 @@ class TestRatsPyTest(object):
         Platforms.XB,
         Platforms.PC,
         Platforms.PS,
-        Platforms.DEFAULT
+        None
     ])
     def test_rat_platforms(self, platform: Platforms, rat_good_fx):
         rat_good_fx.platform = platform
         assert rat_good_fx.platform == platform
 
     @pytest.mark.parametrize("garbage", [
-        None,
+        -12,
         (None,),
         [],
         {}
