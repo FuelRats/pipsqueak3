@@ -33,7 +33,7 @@ class Platforms(Enum):
 
 class Status(Flag):
     """Rescue status enum"""
-    CLOSED = 0
+    UNSET = 0
     OPEN = auto()
     ACTIVE = auto()
 

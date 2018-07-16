@@ -598,7 +598,7 @@ class Rescue(object):
             bool: is case open?
 
         """
-        return self.status is not Status.CLOSED
+        return Status.OPEN in self.status
 
     @open.setter
     def open(self, value: bool) -> None:
@@ -615,10 +615,10 @@ class Rescue(object):
             TypeError: value was not a boolean
         """
         if isinstance(value, bool):
-            if value:
-                self.status = Status.OPEN
-            else:
-                self.status = Status.CLOSED
+            if value and Status.OPEN not in self.status \
+                    or not value and Status.OPEN in self.status:
+                self.status ^= Status.OPEN
+
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
