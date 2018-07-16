@@ -41,7 +41,7 @@ class Status(Enum):
     """The rescue is open, but is marked inactive"""
 
 
-class COLORS:
+class Colors:
     """
     Contains mIRC-style color codes (the standard)
     Reference: https://www.mirc.com/colors.html
@@ -62,6 +62,14 @@ class COLORS:
     PINK = '\x0313'
     GREY = '\x0314'
     LIGHT_GREY = '\x0315'
+
+    # codes for formatting
+    FORMAT_BOLD = '\x02'
+    FORMAT_UNDERLINE = '\x1F'
+    FORMAT_ITALIC = '\x1D'
+    FORMAT_COLOR = '\x03'
+    FORMAT_REVERSE = '\x16'
+    FORMAT_RESET = '\x0F'
 
 
 class Singleton(object):
@@ -151,3 +159,73 @@ def try_parse_uuid(suspect: str) -> UUID:
 
     else:
         return result
+
+
+# color functions
+def color(text: str, text_color: Colors, bg_color=None) -> str:
+    """
+    Colorizes the given string with the specified color.
+    Args:
+        text: The text to colorize
+        text_color: a Colors.COLOR
+        bg_color: if specified, the background color
+
+    Returns:
+        str: colorized string
+    """
+    if bg_color is not None:
+        bg_color_code = bg_color.replace('\x03', '')
+        return f'{text_color},{bg_color_code}{text}{Colors.FORMAT_RESET}'
+    else:
+        return f'{text_color}{text}{Colors.FORMAT_RESET}'
+
+
+def bold(text: str) -> str:
+    """
+    Makes the text bold.
+    Args:
+        text: The text.
+
+    Returns:
+        str: the bolded text
+
+    """
+    return f'{Colors.FORMAT_BOLD}{text}{Colors.FORMAT_RESET}'
+
+
+def italic(text: str) -> str:
+    """
+    Italicizes the given text.
+    Args:
+        text: the text
+
+    Returns:
+        str: the italicized text
+    """
+    return f'{Colors.FORMAT_ITALIC}{text}{Colors.FORMAT_RESET}'
+
+
+def underline(text: str) -> str:
+    """
+    Underlines the given text.
+    Args:
+        text: the text
+
+    Returns:
+        str: the underlined text
+
+    """
+    return f'{Colors.FORMAT_UNDERLINE}{text}{Colors.FORMAT_RESET}'
+
+
+def reverse(text: str) -> str:
+    """
+    Reverses the default colors (black on white text to white on black text)
+    Args:
+        text: the text to reverse
+
+    Returns:
+        str: the reversed text
+
+    """
+    return f'{Colors.FORMAT_REVERSE}{text}{Colors.FORMAT_RESET}'
