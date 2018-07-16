@@ -12,7 +12,7 @@ This module is built on top of the Pydle system.
 
 """
 import re
-from enum import Enum
+from enum import Enum, Flag, auto
 from uuid import UUID
 
 MIRC_CONTROL_CODES = ["\x0F", "\x16", "\x1D", "\x1F", "\x02",
@@ -31,14 +31,11 @@ class Platforms(Enum):
     """No platform"""
 
 
-class Status(Enum):
+class Status(Flag):
     """Rescue status enum"""
-    OPEN = 0
-    """The rescue is currently open"""
-    CLOSED = 1
-    """The rescue is currently closed"""
-    INACTIVE = 2
-    """The rescue is open, but is marked inactive"""
+    CLOSED = 0
+    OPEN = auto()
+    ACTIVE = auto()
 
 
 class Singleton(object):
