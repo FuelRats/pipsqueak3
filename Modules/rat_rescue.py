@@ -15,7 +15,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import reduce
 from operator import xor
-from typing import Union, Optional, List
+from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID
 
 from Modules.epic import Epic
@@ -24,6 +24,9 @@ from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
 from utils.ratlib import Platforms, Status
+
+if TYPE_CHECKING:
+    from Modules.rat_board import RatBoard
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -445,7 +448,7 @@ class Rescue(object):
         Returns:
             bool: Active state
         """
-        return False if self.status == Status.INACTIVE else True
+        return Status.ACTIVE in self.status
 
     @active.setter
     def active(self, value: bool) -> None:
@@ -460,9 +463,15 @@ class Rescue(object):
         """
         if isinstance(value, bool):
             if value:
-                self.status = Status.OPEN
+                # we want to mark the case as active
+                if not self.active:
+                    # the case is not currently active
+                    self.status ^= Status.ACTIVE
             else:
-                self.status = Status.INACTIVE
+                # we want to make the case inactive
+                if self.active:
+                    # and it is currently active
+                    self.status ^= Status.ACTIVE
         else:
             raise ValueError(f"expected bool, got type {type(value)}")
 

@@ -10,11 +10,12 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-import pytest
 from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4, UUID
-from Modules.epic import Epic
+
+import pytest
+
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat import Rat
 from Modules.rat_rescue import Rescue
@@ -102,7 +103,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
     Verify Rescue.updated_at raises TypeError if given incorrect value,
     or is set to a date in the past.
     """
-    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1,)
+    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1, )
 
     # Set to a string time
     with pytest.raises(TypeError):
@@ -555,7 +556,7 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
 
         with pytest.raises(ValueError):
             rescue_sop_fx.mark_delete("unit_test", "")
-            
+
 
 def test_mark_for_deletion_unset(rescue_sop_fx: Rescue):
     """
@@ -575,7 +576,7 @@ def test_rescue_status_default(rescue_sop_fx):
     Verifies rescue status defaults to Status.OPEN
     """
     # Default
-    assert rescue_sop_fx.status == Status.OPEN
+    assert rescue_sop_fx.status is Status.ACTIVE | Status.OPEN
 
     # Test Getter
     assert rescue_sop_fx.open
@@ -608,15 +609,6 @@ def test_rescue_open_type_error(rescue_sop_fx):
         rescue_sop_fx.open = 'Yes'
 
 
-@pytest.mark.parametrize("expected_status", [Status.OPEN, Status.CLOSED, Status.INACTIVE])
-def test_rescue_status_enum(rescue_sop_fx, expected_status):
-    """
-    Verifies all rescue status returns properly.
-    """
-    rescue_sop_fx.status = expected_status
-    assert rescue_sop_fx.status == expected_status
-
-
 def test_rescue_status_type_error(rescue_sop_fx):
     """
     Verifies a TypeError is raised if an incorrect status value is cast.
@@ -633,20 +625,13 @@ def test_rescue_active_setter(rescue_sop_fx):
     # Default state
     assert rescue_sop_fx.active
 
-    # Set Inactive directly
+    # Set Inactive 
     rescue_sop_fx.active = False
     assert not rescue_sop_fx.active
 
-    # Set Active directly
+    # Set Active 
     rescue_sop_fx.active = True
     assert rescue_sop_fx
-
-    # Set Active by status update
-    rescue_sop_fx.status = Status.OPEN
-    assert rescue_sop_fx.active
-
-    # Set Inactive by status update
-    rescue_sop_fx.status = Status.INACTIVE
 
     with pytest.raises(ValueError):
         rescue_sop_fx.active = 'Yes'
