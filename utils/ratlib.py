@@ -14,6 +14,7 @@ This module is built on top of the Pydle system.
 import re
 from enum import Enum
 from uuid import UUID
+from typing import Optional
 
 MIRC_CONTROL_CODES = ["\x0F", "\x16", "\x1D", "\x1F", "\x02",
                       "\x03([1-9][0-6]?)?,?([1-9][0-6]?)?"]
@@ -39,33 +40,38 @@ class Status(Enum):
     """The rescue is open, but is marked inactive"""
 
 
-class Colors:
+class Colors(Enum):
     """
     Contains mIRC-style color codes (the standard)
     Reference: https://www.mirc.com/colors.html
     """
-    WHITE = '\x030'
-    BLACK = '\x031'
-    BLUE = '\x032'
-    GREEN = '\x033'
-    RED = '\x034'
-    BROWN = '\x035'
-    PURPLE = '\x036'
-    ORANGE = '\x037'
-    YELLOW = '\x038'
-    LIGHT_GREEN = '\x039'
-    CYAN = '\x0310'
-    LIGHT_CYAN = '\x0311'
-    LIGHT_BLUE = '\x0312'
-    PINK = '\x0313'
-    GREY = '\x0314'
-    LIGHT_GREY = '\x0315'
+    WHITE = '00'
+    BLACK = '01'
+    BLUE = '02'
+    GREEN = '03'
+    RED = '04'
+    BROWN = '05'
+    PURPLE = '06'
+    ORANGE = '07'
+    YELLOW = '08'
+    LIGHT_GREEN = '09'
+    CYAN = '10'
+    LIGHT_CYAN = '11'
+    LIGHT_BLUE = '12'
+    PINK = '13'
+    GREY = '14'
+    LIGHT_GREY = '15'
+    # this code needs to be suffixed to the colors above to actually display a color
+    FORMAT_COLOR = '\x03'
 
-    # codes for formatting
+
+class Formatting(Enum):
+    """
+    mIRC-style formatting codes, works with colors
+    """
     FORMAT_BOLD = '\x02'
     FORMAT_UNDERLINE = '\x1F'
     FORMAT_ITALIC = '\x1D'
-    FORMAT_COLOR = '\x03'
     FORMAT_REVERSE = '\x16'
     FORMAT_RESET = '\x0F'
 
@@ -160,7 +166,7 @@ def try_parse_uuid(suspect: str) -> UUID:
 
 
 # color functions
-def color(text: str, text_color: Colors, bg_color=None) -> str:
+def color(text: str, text_color: Colors, bg_color=Optional[Colors]) -> str:
     """
     Colorizes the given string with the specified color.
     Args:
@@ -171,11 +177,13 @@ def color(text: str, text_color: Colors, bg_color=None) -> str:
     Returns:
         str: colorized string
     """
-    if bg_color is not None:
-        bg_color_code = bg_color.replace('\x03', '')
-        return f'{text_color},{bg_color_code}{text}{Colors.FORMAT_RESET}'
+    if not isinstance(text_color, Colors):
+        raise TypeError("Expected a Colors enum, got {type(text_color)}")
+    if isinstance(bg_color, Colors):
+        return f'{Colors.FORMAT_COLOR.value}{text_color},{bg_color}{text}' \
+               f'{Colors.FORMAT_COLOR.value}'
     else:
-        return f'{text_color}{text}{Colors.FORMAT_RESET}'
+        return f'{Colors.FORMAT_COLOR.value}{text_color}{text}{Colors.FORMAT_COLOR.value}'
 
 
 def bold(text: str) -> str:
@@ -188,7 +196,7 @@ def bold(text: str) -> str:
         str: the bolded text
 
     """
-    return f'{Colors.FORMAT_BOLD}{text}{Colors.FORMAT_RESET}'
+    return f'{Formatting.FORMAT_BOLD.value}{text}{Formatting.FORMAT_BOLD.value}'
 
 
 def italic(text: str) -> str:
@@ -200,7 +208,7 @@ def italic(text: str) -> str:
     Returns:
         str: the italicized text
     """
-    return f'{Colors.FORMAT_ITALIC}{text}{Colors.FORMAT_RESET}'
+    return f'{Formatting.FORMAT_ITALIC.value}{text}{Formatting.FORMAT_ITALIC.value}'
 
 
 def underline(text: str) -> str:
@@ -213,7 +221,7 @@ def underline(text: str) -> str:
         str: the underlined text
 
     """
-    return f'{Colors.FORMAT_UNDERLINE}{text}{Colors.FORMAT_RESET}'
+    return f'{Formatting.FORMAT_UNDERLINE.value}{text}{Formatting.FORMAT_UNDERLINE.value}'
 
 
 def reverse(text: str) -> str:
@@ -226,4 +234,4 @@ def reverse(text: str) -> str:
         str: the reversed text
 
     """
-    return f'{Colors.FORMAT_REVERSE}{text}{Colors.FORMAT_RESET}'
+    return f'{Formatting.FORMAT_REVERSE.value}{text}{Formatting.FORMAT_REVERSE.value}'
