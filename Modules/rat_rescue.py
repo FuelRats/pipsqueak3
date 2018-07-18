@@ -15,15 +15,18 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import reduce
 from operator import xor
-from typing import Union, Optional, List
+from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID
 
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
-from Modules.rat import Rat
 from utils.ratlib import Platforms, Status
+
+if TYPE_CHECKING:
+    from Modules.rat_board import RatBoard
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -83,7 +86,7 @@ class Rescue(object):
                 commander name.
             rats (list): identified (Rat)s assigned to rescue.
         """
-        self._platform: Platforms = Platforms.DEFAULT
+        self._platform: Platforms = None
         self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
@@ -745,7 +748,10 @@ class Rescue(object):
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    async def add_rat(self, name: str = None, guid: UUID or str = None, rat: Rat = None) -> None:
+    async def add_rat(self,
+                      name: str = None,
+                      guid: UUID or str = None,
+                      rat: Rat = None) -> Optional[Rat]:
         """
         Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
         be raised as exceptions.
@@ -759,7 +765,7 @@ class Rescue(object):
             guid (UUID or str): api uuid of the rat, used if the rat is not found in the cache
                 - if this is a string it will be type coerced into a UUID
         Returns:
-            None:
+            Rat: the added rat object
 
         Raises:
             ValueError: guid was of type `str` and could not be coerced.
@@ -770,11 +776,13 @@ class Rescue(object):
 
             ```
         """
+        assigned_rat: Optional[Rat] = None
+
         if isinstance(rat, Rat):
             # we already have a rat object, lets verify it has an ID and assign it.
             if rat.uuid is not None:
                 self.rats.append(rat)
-                return
+                assigned_rat = rat
             else:
                 raise ValueError("Assigned rat does not have a known API ID")
 
@@ -784,22 +792,42 @@ class Rescue(object):
                      await RatCache().get_rat_by_name(name))
             if found[0]:
                 self.rats.append(found[0])
-                return
+                assigned_rat = found[0]
             elif found[1]:
                 # a generic match (not platform specific) was found
                 # TODO throw a warning so the invoking method can handle this condition
                 log.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
-                return
+                assigned_rat = found[1]
 
             else:
                 # lets make a new Rat!
-                if self.rat_board:  # PRAGMA: NOCOVER
-                    raise NotImplementedError  # TODO fetch rat from API
+                # if self.rat_board:  # PRAGMA: NOCOVER
+                #    pass  # TODO fetch rat from API
                 # TODO: fetch rats from API handler, use that data to make a new Rat instance
 
                 rat = Rat(name=name, uuid=guid)
                 self.rats.append(rat)
+                assigned_rat = rat
+
+        elif guid is not None:
+            if isinstance(guid, str):
+                # attempt to coerce into a UUID
+                parsed_guid = UUID(guid)
+            elif isinstance(guid, UUID):
+                parsed_guid = guid
+            else:
+                raise ValueError(f"Expected str/UUID, got {type(guid)}")
+
+            # lets check if we already have this rat in the cache
+            found = await RatCache().get_rat_by_uuid(parsed_guid)
+            if found:
+                self.rats.append(found)
+                assigned_rat = found
+            else:
+                pass  # TODO: placeholder for fetching rats from the API handler
+
+        return assigned_rat
 
     def mark_delete(self, reporter: str, reason: str) -> None:
         """

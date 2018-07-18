@@ -28,8 +28,6 @@ class Platforms(Enum):
     PC = "PC"
     XB = "XB"
     PS = "PS"
-    DEFAULT = None
-    """No platform"""
 
 
 class Status(Enum):
