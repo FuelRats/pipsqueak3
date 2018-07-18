@@ -15,15 +15,18 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import reduce
 from operator import xor
-from typing import Union, Optional, List
+from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID
 
 from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
-from Modules.rat import Rat
 from utils.ratlib import Platforms, Status
+
+if TYPE_CHECKING:
+    from Modules.rat_board import RatBoard
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -83,7 +86,7 @@ class Rescue(object):
                 commander name.
             rats (list): identified (Rat)s assigned to rescue.
         """
-        self._platform: Platforms = Platforms.DEFAULT
+        self._platform: Platforms = None
         self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
