@@ -61,7 +61,7 @@ class Colors(Enum):
     PINK = '13'
     GREY = '14'
     LIGHT_GREY = '15'
-    
+
 
 class Formatting(Enum):
     """
@@ -69,7 +69,6 @@ class Formatting(Enum):
     """
     # this code needs to be suffixed to the colors above to actually display a color
     FORMAT_COLOR = '\x03'
-    
     FORMAT_BOLD = '\x02'
     FORMAT_UNDERLINE = '\x1F'
     FORMAT_ITALIC = '\x1D'
@@ -170,7 +169,7 @@ def try_parse_uuid(suspect: str) -> UUID:
 def color(text: str, text_color: Colors, bg_color: Optional[Colors] = None) -> str:
     """
     Colorizes the given string with the specified color.
-    
+
     Args:
         text: The text to colorize
         text_color: a Colors.COLOR
@@ -191,7 +190,7 @@ def color(text: str, text_color: Colors, bg_color: Optional[Colors] = None) -> s
 def bold(text: str) -> str:
     """
     Makes the text bold.
-    
+
     Args:
         text: The text.
 
@@ -205,7 +204,7 @@ def bold(text: str) -> str:
 def italic(text: str) -> str:
     """
     Italicizes the given text.
-    
+
     Args:
         text: the text
 
@@ -218,7 +217,7 @@ def italic(text: str) -> str:
 def underline(text: str) -> str:
     """
     Underlines the given text.
-    
+
     Args:
         text: the text
 
@@ -232,7 +231,7 @@ def underline(text: str) -> str:
 def reverse(text: str) -> str:
     """
     Reverses the default colors (black on white text to white on black text)
-    
+
     Args:
         text: the text to reverse
 
