@@ -12,14 +12,16 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-
-from config import config
 import logging
+from typing import Dict, List, Callable
+
+from pydle import ClientPool, Client
+
+from Modules import rat_command
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
-from Modules import rat_command
 from Modules.rat_command import command
-from pydle import ClientPool, Client
+from config import config
 from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -46,6 +48,10 @@ class MechaClient(Client):
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._database_manager = None  # TODO: replace with dbm once it exists
         self._rat_cache = None  # TODO: replace with ratcache once it exists
+        self._subscriptions: Dict[str, List[Callable]] = {
+            "on_message": [],
+            "on_command": []
+        }
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -94,6 +100,22 @@ class MechaClient(Client):
             await rat_command.trigger(message=sanitized_message,
                                       sender=user,
                                       channel=channel)
+
+    def subscribe(self, event: str, callback: Callable):
+        """
+        Call to subscribe to an Event.
+        
+        Args:
+            event (str): event to subscribe to
+            callback (Callable):
+        
+        Raises:
+            ValueError: event not found
+        """
+        if event not in self._subscriptions:
+            raise ValueError(f"'{event}' is not a subscriptable event'")
+        else:
+            self._subscriptions[event].append(callback)
 
     @property
     def rat_cache(self) -> object:
