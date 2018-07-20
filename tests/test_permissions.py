@@ -14,13 +14,14 @@ This module is built on top of the Pydle system.
 
 """
 from itertools import product
+from typing import Set
 
 import pytest
 
 import Modules.rat_command as Commands
 from Modules import permissions
 from Modules.context import Context
-from Modules.permissions import require_permission, require_channel, require_dm
+from Modules.permissions import require_permission, require_channel, require_dm, Permission
 
 
 # registration is done in setUp
@@ -57,7 +58,7 @@ class TestPermissions(object):
         """
         assert permissions.RECRUIT < permissions.RAT
         assert permissions.RAT < permissions.TECHRAT
-        assert not permissions.ORANGE < permissions.TECHRAT
+        assert permissions.OVERSEER < permissions.TECHRAT
 
     def test_permission_le(self):
         """
@@ -66,7 +67,8 @@ class TestPermissions(object):
         """
         assert permissions.ADMIN <= permissions.ADMIN
         assert not permissions.ADMIN <= permissions.RAT
-        assert permissions.ADMIN <= permissions.ORANGE
+        assert permissions.OVERSEER <= permissions.ADMIN
+        assert not permissions.ADMIN <= permissions.OVERSEER
 
     def test_permission_ge(self):
         """
@@ -75,7 +77,7 @@ class TestPermissions(object):
         """
         assert permissions.ADMIN >= permissions.ADMIN
         assert permissions.ADMIN >= permissions.RAT
-        assert not permissions.ADMIN >= permissions.ORANGE
+        assert not permissions.RAT >= permissions.OVERSEER
 
     def test_permission_equal(self):
         """
@@ -84,7 +86,7 @@ class TestPermissions(object):
         """
         assert permissions.RAT == permissions.RAT
         assert permissions.TECHRAT == permissions.TECHRAT
-        assert permissions.ADMIN == permissions.NETADMIN
+        assert permissions.ADMIN == permissions.ADMIN
 
     def test_permission_not_equal(self):
         """
@@ -92,7 +94,7 @@ class TestPermissions(object):
         :return:
         """
         assert permissions.RAT != permissions.TECHRAT
-        assert permissions.DISPATCH != permissions.ORANGE
+        assert permissions.RAT != permissions.OVERSEER
 
     @pytest.mark.asyncio
     async def test_restricted_command_inferior(self, bot_fx):
@@ -136,6 +138,8 @@ class TestPermissions(object):
 
     @pytest.mark.asyncio
     async def test_require_channel_valid(self, bot_fx, context_channel_fx):
+        """Verifies @require_channel does not stop commands invoked in a channel"""
+
         @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
         async def potato(context: Context):
             return "hi there!"
@@ -145,13 +149,77 @@ class TestPermissions(object):
 
     @pytest.mark.asyncio
     async def test_require_channel_invalid(self, context_pm_fx, bot_fx):
-        @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
+        """verifies require_channel stops commands invoked in PM contexts"""
+
+        @require_channel
         async def potato(context: Context):
             context.reply("hi there!")
 
         await potato(context_pm_fx)
 
-        assert "https://www.youtube.com/watch?v=gvdf5n-zI14" == bot_fx.sent_messages[0]['message']
+        assert "This command must be invoked in a channel." == bot_fx.sent_messages[0]['message']
+
+    @pytest.mark.asyncio
+    async def test_require_channel_bare_channel(self, context_channel_fx: Context):
+        """
+        Verifies @require_channel behaves properly as a plain invocation behaves as expected
+            in a channel context
+        """
+
+        @require_channel
+        async def protected(context: Context):
+            """protected function"""
+            return "hot potato!"
+
+        data = await protected(context_channel_fx)
+        assert data == "hot potato!"
+
+    @pytest.mark.asyncio
+    async def test_require_channel_bare_pm(self, context_pm_fx: Context, bot_fx):
+        """
+        Verifies @require_channel behaves properly as a plain invocation behaves as expected
+            in a pm context
+        """
+
+        @require_channel
+        async def protected(context: Context):
+            """protected function"""
+            return "hot potato!"
+
+        await protected(context_pm_fx)
+        assert "This command must be invoked in a channel." == bot_fx.sent_messages[0]['message']
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("message", ["nope.", "https://www.youtube.com/watch?v=gvdf5n-zI14"])
+    async def test_require_channel_call_channel(self, context_channel_fx: Context, message: str):
+        """
+        Verifies @require_channel behaves properly as a plain invocation behaves as expected
+            in a channel context
+        """
+
+        @require_channel(message=message)
+        async def protected(context: Context):
+            """protected function"""
+            return "hot potato!"
+
+        data = await protected(context_channel_fx)
+        assert data == "hot potato!"
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("message", ["nope.", "https://www.youtube.com/watch?v=gvdf5n-zI14"])
+    async def test_require_channel_call_pm(self, context_pm_fx: Context, bot_fx, message: str):
+        """
+        Verifies @require_channel behaves properly as a plain invocation behaves as expected
+            in a pm context
+        """
+
+        @require_channel(message=message)
+        async def protected(context: Context):
+            """protected function"""
+            return "hot potato!"
+
+        await protected(context_pm_fx)
+        assert message == bot_fx.sent_messages[0]['message']
 
     @pytest.mark.asyncio
     async def test_require_dm_valid(self, context_pm_fx):
@@ -170,3 +238,65 @@ class TestPermissions(object):
 
         retn = await potato(context_channel_fx)
         assert retn != "oh noes!"
+
+    @pytest.mark.parametrize("vhost",
+                             [{"unittest.fuelrats.com"}, {"potato.fuelrats.com"}, {"i.see.all"}])
+    def test_permission_registers_vhost(self, vhost, monkeypatch):
+        """Verifies a created Permission registers its vhosts"""
+
+        # ensure _by_vhost is clean prior to running test
+        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+
+        permission = Permission(1, vhost)
+        assert vhost == (set(permissions._by_vhost.keys()))
+
+    @pytest.mark.parametrize("vhost_alpha", [{"techrat.fuelrats.com", "op.fuelrats.com"},
+                                             {"cannonfodder.fuelrats.com"}])
+    @pytest.mark.parametrize("vhost_beta", [
+        {"i.see.all"},
+        {"rats.fuelrats.com", "dispatch.fuelrats.com"}
+    ])
+    def test_permission_change_vhosts(self,
+                                      monkeypatch,
+                                      vhost_alpha: Set[str],
+                                      vhost_beta: Set[str]):
+        """Verifies the functionality of changing a Permission's vhosts property"""
+        # ensure _by_vhost is clean prior to running test
+        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+
+        alpha = Permission(1, {"snafu.com"})
+        beta = Permission(2, {"FUBAR.com"})
+
+        alpha.vhosts = vhost_alpha
+        beta.vhosts = vhost_beta
+        # assert the new keys got into the _by_vhost dict
+
+        for vhost in vhost_alpha:
+            assert vhost in permissions._by_vhost
+
+        for vhost in vhost_beta:
+            assert vhost in permissions._by_vhost
+
+        assert "snafu.com" not in permissions._by_vhost.keys()
+        assert "FUBAR.com" not in permissions._by_vhost.keys()
+
+    @pytest.mark.parametrize("garbage", [None, dict(), 42, -1])
+    def test_permission_vhost_setter_garbage(self, garbage):
+        with pytest.raises(TypeError):
+            permissions.TECHRAT.vhosts = garbage
+
+    def test_permission_denied_message(self, monkeypatch):
+        # ensure _by_vhost is clean prior to running test
+        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+        permission = Permission(0, {"test.fuelrats.com"}, "heck no.")
+        assert permission.denied_message == "heck no."
+
+        permission.denied_message = "nope.avi"
+        assert permission.denied_message == "nope.avi"
+
+    @pytest.mark.parametrize("garbage", [None, dict(), 42, -1])
+    def test_denied_message_garbage(self, garbage, permission_fx: Permission):
+        # ensure _by_vhost is clean prior to running test
+
+        with pytest.raises(TypeError):
+            permission_fx.denied_message = garbage

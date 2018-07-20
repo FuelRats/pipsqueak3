@@ -20,7 +20,7 @@ log = logging.getLogger(f"mecha.{__name__}")
 
 
 @command("debug-whois")
-@require_channel()
+@require_channel
 @require_permission(TECHRAT)
 async def cmd_debug_whois(context):
     """A debug command for running a WHOIS command.
