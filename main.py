@@ -77,6 +77,9 @@ class MechaClient(Client):
             await self.join(channel)
 
         log.debug("joined channels.")
+        for subscription in self._subscriptions["on_connect"]:
+            log.debug(f"invoking subscription for {subscription}")
+            subscription()
         # call the super
         super().on_connect()
 
@@ -109,12 +112,18 @@ class MechaClient(Client):
         if not message.startswith(rat_command.prefix):
             # prevent bot from processing commands without the set prefix
             log.debug(f"Ignored {message} (not a command)")
+
+            for subscriber in self._subscriptions['on_message']:
+                # call on_message subscriptions
+                await subscriber(channel=channel, sender=user, message=message)
             return None
 
         else:  # await command execution
             # sanitize input string headed to command executor
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
+            for subscriber in self._subscriptions['on_command']:
+                await subscriber(message=sanitized_message, sender=user, channel=channel)
             await rat_command.trigger(message=sanitized_message,
                                       sender=user,
                                       channel=channel)
