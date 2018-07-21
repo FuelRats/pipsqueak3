@@ -13,12 +13,13 @@ This module is built on top of the Pydle system.
 
 """
 import logging
-from typing import Dict, List, Callable
+from typing import Callable
 
 from pydle import ClientPool, Client
 
 from Modules import rat_command
 from Modules.context import Context
+from Modules.event import Event
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
 from config import config
@@ -31,20 +32,7 @@ class MechaClient(Client):
     """
     MechaSqueak v3
     """
-    SUBSCRIBER_EVENTS = ['on_connect',
-                         "on_message",
-                         "on_message_RAW",
-                         "on_join",
-                         "on_command"]
-    """Events subscribers can subscribe for
-    
-    Events:
-        on_connect: fired when the MechaClient completes a server connection.
-        on_join: fired when the MechaClient joins a channel
-        on_message: fired when the MechaClient receives a message NOT from itself.
-        on_message_raw: fired when the MechaClient receives any message, **this includes itself!**
-        on_command: fired when the MechaClient receives a command invocation
-        """
+
     __version__ = "3.0a"
 
     def __init__(self, *args, **kwargs):
@@ -61,10 +49,9 @@ class MechaClient(Client):
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._database_manager = None  # TODO: replace with dbm once it exists
         self._rat_cache = None  # TODO: replace with ratcache once it exists
-        self._subscriptions: Dict[str, List[Callable]] = {
-            callback: list() for callback in self.SUBSCRIBER_EVENTS}
         super().__init__(*args, **kwargs)
 
+    @Event
     async def on_connect(self):
         """
         Called upon connection to the IRC server
@@ -86,7 +73,7 @@ class MechaClient(Client):
     #
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
-
+    @Event
     async def on_message(self, channel, user, message: str):
         """
         Triggered when a message is received
@@ -127,22 +114,6 @@ class MechaClient(Client):
             await rat_command.trigger(message=sanitized_message,
                                       sender=user,
                                       channel=channel)
-
-    def subscribe(self, event: str, callback: Callable):
-        """
-        Call to subscribe to an Event.
-        
-        Args:
-            event (str): event to subscribe to
-            callback (Callable):
-        
-        Raises:
-            ValueError: event not found
-        """
-        if event not in self._subscriptions:
-            raise ValueError(f"'{event}' is not a subscriptable event'")
-        else:
-            self._subscriptions[event].append(callback)
 
     @property
     def rat_cache(self) -> object:
