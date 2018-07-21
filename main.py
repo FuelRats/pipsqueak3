@@ -31,7 +31,20 @@ class MechaClient(Client):
     """
     MechaSqueak v3
     """
-
+    SUBSCRIBER_EVENTS = ['on_connect',
+                         "on_message",
+                         "on_message_RAW",
+                         "on_join",
+                         "on_command"]
+    """Events subscribers can subscribe for
+    
+    Events:
+        on_connect: fired when the MechaClient completes a server connection.
+        on_join: fired when the MechaClient joins a channel
+        on_message: fired when the MechaClient receives a message NOT from itself.
+        on_message_raw: fired when the MechaClient receives any message, **this includes itself!**
+        on_command: fired when the MechaClient receives a command invocation
+        """
     __version__ = "3.0a"
 
     def __init__(self, *args, **kwargs):
@@ -49,9 +62,7 @@ class MechaClient(Client):
         self._database_manager = None  # TODO: replace with dbm once it exists
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._subscriptions: Dict[str, List[Callable]] = {
-            "on_message": [],
-            "on_command": []
-        }
+            callback: list() for callback in self.SUBSCRIBER_EVENTS}
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -82,6 +93,13 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
+        log.debug("on_message invoking on_message_raw subscribers...")
+
+        for subscriber in self._subscriptions['on_message_raw']:
+            # call subscribers for the raw on_message event
+            logging.debug(f"invoking on_message_raw callback for {subscriber}...")
+            subscriber(channel=channel, sender=user, message=message)
+
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
