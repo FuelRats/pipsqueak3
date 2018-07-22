@@ -38,6 +38,11 @@ class Event:
          >>> my_other_event = Event("my_other_event")
          >>> "my_other_event" in Event.events
          True
+
+         Notes:
+             Events declared via the Event("name") form will need to be invoked by something.
+
+             Events are callables, and should be treated like async functions when called.
     """
     events: Dict[str, subscriptions] = {}
     """Registry mapping event names to their subscribers"""
