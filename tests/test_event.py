@@ -121,7 +121,7 @@ class TestEvents:
 
         # place an observer of the aftermath
         @event.subscribe
-        async def ashes():
+        async def rubble():
             return "I don't wanna return!"
 
         results = await event.emit()

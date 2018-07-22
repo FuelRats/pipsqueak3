@@ -10,10 +10,32 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from Modules import events
+from Modules.events import Event
 
-on_message = events.Event("on_message")
-on_command = events.Event("on_command")
-on_join = events.Event("on_join")
-on_connect = events.Event("on_connect")
-on_message_raw = events.Event("on_message_raw")
+# MechaClient related events
+on_connect = Event("on_connect")
+on_join = Event("on_join")
+on_user_mode_change = Event("on_user_mode_change")
+
+# message related events
+on_message_raw = Event("on_message_raw")
+on_message = Event("on_message")
+on_command = Event("on_command")
+on_notice = Event("on_notice")
+on_channel_notice = Event("on_channel_notice")
+on_channel_message = Event("on_channel_message")
+
+# user events
+on_kill = Event("on_kill")
+on_kick = Event("on_kick")
+on_quit = Event("on_quit")
+on_mode_change = Event("on_mode_change")
+on_nick_change = Event("on_nick_change")
+
+# channel events
+on_part = Event("on_part")
+on_private_message = Event("on_private_message")
+on_private_notice = Event("on_private_notice")
+on_topic_change = Event("on_topic_change")
+
+on_invite = Event("on_invite")

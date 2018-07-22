@@ -96,6 +96,64 @@ class MechaClient(Client):
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             await events.on_command.emit(message=sanitized_message, channel=channel, sender=user)
 
+    async def on_channel_message(self, target, sender, message):
+        """message received in a channel"""
+        await events.on_channel_message.emit(target, sender, message)
+
+    async def on_channel_notice(self, target, sender, message):
+        """notice received in a channel"""
+        await events.on_channel_notice.emit(target, sender, message)
+
+    async def on_invite(self, channel, sender):
+        """client invited to a channel"""
+        await events.on_invite.emit(channel, sender)
+
+    async def on_kick(self, channel, target, sender, reason=None):
+        """someone got kicked from a channel"""
+        await events.on_kick.emit(channel, target, sender, reason=None)
+
+    async def on_kill(self, target, by, reason):
+        """someone got killed"""
+        await events.on_kill.emit(target, by, reason)
+
+    async def on_mode_change(self, channel, modes, by):
+        """
+        Callback called when the mode on a channel was changed.
+        """
+        await events.on_mode_change.emit(channel, modes, by)
+
+    async def on_nick_change(self, old, new):
+        """called when someone changed nicknames"""
+        await events.on_nick_change.emit(old, new)
+
+    async def on_notice(self, target, sender, message):
+        """someone sent a notice"""
+        await events.on_notice.emit(target, sender, message)
+
+    async def on_part(self, channel, user, reason=None):
+        """called when a user, possibly the client, leaves a channel"""
+        await events.on_part.emit(channel, user, reason=None)
+
+    async def on_private_message(self, sender, message):
+        """called when the client recieves a direct message"""
+        await events.on_private_message.emit(sender, message)
+
+    async def on_private_notice(self, target, sender, message):
+        """called when the client recieves a private notice"""
+        await events.on_private_notice.emit(target, sender, message)
+
+    async def on_quit(self, user, message=None):
+        """called when a user (possibly the client) quits the network"""
+        await events.on_quit.emit(user, message=None)
+
+    async def on_topic_change(self, channel, message, sender):
+        """called when a channel's topic gets changed"""
+        await events.on_topic_change.emit(channel, message, sender)
+
+    async def on_user_mode_change(self, modes):
+        """called when the MechaClient's user modes change"""
+        await events.on_user_mode_change.emit(modes)
+
     @property
     def rat_cache(self) -> object:
         """
