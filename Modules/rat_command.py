@@ -19,6 +19,7 @@ from functools import wraps
 from pydle import BasicClient
 
 from Modules.context import Context
+from Modules.event import Event
 from Modules.user import User
 from config import config
 
@@ -64,6 +65,7 @@ prefix = config['commands']['prefix']
 bot: BasicClient = None
 
 
+@Event.subscribe("on_command")
 async def trigger(message: str, sender: str, channel: str):
     """
     Invoke a command, passing args and kwargs to the called function
@@ -197,6 +199,7 @@ def command(*aliases):
         log.debug(f"Registration of {aliases} completed.")
 
         return wrapper
+
     return real_decorator
 
 
@@ -209,6 +212,7 @@ def rule(regex: str):
     Arguments:
         regex (str): Regular expression to match the command.
     """
+
     def decorator(coro):
         async def wrapper(context):
             return await coro(context)
@@ -216,4 +220,5 @@ def rule(regex: str):
         _rules[re.compile(regex, re.IGNORECASE)] = wrapper
         log.info(f"New rule matching '{regex}' was created.")
         return wrapper
+
     return decorator
