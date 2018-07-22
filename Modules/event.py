@@ -22,7 +22,9 @@ class Event:
     """
     Registers a async function as an event.
 
-    The registered event will be the name of the decorated function.
+    The registered event will be the name of the decorated function, when used in the @Event form.
+
+    If used in the Event(name) form, the event's name will be the `coro` parameter.
 
     Examples:
         any async function definition can be decorated, and the function will be registered as a
@@ -39,9 +41,14 @@ class Event:
          True
 
          Notes:
-             Events declared via the Event("name") form will need to be invoked by something.
+             - Events declared via the Event("name") form will need to be invoked by something.
 
-             Events are callables, and should be treated like async functions when called.
+             - Events are callables, and should be treated like async functions when called.
+
+             - If used in the @Event form, the decorated function will be called before any
+             subscribers.
+
+             - the return value of decorated events are discarded.
     """
     events: Dict[str, 'Event'] = {}
     """Registry mapping event names to their subscribers"""
@@ -63,7 +70,7 @@ class Event:
         Event._register(self)
 
     async def _emit(self, *args, **kwargs):
-        """Emit an event to all subscribers"""
+        """Emit the event to all subscribers"""
         for subscriber in self.subscribers:
             log.debug(f"calling subscriber {subscriber}...")
             await subscriber(*args, **kwargs)
@@ -104,12 +111,26 @@ class Event:
 
         Examples:
             any async function can use this decorator to subscribe to an **existing** event
+
             >>> event = Event("subscribe_example_event")
             >>> @Event.subscribe("subscribe_example_event")
             ... async def subscribe_demo_coro(*args, **kwargs):
-            ...     ...
+            ...     print("woohoo!")
             >>> subscribe_demo_coro in event.subscribers
             True
+
+            As a subscriber, the decorated function will be called during the Events `emit` phase
+
+            >>> event()
+            woohoo!
+
+
+        Notes:
+            - any values returned by subscribers will be discarded.
+
+            - all subscribers must be asynchronous function definitions as they will be awaited
+
+            - subscribers will be served on a first-in-first-out basis.
         """
 
         def decorator(coro: Callable):
