@@ -20,7 +20,7 @@ from uuid import uuid4, UUID
 import pytest
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
-from Modules.event import Event
+from Modules.events.event import Event
 from Modules.rat_cache import RatCache
 
 sys.argv = ["test",

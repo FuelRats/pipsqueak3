@@ -19,7 +19,7 @@ from functools import wraps
 from pydle import BasicClient
 
 from Modules.context import Context
-from Modules.event import Event
+from Modules import events
 from Modules.user import User
 from config import config
 
@@ -65,7 +65,7 @@ prefix = config['commands']['prefix']
 bot: BasicClient = None
 
 
-@Event.subscribe("on_command")
+@events.on_command.subscribe
 async def trigger(message: str, sender: str, channel: str):
     """
     Invoke a command, passing args and kwargs to the called function

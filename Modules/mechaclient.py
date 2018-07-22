@@ -14,14 +14,12 @@ import logging
 
 from pydle import Client
 
-from Modules.event import Event
+from Modules import events
 from config import config
 from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
 
-on_message_raw = Event("on_message_raw")
-on_command = Event("on_command")
 prefix = config['commands']['prefix']
 
 
@@ -51,7 +49,6 @@ class MechaClient(Client):
         # Event.events['on_message'].decorated_coro = self.on_message
         super().__init__(*args, **kwargs)
 
-    @Event
     async def on_connect(self):
         """
         Called upon connection to the IRC server
@@ -65,10 +62,11 @@ class MechaClient(Client):
 
         log.debug("joined channels.")
 
+        # do event callback
+        await events.on_connect.emit(self)
         # call the super
         super().on_connect()
 
-    @Event
     async def on_message(self, channel, user, message: str):
         """
         Triggered when a message is received
@@ -78,7 +76,7 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
-        await on_message_raw(channel, user, message)
+        await events.on_message_raw.emit(channel, user, message)
 
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
@@ -96,7 +94,7 @@ class MechaClient(Client):
             # sanitize input string headed to command executor
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
-            await on_command(message=sanitized_message, channel=channel, sender=user)
+            await events.on_command.emit(message=sanitized_message, channel=channel, sender=user)
 
     @property
     def rat_cache(self) -> object:

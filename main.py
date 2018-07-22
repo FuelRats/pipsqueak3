@@ -17,6 +17,8 @@ import logging
 from pydle import ClientPool
 
 import Modules.mechaclient as mechaclient
+# noinspection PyUnresolvedReferences
+import commands
 from Modules import rat_command
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
