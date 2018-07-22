@@ -11,7 +11,6 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
-from functools import wraps
 from typing import Callable, List, Dict, Union
 
 # typedef
@@ -98,26 +97,30 @@ class Event:
         Subscribe to an event
 
         Args:
-            event_name (str):
+            event_name (str): name of event to subscribe to.
+
+        Raises:
+            ValueError: attempted to subscribe to an event that is not registered
+
+        Examples:
+            any async function can use this decorator to subscribe to an **existing** event
+            >>> event = Event("subscribe_example_event")
+            >>> @Event.subscribe("subscribe_example_event")
+            ... async def subscribe_demo_coro(*args, **kwargs):
+            ...     ...
+            >>> subscribe_demo_coro in event.subscribers
+            True
         """
 
-        def decorator(coro):
+        def decorator(coro: Callable):
             """
-            decorator that returns the wrapped function
+            register the coroutine `coro` as an event subscriber for the event `event_name`
             """
 
-            @wraps(coro)
-            async def wrapper(*args, **kwargs):
-                """
-                Simple pass-pass through wrapper
-                """
-                return await coro(*args, **kwargs)
-
-            # do reg here
             if event_name in cls.events:
                 cls.events[event_name].subscribers.append(coro)
             else:
-                raise ValueError
-            return wrapper
+                raise ValueError(f"name {event_name} is not registered!")
+            return coro
 
         return decorator
