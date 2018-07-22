@@ -35,14 +35,52 @@ class TestEvents:
         assert name in Event.events
         assert name == event.name
 
-    # async def test_decorated_invocation(self):
-    #     """Ensures a decorated function gets invoked when the event is fired"""
-    #
-    #     fired = False
-    #
-    #     @Event
-    #     async def my_event(*args, **kwargs):
-    #         global fired
-    #         fired = True
-    #     Event.events['my_event'].
-    #     assert fired
+    async def test_decorated_invocation(self):
+        """Ensures a decorated event function gets invoked when the event is fired"""
+
+        fired_list = []
+
+        @Event
+        async def my_event(*args, **kwargs):
+            fired_list.append("my_event!")
+
+        await Event.events['my_event']()
+
+        assert len(fired_list) == 1
+
+    async def test_declared_event_subscription(self):
+        """Verifies an declared event can be subscribed to.
+
+        (this test focuses on declared events)
+        """
+        fired_list = []
+
+        event = Event("on_wizard_search")
+
+        @Event.subscribe("on_wizard_search")
+        async def my_subscriber(*args, **kwargs):
+            fired_list.append((args, kwargs))
+
+        await event(12, hotel=22)
+
+        assert len(fired_list) == 1
+        args, kwargs = fired_list[0]
+        assert args == (12,)
+        assert kwargs == {'hotel': 22}
+
+    async def test_generic_event_subscription(self):
+        """Verifies an declared event can be subscribed to (both varients tested here)"""
+        fired_list = []
+
+        Event("on_wizard_search")
+
+        @Event.subscribe("on_wizard_search")
+        async def my_subscriber(*args, **kwargs):
+            fired_list.append((args, kwargs))
+
+        await Event.events['on_wizard_search'](12, hotel=22)
+
+        assert len(fired_list) == 1
+        args, kwargs = fired_list[0]
+        assert args == (12,)
+        assert kwargs == {'hotel': 22}
