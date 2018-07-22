@@ -76,7 +76,7 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
-        await events.on_message_raw.emit(channel, user, message)
+        await events.on_message_raw.emit(channel=channel, user=user, message=message)
 
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
