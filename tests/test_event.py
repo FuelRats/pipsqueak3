@@ -84,3 +84,19 @@ class TestEvents:
         args, kwargs = fired_list[0]
         assert args == (12,)
         assert kwargs == {'hotel': 22}
+
+    async def test_subscribe_non_registered_event(self):
+        """
+        Verifies the correct exception is raised when someone tries to subscribe to an event that is
+        not registered.
+        """
+
+        with pytest.raises(ValueError):
+            @Event.subscribe("snafu")
+            async def nope(*args, **kwargs):
+                ...
+
+    async def test_create_event_bad_type(self):
+        """ verifies the result when somone tries to create an event with an invalid coro type"""
+        with pytest.raises(TypeError):
+            Event(None)

@@ -63,6 +63,9 @@ class Event:
             # Event("name") form
             self.decorated_coro = None
             self.name = coro
+        else:
+            raise TypeError(f"expected `coro` to be either a callable or a string. "
+                            f"got type {type(coro)}")
 
         self.subscribers: subscriptions = []
         """This events subscribers"""
@@ -120,8 +123,10 @@ class Event:
             True
 
             As a subscriber, the decorated function will be called during the Events `emit` phase
-
-            >>> event()
+            >>> import asyncio
+            >>> loop = asyncio.get_event_loop()
+            ... # setup an asyncio event loop, so we can run our event
+            >>> loop.run_until_complete(event())
             woohoo!
 
 
@@ -137,7 +142,6 @@ class Event:
             """
             register the coroutine `coro` as an event subscriber for the event `event_name`
             """
-
             if event_name in cls.events:
                 cls.events[event_name].subscribers.append(coro)
             else:
