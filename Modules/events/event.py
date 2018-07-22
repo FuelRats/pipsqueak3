@@ -80,6 +80,8 @@ class Event:
             return value of each subscriber
         """
         for subscriber in self.subscribers:
+            if isinstance(subscriber, staticmethod):
+                subscriber = subscriber.__func__
             log.debug(f"calling subscriber {subscriber}...")
             result = await subscriber(*args, **kwargs)
             if result is CANCEL_EVENT:
