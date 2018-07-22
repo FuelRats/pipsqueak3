@@ -11,11 +11,16 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
-from typing import Callable, List, Dict, Any, Union
 from functools import partial
+from typing import Callable, List, Dict, Any, Union
+
 # typedef
 subscriptions = List[Callable]
 log = logging.getLogger(f"mecha.{__name__}")
+
+# If a subscriber returns this value, the event will canceled.
+# return this value to consume an event
+CANCEL_EVENT = object()
 
 
 class Event:
@@ -76,7 +81,11 @@ class Event:
         """
         for subscriber in self.subscribers:
             log.debug(f"calling subscriber {subscriber}...")
-            yield await subscriber(*args, **kwargs)
+            result = await subscriber(*args, **kwargs)
+            if result is CANCEL_EVENT:
+                return  # cancel the generator
+
+            yield result
 
     async def emit(self, *args: Any, **kwargs: Any) -> List[Any]:
         """
