@@ -44,7 +44,7 @@ class Event:
 
              Events are callables, and should be treated like async functions when called.
     """
-    events: Dict[str, subscriptions] = {}
+    events: Dict[str, 'Event'] = {}
     """Registry mapping event names to their subscribers"""
 
     def __init__(self, coro: Union[Callable, str]):
@@ -57,11 +57,15 @@ class Event:
             # Event("name") form
             self.decorated_coro = None
             self.name = coro
-        Event._register(self.name)
+
+        self.subscribers: subscriptions = []
+        """This events subscribers"""
+
+        Event._register(self)
 
     async def _emit(self, *args, **kwargs):
         """Emit an event to all subscribers"""
-        for subscriber in self.events[self.decorated_coro.__name__]:
+        for subscriber in self.subscribers:
             log.debug(f"calling subscriber {subscriber}...")
             await subscriber(*args, **kwargs)
 
@@ -73,20 +77,20 @@ class Event:
         await self._emit(*args, **kwargs)
 
     @classmethod
-    def _register(cls, name: str):
+    def _register(cls, event: 'Event'):
         """
         Registers a new event
 
         Args:
-            name (str): name of event to register
+            event(Event): Event to register
 
         Raises:
             ValueError: attempted to register an event has already been registered
         """
-        if name in cls.events:
-            raise ValueError(f"name {name} is already registered as an event. "
+        if event.name in cls.events:
+            raise ValueError(f"name {event.name} is already registered as an event. "
                              f"please choose a different name")
-        cls.events[name] = []
+        cls.events[event.name] = event
 
     @classmethod
     def subscribe(cls, event_name):
@@ -111,7 +115,7 @@ class Event:
 
             # do reg here
             if event_name in cls.events:
-                cls.events[event_name].append(coro)
+                cls.events[event_name].subscribers.append(coro)
             else:
                 raise ValueError
             return wrapper
