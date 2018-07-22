@@ -11,6 +11,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
+from functools import partial
 from typing import Callable, List, Dict, Union
 
 # typedef
@@ -84,6 +85,11 @@ class Event:
             await self.decorated_coro(*args, **kwargs)
         log.debug(f"emitting event to subscribers...")
         await self._emit(*args, **kwargs)
+
+    def __get__(self, instance, owner):
+        # i honestly have no idea what black magic this is.
+        # https://stackoverflow.com/questions/30104047/how-can-i-decorate-an-instance-method-with-a-decorator-class
+        return partial(self.__call__, instance)
 
     @classmethod
     def _register(cls, event: 'Event'):

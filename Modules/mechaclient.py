@@ -21,7 +21,7 @@ from utils.ratlib import sanitize
 log = logging.getLogger(f"mecha.{__name__}")
 
 on_message_raw = Event("on_message_raw")
-
+on_command = Event("on_command")
 prefix = config['commands']['prefix']
 
 
@@ -46,6 +46,9 @@ class MechaClient(Client):
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._database_manager = None  # TODO: replace with dbm once it exists
         self._rat_cache = None  # TODO: replace with ratcache once it exists
+
+        # Event.events['on_connect'].decorated_coro = self.on_connect
+        # Event.events['on_message'].decorated_coro = self.on_message
         super().__init__(*args, **kwargs)
 
     @Event
@@ -61,9 +64,7 @@ class MechaClient(Client):
             await self.join(channel)
 
         log.debug("joined channels.")
-        for subscription in self._subscriptions["on_connect"]:
-            log.debug(f"invoking subscription for {subscription}")
-            subscription()
+
         # call the super
         super().on_connect()
 
@@ -95,21 +96,8 @@ class MechaClient(Client):
             # sanitize input string headed to command executor
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
-            await self.on_command(message=sanitized_message, channel=channel, sender=user)
+            await on_command(message=sanitized_message, channel=channel, sender=user)
 
-    @Event
-    async def on_command(self, message: str, channel: str, sender: str) -> None:
-        """
-        on_command event
-        Args:
-            message (str): command's message
-            channel (str): command's channel
-            sender (str): command's sender
-
-        Returns:
-            None
-        """
-        pass
 
     @property
     def rat_cache(self) -> object:
