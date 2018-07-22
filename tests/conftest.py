@@ -20,8 +20,7 @@ from uuid import uuid4, UUID
 import pytest
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
-
-
+from Modules.event import Event
 from Modules.rat_cache import RatCache
 
 sys.argv = ["test",
@@ -244,3 +243,11 @@ def permission_fx(monkeypatch) -> Permission:
     monkeypatch.setattr("Modules.permissions._by_vhost", {})
     permission = Permission(0, {"testing.fuelrats.com", "cheddar.fuelrats.com"})
     return permission
+
+
+@pytest.fixture
+def clear_events() -> None:
+    """ensures the event registry is clear between tests"""
+    Event.events.clear()
+    yield
+    Event.events.clear()
