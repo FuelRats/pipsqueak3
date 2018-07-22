@@ -16,9 +16,9 @@ import logging
 
 from pydle import ClientPool
 
+import Modules.mechaclient as mechaclient
 from Modules import rat_command
 from Modules.context import Context
-from Modules.mechaclient import MechaClient
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
 from config import config
@@ -49,10 +49,13 @@ if __name__ == "__main__":
         if config['authentication']['method'] == "PLAIN":
             log.info("Authentication method set to PLAIN.")
             # authenticate via sasl PLAIN mechanism (username & password)
-            client = MechaClient(config['irc']['nickname'],
-                                 sasl_username=config['authentication']['plain']['username'],
-                                 sasl_password=config['authentication']['plain']['password'],
-                                 sasl_identity=config['authentication']['plain']['identity'])
+            client = mechaclient.MechaClient(config['irc']['nickname'],
+                                             sasl_username=config['authentication']['plain'][
+                                                 'username'],
+                                             sasl_password=config['authentication']['plain'][
+                                                 'password'],
+                                             sasl_identity=config['authentication']['plain'][
+                                                 'identity'])
 
         elif config['authentication']['method'] == "EXTERNAL":
             log.info("Authentication method set to EXTERNAL")
@@ -61,7 +64,7 @@ if __name__ == "__main__":
             cert = config['authentication']['external']['tls_client_cert']
             # key = config['authentication']['external']['tls_client_key']
 
-            client = MechaClient(
+            client = mechaclient.MechaClient(
                 config['irc']['nickname'],
                 sasl_mechanism='EXTERNAL',
                 tls_client_cert=f"certs/{cert}",
