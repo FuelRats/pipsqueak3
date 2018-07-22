@@ -11,8 +11,8 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
-from typing import Callable, List, Dict, Any
-
+from typing import Callable, List, Dict, Any, Union
+from functools import partial
 # typedef
 subscriptions = List[Callable]
 log = logging.getLogger(f"mecha.{__name__}")
@@ -108,18 +108,25 @@ class Event:
             raise ValueError(f"name {event.name} is already registered as an event")
         cls.events[event.name] = event
 
-    def subscribe(self, coro: Callable):
+    def subscribe(self, coro: Union[Callable, partial]) -> Callable:
         """
         Subscribe to this event
 
+        This method can be used as a decorator around **static methods**
+
+        To subscribe to an **instance** method, please call subscribe directly (see examples)
+
         Args:
             coro(Callable): async def function to make a subscriber
+
+            coro(partial): pre-prepared partial to make a subscriber
 
         Raises:
             ValueError: attempted to subscribe to an event that is not registered
 
         Examples:
             any async function can use this decorator to subscribe to an **existing** event
+            Further, the decorator form can only be used on static methods due tech limitations.
 
             >>> event = Event("subscribe_example_event")
             >>> @event.subscribe
@@ -137,6 +144,19 @@ class Event:
             woohoo!
             [42]
 
+            To add a **instance** method as a subscriber, or to otherwise pre-prepare a function,
+            this method can be passed a partial.
+            >>> del event  # cleanup from last doctest
+            >>> from functools import partial
+            ...
+            >>> event = Event("subscribe_partial_event")
+            >>> async def subscribe_partial(*args, **kwargs):
+            ...     return 12
+            >>> my_partial = partial(subscribe_partial)
+            >>> _ = event.subscribe(my_partial)
+
+            >>> my_partial in event.subscribers
+            True
 
         Notes:
             - any values returned by subscribers will be discarded.
