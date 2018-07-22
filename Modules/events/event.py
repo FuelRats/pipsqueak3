@@ -125,6 +125,7 @@ class Event:
             >>> @event.subscribe
             ... async def subscribe_demo_coro(*args, **kwargs):
             ...     print("woohoo!")
+            ...     return 42
             >>> subscribe_demo_coro in event.subscribers
             True
 
@@ -134,6 +135,7 @@ class Event:
             ... # setup an asyncio event loop, so we can run our event
             >>> loop.run_until_complete(event.emit())
             woohoo!
+            [42]
 
 
         Notes:
