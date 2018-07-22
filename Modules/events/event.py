@@ -63,9 +63,25 @@ class Event:
 
         Event._register(self)
 
-    async def emit(self, *args: Any, **kwargs: Any):
+    async def _emit(self, *args, **kwargs):
+        """
+        async generator that does the actual event emission
+
+        Args:
+            *args ():
+            **kwargs ():
+
+        Yields:
+            return value of each subscriber
+        """
+        for subscriber in self.subscribers:
+            log.debug(f"calling subscriber {subscriber}...")
+            yield await subscriber(*args, **kwargs)
+
+    async def emit(self, *args: Any, **kwargs: Any) -> List[Any]:
         """
         Emit the event to all subscribers
+
         Args:
             *args (tuple): tuple of positional arguments to subscribers
             **kwargs (dict): dict of keyword arguments to provide to subscribers
@@ -73,9 +89,9 @@ class Event:
         Returns:
 
         """
-        for subscriber in self.subscribers:
-            log.debug(f"calling subscriber {subscriber}...")
-            await subscriber(*args, **kwargs)
+        outcomes = [outcome async for outcome in self._emit(*args, **kwargs)]
+        log.debug(f"outcomes = {outcomes}")
+        return outcomes
 
     @classmethod
     def _register(cls, event: 'Event'):
@@ -92,9 +108,12 @@ class Event:
             raise ValueError(f"name {event.name} is already registered as an event")
         cls.events[event.name] = event
 
-    def subscribe(self, coro):
+    def subscribe(self, coro: Callable):
         """
         Subscribe to this event
+
+        Args:
+            coro(Callable): async def function to make a subscriber
 
         Raises:
             ValueError: attempted to subscribe to an event that is not registered
