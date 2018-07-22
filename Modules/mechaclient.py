@@ -14,12 +14,15 @@ import logging
 
 from pydle import Client
 
-from Modules import rat_command
 from Modules.event import Event
 from config import config
 from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
+
+on_message_raw = Event("on_message_raw")
+
+prefix = config['commands']['prefix']
 
 
 class MechaClient(Client):
@@ -44,8 +47,6 @@ class MechaClient(Client):
         self._database_manager = None  # TODO: replace with dbm once it exists
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         super().__init__(*args, **kwargs)
-
-    on_message_raw = Event("on_message_raw")
 
     @Event
     async def on_connect(self):
@@ -76,7 +77,7 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
-        await self.on_message_raw(channel, user, message)
+        await on_message_raw(channel, user, message)
 
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
@@ -84,13 +85,10 @@ class MechaClient(Client):
             log.debug(f"Ignored {message} (anti-loop)")
             return None
 
-        if not message.startswith(rat_command.prefix):
+        if not message.startswith(prefix):
             # prevent bot from processing commands without the set prefix
             log.debug(f"Ignored {message} (not a command)")
 
-            for subscriber in self._subscriptions['on_message']:
-                # call on_message subscriptions
-                await subscriber(channel=channel, sender=user, message=message)
             return None
 
         else:  # await command execution
