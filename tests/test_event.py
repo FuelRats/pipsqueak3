@@ -12,6 +12,7 @@ from functools import partial
 
 import pytest
 
+from Modules.events import CANCEL_EVENT
 from Modules.events.event import Event
 
 
@@ -96,3 +97,35 @@ class TestEvents:
 
         await event.emit(2)
         assert retn[0] == (22, 2)
+
+    async def test_event_cancellation(self):
+        """
+        Verifies event cancellation actually works.
+        """
+        event = Event("unit-test-event")
+
+        # register a bunch of events
+
+        @event.subscribe
+        async def a():
+            return "oh no..."
+
+        @event.subscribe
+        async def b():
+            return "FIRE IN THE HOLE!"
+
+        # plant a bomb
+        @event.subscribe
+        async def bomb():
+            return CANCEL_EVENT
+
+        # place an observer of the aftermath
+        @event.subscribe
+        async def ashes():
+            return "I don't wanna return!"
+
+        results = await event.emit()
+
+        assert len(results) == 2
+        assert results == ['oh no...', "FIRE IN THE HOLE!"]
+        assert "I don't wanna return!" not in results
