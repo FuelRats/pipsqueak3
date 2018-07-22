@@ -87,7 +87,7 @@ class MechaClient(Client):
         if not message.startswith(prefix):
             # prevent bot from processing commands without the set prefix
             log.debug(f"Ignored {message} (not a command)")
-
+            await events.on_message.emit(channel=channel, user=user, message=message)
             return None
 
         else:  # await command execution

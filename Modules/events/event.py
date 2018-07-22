@@ -159,8 +159,6 @@ class Event:
             True
 
         Notes:
-            - any values returned by subscribers will be discarded.
-
             - all subscribers must be asynchronous function definitions as they will be awaited
 
             - subscribers will be served on a first-in-first-out basis.
