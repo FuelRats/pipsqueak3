@@ -98,7 +98,6 @@ class MechaClient(Client):
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             await on_command(message=sanitized_message, channel=channel, sender=user)
 
-
     @property
     def rat_cache(self) -> object:
         """
