@@ -58,6 +58,9 @@ def test_logging_to_file_debug(spooled_logging_fx, tmpdir, random_string_fx, sev
     """
     Test log file input matches written data by logging a random string,
     and then searching that file for the string.
+
+    This test uses a separate file for the string tests, and will not be present in the
+    unit_tests.log file.  This change was requested to fix parallel test execution with xdist.
     """
     test_randstring = random_string_fx
 
