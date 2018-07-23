@@ -1,14 +1,15 @@
 """
-__init__.py The Event system namespace
+__init__.py - The Event system namespace
 
 This package contains the Event system and all known events as of compile time.
 
-Events created at runtime will not show up here, it is recommended you add the event declorations
+Events created at runtime will not show up here, it is recommended you add the event declarations
  to the :mod:`event_registry` as to avoid nasty chicken-egg import errors.
 
 :class:`Event`:
 ----------------
-    This class defines an Event, to which other functions can subscribe to
+    This class defines an Event, to which other functions can subscribe to. see :class:`Event`
+    for a full description
 
 :obj:`CANCEL_EVENT`:
 -----------------
