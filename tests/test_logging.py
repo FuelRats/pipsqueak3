@@ -12,10 +12,13 @@ See LICENSE.md
 """
 
 import logging
+import tempfile
+import os
 
 import pytest
 
 pytestmark = pytest.mark.logging
+
 
 def log_severity_call(logger, severity, random_string):
     logging_string = f"Test String {random_string}"
@@ -38,32 +41,38 @@ def test_logging_default_level(logging_fx):
 
 
 @pytest.mark.parametrize("severity", [logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR])
-def test_logging_levels(caplog, logging_fx, random_string_fx, severity):
+def test_logging_levels(caplog, spooled_logging_fx, random_string_fx, severity):
     """
     Test Console logging with random string to ensure input matches output.
     """
     test_randstring = random_string_fx
-    logging_fx.setLevel(severity)
-    log_severity_call(logging_fx, severity, test_randstring)
+    spooled_logging_fx.setLevel(severity)
+    log_severity_call(spooled_logging_fx, severity, test_randstring)
     assert caplog.record_tuples == [
-        (logging_fx.name, severity, f"Test String {test_randstring}"),
+        (spooled_logging_fx.name, severity, f"Test String {test_randstring}"),
     ]
 
 
 @pytest.mark.parametrize("severity", [logging.DEBUG, logging.INFO, logging.WARN, logging.ERROR])
-def test_logging_to_file_debug(logging_fx, random_string_fx, severity):
+def test_logging_to_file_debug(spooled_logging_fx, tmpdir, random_string_fx, severity):
     """
     Test log file input matches written data by logging a random string,
     and then searching that file for the string.
     """
     test_randstring = random_string_fx
 
-    logging_fx.setLevel(severity)
-    log_severity_call(logging_fx, severity, test_randstring)
+    spooled_log = tmpdir.join("searchtest.log")
+
+    fh = logging.FileHandler(spooled_log)
+    spooled_logging_fx.addHandler(fh)
+    spooled_logging_fx.setLevel(severity)
+
+    log_severity_call(spooled_logging_fx, severity, test_randstring)
 
     match = 0
-    for line in open('logs/unit_tests.log'):
+    for line in open(spooled_log):
         if test_randstring in line:
             match += 1
 
     assert match == 1
+

@@ -180,6 +180,15 @@ def logging_fx(caplog) -> logging.Logger:
 
 
 @pytest.fixture
+def spooled_logging_fx(caplog) -> logging.Logger:
+    """
+    Calls the logging engine with a spooled file for testing strings only.
+    """
+    caplog.clear()
+    return logging.getLogger("mecha.spooled_logging_fx")
+
+
+@pytest.fixture
 def random_string_fx() -> str:
     """
     Creates a 16 digit alphanumeric string.  For use
