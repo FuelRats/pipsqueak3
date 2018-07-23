@@ -29,8 +29,6 @@ class Event:
 
         an event is a subscribe-able object that will call its subscribers when it is invoked.
 
-        Subscription is possible by using the `@Event.subscribe` decorator
-
     Examples:
 
          an event can also be defined without a function definition
@@ -38,15 +36,19 @@ class Event:
          >>> "my_other_event" in Event.events
          True
 
-         Notes:
-             - Events will need to be invoked by something.
+    Notes:
+        - Events will need to be invoked by something.
 
-             - Event subscribers must be async functions, and should be tested to work with
-             the event's signature (variable)
+        - Event subscribers must be async functions, and should be tested to work with
+            the event's signature (variable)
 
-             - exceptions raised by subscribers will not stop an event from being emitted
+        - exceptions raised by subscribers will not stop an event from being emitted
 
-             - the return value of decorated events are discarded.
+        - the return value of decorated events are discarded.
+
+    See Also:
+        :meth:`subscribe`
+
 
     """
     events: Dict[str, 'Event'] = {}
@@ -61,7 +63,7 @@ class Event:
         """
         if not isinstance(name, str):
             raise TypeError(f"expected type str got {type(name)}")
-        self.name = name
+        self.name: str = name
         """name of this event"""
         self.subscribers: subscriptions = []
         """This events subscribers"""
