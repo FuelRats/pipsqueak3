@@ -15,7 +15,7 @@ from functools import partial
 from typing import Callable, List, Dict, Any, Union
 
 # typedef
-subscriptions = List[Callable]
+Subscriptions = List[Callable]
 log = logging.getLogger(f"mecha.{__name__}")
 
 # If a subscriber returns this value, the event will canceled.
@@ -65,7 +65,7 @@ class Event:
             raise TypeError(f"expected type str got {type(name)}")
         self.name: str = name
         """name of this event"""
-        self.subscribers: subscriptions = []
+        self.subscribers: Subscriptions = []
         """This events subscribers"""
 
         Event._register(self)
