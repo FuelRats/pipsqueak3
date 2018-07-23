@@ -13,7 +13,7 @@ from functools import partial
 import pytest
 
 from Modules.events import CANCEL_EVENT
-from Modules.events.event import Event
+from Modules.events import Event
 
 
 @pytest.mark.usefixtures("clear_events")
@@ -129,3 +129,4 @@ class TestEvents:
         assert len(results) == 2
         assert results == ['oh no...', "FIRE IN THE HOLE!"]
         assert "I don't wanna return!" not in results
+
