@@ -35,9 +35,9 @@ on_message (:class:`Event`): invoked if the incoming message is not a command (c
 
 on_command (:class:`Event`): invoked if the incoming message is a command invocation(channel or DM)
 
-on_notice (:class:`Event`): invoked when the MechaClient recieves a notice of any kind
+on_notice (:class:`Event`): invoked when the MechaClient receives a notice of any kind
 
-on_channel_notice (:class:`Event`): invoked when the MechaClient recieves a notice in a direct message
+on_channel_notice (:class:`Event`): invoked when the MechaClient receives a notice in a DM
 
 on_channel_message (:class:`Event`): invoked when a message is received in a channel
 
