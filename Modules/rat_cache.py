@@ -11,28 +11,23 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from typing import Dict, Optional
+from typing import Dict, Optional, TYPE_CHECKING
 from uuid import UUID
 
-from utils.ratlib import Platforms
+from utils.ratlib import Platforms, Singleton
+
+if TYPE_CHECKING:
+    from Modules.rat import Rat
 
 
-class RatCache(object):
+class RatCache(Singleton):
     """
     A cache of rat objects
     """
 
-    _instance = None  # reference to the singleton
-
-    def __new__(cls, *args, **kwargs):
-        # make this class a singleton
-        if cls._instance is None:
-            cls._instance = super().__new__(cls, *args, **kwargs)
-        return cls._instance
-
     def __init__(self, api_handler=None):
         """
-        Creates the ratcache, if it does not already exist
+        Creates the ratcache
         """
         if not hasattr(self, "_initalized"):
             self._initalized = True
@@ -97,7 +92,7 @@ class RatCache(object):
         self._cache_by_name = value
 
     async def get_rat_by_name(self, name: str,
-                              platform: Platforms = Platforms.DEFAULT,
+                              platform: Optional[Platforms] = None,
                               ) -> 'Rat' or None:
         """
         Finds a rat by name and optionally by platform
@@ -113,7 +108,8 @@ class RatCache(object):
         Returns:
             Rat - found rat
         """
-        if not isinstance(name, str) or not isinstance(platform, Platforms):
+        if not isinstance(name, str) or not isinstance(platform,
+                                                       Platforms) and platform is not None:
             raise TypeError("invalid types given.")
 
         # initialize before use
@@ -129,7 +125,7 @@ class RatCache(object):
             return found
         else:
             # we found a rat
-            return found if (found.platform == platform or platform == Platforms.DEFAULT) else None
+            return found if (found.platform == platform or platform is None) else None
 
     async def get_rat_by_uuid(self, uuid: UUID) -> Optional['Rat']:
         """

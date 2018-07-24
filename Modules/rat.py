@@ -16,6 +16,7 @@ This module is built on top of the Pydle system.
 import logging
 from functools import reduce
 from operator import xor
+from typing import Optional
 from uuid import UUID
 
 from Modules.rat_cache import RatCache
@@ -35,7 +36,7 @@ class Rat(object):
     cache.
     """
 
-    def __init__(self, uuid: UUID, name: str = None, platform: Platforms = Platforms.DEFAULT):
+    def __init__(self, uuid: UUID, name: str = None, platform: Optional[Platforms] = None):
         """
         Creates a new rat
 
@@ -158,14 +159,14 @@ class Rat(object):
         return self._platform
 
     @platform.setter
-    def platform(self, value: Platforms) -> None:
+    def platform(self, value: Optional[Platforms]) -> None:
         """
         Sets the platform for a given rat
 
         Args:
             value (Platforms): new platform
         """
-        if isinstance(value, Platforms):
+        if isinstance(value, Platforms) or value is None:
             self._platform = value
         else:
             raise TypeError(f"Expected a {Platforms} object, got type {type(value)}")

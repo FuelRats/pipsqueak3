@@ -18,6 +18,7 @@ from Modules.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat import Rat
 from Modules.rat_rescue import Rescue
+from Modules.rat_cache import RatCache, Platforms
 from utils.ratlib import Status
 
 pytestmark = pytest.mark.rescue
@@ -482,7 +483,7 @@ def test_mark_for_deletion_setter_bad_types(garbage, rescue_plain_fx: Rescue):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Rescue):
+async def test_add_rat_by_rat_object(uuid: UUID, name: str, rescue_plain_fx: Rescue):
     """
     Verifies `Rescue.add_rat` can add a rat given a `Rat` object
     """
@@ -500,7 +501,7 @@ async def test_add_rat_by_rat_object(uuid: uuid4, name: str, rescue_plain_fx: Re
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue, rat_cache_fx):
+async def test_add_rat_by_uuid(uuid: UUID, name: str, rescue_plain_fx: Rescue, rat_cache_fx):
     """
     Verifies `Rescue.add_rat` can add a rat given a guid and a name
     """
@@ -509,6 +510,57 @@ async def test_add_rat_by_uuid(uuid: uuid4, name: str, rescue_plain_fx: Rescue, 
     await result_rescue.add_rat(name=name, guid=uuid)
 
     assert name in rat_cache_fx.by_name
+
+
+@pytest.mark.asyncio
+async def test_add_rat_returns_rat_by_object(rat_good_fx: Rat, rescue_plain_fx: Rescue):
+    """
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid Rat object
+    """
+    result = await rescue_plain_fx.add_rat(rat=rat_good_fx)
+
+    assert result is rat_good_fx
+
+
+@pytest.mark.asyncio
+async def test_add_rat_returns_rat_by_name(rat_cache_fx, rescue_plain_fx: Rescue, rat_good_fx: Rat):
+    """
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid name of a rat
+    """
+    # add our test rat to the cache so add_rat can find it
+    rat_cache_fx.by_name[rat_good_fx.name] = rat_good_fx
+
+    result = await rescue_plain_fx.add_rat(name=rat_good_fx.name)
+
+    assert result is rat_good_fx
+
+
+@pytest.mark.asyncio
+async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, rescue_plain_fx: Rescue, rat_good_fx: Rat):
+    """
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid UUID of a rat
+    """
+    # add our test rat to the cache so add_rat can find it
+    rat_cache_fx.by_uuid[rat_good_fx.uuid] = rat_good_fx
+
+    result = await rescue_plain_fx.add_rat(guid=rat_good_fx.uuid)
+
+    assert result is rat_good_fx
+
+
+@pytest.mark.asyncio
+async def test_add_rat_returns_rat_by_uuid_string(rat_cache_fx,
+                                                  rescue_plain_fx: Rescue,
+                                                  rat_good_fx: Rat):
+    """
+    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid UUID string of a rat
+    """
+    # add our test rat to the cache so add_rat can find it
+    rat_cache_fx.by_uuid[rat_good_fx.uuid] = rat_good_fx
+
+    result = await rescue_plain_fx.add_rat(guid=str(rat_good_fx.uuid))
+
+    assert result is rat_good_fx
 
 
 def test_eq_none(rescue_plain_fx: Rescue):

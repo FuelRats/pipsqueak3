@@ -13,13 +13,19 @@ This module is built on top of the Pydle system.
 
 """
 
-from config import config
 import logging
+from uuid import uuid4
+
+from pydle import ClientPool, Client
+
+# noinspection PyUnresolvedReferences
+import commands
+from Modules import graceful_errors
+from Modules import rat_command
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
-from Modules import rat_command
-from Modules.rat_command import command
-from pydle import ClientPool, Client
+from Modules.rat_command import command, CommandNotFoundException
+from config import config
 from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -91,9 +97,20 @@ class MechaClient(Client):
             # sanitize input string headed to command executor
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
-            await rat_command.trigger(message=sanitized_message,
-                                      sender=user,
-                                      channel=channel)
+            try:
+                await rat_command.trigger(message=sanitized_message,
+                                          sender=user,
+                                          channel=channel)
+            except CommandNotFoundException:
+                # command was not found
+                log.debug("Command invoked from \"{message}\" not found.")
+
+            except Exception as ex:
+                ex_uuid = uuid4()
+                log.exception(ex_uuid)
+                error_message = graceful_errors.make_graceful(ex, ex_uuid)
+                # and report it to the user
+                await self.message(channel, error_message)
 
     @property
     def rat_cache(self) -> object:
