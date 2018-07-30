@@ -13,7 +13,6 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from typing import Match
 
 import pydle
 import pytest
@@ -21,7 +20,6 @@ import pytest
 import Modules.rat_command as Commands
 from Modules.context import Context
 from Modules.rat_command import NameCollisionException
-from tests.mock_callables import AsyncCallableMock, InstanceOf
 
 
 @pytest.fixture
@@ -98,75 +96,6 @@ class TestRatCommand(object):
         :return:
         """
         assert Commands._register(garbage, ['foo']) is False
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("regex,case_sensitive,full_message,message", [
-        ("^banan(a|e)$", True, False, "!banana"),
-        ("^banan(a|e)$", True, False, "!banane"),
-        ("^dabadoop$", False, False, "!DABADOOP"),
-        ("na na", False, True, "!na na")
-    ])
-    async def test_rule_matching(self, async_callable_fx: AsyncCallableMock, regex: str,
-                                 case_sensitive: bool, full_message: bool, message: str):
-        """Verifies that the rule decorator works as expected."""
-        Commands.rule(regex, case_sensitive=case_sensitive,
-                      full_message=full_message)(async_callable_fx)
-
-        await Commands.trigger(message, "unit_test", "#mordor")
-        assert async_callable_fx.was_called_once
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("regex,case_sensitive,full_message,message", [
-        ("^banan(a|e)$", True, False, "!banan"),
-        ("^banan(a|e)$", True, False, "!bananae"),
-        ("^dabadoop$", True, False, "!DABADOOP"),
-        ("na na", False, False, "!na na")
-    ])
-    async def test_rule_not_matching(self, async_callable_fx: AsyncCallableMock, regex: str,
-                                     case_sensitive: bool, full_message: bool, message: str):
-        """verifies that the rule decorator works as expected."""
-        Commands.rule(regex, case_sensitive=case_sensitive,
-                      full_message=full_message)(async_callable_fx)
-        await Commands.trigger(message, "unit_test", "theOneWithTheHills")
-        assert not async_callable_fx.was_called
-
-    @pytest.mark.asyncio
-    async def test_rule_passes_match(self, async_callable_fx: AsyncCallableMock):
-        """
-        Verifies that the rules get passed the match object correctly.
-        """
-        Commands.rule("her(lo)", pass_match=True)(async_callable_fx)
-        await Commands.trigger("!herlo", "unit_test", "#unit_test")
-
-        assert async_callable_fx.was_called_once
-        assert async_callable_fx.was_called_with(InstanceOf(Context), InstanceOf(Match))
-        assert async_callable_fx.calls[0].args[1].groups() == ("lo",)
-
-    @pytest.mark.asyncio
-    async def test_prefixless_rule_called(self, async_callable_fx: AsyncCallableMock):
-        """
-        Verifies that prefixless rules are considered when the prefix is not present.
-        """
-        Commands.rule("da_da(_da)?", prefixless=True)(async_callable_fx)
-        await Commands.trigger("da_da", "unit_test", "#unit_test")
-
-        assert async_callable_fx.was_called_once
-        assert async_callable_fx.was_called_with(InstanceOf(Context))
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("regex,message", [
-        ("woof", "!woof woof"),
-        ("!woof", "!woof woof")
-    ])
-    async def test_prefixless_rule_not_called(self, regex: str, message: str,
-                                              async_callable_fx: AsyncCallableMock):
-        """
-        Verifies that prefixless rules are not considered if the prefix is present.
-        """
-        Commands.rule(regex, prefixless=True)(async_callable_fx)
-        await Commands.trigger(message, "unit_test", "#unit_test")
-
-        assert not async_callable_fx.was_called
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', "fireball"])
