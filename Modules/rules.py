@@ -7,7 +7,20 @@ log = logging.getLogger(__name__)
 _rules: List["_RuleTuple"] = []
 _prefixless_rules: List["_RuleTuple"] = []
 
-_RuleTuple = NamedTuple("_RuleTuple", pattern=Pattern, underlying=Callable, full_message=bool, pass_match=bool)
+
+class _RuleTuple(NamedTuple):
+    pattern: Pattern
+    underlying: Callable
+    full_message: bool
+    pass_match: bool
+
+    def __eq__(self, other):
+        if isinstance(other, _RuleTuple):
+            return self.pattern == other.pattern and self.full_message == other.full_message
+        elif isinstance(other, tuple):
+            return super() == other
+        else:
+            return NotImplemented
 
 
 def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
@@ -42,10 +55,15 @@ def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
         else:
             pattern = re.compile(regex, re.IGNORECASE)
 
+        tuple_ = _RuleTuple(pattern, coro, full_message, pass_match)
         if prefixless:
-            _prefixless_rules.append(_RuleTuple(pattern, coro, full_message, pass_match))
+            if tuple_ in _prefixless_rules:
+                raise ValueError("rule with the same matching criteria is already registered")
+            _prefixless_rules.append(tuple_)
         else:
-            _rules.append(_RuleTuple(pattern, coro, full_message, pass_match))
+            if tuple_ in _rules:
+                raise ValueError("rule with the same matching criteria is already registered")
+            _rules.append(tuple_)
 
         log.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
                  f" created.")
