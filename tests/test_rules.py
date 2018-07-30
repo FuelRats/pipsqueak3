@@ -85,3 +85,20 @@ async def test_prefixless_rule_not_called(regex: str, message: str,
     await trigger(message, "unit_test", "#unit_test")
 
     assert not async_callable_fx.was_called
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("regex,full_message,prefixless", [
+    ("woof", False, False),
+    ("blue moon", True, True),
+    ("herlo there", True, False)
+])
+async def test_rule_duplicate_raises(regex: str, full_message: str, prefixless: str,
+                                     async_callable_fx: AsyncCallableMock):
+    """
+    Ensures that a ValueError is raises when two rules with the same regex, full_message and
+    prefixlessness are being registered.
+    """
+    rule(regex, full_message=full_message, prefixless=prefixless)(async_callable_fx)
+    with pytest.raises(ValueError):
+        rule(regex, full_message=full_message, prefixless=prefixless)(async_callable_fx)
