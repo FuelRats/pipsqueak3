@@ -123,7 +123,8 @@ class Rescue(object):
         self._status = status
         self._mecha_uuid = mecha_id
         self._hash = hash(self._mecha_uuid)
-        """Internal UUID used to generate the hash for this rescue object and make it uniquely identifiable"""
+        """Internal UUID used to generate the hash for this rescue object and make it uniquely
+         identifiable"""
         self._modified_attrs: Set[str] = set()
         """Set of attributes modified during a .modify call"""
 
