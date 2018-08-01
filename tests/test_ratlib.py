@@ -2,6 +2,7 @@ import pytest
 
 import utils.ratlib
 from utils.ratlib import Singleton
+from utils.ratlib import Colors, Formatting, color, bold, underline, italic, reverse
 
 pytestmark = pytest.mark.ratlib
 
@@ -83,3 +84,47 @@ def test_singleton_indirect_inheritance():
     assert foo is bar
     # noinspection PyUnresolvedReferences
     assert Snafu._instance is foo
+
+
+@pytest.mark.parametrize("expected_color", (Colors.RED, Colors.BLUE, Colors.BLACK, Colors.GREEN))
+def test_color_single_color(expected_color, random_string_fx):
+    test_string = random_string_fx
+    assert f"{Formatting.FORMAT_COLOR.value}{expected_color}{test_string}" \
+           f"{Formatting.FORMAT_COLOR.value}" == color(test_string, expected_color)
+
+
+@pytest.mark.parametrize("expected_color,expected_bg_color", (
+                        (Colors.RED, Colors.ORANGE),
+                        (Colors.BROWN, Colors.BLUE),
+                        (Colors.YELLOW, Colors.GREY)
+                        ))
+def test_color_background_color(random_string_fx, expected_color, expected_bg_color):
+    test_string = random_string_fx
+    assert f"{Formatting.FORMAT_COLOR.value}{expected_color},{expected_bg_color}{test_string}" \
+           f"{Formatting.FORMAT_COLOR.value}" == color(test_string,
+                                                       expected_color,
+                                                       expected_bg_color)
+
+
+def test_color_bold(random_string_fx):
+    test_string = random_string_fx
+    assert f"{Formatting.FORMAT_BOLD.value}{test_string}{Formatting.FORMAT_BOLD.value}" \
+           == bold(test_string)
+
+
+def test_color_italic(random_string_fx):
+    test_string = random_string_fx
+    assert f"{Formatting.FORMAT_ITALIC.value}{test_string}{Formatting.FORMAT_ITALIC.value}" == \
+           italic(test_string)
+
+
+def test_color_underline(random_string_fx):
+    test_string = random_string_fx
+    assert f"{Formatting.FORMAT_UNDERLINE.value}{test_string}{Formatting.FORMAT_UNDERLINE.value}" \
+           == underline(test_string)
+
+
+def test_color_reverse(random_string_fx):
+    test_string = random_string_fx
+    assert f"{Formatting.FORMAT_REVERSE.value}{test_string}{Formatting.FORMAT_REVERSE.value}" \
+           == reverse(test_string)
