@@ -11,7 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
-from contextlib import asynccontextmanager
+import sys
 from datetime import datetime
 from typing import Union, Optional, List, TYPE_CHECKING, Set
 from uuid import UUID, uuid4
@@ -28,6 +28,13 @@ if TYPE_CHECKING:
     # It is False at runtime.
     # see https://docs.python.org/3.6/library/typing.html#typing.TYPE_CHECKING
     from Modules.rat_board import RatBoard
+
+if sys.version[0:3] == "3.6":  # version check for 3.6 compat
+    # noinspection PyPackageRequirements
+    from async_generator import asynccontextmanager
+else:
+    # noinspection PyProtectedMember
+    from contextlib import asynccontextmanager
 
 log = logging.getLogger(f"mecha.{__name__}")
 

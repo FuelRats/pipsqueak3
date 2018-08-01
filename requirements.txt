@@ -4,4 +4,4 @@ pytest-cov
 pytest-asyncio
 pure-sasl
 coloredlogs
-async_generator
+async_generator; python_version<"3.7"
