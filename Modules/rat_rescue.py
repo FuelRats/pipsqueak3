@@ -44,7 +44,7 @@ class Rescue(object):
                  board_index: Optional[int] = None,
                  mark_for_deletion: MarkForDeletion = MarkForDeletion(), lang_id: str = "EN",
                  rats: List[Rat] = None, status: Status = Status.OPEN, code_red=False,
-                 hashing_uuid: Optional[UUID] = None):
+                 mecha_id: Optional[UUID] = None):
         """
         creates a unique rescue
 
@@ -74,7 +74,7 @@ class Rescue(object):
             irc_nickname (str): clients IRC nickname, may deffer from their
                 commander name.
             rats (list): identified (Rat)s assigned to rescue.
-            hashing_uuid(UUID): Internal api_id used for hashing
+            mecha_id(UUID): Internal uuid assigned to *this* rescue object to make it unique
                 ** this property is READ ONLY **
 
 
@@ -102,9 +102,9 @@ class Rescue(object):
         self._board_index = board_index
         self._lang_id = lang_id
         self._status = status
-        self._hash = None
-        self.__hashing_uuid = hashing_uuid if hashing_uuid is not None else uuid4()
-        """Internal UUID used to generate the hash for this rescue object"""
+        self._mecha_uuid = mecha_id if mecha_id is not None else uuid4()
+        self._hash = hash(self._mecha_uuid)
+        """Internal UUID used to generate the hash for this rescue object and make it uniquely identifiable"""
         self._modified_attrs: Set[str] = set()
         """Set of attributes modified during a .modify call"""
 
@@ -126,11 +126,6 @@ class Rescue(object):
             return hash(self) == hash(other)
 
     def __hash__(self):
-
-        if self._hash is None:
-            # compute the hash of the internally generated uuid and use that as our hash
-            self._hash = hash(self.__hashing_uuid)
-
         return self._hash
 
     @property
