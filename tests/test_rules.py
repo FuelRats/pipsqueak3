@@ -4,8 +4,8 @@ import pytest
 
 from Modules.context import Context
 from Modules.rat_command import trigger
-from Modules.rules import rule, clear_rules
-from tests.mock_callables import AsyncCallableMock, InstanceOf
+from Modules.rules import rule, clear_rules, RuleNotPresentException, DuplicateRuleException
+from tests.mock_callables import AsyncCallableMock, InstanceOf, CallableMock
 
 
 @pytest.fixture(autouse=True)
@@ -99,6 +99,52 @@ async def test_rule_duplicate_raises(regex: str, full_message: str, prefixless: 
     Ensures that a ValueError is raises when two rules with the same regex, full_message and
     prefixlessness are being registered.
     """
-    rule(regex, full_message=full_message, prefixless=prefixless)(async_callable_fx)
-    with pytest.raises(ValueError):
+    my_rule = rule(regex, full_message=full_message, prefixless=prefixless)(async_callable_fx)
+    with pytest.raises(DuplicateRuleException) as exc_info:
         rule(regex, full_message=full_message, prefixless=prefixless)(async_callable_fx)
+
+    assert exc_info.value.rule is not my_rule
+    assert exc_info.value.rule == my_rule
+
+
+@pytest.mark.asyncio
+async def test_rule_not_present_raises(async_callable_fx: AsyncCallableMock):
+    """
+    Ensures that :class:`RuleNotPresentException` is raised when the provided *after* rule was never
+    registered.
+    """
+    not_present = rule("gaah")(async_callable_fx)
+    clear_rules()
+    with pytest.raises(RuleNotPresentException) as exc_info:
+        rule("baah", after=not_present)(async_callable_fx)
+
+    assert exc_info.value.rule is not_present
+
+
+@pytest.mark.asyncio
+async def test_rule_callable(callable_fx: CallableMock):
+    """Ensures that thee result of the rule decorator is still callable."""
+    my_rule = rule("gaah")(callable_fx)
+
+    assert callable(my_rule)
+    my_rule(1, 2, 3)
+    assert callable_fx.was_called_once
+    assert callable_fx.was_called_with(1, 2, 3)
+
+
+@pytest.mark.asyncio
+async def test_rule_after():
+    """
+    Ensures that the *after* parameter behaves as expected.
+    This is rather useless as the order in which the rules are registered already ensures their
+    order of consideration.
+    """
+    async_callable_1 = AsyncCallableMock()
+    async_callable_2 = AsyncCallableMock()
+
+    rule1 = rule("gaah")(async_callable_1)
+    rule2 = rule("(g|b)aah", after=rule1)(async_callable_2)
+
+    await trigger("!gaah", "unit_test", "#channel")
+    assert async_callable_1.was_called_once
+    assert not async_callable_2.was_called
