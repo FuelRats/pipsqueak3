@@ -130,6 +130,5 @@ def get_rule(words: List[str], words_eol: List[str],
 
 
 def clear_rules():
-    global _prefixless_rules, _rules
-    _prefixless_rules = []
-    _rules = []
+    _prefixless_rules.clear()
+    _rules.clear()
