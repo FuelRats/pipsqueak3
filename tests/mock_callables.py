@@ -87,6 +87,12 @@ class CallableMock(object):
         """
         return _Call(args, kwargs) in self._calls
 
+    def reset(self):
+        """
+        Reset all saved calls to this mock.
+        """
+        self._calls.clear()
+
 
 class AsyncCallableMock(CallableMock):
     """
