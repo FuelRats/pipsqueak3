@@ -37,11 +37,8 @@ class TestRatCommand(object):
         """
         Ensures that nothing happens and `trigger` exits quietly when no command can be found.
         """
-        try:
-            await Commands.trigger(message="!nope", sender="unit_test",
-                                   channel="foo")
-        except BaseException as e:
-            pytest.fail("trigger raised " + type(e).__name__)
+        await Commands.trigger(message="!nope", sender="unit_test",
+                               channel="foo")
 
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     def test_double_command_registration(self, alias):
