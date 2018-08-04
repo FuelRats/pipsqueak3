@@ -17,8 +17,6 @@ class Rule(NamedTuple):
     def __eq__(self, other):
         if isinstance(other, Rule):
             return self.pattern == other.pattern and self.full_message == other.full_message
-        elif isinstance(other, tuple):
-            return super() == other
         else:
             return NotImplemented
 
