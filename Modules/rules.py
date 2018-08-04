@@ -4,27 +4,42 @@ from typing import Callable, NamedTuple, Pattern, List, Tuple, Optional
 
 log = logging.getLogger(__name__)
 
-_rules: List["_RuleTuple"] = []
-_prefixless_rules: List["_RuleTuple"] = []
+_rules: List["Rule"] = []
+_prefixless_rules: List["Rule"] = []
 
 
-class _RuleTuple(NamedTuple):
+class Rule(NamedTuple):
     pattern: Pattern
     underlying: Callable
     full_message: bool
     pass_match: bool
 
     def __eq__(self, other):
-        if isinstance(other, _RuleTuple):
+        if isinstance(other, Rule):
             return self.pattern == other.pattern and self.full_message == other.full_message
         elif isinstance(other, tuple):
             return super() == other
         else:
             return NotImplemented
 
+    def __call__(self, *args, **kwargs):
+        return self.underlying(*args, **kwargs)
+
+
+class RuleNotPresentException(Exception):
+    def __init__(self, rule_: Rule):
+        super().__init__(f"rule matching {rule_.pattern.pattern} does not exist")
+        self.rule = rule_
+
+
+class DuplicateRuleException(Exception):
+    def __init__(self, rule_: Rule):
+        super().__init__(f"rule matching {rule_.pattern.pattern} is already registered")
+        self.rule = rule_
+
 
 def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
-         pass_match: bool=False, prefixless: bool=False):
+         pass_match: bool=False, prefixless: bool=False, after: Rule=None):
     """
     Decorator to have the underlying coroutine be called when two conditions apply:
     1. No conventional command was found for the incoming message.
@@ -45,9 +60,18 @@ def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
             If this is True, the rule can match whether or not the prefix is present. Otherwise, it
             acts similarly to a command, only being considered if the message starts with our
             prefix. The prefix itself should not be part of the regex for non-prefixless rules.
+        after (Rule):
+            A rule which this one must be considered after, for some rudimentary prioritization.
 
     Please note that *regex* can match anywhere within the string, it need not match the entire
     string. If you wish to change this behaviour, use '^' and '$' in your regex.
+
+    Ordering is actually ensured by requiring access to *after*, by making sure that it has been
+    registered before this one.
+
+    Raises:
+        DuplicateRuleException: If the same rule has already been registered.
+        RuleNotPresentException: If the rule *after* hasn't yet been registered.
     """
     def decorator(coro: Callable):
         if case_sensitive:
@@ -55,19 +79,23 @@ def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
         else:
             pattern = re.compile(regex, re.IGNORECASE)
 
-        tuple_ = _RuleTuple(pattern, coro, full_message, pass_match)
-        if prefixless:
-            if tuple_ in _prefixless_rules:
-                raise ValueError("rule with the same matching criteria is already registered")
-            _prefixless_rules.append(tuple_)
+        tuple_ = Rule(pattern, coro, full_message, pass_match)
+
+        target = _prefixless_rules if prefixless else _rules
+        if tuple_ in target:
+            raise DuplicateRuleException(tuple_)
+
+        if after is None:
+            target.append(tuple_)
         else:
-            if tuple_ in _rules:
-                raise ValueError("rule with the same matching criteria is already registered")
-            _rules.append(tuple_)
+            try:
+                target.insert(target.index(after) + 1, tuple_)
+            except ValueError:
+                raise RuleNotPresentException(after)
 
         log.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
                  f" created.")
-        return coro
+        return tuple_
     return decorator
 
 
