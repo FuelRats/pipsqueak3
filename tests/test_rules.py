@@ -4,7 +4,8 @@ import pytest
 
 from Modules.context import Context
 from Modules.rat_command import trigger
-from Modules.rules import rule, clear_rules, RuleNotPresentException, DuplicateRuleException
+from Modules.rules import rule, clear_rules, RuleNotPresentException, DuplicateRuleException, \
+    get_rule
 from tests.mock_callables import AsyncCallableMock, InstanceOf, CallableMock
 
 
@@ -148,3 +149,27 @@ async def test_rule_after():
     await trigger("!gaah", "unit_test", "#channel")
     assert async_callable_1.was_called_once
     assert not async_callable_2.was_called
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("prefixless,pass_match", [
+    (False, False),
+    (False, True),
+    (True, False),
+    (True, True)
+])
+async def test_get_rule(prefixless: bool, pass_match: bool):
+    """Ensures that get_rule works as expected."""
+    rule1 = rule("gaah", prefixless=prefixless, pass_match=pass_match)(object())
+    rule2 = rule("gaah", prefixless=not prefixless)(object())
+    rule3 = rule("baah")(object())
+    rule4 = rule("baah", prefixless=True)(object())
+
+    fun, extra_args = get_rule(["gaah"], ["gaah"], prefixless)
+
+    assert rule1.underlying is fun
+    if pass_match:
+        assert 1 == len(extra_args)
+        assert isinstance(extra_args[0], Match)
+    else:
+        assert () == extra_args
