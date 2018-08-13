@@ -112,17 +112,17 @@ def get_rule(words: List[str], words_eol: List[str],
             2-tuple of the command function and the extra args that it should
             be called with.
     """
-    for (pattern, fun, full_message, pass_match) in (_prefixless_rules if prefixless else _rules):
-        if full_message:
-            match = pattern.match(words_eol[0])
+    for rule in (_prefixless_rules if prefixless else _rules):
+        if rule.full_message:
+            match = rule.pattern.match(words_eol[0])
         else:
-            match = pattern.match(words[0])
+            match = rule.pattern.match(words[0])
 
         if match is not None:
-            if pass_match:
-                return fun, (match,)
+            if rule.pass_match:
+                return rule.underlying, (match,)
             else:
-                return fun, ()
+                return rule.underlying, ()
     else:
         return None, ()
 
