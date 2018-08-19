@@ -63,7 +63,7 @@ class Rescue(object):
                  rats: List[Rat] = None,
                  status: Status = Status.OPEN,
                  code_red=False,
-                 mecha_id: UUID = uuid4()):
+                 mecha_uuid: UUID = uuid4()):
         """
         creates a unique rescue
 
@@ -93,7 +93,7 @@ class Rescue(object):
             irc_nickname (str): clients IRC nickname, may deffer from their
                 commander name.
             rats (list): identified (Rat)s assigned to rescue.
-            mecha_id(UUID): Internal uuid assigned to *this* rescue object to make it unique
+            mecha_uuid(UUID): Internal uuid assigned to *this* rescue object to make it unique
                 ** this property is READ ONLY **
 
 
@@ -121,7 +121,7 @@ class Rescue(object):
         self._board_index = board_index
         self._lang_id = lang_id
         self._status = status
-        self._mecha_uuid = mecha_id
+        self._mecha_uuid = mecha_uuid
         self._hash = hash(self._mecha_uuid)
         """Internal UUID used to generate the hash for this rescue object and make it uniquely
          identifiable"""
@@ -765,6 +765,16 @@ class Rescue(object):
             raise TypeError(f"expected set got {type(value)}")
 
         self._modified_attrs = value
+
+    @property
+    def mecha_uuid(self) -> UUID:
+        """
+        the internal UUID assigned to this Rescue object
+
+        Returns:
+            UUID
+        """
+        return self._mecha_uuid
 
     async def add_rat(self,
                       name: str = None,
