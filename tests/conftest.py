@@ -44,6 +44,7 @@ from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
+from tests.mock_callables import CallableMock, AsyncCallableMock
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -179,6 +180,16 @@ def logging_fx(caplog) -> logging.Logger:
 
 
 @pytest.fixture
+def spooled_logging_fx(caplog) -> logging.Logger:
+    """
+    Same as logging_fx, but under separate namespace for the logger to
+    use a temporary file.
+    """
+    caplog.clear()
+    return logging.getLogger("mecha.spooled_logging_fx")
+
+
+@pytest.fixture
 def random_string_fx() -> str:
     """
     Creates a 16 digit alphanumeric string.  For use
@@ -227,7 +238,6 @@ def reset_rat_cache_fx(rat_cache_fx: RatCache):
     # and clean up after ourselves
     rat_cache_fx.flush()
 
-
 @pytest.fixture
 def permission_fx(monkeypatch) -> Permission:
     """
@@ -251,3 +261,23 @@ def clear_events() -> None:
     Event.events.clear()
     yield
     Event.events.clear()
+
+@pytest.fixture
+def callable_fx():
+    """
+    Fixture providing a callable object whose return value can be set and which can be checked for
+    having been called.
+
+    See :class:`CallableMock`.
+    """
+    return CallableMock()
+
+
+@pytest.fixture
+def async_callable_fx():
+    """
+    Like :func:`callable_fx`, but can be treated as a coroutine function.
+
+    See :class:`AsyncCallableMock`.
+    """
+    return AsyncCallableMock()

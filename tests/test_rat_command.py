@@ -14,15 +14,12 @@ This module is built on top of the Pydle system.
 
 """
 
-import asyncio
-from unittest import mock
-
 import pydle
 import pytest
 
 import Modules.rat_command as Commands
 from Modules.context import Context
-from Modules.rat_command import CommandNotFoundException, NameCollisionException
+from Modules.rat_command import NameCollisionException
 
 
 @pytest.fixture
@@ -35,16 +32,13 @@ def Setup_fx(bot_fx):
 @pytest.mark.commands
 @pytest.mark.usefixtures("Setup_fx")
 class TestRatCommand(object):
-
     @pytest.mark.asyncio
     async def test_invalid_command(self):
         """
-        Ensures the proper exception is raised when a command is not found.
-        :return:
+        Ensures that nothing happens and `trigger` exits quietly when no command can be found.
         """
-        with pytest.raises(CommandNotFoundException):
-            await Commands.trigger(message="!nope", sender="unit_test",
-                                   channel="foo")
+        await Commands.trigger(message="!nope", sender="unit_test",
+                               channel="foo")
 
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     def test_double_command_registration(self, alias):
@@ -101,26 +95,6 @@ class TestRatCommand(object):
         assert Commands._register(garbage, ['foo']) is False
 
     @pytest.mark.asyncio
-    async def test_rule_matching(self):
-        """Verifies that the rule decorator works as expected."""
-        underlying = mock.MagicMock()
-        Commands.rule("banan(a|e)")(asyncio.coroutine(underlying))
-
-        await Commands.trigger("!banana", "unit_test", "#mordor")
-        assert underlying.called
-
-        underlying.reset_mock()
-
-    @pytest.mark.asyncio
-    async def test_rule_not_matching(self):
-        """verifies that the rule decorator works as expected."""
-        underlying = mock.MagicMock()
-        Commands.rule("banan(a|e)")(asyncio.coroutine(underlying))
-        with pytest.raises(CommandNotFoundException):
-            await Commands.trigger("!banan", "unit_test", "theOneWithTheHills")
-        assert not underlying.called
-
-    @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', "fireball"])
     async def test_command_decorator_single(self, alias: str):
         """
@@ -161,7 +135,7 @@ class TestRatCommand(object):
         """
         Commands._flush()
         ftrigger = f"!{name} {trigger_message}"
-        words = [name.lower()] + trigger_message.split(" ")
+        words = [name] + trigger_message.split(" ")
 
         @Commands.command(name)
         async def the_command(context: Context):
