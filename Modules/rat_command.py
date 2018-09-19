@@ -81,7 +81,7 @@ async def trigger(ctx):
                 log.debug(
                     f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found.")
             else:
-                log.warning(f"Could not find command or rule for {prefix}{ctx.words[0]}.")
+                log.debug(f"Could not find command or rule for {prefix}{ctx.words[0]}.")
     else:
         # Might still be a prefixless rule
         command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=True)
