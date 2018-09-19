@@ -127,7 +127,8 @@ class Context(object):
     @classmethod
     async def from_message(cls, bot: 'MechaClient', channel: str, sender: str, message: str):
         """
-        Creates a context from a message
+        Creates a context from a IRC message
+
         Args:
             bot (MechaClient): MechaClient instance
             message (str):  raw message
