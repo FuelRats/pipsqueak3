@@ -51,9 +51,6 @@ _registered_commands = {}
 # character/s that must prefix a message for it to be parsed as a command.
 prefix = config['commands']['prefix']
 
-# Pydle bot instance.
-bot: BasicClient = None
-
 
 async def trigger(ctx):
     """
