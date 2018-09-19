@@ -20,8 +20,7 @@ from pydle import Client
 
 # noinspection PyUnresolvedReferences
 import commands
-from Modules import graceful_errors
-from Modules import rat_command
+from Modules import graceful_errors, rat_command
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
@@ -85,7 +84,6 @@ class MechaClient(Client):
 
         # build context
         context = await Context.from_message(self, channel, user, message)
-
 
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
