@@ -82,6 +82,11 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
+
+        # build context
+        context = await Context.from_message(self, channel, user, message)
+
+
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
@@ -92,12 +97,8 @@ class MechaClient(Client):
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             try:
-                await rat_command.trigger(message=sanitized_message,
-                                          sender=user,
-                                          channel=channel)
-            except CommandNotFoundException:
-                # command was not found
-                log.debug("Command invoked from \"{message}\" not found.")
+                ctx = await Context.from_message(self, channel, user, message)
+                await rat_command.trigger(ctx)
 
             except Exception as ex:
                 ex_uuid = uuid4()
