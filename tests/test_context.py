@@ -69,6 +69,12 @@ async def test_reply(context_fx: Context):
                              [
                                  "#unit_test", "unit_test[BOT]", "I wonder...", ["I", "wonder..."],
                                  ["I wonder...", "wonder..."], False
+                             ],
+                             [
+                                 "#badlands", "some_recruit", "ive been a baad boy!",
+                                 ['ive', 'been', 'a', 'baad', 'boy!'],
+                                 ['ive been a baad boy!', 'been a baad boy!', 'a baad boy!',
+                                  'baad boy!', 'boy!'], False
                              ]
                          ])
 @pytest.mark.asyncio
