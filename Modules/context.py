@@ -139,7 +139,7 @@ class Context(object):
             Context
         """
         # check if the message has our prefix
-        prefixed = prefix in message
+        prefixed = message.startswith(prefix)
 
         # before removing it from the message
         message = message.lstrip(prefix)

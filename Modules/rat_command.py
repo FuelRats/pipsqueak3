@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 """
 
 import logging
-from typing import Callable
+from typing import Callable, Any
 
 from pydle import BasicClient
 
@@ -52,14 +52,14 @@ _registered_commands = {}
 prefix = config['commands']['prefix']
 
 
-async def trigger(ctx):
+async def trigger(ctx) -> Any:
     """
 
     Args:
-        ctx (Context):
+        ctx (Context): Invocation context
 
     Returns:
-
+        result of command execution
     """
 
     if ctx.words_eol[0] == "":
