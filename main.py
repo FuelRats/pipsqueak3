@@ -164,7 +164,6 @@ async def start():
                          port=config['irc']['port'],
                          tls=config['irc']['tls'])
 
-    rat_command.bot = client
     log.info("Connected to IRC.")
 
 # entry point
