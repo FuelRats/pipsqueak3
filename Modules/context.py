@@ -60,13 +60,6 @@ class Context(object):
         """
         return self._prefixed
 
-    @prefixed.setter
-    def prefixed(self, value: bool):
-        if not isinstance(value, bool):
-            raise ValueError
-
-        self._prefixed = value
-
     @property
     def user(self) -> User:
         """

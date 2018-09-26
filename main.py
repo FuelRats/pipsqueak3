@@ -14,6 +14,7 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
+from asyncio import AbstractEventLoop
 from uuid import uuid4
 
 from pydle import Client
@@ -143,7 +144,9 @@ async def start():
     """
     Initializes and connects the client, then passes it to rat_command.
     """
-    client_args = {"nickname": config["irc"]["nickname"]}
+    client_args = {"nickname": config["irc"]["nickname"],
+                   # "loop":loop
+                   }
 
     auth_method = config["authentication"]["method"]
     if auth_method == "PLAIN":
@@ -162,7 +165,8 @@ async def start():
     client = MechaClient(**client_args)
     await client.connect(hostname=config['irc']['server'],
                          port=config['irc']['port'],
-                         tls=config['irc']['tls'])
+                         tls=config['irc']['tls'],
+                         )
 
     log.info("Connected to IRC.")
 
