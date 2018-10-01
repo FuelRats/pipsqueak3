@@ -84,7 +84,7 @@ class MechaClient(Client):
         log.debug(f"{channel}: <{user}> {message}")
 
         if user == config['irc']['nickname']:
-            # don't do this and the bot can get into an infinite
+            # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             log.debug(f"Ignored {message} (anti-loop)")
             return None
@@ -141,9 +141,7 @@ async def start():
     """
     Initializes and connects the client, then passes it to rat_command.
     """
-    client_args = {"nickname": config["irc"]["nickname"],
-                   # "loop":loop
-                   }
+    client_args = {"nickname": config["irc"]["nickname"]}
 
     auth_method = config["authentication"]["method"]
     if auth_method == "PLAIN":
