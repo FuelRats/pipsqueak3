@@ -83,9 +83,6 @@ class MechaClient(Client):
         """
         log.debug(f"{channel}: <{user}> {message}")
 
-        # build context
-        context = await Context.from_message(self, channel, user, message)
-
         if user == config['irc']['nickname']:
             # don't do this and the bot can get into an infinite
             # self-stimulated positive feedback loop.
