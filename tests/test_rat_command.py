@@ -37,8 +37,8 @@ class TestRatCommand(object):
         """
         Ensures that nothing happens and `trigger` exits quietly when no command can be found.
         """
-        await Commands.trigger(message="!nope", sender="unit_test",
-                               channel="foo")
+        await Commands.trigger(Context(None, None, "#unit_test", ['!unknowncommandsad hi!'],
+                                       ['!unknowncommandsad hi!', "hi!"]))
 
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     def test_double_command_registration(self, alias):
@@ -62,26 +62,25 @@ class TestRatCommand(object):
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
-    async def test_call_command(self, alias):
+    async def test_call_command(self, alias, bot_fx):
         """
         Verifiy that found commands can be invoked via Commands.Trigger()
         """
         Commands._flush()
 
         trigger_alias = f"{Commands.prefix}{alias}"
-        input_sender = "unit_test[BOT]"
-        input_channel = "#unit_testing"
 
         @Commands.command(alias)
         async def potato(context: Context):
             # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
             return context.bot, context.channel, context.user.nickname
 
-        out_bot, out_channel, out_sender = await Commands.trigger(
-            message=trigger_alias, sender=input_sender,
-            channel=input_channel)
-        assert input_sender == out_sender
-        assert input_channel == out_channel
+        ctx = await Context.from_message(bot_fx, "#unittest", "unit_test", trigger_alias)
+        retn = await Commands.trigger(ctx)
+        out_bot, out_channel, out_sender = retn
+
+        assert 'unit_test' == out_sender
+        assert "#unittest" == out_channel
 
     @pytest.mark.parametrize("garbage", [12, None, "str"])
     def test_register_non_callable(self, garbage):
@@ -127,7 +126,7 @@ class TestRatCommand(object):
     @pytest.mark.parametrize("name", ("unit_test[BOT]", "some_recruit", "some_ov"))
     @pytest.mark.parametrize("trigger_message", ["salad Baton", "Crunchy Cheddar", "POTATOES!",
                                                  "carrots"])
-    async def test_command_preserves_arguments(self, trigger_message: str, name: str):
+    async def test_command_preserves_arguments(self, trigger_message: str, name: str, bot_fx):
         """
         Verifies commands do not mutate argument words
             - because someone had the bright idea of casting ALL words to lower...
@@ -140,6 +139,7 @@ class TestRatCommand(object):
         @Commands.command(name)
         async def the_command(context: Context):
             """asserts its arguments equal the outer scope"""
-            assert context.words == words
+            assert words == context.words
 
-        await Commands.trigger(ftrigger, "unit_test[BOT]", "#unit_tests")
+        ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", ftrigger)
+        await Commands.trigger(ctx)

@@ -14,14 +14,14 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
+from asyncio import AbstractEventLoop
 from uuid import uuid4
 
 from pydle import Client
 
 # noinspection PyUnresolvedReferences
 import commands
-from Modules import graceful_errors
-from Modules import rat_command
+from Modules import graceful_errors, rat_command
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
@@ -82,8 +82,9 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
+
         if user == config['irc']['nickname']:
-            # don't do this and the bot can get into an infinite
+            # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             log.debug(f"Ignored {message} (anti-loop)")
             return None
@@ -92,12 +93,8 @@ class MechaClient(Client):
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             try:
-                await rat_command.trigger(message=sanitized_message,
-                                          sender=user,
-                                          channel=channel)
-            except CommandNotFoundException:
-                # command was not found
-                log.debug("Command invoked from \"{message}\" not found.")
+                ctx = await Context.from_message(self, channel, user, message)
+                await rat_command.trigger(ctx)
 
             except Exception as ex:
                 ex_uuid = uuid4()
@@ -163,9 +160,9 @@ async def start():
     client = MechaClient(**client_args)
     await client.connect(hostname=config['irc']['server'],
                          port=config['irc']['port'],
-                         tls=config['irc']['tls'])
+                         tls=config['irc']['tls'],
+                         )
 
-    rat_command.bot = client
     log.info("Connected to IRC.")
 
 # entry point
