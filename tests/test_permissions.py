@@ -24,14 +24,6 @@ from Modules.context import Context
 from Modules.permissions import require_permission, require_channel, require_dm, Permission
 
 
-# registration is done in setUp
-
-
-# @require_permission(permissions.OVERSEER)
-# async def restricted(context):
-#     await context.reply("Restricted command was executed.")
-
-
 @pytest.fixture
 def Setup_fx(bot_fx):
     """Sets up the test environment"""
@@ -41,10 +33,7 @@ def Setup_fx(bot_fx):
 
 @pytest.fixture
 def restricted_command_fx(async_callable_fx, Setup_fx):
-    # ugly hack to utilize async_callable_fx is ugly
-    @require_permission(permissions.OVERSEER)
-    async def restricted(context):
-        await async_callable_fx(context)
+    restricted = require_permission(permissions.OVERSEER)(async_callable_fx)
 
     Commands.command("restricted")(restricted)
     return async_callable_fx
