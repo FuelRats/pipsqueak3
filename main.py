@@ -12,16 +12,16 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-
+import asyncio
 import logging
+from asyncio import AbstractEventLoop
 from uuid import uuid4
 
-from pydle import ClientPool, Client
+from pydle import Client
 
 # noinspection PyUnresolvedReferences
 import commands
-from Modules import graceful_errors
-from Modules import rat_command
+from Modules import graceful_errors, rat_command
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
@@ -82,8 +82,9 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
+
         if user == config['irc']['nickname']:
-            # don't do this and the bot can get into an infinite
+            # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             log.debug(f"Ignored {message} (anti-loop)")
             return None
@@ -92,12 +93,8 @@ class MechaClient(Client):
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             try:
-                await rat_command.trigger(message=sanitized_message,
-                                          sender=user,
-                                          channel=channel)
-            except CommandNotFoundException:
-                # command was not found
-                log.debug("Command invoked from \"{message}\" not found.")
+                ctx = await Context.from_message(self, channel, user, message)
+                await rat_command.trigger(ctx)
 
             except Exception as ex:
                 ex_uuid = uuid4()
@@ -140,55 +137,36 @@ async def cmd_ping(context: Context):
     await context.reply(f"{context.user.nickname} pong!")
 
 
+async def start():
+    """
+    Initializes and connects the client, then passes it to rat_command.
+    """
+    client_args = {"nickname": config["irc"]["nickname"]}
+
+    auth_method = config["authentication"]["method"]
+    if auth_method == "PLAIN":
+        client_args["sasl_username"] = config['authentication']['plain']['username']
+        client_args["sasl_password"] = config['authentication']['plain']['password']
+        client_args["sasl_identity"] = config['authentication']['plain']['identity']
+        log.info("Authenticating via SASL PLAIN.")
+    elif auth_method == "EXTERNAL":
+        client_args["sasl_mechanism"] = "EXTERNAL"
+        cert = config['authentication']['external']['tls_client_cert']
+        client_args["tls_client_cert"] = f"certs/{cert}"
+        log.info(f"Authenticating using client certificate at {cert}.")
+    else:
+        raise ValueError(f"unknown authentication mechanism {auth_method}")
+
+    client = MechaClient(**client_args)
+    await client.connect(hostname=config['irc']['server'],
+                         port=config['irc']['port'],
+                         tls=config['irc']['tls'],
+                         )
+
+    log.info("Connected to IRC.")
+
 # entry point
 if __name__ == "__main__":
-    log.info("Initializing...")
-
-    pool = ClientPool()
-    log.debug("Starting bot...")
-    try:
-        log.debug("Spawning instance...")
-        if config['authentication']['method'] == "PLAIN":
-            log.info("Authentication method set to PLAIN.")
-            # authenticate via sasl PLAIN mechanism (username & password)
-            client = MechaClient(config['irc']['nickname'],
-                                 sasl_username=config['authentication']['plain']['username'],
-                                 sasl_password=config['authentication']['plain']['password'],
-                                 sasl_identity=config['authentication']['plain']['identity'])
-
-        elif config['authentication']['method'] == "EXTERNAL":
-            log.info("Authentication method set to EXTERNAL")
-            # authenticate using provided client certificate
-            # key and cert may be stored as separate files, as long as mecha can read them.
-            cert = config['authentication']['external']['tls_client_cert']
-            # key = config['authentication']['external']['tls_client_key']
-
-            client = MechaClient(
-                config['irc']['nickname'],
-                sasl_mechanism='EXTERNAL',
-                tls_client_cert=f"certs/{cert}",
-                # tls_client_key=f"certs/{key}"
-            )
-        else:
-            # Pydle doesn't appear to support anything else
-            raise TypeError(f"unknown authentication mechanism "
-                            f"{config['authentication']['method']}.\n"
-                            f"loading cannot continue.")
-
-        log.info(f"Connecting to {config['irc']['server']}:{config['irc']['port']}...")
-        pool.connect(client,
-                     config['irc']['server'],
-                     config['irc']['port'],
-                     tls=config['irc']['tls'])
-    except Exception as ex:
-        log.error(f"Unable to connect to {config['irc']['server']}:"
-                  f"{config['irc']['port']}"
-                  f"due to an error.")
-        log.error(ex)
-        raise ex
-    else:
-        # hand the bot instance to commands
-        rat_command.bot = client
-        # and run the event loop
-        log.info("running forever...")
-        pool.handle_forever()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(start())
+    loop.run_forever()
