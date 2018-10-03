@@ -1,4 +1,6 @@
-class MockBot(object):
+from main import MechaClient
+
+class MockBot(MechaClient):
     """Emulates some of the bots functions for testing purposes."""
 
     def __init__(self):
