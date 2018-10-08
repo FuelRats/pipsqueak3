@@ -19,10 +19,9 @@ from uuid import uuid4, UUID
 
 import pytest
 
-# Set argv to keep cli arguments meant for pytest from polluting our things
-
-
 from Modules.rat_cache import RatCache
+
+# Set argv to keep cli arguments meant for pytest from polluting our things
 
 sys.argv = ["test",
             "--config-file", "testing.json",
@@ -116,7 +115,7 @@ def rat_board_fx() -> RatBoard:
 
 @pytest.fixture
 def bot_fx():
-    return MockBot()
+    return MockBot(nickname="mock_mecha3[BOT]")
 
 
 @pytest.fixture

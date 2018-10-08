@@ -1,9 +1,12 @@
 from main import MechaClient
 
+
 class MockBot(MechaClient):
     """Emulates some of the bots functions for testing purposes."""
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        # lets ensure the super gets called first, before we start overriding things
+        super().__init__(*args, **kwargs)
         self.sent_messages = []
         self.users = {
             "unit_test[BOT]": {'oper': False,
@@ -109,3 +112,7 @@ class MockBot(MechaClient):
     @classmethod
     def is_channel(cls, channel: str):
         return channel[0] in ("#", "&")
+
+    async def connect(self):
+        """Pydle connect override to prevent the mock accidently connecting to a server"""
+        raise RuntimeWarning("Connection to a server disallowed in instances of the mock bot.")
