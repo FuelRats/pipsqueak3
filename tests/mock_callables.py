@@ -11,7 +11,7 @@ See LICENSE.
 import inspect
 from typing import List, NamedTuple, Dict, Any, Tuple, Callable, Optional
 
-_Call = NamedTuple("_Call", args=tuple, kwargs=Dict[str, Any])
+Call = NamedTuple("_Call", args=tuple, kwargs=Dict[str, Any])
 
 
 class InstanceOf(object):
@@ -92,11 +92,11 @@ class CallableMock(object):
             self._signature = inspect.signature(function_to_mimic)
 
         self.return_value = None
-        self._calls: List[_Call] = []
+        self._calls: List[Call] = []
         self._bound_calls: List[inspect.BoundArguments] = None if function_to_mimic is None else []
 
     def __call__(self, *args, **kwargs):
-        self._calls.append(_Call(args, kwargs))
+        self._calls.append(Call(args, kwargs))
         if self._signature is not None:
             self._bound_calls.append(self._signature.bind(*args, **kwargs))
         return self.return_value
@@ -111,7 +111,7 @@ class CallableMock(object):
     Was this instance called exactly once?
     """
 
-    calls: Tuple[_Call, ...] = property(lambda self: tuple(self._calls))
+    calls: Tuple[Call, ...] = property(lambda self: tuple(self._calls))
     """
     A read-only view of the calls that were made to this object.
     """
@@ -132,7 +132,7 @@ class CallableMock(object):
             TypeError: If this mock callable mimics a real function and *args*, *kwargs* don't fit
                        that function's signature.
         """
-        return _Call(args, kwargs) in self._calls or \
+        return Call(args, kwargs) in self._calls or \
                self._signature is not None and \
                self._signature.bind(*args, **kwargs) in self._bound_calls
 
