@@ -2,5 +2,9 @@
 pytest
 pytest-cov
 pytest-asyncio
+pytest-ordering
 pure-sasl
 coloredlogs
+pytest
+pyodbc
+coverage

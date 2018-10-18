@@ -19,10 +19,9 @@ from uuid import uuid4, UUID
 
 import pytest
 
-# Set argv to keep cli arguments meant for pytest from polluting our things
-
-
 from Modules.rat_cache import RatCache
+
+# Set argv to keep cli arguments meant for pytest from polluting our things
 
 sys.argv = ["test",
             "--config-file", "testing.json",
@@ -45,6 +44,8 @@ from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
+from Modules.database_manager import DatabaseManager
+from Modules.rat_facts import FactsManager
 from tests.mock_callables import CallableMock, AsyncCallableMock
 
 
@@ -116,7 +117,7 @@ def rat_board_fx() -> RatBoard:
 
 @pytest.fixture
 def bot_fx():
-    return MockBot()
+    return MockBot(nickname="mock_mecha3[BOT]")
 
 
 @pytest.fixture
@@ -238,6 +239,29 @@ def reset_rat_cache_fx(rat_cache_fx: RatCache):
     yield
     # and clean up after ourselves
     rat_cache_fx.flush()
+
+
+@pytest.fixture
+def dbm_fx():
+    """returns a DBM instance"""
+    return DatabaseManager()
+
+
+@pytest.fixture
+def facts_fx():
+    """returns a FactsManager"""
+    return FactsManager()
+
+@pytest.fixture
+def dbm_fx():
+    """returns a DBM instance"""
+    return DatabaseManager()
+
+
+@pytest.fixture
+def facts_fx():
+    """returns a FactsManager"""
+    return FactsManager()
 
 @pytest.fixture
 def permission_fx(monkeypatch) -> Permission:

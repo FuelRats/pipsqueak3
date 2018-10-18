@@ -65,5 +65,20 @@
       ],
       "level": 4
     }
+  },
+  "database": {
+    "method": "SERVER",
+    "server": {
+      "server": "localhost",
+      "port": "5432",
+      "database": "mecha3",
+      "username": "mecha3",
+      "password": "mecha3"
+    },
+    "dsn": {
+      "name": "",
+      "username": "",
+      "password": ""
+    }
   }
 }

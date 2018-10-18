@@ -20,6 +20,7 @@ from pydle import BasicClient
 from Modules.context import Context
 from Modules.rules import get_rule, clear_rules
 from config import config
+from Modules.rat_facts import FactsManager
 
 # set the logger for rat_command
 log = logging.getLogger(f"mecha.{__name__}")
@@ -51,6 +52,12 @@ _registered_commands = {}
 # character/s that must prefix a message for it to be parsed as a command.
 prefix = config['commands']['prefix']
 
+# Pydle bot instance.
+bot: BasicClient = None
+
+# facts manager instance
+facts_manager: FactsManager = FactsManager()
+
 
 async def trigger(ctx) -> Any:
     """
@@ -78,7 +85,18 @@ async def trigger(ctx) -> Any:
                 log.debug(
                     f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found.")
             else:
-                log.debug(f"Could not find command or rule for {prefix}{ctx.words[0]}.")
+                # might be a fact
+                if "-" in ctx.words[0]:
+                    name, lang = ctx.words[0].split("-")
+                else:
+                    name = ctx.words[0].split("-")
+                    lang = "en"
+
+                if facts_manager.is_fact(name, lang):
+                    command_fun = facts_manager.handle_fact
+                    extra_args = ()
+                else:
+                    log.debug(f"Could not find command, rule or fact for {prefix}{ctx.words[0]}.")
     else:
         # Might still be a prefixless rule
         command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=True)

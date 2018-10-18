@@ -5,40 +5,34 @@
 version: 2
 jobs:
   build:
-    environment:
-      CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
-
-    docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.5
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
     working_directory: ~/repo
+    
+    docker:
+      - image: circleci/python:3.6.5
+      - image: circleci/postgres:10.4-alpine-ram
+        environment:
+          POSTGRES_USER: mecha3
+          POSTGRES_PASSWORD: mecha3
+          POSTGRES_DB: mecha3
 
     steps:
       - checkout
-
-      # Download and cache dependencies
+           # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "requirements.txt" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
       - run:
           name: install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
+            sudo apt update
+            sudo apt install odbc-postgresql unixodbc-dev
+            sudo apt install curl
+            python3 -m venv ./venv/.
+            source ./venv/bin/activate
+            pip install --trusted-host pypi.python.org -r ./requirements.txt
 
       - run:
-          name: Setup Code Climate test-reporter
+          name: acquire coverage-reporter
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
@@ -51,19 +45,18 @@ jobs:
 
       # run tests
       - run:
-          name: run tests
+          name: Run tests and upload coverage report to CodeClimate
           command: |
-            . venv/bin/activate
+            source ./venv/bin/activate
             ./cc-test-reporter before-build
-            pytest -v --cov --cov-report xml --junit-xml=test-reports --doctest-modules
+             pytest -v --cov --cov-report xml --junit-xml=test-reports/junit.xml --doctest-modules
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
-
-      - store_artifacts:
-          path: logs/unit_tests.log
-
+          environment:
+            - CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
       - store_test_results:
           path: test-reports
-
+      - store_artifacts:
+          path: logs/unit_tests.log
 
 notify:
   branches:
