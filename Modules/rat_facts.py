@@ -64,7 +64,7 @@ class FactsManager(Singleton):
         """
         self.dbm = DatabaseManager()
 
-    async def get_fact(self, name: str, lang: str = None) -> Fact or None or Dict[Fact]:
+    async def get_fact(self, name: str, lang: str) -> Fact or None:
         """
         retrieves a fact from the DB.
         Args:
