@@ -136,3 +136,11 @@ class TestFacts(object):
         assert dbm_fx.enabled == facts_fx.enabled
         with pytest.raises(AttributeError):
             facts_fx.enabled = False
+
+    async def test_emoji_insert(self, facts_fx: rat_facts.FactsManager):
+        await facts_fx.set_fact(Fact("cake", "en", "🥧", "TestUser",
+                                     datetime.datetime.now(tz=datetime.timezone.utc)))
+
+        await facts_fx.set_fact(Fact("🥔", "en", "potato", "TestUser",
+                                     datetime.datetime.now(tz=datetime.timezone.utc)))
+
