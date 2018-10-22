@@ -202,6 +202,7 @@ class User(object):
 
         # full whois reply
         else:
+            # fixme: add condition for Server messages
             return cls(oper=data['oper'],
                        idle=data['idle'],
                        away=data['away'],

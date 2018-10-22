@@ -117,7 +117,11 @@ def rat_board_fx() -> RatBoard:
 
 @pytest.fixture
 def bot_fx():
-    return MockBot(nickname="mock_mecha3[BOT]")
+    """
+    Create a Mock bot object, and tell it not to handle errors gracefully
+    """
+    return MockBot(nickname="Mechasqueak3-tests[BOT]",
+                   handle_errors_gracefully=False)
 
 
 @pytest.fixture

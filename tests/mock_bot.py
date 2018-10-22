@@ -8,6 +8,11 @@ class MockBot(MechaClient):
         # lets ensure the super gets called first, before we start overriding things
         super().__init__(*args, **kwargs)
         self.sent_messages = []
+
+        # hack the nickname, as mecha doesn't actually assume it until after
+        # the connection, which won't do for testing
+        self.nickname = self._attempt_nicknames[0]
+
         self.users = {
             "unit_test[BOT]": {'oper': False,
                                'idle': 0,
@@ -94,6 +99,21 @@ class MockBot(MechaClient):
                 "idle": 0,
                 "realname": "White Sheets",
                 "secure": False,
+                "server": "irc.fuelrats.com",
+                "server_info": "Fuel Rat IRC server"
+            },
+            "Mechasqueak3-tests[BOT]": {
+                "nickname": "mock_mecha3[BOT]",
+                "username": "SPARK",
+                "hostname": "services.fuelrats.com",
+                "away": False,
+                "away_message": None,
+                "account": "Mechasqueak",
+                "identified": True,
+                "oper": True,
+                "idle": 0,
+                "realname": "Mechasqueak3",
+                "secure": True,
                 "server": "irc.fuelrats.com",
                 "server_info": "Fuel Rat IRC server"
             }
