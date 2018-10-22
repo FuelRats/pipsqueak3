@@ -11,10 +11,14 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
+from typing import Optional
+from uuid import uuid4
 
 from pydle import Client
 
-from Modules import events
+from Modules import events, graceful_errors
+from Modules.context import Context
+from Modules.user import User
 from config import config
 from utils.ratlib import sanitize
 
@@ -76,83 +80,112 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
-        await events.on_message_raw.emit(channel=channel, user=user, message=message)
 
-        if user == config['irc']['nickname']:
-            # don't do this and the bot can get into an infinite
-            # self-stimulated positive feedback loop.
-            log.debug(f"Ignored {message} (anti-loop)")
-            return None
+        try:
+            # build a context object
+            ctx = await Context.from_message(self, channel, user, message)
 
-        if not message.startswith(prefix):
-            # prevent bot from processing commands without the set prefix
-            log.debug(f"Ignored {message} (not a command)")
-            await events.on_message.emit(channel=channel, user=user, message=message)
-            return None
+            # and emit the raw message
+            await events.on_message_raw.emit(context=ctx)
 
-        else:  # await command execution
-            # sanitize input string headed to command executor
-            sanitized_message = sanitize(message)
-            log.debug(f"Sanitized {sanitized_message}, Original: {message}")
-            await events.on_command.emit(message=sanitized_message, channel=channel, sender=user)
+            if ctx.user.nickname == config['irc']['nickname']:
+                # don't do this and the bot can get into an infinite
+                # self-stimulated positive feedback loop.
+                log.debug(f"Ignored {message} (anti-loop)")
+                return None
 
-    async def on_channel_message(self, target, sender, message):
+            if not message.startswith(prefix):
+                # prevent bot from processing commands without the set prefix
+                log.debug(f"Ignored {message} (not a command)")
+                await events.on_message.emit(context=ctx)
+                return None
+
+            else:  # await command execution
+                # sanitize input string headed to command executor
+                sanitized_message = sanitize(message)
+                log.debug(f"Sanitized {sanitized_message}, Original: {message}")
+                await events.on_command.emit(context=ctx)
+
+        except Exception as exc:
+            ex_uuid = uuid4()
+            log.exception(ex_uuid)
+            error_message = graceful_errors.make_graceful(exc, ex_uuid)
+            # and report it to the user
+            await self.message(channel, error_message)
+
+    async def on_channel_message(self, target: str, sender: str, message: str):
         """message received in a channel"""
-        await events.on_channel_message.emit(target, sender, message)
 
-    async def on_channel_notice(self, target, sender, message):
+        ctx = await Context.from_message(self, target, sender, message)
+        await events.on_channel_message.emit(context=ctx)
+
+    async def on_channel_notice(self, target: str, sender: str, message: str):
         """notice received in a channel"""
-        await events.on_channel_notice.emit(target, sender, message)
 
-    async def on_invite(self, channel, sender):
+        ctx = await Context.from_message(self, target, sender, message)
+        await events.on_channel_notice.emit(context=ctx)
+
+    async def on_invite(self, channel: str, sender: str):
         """client invited to a channel"""
-        await events.on_invite.emit(channel, sender)
 
-    async def on_kick(self, channel, target, sender, reason=None):
+        await events.on_invite.emit(channel=channel, sender=sender, bot=self)
+
+    async def on_kick(self, channel: str, target: str, sender: str, reason: Optional[str] = None):
         """someone got kicked from a channel"""
-        await events.on_kick.emit(channel, target, sender, reason=None)
+
+        await events.on_kick.emit(channel=channel, target=target, sender=sender, reason=reason,
+                                  bot=self)
 
     async def on_kill(self, target, by, reason):
         """someone got killed"""
-        await events.on_kill.emit(target, by, reason)
+        await events.on_kill.emit(target=target, by=by, reason=reason)
 
-    async def on_mode_change(self, channel, modes, by):
+    async def on_mode_change(self, channel: str, modes, by: str):
         """
         Callback called when the mode on a channel was changed.
         """
-        await events.on_mode_change.emit(channel, modes, by)
+        await events.on_mode_change.emit(channel=channel, modes=modes, by=by, bot=self)
 
-    async def on_nick_change(self, old, new):
+    async def on_nick_change(self, old: str, new: str):
         """called when someone changed nicknames"""
-        await events.on_nick_change.emit(old, new)
+        await events.on_nick_change.emit(old=old, new=new, bot=self)
 
-    async def on_notice(self, target, sender, message):
+    async def on_notice(self, target: str, sender: str, message: str):
         """someone sent a notice"""
-        await events.on_notice.emit(target, sender, message)
 
-    async def on_part(self, channel, user, reason=None):
+        if sender == 'server':
+            # server message, just log it.
+            log.debug(f"notice from server to {target}: '{message}'")
+        else:
+            ctx = await Context.from_message(self, target, sender, message)
+            await events.on_notice.emit(context=ctx)
+
+    async def on_part(self, channel: str, user: str, reason: Optional[str] = None):
         """called when a user, possibly the client, leaves a channel"""
-        await events.on_part.emit(channel, user, reason=None)
+        await events.on_part.emit(channel=channel, user=user, reason=reason)
 
-    async def on_private_message(self, sender, message):
+    async def on_private_message(self, sender: str, message: str):
         """called when the client recieves a direct message"""
-        await events.on_private_message.emit(sender, message)
+        ctx = await Context.from_message(self, self.nickname, sender, message)
+        await events.on_private_message.emit(context=ctx)
 
     async def on_private_notice(self, target, sender, message):
         """called when the client recieves a private notice"""
-        await events.on_private_notice.emit(target, sender, message)
+        ctx = await Context.from_message(self, target, sender, message)
+        await events.on_private_notice.emit(context=ctx)
 
     async def on_quit(self, user, message=None):
         """called when a user (possibly the client) quits the network"""
-        await events.on_quit.emit(user, message=None)
+        await events.on_quit.emit(user=user, message=message)
 
-    async def on_topic_change(self, channel, message, sender):
+    async def on_topic_change(self, channel: str, topic: str, author: str):
         """called when a channel's topic gets changed"""
-        await events.on_topic_change.emit(channel, message, sender)
+        ircUser = User.from_whois(self, author)
+        await events.on_topic_change.emit(channel=channel, topic=topic, user=ircUser)
 
     async def on_user_mode_change(self, modes):
         """called when the MechaClient's user modes change"""
-        await events.on_user_mode_change.emit(modes)
+        await events.on_user_mode_change.emit(modes=modes)
 
     @property
     def rat_cache(self) -> object:
