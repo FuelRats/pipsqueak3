@@ -92,7 +92,7 @@ async def trigger(ctx) -> Any:
                     name = ctx.words[0].split("-")
                     lang = "en"
 
-                if await facts_manager.is_fact(name, lang):
+                if await facts_manager.is_fact(name[0], lang):
                     command_fun = facts_manager.handle_fact
                     extra_args = ()
                 else:
