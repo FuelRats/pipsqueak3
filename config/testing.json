@@ -5,7 +5,8 @@
     "port": 6697,
     "tls": true,
     "channels": [
-      "#unkn0wndev"
+      "#unkn0wndev",
+      "#unit_test"
     ]
   },
   "authentication": {
