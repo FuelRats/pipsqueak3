@@ -134,17 +134,6 @@ class MechaClient(Client):
                                          message)
         await events.on_channel_message.emit(context=ctx)
 
-    async def on_channel_notice(self, target: str,
-                                sender: str,
-                                message: str):
-        """notice received in a channel"""
-
-        ctx = await Context.from_message(self,
-                                         target,
-                                         sender,
-                                         message)
-        await events.on_channel_notice.emit(context=ctx)
-
     async def on_invite(self, channel: str, sender: str):
         """client invited to a channel"""
 
@@ -183,16 +172,6 @@ class MechaClient(Client):
                                          new=new,
                                          bot=self)
 
-    async def on_notice(self, target: str, sender: str, message: str):
-        """someone sent a notice"""
-
-        if sender == 'server':
-            # server message, just log it.
-            log.debug(f"notice from server to {target}: '{message}'")
-        else:
-            ctx = await Context.from_message(self, target, sender, message)
-            await events.on_notice.emit(context=ctx)
-
     async def on_part(self, channel: str, user: str, reason: Optional[str] = None):
         """called when a user, possibly the client, leaves a channel"""
         await events.on_part.emit(channel=channel,
@@ -205,11 +184,6 @@ class MechaClient(Client):
         ctx = await Context.from_message(self, self.nickname, sender, message)
         await events.on_private_message.emit(context=ctx)
 
-    async def on_private_notice(self, target, sender, message):
-        """called when the client recieves a private notice"""
-        ctx = await Context.from_message(self, target, sender, message)
-        await events.on_private_notice.emit(context=ctx)
-
     async def on_quit(self, user, message=None):
         """called when a user (possibly the client) quits the network"""
         await events.on_quit.emit(user=user,
@@ -218,7 +192,7 @@ class MechaClient(Client):
 
     async def on_topic_change(self, channel: str, topic: str, author: str):
         """called when a channel's topic gets changed"""
-        ircUser = User.from_whois(self, author)
+        ircUser = await User.from_whois(self, author)
         await events.on_topic_change.emit(channel=channel,
                                           topic=topic,
                                           user=ircUser,
