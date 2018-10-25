@@ -34,5 +34,5 @@ on_nick_change = Event("on_nick_change")
 # channel events
 on_part = Event("on_part")
 on_private_message = Event("on_private_message")
-
 on_invite = Event("on_invite")
+on_topic_change = Event("on_topic_change")

@@ -87,5 +87,6 @@ __all__ = ['Event',
            "on_mode_change",
            "on_part",
            "on_private_message",
-           "on_user_mode_change"
+           "on_user_mode_change",
+           "on_topic_change"
            ]
