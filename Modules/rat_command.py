@@ -76,7 +76,8 @@ async def trigger(context: Context) -> Any:
             command_fun, extra_args = get_rule(context.words, context.words_eol, prefixless=False)
             if command_fun:
                 log.debug(
-                    f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} found.")
+                    f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]}"
+                    f" found.")
             else:
                 log.debug(f"Could not find command or rule for {prefix}{context.words[0]}.")
     else:
@@ -84,8 +85,8 @@ async def trigger(context: Context) -> Any:
         command_fun, extra_args = get_rule(context.words, context.words_eol, prefixless=True)
         if command_fun:
             log.debug(
-                f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} "
-                f"found.")
+                f"Prefixless rule {getattr(command_fun, '__name__', '')} matching "
+                f"{context.words[0]} found.")
 
     if command_fun:
         return await command_fun(context, *extra_args)
