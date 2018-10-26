@@ -208,7 +208,7 @@ class DatabaseManager(DBMApi, Singleton):
                            )
         else:
             config_ = config_[config_["method"].lower()]
-            connect_str = (f"DSN={config_['dsn']};"
+            connect_str = (f"DSN={config_['name']};"
                            f"Uid={config_['username']};"
                            f"Pwd={config_['password']};"
                            "MaxVarcharSize=1024 * 1024 * 1024"
@@ -217,6 +217,7 @@ class DatabaseManager(DBMApi, Singleton):
         self.connection: pyodbc.Connection = pyodbc.connect(connect_str, autocommit=True)
         # configure the connection
         self.connection.setdecoding(pyodbc.SQL_WCHAR, encoding='utf-8')
+        self.connection.setdecoding(pyodbc.SQL_CHAR, encoding='utf-8')
         self.connection.setencoding(encoding='utf-8')
         self.connection.maxwrite = 1024 * 1024 * 1024  # Again, increase this for faster access
         # and create a cursor

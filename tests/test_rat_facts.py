@@ -137,9 +137,6 @@ class TestFacts(object):
         with pytest.raises(AttributeError):
             facts_fx.enabled = False
 
-    @pytest.mark.xfail(reason="Emojis are stored in UTF8 representation"
-                              " but not converted back to Unicode representation. "
-                              "This makes this test fail, but it does not break functionality.")
     async def test_emoji_insert(self, facts_fx: rat_facts.FactsManager):
         await facts_fx.set_fact(Fact("cake", "en", "🥧", "TestUser",
                                      datetime.datetime.now(tz=datetime.timezone.utc)))
@@ -147,5 +144,5 @@ class TestFacts(object):
         await facts_fx.set_fact(Fact("🥔", "en", "potato", "TestUser",
                                      datetime.datetime.now(tz=datetime.timezone.utc)))
 
-        assert bytes((await facts_fx.get_fact("cake", "en")).message, "latin1") == bytes("🥧", "utf8")
-        # assert (await facts_fx.get_fact("🥔", "en")).message == "potato"
+        assert (await facts_fx.get_fact("cake", "en")).message == "🥧"
+        assert (await facts_fx.get_fact("🥔", "en")).message == "potato"
