@@ -103,7 +103,7 @@ class TestFacts(object):
         value = await facts_fx.is_fact("test1", "de")
         assert not value
 
-    async def test_rule(self, facts_fx, bot_fx):
+    async def test_rule(self, facts_fx, bot_fx, async_callable_fx, monkeypatch):
 
         # field to store the reply in
         bot_fx.rat_facts_reply = ""
