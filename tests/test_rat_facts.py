@@ -103,11 +103,10 @@ class TestFacts(object):
         value = await facts_fx.is_fact("test1", "de")
         assert not value
 
-    async def test_rule(self, facts_fx):
-        import tests.mock_bot
+    async def test_rule(self, facts_fx, bot_fx):
 
         # field to store the reply in
-        tests.mock_bot.MockBot.rat_facts_reply = ""
+        bot_fx.rat_facts_reply = ""
 
         # mocking the Context class to better control what happens
         class MockContext:
@@ -115,21 +114,21 @@ class TestFacts(object):
 
             # noinspection PyMethodParameters
             def reply(msg: str):  # Note: no self here, works without
-                tests.mock_bot.MockBot.rat_facts_reply = msg
+                bot_fx.rat_facts_reply = msg
 
         # noinspection PyTypeChecker
         # shouldn't reply, as this is an "internal" fact
         await facts_fx.handle_fact(MockContext)
 
         # checking it did not reply, or replied with an empty string
-        assert tests.mock_bot.MockBot.rat_facts_reply == ""
+        assert bot_fx.rat_facts_reply == ""
 
         MockContext.words = ("!test1-en",)
         # noinspection PyTypeChecker
         await facts_fx.handle_fact(MockContext)
 
         # make sure it pulled the right message
-        message = tests.mock_bot.MockBot.rat_facts_reply
+        message = bot_fx.rat_facts_reply
         assert message == "THIS IS TEST No. 1"
 
     async def test_enabled_property(self, dbm_fx, facts_fx):

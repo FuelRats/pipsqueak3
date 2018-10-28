@@ -252,16 +252,6 @@ def facts_fx():
     """returns a FactsManager"""
     return FactsManager()
 
-@pytest.fixture
-def dbm_fx():
-    """returns a DBM instance"""
-    return DatabaseManager()
-
-
-@pytest.fixture
-def facts_fx():
-    """returns a FactsManager"""
-    return FactsManager()
 
 @pytest.fixture
 def permission_fx(monkeypatch) -> Permission:
