@@ -115,7 +115,8 @@ class TestFacts(object):
             # noinspection PyMethodParameters
             def reply(msg: str):  # Note: no self here, works without
                 bot_fx.rat_facts_reply = msg
-
+        context = await Context.from_message(bot_fx, "#unit_test", "some_recruit", "!go")
+        monkeypatch.setattr(context, "reply", async_callable_fx)  # patch the reply function
         # noinspection PyTypeChecker
         # shouldn't reply, as this is an "internal" fact
         await facts_fx.handle_fact(MockContext)
