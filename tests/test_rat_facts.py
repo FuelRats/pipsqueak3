@@ -119,7 +119,7 @@ class TestFacts(object):
         monkeypatch.setattr(context, "reply", async_callable_fx)  # patch the reply function
         # noinspection PyTypeChecker
         # shouldn't reply, as this is an "internal" fact
-        await facts_fx.handle_fact(MockContext)
+        await facts_fx.handle_fact(context)
 
         # checking it did not reply, or replied with an empty string
         assert not async_callable_fx.was_called
