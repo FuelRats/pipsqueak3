@@ -134,8 +134,9 @@ class Context(object):
         # check if the message has our prefix
         prefixed = message.startswith(prefix)
 
-        # before removing it from the message
-        message = message.lstrip(prefix)
+        if prefixed:
+            # before removing it from the message
+            message = message[len(prefix):]
 
         # build the words and words_eol lists
         words, words_eol = _split_message(message)
