@@ -122,7 +122,7 @@ class TestFacts(object):
         await facts_fx.handle_fact(MockContext)
 
         # checking it did not reply, or replied with an empty string
-        assert bot_fx.rat_facts_reply == ""
+        assert not async_callable_fx.was_called
 
         MockContext.words = ("!test1-en",)
         # noinspection PyTypeChecker
