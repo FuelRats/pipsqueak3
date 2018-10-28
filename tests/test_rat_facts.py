@@ -15,6 +15,7 @@ This module is built on top of the Pydle system.
 """
 import pytest
 from Modules import rat_facts, database_manager
+from Modules.context import Context
 from Modules.rat_facts import Fact
 import datetime
 
