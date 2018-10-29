@@ -57,6 +57,20 @@ class CallableMock(object):
     >>> fun.was_called_with(InstanceOf(int), 2, 3, her=InstanceOf(str))
     True
 
+    Either a return value or an exception to raise during a call can be set, using the fields
+    `return_value` and `exception_to_raise`, respectively. In case both are set, the exception will
+    be raised.
+
+    >>> fun = CallableMock()
+    >>> fun.return_value = 42
+    >>> fun()
+    42
+    >>> fun.exception_to_raise = ValueError("meaning of life is incomputable")
+    >>> fun()
+    Traceback (most recent call last):
+      ...
+    ValueError: meaning of life is incomputable
+
     Additionally, a :class:`CallableMock` can be made to mimic an existing function or method, such
     that args and kwargs can be matched to the arguments that the function expects. This also works
     with many other callables including bound methods, but may fail for certain built-in functions
@@ -92,6 +106,7 @@ class CallableMock(object):
             self._signature = inspect.signature(function_to_mimic)
 
         self.return_value = None
+        self.exception_to_raise: BaseException = None
         self._calls: List[Call] = []
         self._bound_calls: List[inspect.BoundArguments] = None if function_to_mimic is None else []
 
@@ -99,7 +114,11 @@ class CallableMock(object):
         self._calls.append(Call(args, kwargs))
         if self._signature is not None:
             self._bound_calls.append(self._signature.bind(*args, **kwargs))
-        return self.return_value
+
+        if self.exception_to_raise is None:
+            return self.return_value
+        else:
+            raise self.exception_to_raise
 
     was_called: bool = property(lambda self: len(self._calls) > 0)
     """
