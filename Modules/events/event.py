@@ -51,7 +51,7 @@ class Event:
 
 
     """
-    events: Dict[str, 'Event'] = {}
+    _events: Dict[str, 'Event'] = {}
     """Registry mapping event names to their subscribers"""
 
     def __init__(self, name: str):
@@ -117,9 +117,9 @@ class Event:
         Raises:
             ValueError: attempted to register an event has already been registered
         """
-        if event.name in cls.events:
+        if event.name in cls._events:
             raise ValueError(f"name {event.name} is already registered as an event")
-        cls.events[event.name] = event
+        cls._events[event.name] = event
 
     def subscribe(self, coro: Union[Callable, partial]) -> Callable:
         """

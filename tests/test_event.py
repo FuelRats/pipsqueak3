@@ -26,7 +26,7 @@ class TestEvents:
     async def test_register_declaration(self, name: str):
         """Verifies that events can be declared into existance via the event = Event(name) method"""
         event = Event(name)
-        assert name in Event.events
+        assert name in Event._events
         assert name == event.name
 
     async def test_declared_event_subscription(self):

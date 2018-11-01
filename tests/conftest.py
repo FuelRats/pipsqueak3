@@ -264,9 +264,9 @@ def permission_fx(monkeypatch) -> Permission:
 @pytest.fixture
 def clear_events() -> None:
     """ensures the event registry is clear between tests"""
-    Event.events.clear()
+    Event._events.clear()
     yield
-    Event.events.clear()
+    Event._events.clear()
 
 @pytest.fixture
 def callable_fx():
