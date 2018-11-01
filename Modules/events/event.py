@@ -33,7 +33,7 @@ class Event:
 
          an event can also be defined without a function definition
          >>> my_other_event = Event("my_other_event")
-         >>> "my_other_event" in Event.events
+         >>> "my_other_event" in Event._events
          True
 
     Notes:
