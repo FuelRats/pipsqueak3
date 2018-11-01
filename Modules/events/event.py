@@ -144,7 +144,9 @@ class Event:
         """
         Subscribe to this event
 
-        This method can be used as a decorator around **static methods**
+        This method can be used as a decorator around **unbound / static methods**
+
+        If decorating a static method, this decorator should be **below** the `@staticmethod`
 
         To subscribe to an **instance** method, please call subscribe directly (see examples)
 
