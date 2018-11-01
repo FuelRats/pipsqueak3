@@ -19,7 +19,7 @@ Subscriptions = List[Callable]
 log = logging.getLogger(f"mecha.{__name__}")
 
 # If a subscriber returns this value, the event will canceled.
-# return this value to consume an event
+# Returning this value will stop the event from being emitted to any further subscribers.
 CANCEL_EVENT = object()
 
 
@@ -36,13 +36,32 @@ class Event:
          >>> "my_other_event" in Event._events
          True
 
+         Events can be "canceled"  - or stopped from further emittion - by returning CANCEL_EVENT
+         from a subscriber. This will prevent any uncalled subscribers to the event from being
+         called.
+
+         >>> my_canceling_event = Event("docs_canceling_event")
+         >>> @my_canceling_event.subscribe
+         ... async def foo(*args, **kwargs):
+         ...    return CANCEL_EVENT
+         >>> @my_canceling_event.subscribe
+         ... async def bar(*args, **kwargs):
+         ...    print("hi there!")
+         ...    return 42
+         >>> # test setup, please pardon the dust.
+         >>> from asyncio import get_event_loop
+         >>> loop = get_event_loop()
+         >>> # emit the event
+         >>> loop.run_until_complete(my_canceling_event.emit(12))
+         []
+
     Notes:
         - Events will need to be invoked by something.
 
         - Event subscribers must be async functions, and should be tested to work with
             the event's signature (variable)
 
-        - exceptions raised by subscribers will not stop an event from being emitted
+        - exceptions raised by subscribers will not prevent other subscribers from being called
 
         - the return value of decorated events are discarded.
 
