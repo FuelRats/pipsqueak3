@@ -1,7 +1,8 @@
 """
-mechaclient.py - {summery}
+mechaclient.py - The Pydle Client implementation
 
-{long description}
+This module extends upon the Pydle framework and implements the IRC facing behaviors of Mechasqueak.
+this is the IRC client implementation, AKA the MechaClient.
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
