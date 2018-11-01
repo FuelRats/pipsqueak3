@@ -32,5 +32,5 @@ async def test_on_command_double_prefix(bot_fx, monkeypatch, context_fx, async_c
     async def cmd_boom(context: Context):
         return 42
 
-    result = await rat_command.trigger(ctx=ctx)
+    result = await rat_command.trigger(context=ctx)
     assert 42 == result
