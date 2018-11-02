@@ -20,7 +20,7 @@ async def test_on_command_double_prefix(bot_fx, monkeypatch, context_fx, async_c
     async_callable_fx.return_value = context_fx.user
 
     # patch the whois lookup as its outside the scope of our test.
-    monkeypatch.setattr(User, "from_whois", async_callable_fx)
+    monkeypatch.setattr(User, "from_pydle", async_callable_fx)
 
     ctx = await Context.from_message(bot_fx, "#unit_test", context_fx.user.nickname,
 

@@ -121,17 +121,14 @@ def bot_fx():
 @pytest.fixture
 def user_fx():
     return User(False,
-                0,
-                False,
                 None,
-                True,
                 True,
                 "unit_test",
                 "unit_test[bot]",
                 "unit_test",
                 "unittest.rats.fuelrats.com",
-                "potatobot",
-                "irc.fuelrats,com")
+                "potatobot"
+                )
 
 
 @pytest.fixture
