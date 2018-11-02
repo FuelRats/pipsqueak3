@@ -121,7 +121,7 @@ class MechaClient(Client):
                 await self.message(channel, error_message)
             else:
                 # we are not handling things gracefully, raise.
-                raise
+                raise exc
 
     async def on_channel_message(self,
                                  target: str,
