@@ -226,7 +226,7 @@ def require_permission(permission: Permission,
 
         @wraps(func)
         async def guarded(context: Context, *args):
-            if context.user.identified and context.user.hostname in _by_vhost.keys() \
+            if context.user.hostname in _by_vhost.keys() \
                     and _by_vhost[context.user.hostname] >= permission:
                 return await func(context, *args)
             else:
