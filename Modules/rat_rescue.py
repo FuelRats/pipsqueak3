@@ -36,16 +36,16 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, uuid: UUID,
-                 client: str,
-                 system: str,
-                 irc_nickname: str,
+    def __init__(self, uuid: UUID = None,
+                 client: Optional[str] = None,
+                 system: Optional[str] = None,
+                 irc_nickname: Optional[str] = None,
                  board: 'RatBoard' = None,
-                 created_at: datetime = None,
-                 updated_at: datetime = None,
-                 unidentified_rats=None,
-                 active=True,
-                 quotes: list = None,
+                 created_at: Optional[datetime] = None,
+                 updated_at: Optional[datetime] = None,
+                 unidentified_rats: Optional[List[str]] = None,
+                 active: bool = True,
+                 quotes: Optional[List[Quotation]] = None,
                  epic: List[Epic] = None,
                  title: Optional[str] = None,
                  first_limpet: Optional[UUID] = None,
@@ -91,7 +91,7 @@ class Rescue(object):
         self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
         self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
-        self._id: UUID = uuid
+        self._api_id: UUID = uuid
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else []
@@ -348,7 +348,7 @@ class Rescue(object):
 
         """
 
-        return self._id
+        return self._api_id
 
     @uuid.setter
     def uuid(self, value: UUID) -> None:
@@ -362,7 +362,7 @@ class Rescue(object):
             None
         """
         if isinstance(value, UUID):
-            self._id = value
+            self._api_id = value
         else:
             raise ValueError(f"expected UUID, got type {type(value)}")
 
@@ -407,7 +407,7 @@ class Rescue(object):
         return self._createdAt
 
     @property
-    def system(self) -> str:
+    def system(self) -> Optional[str]:
         """
         The clients system name
 
@@ -417,7 +417,7 @@ class Rescue(object):
         return self._system
 
     @system.setter
-    def system(self, value: str):
+    def system(self, value: Optional[str]):
         """
         Sets the system property to the upper case of `value`
 
@@ -435,6 +435,11 @@ class Rescue(object):
             Fuelrats Api v2.1
         """
 
+        assert value is None or isinstance(value, str)
+
+        if value is None:
+            # System must be nullable, so we specifically check for it
+            self._system = value
         # for API v2.1 compatibility reasons we cast to upper case
         self._system = value.upper()
 
@@ -555,7 +560,7 @@ class Rescue(object):
             self._updatedAt = value
 
     @property
-    def unidentified_rats(self) -> list:
+    def unidentified_rats(self) -> List[str]:
         """
         List of unidentified rats by their IRC nicknames
 
