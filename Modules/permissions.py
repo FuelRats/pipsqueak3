@@ -225,10 +225,10 @@ def require_permission(permission: Permission,
         log.debug(f"Wrapping a command with permission {permission}")
 
         @wraps(func)
-        async def guarded(context: Context):
+        async def guarded(context: Context, *args):
             if context.user.identified and context.user.hostname in _by_vhost.keys() \
                     and _by_vhost[context.user.hostname] >= permission:
-                return await func(context)
+                return await func(context, *args)
             else:
                 await context.reply(override_message if override_message
                                     else permission.denied_message)
@@ -283,7 +283,7 @@ def require_channel(func: Union[str, Callable] = None,
         """
 
         @wraps(wrapped)
-        async def guarded(context: Context) -> Any:
+        async def guarded(context: Context, *args) -> Any:
             """
             Enforces channel requirement
 
@@ -294,7 +294,7 @@ def require_channel(func: Union[str, Callable] = None,
                 Any: whatever the called function returned
             """
             if context.channel is not None:
-                return await wrapped(context)
+                return await wrapped(context, *args)
             else:
                 log.debug(f"channel was None, enforcing channel requirement...")
                 await context.reply(message)
@@ -354,7 +354,7 @@ def require_dm(func: Union[str, Callable] = None,
         """
 
         @wraps(wrapped)
-        async def guarded(context: Context) -> Any:
+        async def guarded(context: Context, *args) -> Any:
             """
             Enforces channel requirement
 
@@ -365,7 +365,7 @@ def require_dm(func: Union[str, Callable] = None,
                 Any: whatever the called function returned
             """
             if context.channel is None:
-                return await wrapped(context)
+                return await wrapped(context, *args)
             else:
                 log.debug(f"channel was None, enforcing channel requirement...")
                 await context.reply(message)

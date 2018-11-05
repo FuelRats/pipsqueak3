@@ -13,13 +13,12 @@ This module is built on top of the Pydle system.
 """
 
 import logging
-import re
-from functools import wraps
+from typing import Callable, Any
 
 from pydle import BasicClient
 
 from Modules.context import Context
-from Modules.user import User
+from Modules.rules import get_rule, clear_rules
 from config import config
 
 # set the logger for rat_command
@@ -40,13 +39,6 @@ class InvalidCommandException(CommandException):
     pass
 
 
-class CommandNotFoundException(CommandException):
-    """
-    Command not found.
-    """
-    pass
-
-
 class NameCollisionException(CommandException):
     """
     Someone attempted to register a command already registered.
@@ -55,67 +47,50 @@ class NameCollisionException(CommandException):
 
 
 _registered_commands = {}
-_rules = {}
 
 # character/s that must prefix a message for it to be parsed as a command.
 prefix = config['commands']['prefix']
 
-# Pydle bot instance.
-bot: BasicClient = None
 
-
-async def trigger(message: str, sender: str, channel: str):
+async def trigger(ctx) -> Any:
     """
-    Invoke a command, passing args and kwargs to the called function
-    :param message: triggers message to invoke
-    :param sender: author of triggering message
-    :param channel: channel of triggering message
-    :return: bool command
+
+    Args:
+        ctx (Context): Invocation context
+
+    Returns:
+        result of command execution
     """
-    if bot is None:
-        # someone didn't set me.
-        raise CommandException(f"Bot client has not been created"
-                               f" or not handed to Commands.")
 
-    # check for trigger
-    assert message.startswith(prefix), f"message passed that did not contain prefix."
+    if ctx.words_eol[0] == "":
+        return  # empty message, bail out
 
-    log.debug(f"Trigger! {message}")
-
-    # remove command prefix
-    raw_command: str = message.lstrip(prefix)
-
-    words = []
-    words_eol = []
-    remaining = raw_command
-    while True:
-        words_eol.append(remaining)
-        try:
-            word, remaining = remaining.split(maxsplit=1)
-        except ValueError:
-            # we couldn't split -> only one word left
-            words.append(remaining)
-            break
+    if ctx.prefixed:
+        if ctx.words[0].casefold() in _registered_commands:
+            # A regular command
+            command_fun = _registered_commands[ctx.words[0].casefold()]
+            extra_args = ()
+            log.debug(f"Regular command {ctx.words[0]} invoked.")
         else:
-            words.append(word)
-
-        # casts the command to lower case, for case insensitivity
-    words[0] = words[0].lower()
-
-    if words[0] in _registered_commands.keys():
-        cmd = _registered_commands[words[0]]
+            # Might be a regular rule
+            command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=False)
+            if command_fun:
+                log.debug(
+                    f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found.")
+            else:
+                log.debug(f"Could not find command or rule for {prefix}{ctx.words[0]}.")
     else:
-        for key, value in _rules.items():
-            if key.match(words[0]) is not None:
-                cmd = value
-                break
-        else:
-            raise CommandNotFoundException(f"Unable to find command {words[0]}")
+        # Might still be a prefixless rule
+        command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=True)
+        if command_fun:
+            log.debug(
+                f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} "
+                f"found.")
 
-    user = await User.from_whois(bot, sender)
-    context = Context(bot, user, channel, words, words_eol)
-
-    return await cmd(context)
+    if command_fun:
+        return await command_fun(ctx, *extra_args)
+    else:
+        log.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
 
 
 def _register(func, names: list or str) -> bool:
@@ -129,7 +104,7 @@ def _register(func, names: list or str) -> bool:
         names = [names]  # idiot proofing
 
     # transform commands to lowercase
-    names = [name.lower() for name in names]
+    names = [name.casefold() for name in names]
 
     if func is None or not callable(func):
         # command not callable
@@ -152,9 +127,9 @@ def _flush() -> None:
     Flushes registered commands
     Probably useless outside testing...
     """
-    global _registered_commands, _rules  # again this feels ugly but they are module-level now...
+    global _registered_commands  # again this feels ugly but they are module-level now...
     _registered_commands = {}
-    _rules = {}
+    clear_rules()
 
 
 def command(*aliases):
@@ -166,54 +141,21 @@ def command(*aliases):
 
     """
 
-    def real_decorator(func):
+    def real_decorator(func: Callable):
         """
         The actual commands decorator
 
         Args:
-            func (function): wrapped function
+            func (Callable): wrapped function
 
         Returns:
-            function
+            Callable: *func*, unmodified.
         """
-
-        @wraps(func)
-        async def wrapper(context):
-            """
-            command executor
-
-            Args:
-                context: Command IRC context
-
-            Returns:
-                whatever the called function returns (probably None)
-            """
-            return await func(context)
-
-        # we want to register the wrapper, not the underlying function
         log.debug(f"Registering command aliases: {aliases}...")
-        if not _register(wrapper, aliases):
+        if not _register(func, aliases):
             raise InvalidCommandException("unable to register commands.")
         log.debug(f"Registration of {aliases} completed.")
 
-        return wrapper
+        return func
+
     return real_decorator
-
-
-def rule(regex: str):
-    """
-    Decorator to have the underlying coroutine be called when two conditions apply:
-    1. No conventional command was found for the incoming message.
-    2. The command matches the here provided regular expression.
-
-    Arguments:
-        regex (str): Regular expression to match the command.
-    """
-    def decorator(coro):
-        async def wrapper(context):
-            return await coro(context)
-
-        _rules[re.compile(regex, re.IGNORECASE)] = wrapper
-        log.info(f"New rule matching '{regex}' was created.")
-        return wrapper
-    return decorator

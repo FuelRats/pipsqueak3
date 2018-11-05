@@ -112,7 +112,7 @@ def setup(filename: str) -> None:
     # check if the file exists
     if os.path.exists(path):
         logging.info(f"Found a file/directory at {filename}'! attempting to load...")
-        with open(path, 'r') as infile:
+        with open(path, 'r', encoding="UTF8") as infile:
             config_dict = json.load(infile)
             logging.info("Successfully loaded JSON from file specified!")
 

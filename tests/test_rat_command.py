@@ -14,15 +14,12 @@ This module is built on top of the Pydle system.
 
 """
 
-import asyncio
-from unittest import mock
-
 import pydle
 import pytest
 
 import Modules.rat_command as Commands
 from Modules.context import Context
-from Modules.rat_command import CommandNotFoundException, NameCollisionException
+from Modules.rat_command import NameCollisionException
 
 
 @pytest.fixture
@@ -35,16 +32,13 @@ def Setup_fx(bot_fx):
 @pytest.mark.commands
 @pytest.mark.usefixtures("Setup_fx")
 class TestRatCommand(object):
-
     @pytest.mark.asyncio
     async def test_invalid_command(self):
         """
-        Ensures the proper exception is raised when a command is not found.
-        :return:
+        Ensures that nothing happens and `trigger` exits quietly when no command can be found.
         """
-        with pytest.raises(CommandNotFoundException):
-            await Commands.trigger(message="!nope", sender="unit_test",
-                                   channel="foo")
+        await Commands.trigger(Context(None, None, "#unit_test", ['!unknowncommandsad hi!'],
+                                       ['!unknowncommandsad hi!', "hi!"]))
 
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     def test_double_command_registration(self, alias):
@@ -68,26 +62,25 @@ class TestRatCommand(object):
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
-    async def test_call_command(self, alias):
+    async def test_call_command(self, alias, bot_fx):
         """
         Verifiy that found commands can be invoked via Commands.Trigger()
         """
         Commands._flush()
 
         trigger_alias = f"{Commands.prefix}{alias}"
-        input_sender = "unit_test[BOT]"
-        input_channel = "#unit_testing"
 
         @Commands.command(alias)
         async def potato(context: Context):
             # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
             return context.bot, context.channel, context.user.nickname
 
-        out_bot, out_channel, out_sender = await Commands.trigger(
-            message=trigger_alias, sender=input_sender,
-            channel=input_channel)
-        assert input_sender == out_sender
-        assert input_channel == out_channel
+        ctx = await Context.from_message(bot_fx, "#unittest", "unit_test", trigger_alias)
+        retn = await Commands.trigger(ctx)
+        out_bot, out_channel, out_sender = retn
+
+        assert 'unit_test' == out_sender
+        assert "#unittest" == out_channel
 
     @pytest.mark.parametrize("garbage", [12, None, "str"])
     def test_register_non_callable(self, garbage):
@@ -99,26 +92,6 @@ class TestRatCommand(object):
         :return:
         """
         assert Commands._register(garbage, ['foo']) is False
-
-    @pytest.mark.asyncio
-    async def test_rule_matching(self):
-        """Verifies that the rule decorator works as expected."""
-        underlying = mock.MagicMock()
-        Commands.rule("banan(a|e)")(asyncio.coroutine(underlying))
-
-        await Commands.trigger("!banana", "unit_test", "#mordor")
-        assert underlying.called
-
-        underlying.reset_mock()
-
-    @pytest.mark.asyncio
-    async def test_rule_not_matching(self):
-        """verifies that the rule decorator works as expected."""
-        underlying = mock.MagicMock()
-        Commands.rule("banan(a|e)")(asyncio.coroutine(underlying))
-        with pytest.raises(CommandNotFoundException):
-            await Commands.trigger("!banan", "unit_test", "theOneWithTheHills")
-        assert not underlying.called
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', "fireball"])
@@ -153,7 +126,7 @@ class TestRatCommand(object):
     @pytest.mark.parametrize("name", ("unit_test[BOT]", "some_recruit", "some_ov"))
     @pytest.mark.parametrize("trigger_message", ["salad Baton", "Crunchy Cheddar", "POTATOES!",
                                                  "carrots"])
-    async def test_command_preserves_arguments(self, trigger_message: str, name: str):
+    async def test_command_preserves_arguments(self, trigger_message: str, name: str, bot_fx):
         """
         Verifies commands do not mutate argument words
             - because someone had the bright idea of casting ALL words to lower...
@@ -161,11 +134,12 @@ class TestRatCommand(object):
         """
         Commands._flush()
         ftrigger = f"!{name} {trigger_message}"
-        words = [name.lower()] + trigger_message.split(" ")
+        words = [name] + trigger_message.split(" ")
 
         @Commands.command(name)
         async def the_command(context: Context):
             """asserts its arguments equal the outer scope"""
-            assert context.words == words
+            assert words == context.words
 
-        await Commands.trigger(ftrigger, "unit_test[BOT]", "#unit_tests")
+        ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", ftrigger)
+        await Commands.trigger(ctx)

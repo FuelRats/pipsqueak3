@@ -19,10 +19,9 @@ from uuid import uuid4, UUID
 
 import pytest
 
-# Set argv to keep cli arguments meant for pytest from polluting our things
-
-
 from Modules.rat_cache import RatCache
+
+# Set argv to keep cli arguments meant for pytest from polluting our things
 
 sys.argv = ["test",
             "--config-file", "testing.json",
@@ -45,6 +44,7 @@ from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
+from tests.mock_callables import CallableMock, AsyncCallableMock
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -115,7 +115,7 @@ def rat_board_fx() -> RatBoard:
 
 @pytest.fixture
 def bot_fx():
-    return MockBot()
+    return MockBot(nickname="mock_mecha3[BOT]")
 
 
 @pytest.fixture
@@ -238,7 +238,6 @@ def reset_rat_cache_fx(rat_cache_fx: RatCache):
     # and clean up after ourselves
     rat_cache_fx.flush()
 
-
 @pytest.fixture
 def permission_fx(monkeypatch) -> Permission:
     """
@@ -254,3 +253,23 @@ def permission_fx(monkeypatch) -> Permission:
     monkeypatch.setattr("Modules.permissions._by_vhost", {})
     permission = Permission(0, {"testing.fuelrats.com", "cheddar.fuelrats.com"})
     return permission
+
+@pytest.fixture
+def callable_fx():
+    """
+    Fixture providing a callable object whose return value can be set and which can be checked for
+    having been called.
+
+    See :class:`CallableMock`.
+    """
+    return CallableMock()
+
+
+@pytest.fixture
+def async_callable_fx():
+    """
+    Like :func:`callable_fx`, but can be treated as a coroutine function.
+
+    See :class:`AsyncCallableMock`.
+    """
+    return AsyncCallableMock()
