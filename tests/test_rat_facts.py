@@ -17,6 +17,7 @@ import pytest
 from Modules import rat_facts, database_manager
 from Modules.context import Context
 from Modules.rat_facts import Fact
+from tests.mock_callables import AsyncCallableMock, InstanceOf
 import datetime
 
 
@@ -104,20 +105,12 @@ class TestFacts(object):
         value = await facts_fx.is_fact("test1", "de")
         assert not value
 
-    async def test_rule(self, facts_fx, bot_fx, async_callable_fx, monkeypatch):
+    async def test_rule(self, facts_fx, bot_fx, async_callable_fx: AsyncCallableMock, monkeypatch):
 
-        # field to store the reply in
-        bot_fx.rat_facts_reply = ""
-
-        # mocking the Context class to better control what happens
-        class MockContext:
-            words = ("!go",)
-
-            # noinspection PyMethodParameters
-            def reply(msg: str):  # Note: no self here, works without
-                bot_fx.rat_facts_reply = msg
         context = await Context.from_message(bot_fx, "#unit_test", "some_recruit", "!go")
         monkeypatch.setattr(context, "reply", async_callable_fx)  # patch the reply function
+        async_callable_fx.was_called_with(InstanceOf(str))
+
         # noinspection PyTypeChecker
         # shouldn't reply, as this is an "internal" fact
         await facts_fx.handle_fact(context)
@@ -125,13 +118,12 @@ class TestFacts(object):
         # checking it did not reply, or replied with an empty string
         assert not async_callable_fx.was_called
 
-        MockContext.words = ("!test1-en",)
+        context.words = ("!test1-en",)
         # noinspection PyTypeChecker
-        await facts_fx.handle_fact(MockContext)
+        await facts_fx.handle_fact(context)
 
         # make sure it pulled the right message
-        message = bot_fx.rat_facts_reply
-        assert message == "THIS IS TEST No. 1"
+        assert async_callable_fx.was_called_with("THIS IS TEST No. 1")
 
     async def test_enabled_property(self, dbm_fx, facts_fx):
         assert dbm_fx.enabled == facts_fx.enabled
@@ -148,3 +140,4 @@ class TestFacts(object):
 
         assert (await facts_fx.get_fact("cake", "en")).message == "🥧"
         assert (await facts_fx.get_fact("🥔", "en")).message == "potato"
+
