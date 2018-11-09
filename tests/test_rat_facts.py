@@ -118,7 +118,8 @@ class TestFacts(object):
         # checking it did not reply, or replied with an empty string
         assert not async_callable_fx.was_called
 
-        context.words = ("!test1-en",)
+        # context.words = ("!test1-en",)
+        monkeypatch.setattr(context, "words", ("!test1-en",))
         # noinspection PyTypeChecker
         await facts_fx.handle_fact(context)
 
