@@ -182,8 +182,13 @@ class FactsManager(Singleton):
             await context.reply("Sadly, Facts are currently not available. Please check back later.")
             return False
 
-        regex = re.compile(r"!(?P<name>[a-zA-Z\d]+)-(?P<lang>[a-zA-Z]{2})|!(?P<name2>[a-zA-Z\d]+)")
-        # Tries to split the inputted word (e.g !test-tr) into a group called "name" and a group called "lang".
+        if not isinstance(context, Context):
+            raise ValueError(f"Context was of type {type(context)}, which is not permitted.")
+
+        regex = re.compile(r"(?P<name>[a-zA-Z\d]+)-(?P<lang>[a-zA-Z]{2})|(?P<name2>[a-zA-Z\d]+)")
+        # Tries to split the inputted word (e.g test-tr)
+        # (prefix has already been removed at context creation time)
+        # into a group called "name" and a group called "lang".
         # Should this fail, for example because no language has been supplied,
         # it'll store the name of the fact in a group called "name2"
 

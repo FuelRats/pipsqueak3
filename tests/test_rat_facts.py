@@ -126,6 +126,7 @@ class TestFacts(object):
         await facts_fx.handle_fact(context)
 
         # make sure it pulled the right message
+        print(f"{async_callable_fx.calls[0]}")
         assert async_callable_fx.was_called_with("THIS IS TEST No. 1")
 
     async def test_enabled_property(self, dbm_fx, facts_fx):
