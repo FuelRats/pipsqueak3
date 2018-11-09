@@ -183,7 +183,10 @@ class FactsManager(Singleton):
             return False
 
         regex = re.compile(r"!(?P<name>[a-zA-Z\d]+)-(?P<lang>[a-zA-Z]{2})|!(?P<name2>[a-zA-Z\d]+)")
-        # Tries to split the inputted word (e.g !test-tr) into a group called "name" and a group called "lang" should this fail, for example because no language has been supplied, the it'll store the name of the fact in a group called "name2"
+        # Tries to split the inputted word (e.g !test-tr) into a group called "name" and a group called "lang".
+        # Should this fail, for example because no language has been supplied,
+        # it'll store the name of the fact in a group called "name2"
+
         result = re.match(regex, context.words[0])
 
         if result is None:
@@ -205,6 +208,6 @@ class FactsManager(Singleton):
 
         if await self.is_fact(name, lang):
             message = (await self.get_fact(name, lang)).message
-            context.reply(message)
+            await context.reply(message)
             return True
         return False
