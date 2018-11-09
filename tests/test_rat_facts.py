@@ -109,7 +109,7 @@ class TestFacts(object):
 
         context = await Context.from_message(bot_fx, "#unit_test", "some_recruit", "!go")
         monkeypatch.setattr(context, "reply", async_callable_fx)  # patch the reply function
-        async_callable_fx.was_called_with(InstanceOf(str))
+        # async_callable_fx.was_called_with(InstanceOf(str))
 
         # noinspection PyTypeChecker
         # shouldn't reply, as this is an "internal" fact
@@ -118,8 +118,10 @@ class TestFacts(object):
         # checking it did not reply, or replied with an empty string
         assert not async_callable_fx.was_called
 
-        # context.words = ("!test1-en",)
-        monkeypatch.setattr(context, "words", ("!test1-en",))
+        context = await Context.from_message(bot_fx, "#unit_test", "some_drillee", "!test1-en")
+        async_callable_fx.reset()
+        monkeypatch.setattr(context, "reply", async_callable_fx)
+
         # noinspection PyTypeChecker
         await facts_fx.handle_fact(context)
 
