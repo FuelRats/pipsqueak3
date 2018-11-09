@@ -118,7 +118,7 @@ class TestFacts(object):
         # checking it did not reply, or replied with an empty string
         assert not async_callable_fx.was_called
 
-        context = await Context.from_message(bot_fx, "#unit_test", "some_drillee", "!test1-en")
+        context = await Context.from_message(bot_fx, "#unit_test", "some_recruit", "!test1-en")
         async_callable_fx.reset()
         monkeypatch.setattr(context, "reply", async_callable_fx)
 
