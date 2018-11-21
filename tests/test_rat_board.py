@@ -214,7 +214,7 @@ class TestRatBoardPyTest(object):
         rat_board_fx.append(rescue=rescue_sop_fx)
 
         # overwrite our local rescue objects id
-        rescue_sop_fx._id = None
+        rescue_sop_fx._api_id = None
 
         assert rescue_sop_fx in rat_board_fx
 
