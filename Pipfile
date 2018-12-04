@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pydle = {editable = true, ref = "asyncio", git = "git://github.com/Shizmob/pydle.git"}
+pure-sasl = "*"
+coloredlogs = "*"
+
+[dev-packages]
+pytest = "*"
+pytest-cov = "*"
+pytest-asyncio = "*"
+
+[requires]
+python_version = "3.6"
