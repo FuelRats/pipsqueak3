@@ -49,7 +49,7 @@ jobs:
           paths:
             - ".venv"
             - "/usr/local/bin"
-          key: v1-dependencies-{{ checksum "Pipfile.lock" }}
+          key: v2-dependencies-{{ checksum "Pipfile.lock" }}
 
       # run tests
       - run:
