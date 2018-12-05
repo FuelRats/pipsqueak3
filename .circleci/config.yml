@@ -24,19 +24,20 @@ jobs:
 
     steps:
       - checkout
-      # give CircleCi access to dependencies
-      - run: sudo chown -R circleci:circleci ".venv"
+
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "Pipfile" }}
+            - v1-dependencies-{{ checksum "Pipfile.lock" }}
 
 
       - run:
           name: install dependencies
           command: |
             pipenv install -d
-
+      # give CircleCi access to dependencies
+      - run: sudo chown -R circleci:circleci ".venv"
+        -
       - run:
           name: Setup Code Climate test-reporter
           command: |
