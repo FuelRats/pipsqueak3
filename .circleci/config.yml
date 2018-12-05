@@ -37,7 +37,7 @@ jobs:
             pipenv install -d
       # give CircleCi access to dependencies
       - run: sudo chown -R circleci:circleci ".venv"
-        -
+
       - run:
           name: Setup Code Climate test-reporter
           command: |
