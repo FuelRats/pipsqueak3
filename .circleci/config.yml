@@ -63,9 +63,11 @@ jobs:
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
 
       - store_artifacts:
-          path:
-            - logs/unit_tests.log
-            - test-reports
+          path: logs/unit_tests.log
+
+      - store_artifacts:
+          path: test-reports
+
 
       - store_test_results:
           path: test-reports
