@@ -28,15 +28,18 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "Pipfile.lock" }}
+            - v3-dependencies-{{ checksum "Pipfile.lock" }}
 
 
       - run:
           name: install dependencies
           command: |
             pipenv install -d
-      # give CircleCi access to dependencies
-      - run: sudo chown -R circleci:circleci ".venv"
+
+      # give CircleCi access to cached venv
+      - run:
+          name: Fix permissions on venv
+          command: sudo chown -R circleci:circleci ".venv"
 
       - run:
           name: Setup Code Climate test-reporter
@@ -48,8 +51,7 @@ jobs:
       - save_cache:
           paths:
             - ".venv"
-            - "/usr/local/bin"
-          key: v2-dependencies-{{ checksum "Pipfile.lock" }}
+          key: v3-dependencies-{{ checksum "Pipfile.lock" }}
 
       # run tests
       - run:
@@ -57,7 +59,7 @@ jobs:
           command: |
 
             ./cc-test-reporter before-build
-            pipenv run pytest -v --cov --cov-report xml --junit-xml=test-reports --doctest-modules
+            pipenv run pytest -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
 
       - store_artifacts:
