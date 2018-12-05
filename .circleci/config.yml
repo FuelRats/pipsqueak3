@@ -25,11 +25,11 @@ jobs:
     steps:
       - checkout
       # give CircleCi access to dependencies
-      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+      - run: sudo chown -R circleci:circleci ".venv"
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "Pipfile.lock" }}
+            - v1-dependencies-{{ checksum "Pipfile" }}
 
 
       - run:
