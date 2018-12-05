@@ -37,7 +37,6 @@ jobs:
           name: install dependencies
           command: |
             pipenv install -d
-            pipenv shell
 
       - run:
           name: Setup Code Climate test-reporter
@@ -57,9 +56,9 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv shell
+
             ./cc-test-reporter before-build
-            pytest -v --cov --cov-report xml --junit-xml=test-reports --doctest-modules
+            pipenv run pytest -v --cov --cov-report xml --junit-xml=test-reports --doctest-modules
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
 
       - store_artifacts:
