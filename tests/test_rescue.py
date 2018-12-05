@@ -67,7 +67,7 @@ def test_validate_rescue_uuid(rescue_sop_fx):
     """
     Validates the UUID of rescue_sop_fx._id
     """
-    result = UUID(rescue_sop_fx._id.hex, version=4)
+    result = UUID(rescue_sop_fx._api_id.hex, version=4)
     assert rescue_sop_fx.uuid == result
 
 
