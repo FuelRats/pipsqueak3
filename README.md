@@ -47,7 +47,8 @@ docker-compose run mechasqueak
 > ## NOTE:
 > ontop of pip you must have installed `pipenv`, this guide assumes this fact.
 
-> If you are not using pipenv, please see [Pipfile](Pipfile) for the list of required libraries.  You will need to install these manually.
+> If you are not using pipenv, please see [Pipfile](Pipfile) for the list of required libraries. 
+ You will need to install these libraries manually.
 
 1. Clone the repository from the ``master`` branch, or for bleeding edge, use ``develop``.  Please keep in mind, Develop changes frequently and may be broken.
 2. Install the project's requirements, `pipenv install`
