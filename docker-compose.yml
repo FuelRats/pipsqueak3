@@ -37,7 +37,7 @@ services:
 
     build: .
     image: mecha3
-    command: ["pytest"]
+    command: "pipenv run pytest"
 
   mecha3-dev:
     volumes:
@@ -54,7 +54,7 @@ services:
         target: /mechasqueak/certs/
     build: .
     image: mecha3
-    command: ["python","main.py","--config", "develop.json"]
+    command: ["pipenv","run","python","main.py","--config", "develop.json"]
 
   drillsqueak:
     volumes:
@@ -72,7 +72,7 @@ services:
 
     build: .
     image: mecha3
-    command: ["python","main.py","--config", "drill.json"]
+    command: ["pipenv","run","python","main.py","--config", "drill.json"]
 
   mechasqueak:
     volumes:
@@ -89,4 +89,4 @@ services:
         target: /mechasqueak/certs/
     build: .
     image: mecha3
-    command: ["python","main.py","--config", "live.json"]
+    command: ["pipenv","run","python","main.py","--config", "live.json"]
