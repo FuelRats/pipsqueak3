@@ -150,7 +150,7 @@ class User(object):
         data = bot.users.get(nickname.casefold(), None)
 
         # if we got a object back
-        # ((inb4 falsy check comes back to bite))
+        
         if data:
             return cls(**data)
 
