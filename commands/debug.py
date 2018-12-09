@@ -14,9 +14,7 @@ See LICENSE.md
 import logging
 
 from Modules.context import Context
-
 from Modules.permissions import require_channel, require_permission, TECHRAT
-
 from Modules.rat_command import command
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -36,14 +34,13 @@ async def cmd_debug_whois(context):
     await context.reply(f"{data}")
 
 
-
 @command("debug-my-hostname")
 async def cmd_my_hostname(context: Context):
     await context.reply(f"{context.user.hostname}")
+
 
 @command("superPing!")
 @require_channel
 @require_permission(TECHRAT)
 async def cmd_superping(context: Context):
     await context.reply("pong!")
-

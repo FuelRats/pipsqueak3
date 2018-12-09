@@ -149,12 +149,10 @@ class User(object):
         # fetch the user object from
         data = bot.users.get(nickname.casefold(), None)
 
-
         # if we got a object back
 
         if data:
             return cls(**data)
-
 
     def __eq__(self, other) -> bool:
         """
