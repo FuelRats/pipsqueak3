@@ -9,19 +9,15 @@ class MockBot(MechaClient):
         super().__init__(*args, **kwargs)
         self.sent_messages = []
         self.users = {
-            "unit_test[BOT]": {'oper': False,
-                               'idle': 0,
-                               'away': True,
-                               'away_message': 'Go away',
-                               'username': 'unit_test',
-                               'hostname': 'i.see.none',
-                               'realname': 'you know',
-                               'identified': True,
-                               'server': 'irc.fuelrats.com',
-                               'server_info': 'Fuel Rat IRC Server',
-                               'secure': True,
-                               'account': None,
-                               'nickname': 'unit_test[BOT]'},
+            "unit_test[bot]": {
+                'away': True,
+                'away_message': 'Go away',
+                'username': 'unit_test',
+                'hostname': 'i.see.none',
+                'realname': 'you know',
+                'identified': True,
+                'account': None,
+                'nickname': 'unit_test[BOT]'},
             "unit_test": {
                 "nickname": "unit_test",
                 "username": "unit_test",
@@ -30,12 +26,9 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": False,
-                "oper": False,
-                "idle": 0,
+
                 "realname": "tree hugger",
-                "secure": False,
-                "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rat IRC server"
+
             },
             "some_recruit": {
                 "nickname": "some_recruit",
@@ -45,12 +38,9 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-                "oper": False,
-                "idle": 0,
+
                 "realname": "some pun-ter",
-                "secure": False,
-                "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rat IRC server"
+
             },
             "some_ov": {
                 "nickname": "some_ov",
@@ -60,12 +50,9 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-                "oper": False,
-                "idle": 0,
+
                 "realname": "Stop sign",
-                "secure": False,
-                "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rat IRC server"
+
             },
             "some_admin": {
                 "nickname": "some_admin",
@@ -75,12 +62,9 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-                "oper": True,
-                "idle": 0,
+
                 "realname": "SirRaymond",
-                "secure": True,
-                "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rat IRC server"
+
             },
             "authorized_but_not_identified": {
                 "nickname": "authorized_but_not_identified",
@@ -90,12 +74,9 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": False,
-                "oper": False,
-                "idle": 0,
+
                 "realname": "White Sheets",
-                "secure": False,
-                "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rat IRC server"
+
             }
         }
 
