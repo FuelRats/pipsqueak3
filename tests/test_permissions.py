@@ -115,13 +115,6 @@ class TestPermissions(object):
         await Commands.trigger(context)
         assert restricted_command_fx.was_called_once
 
-    @pytest.mark.asyncio
-    async def test_restricted_command_not_identified(self, bot_fx, restricted_command_fx):
-        context = await Context.from_message(bot_fx, "#somechannel",
-                                             "authorized_but_not_identified", "!restricted")
-        await Commands.trigger(context)
-        assert not restricted_command_fx.was_called
-
     def test_hash(self):
         for perm1, perm2 in product(permissions._by_vhost.values(), permissions._by_vhost.values()):
             if perm1 == perm2:

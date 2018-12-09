@@ -141,7 +141,7 @@ class Context(object):
         # build the words and words_eol lists
         words, words_eol = _split_message(message)
         # get the user from a WHOIS query
-        user = await User.from_whois(bot, sender)
+        user = await User.from_pydle(bot, sender)
 
         # return a built context object
         return cls(bot, user, channel, words, words_eol, prefixed=prefixed)
