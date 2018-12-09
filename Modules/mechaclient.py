@@ -93,7 +93,7 @@ class MechaClient(Client):
             # and emit the raw message
             await events.on_message_raw.emit(context=ctx)
 
-            if ctx.user.nickname == config['irc']['nickname']:
+            if ctx.user.nickname.casefold() == self.nickname.casefold():
                 # don't do this and the bot can get into an infinite
                 # self-stimulated positive feedback loop.
                 log.debug(f"Ignored {message} (anti-loop)")
@@ -193,7 +193,7 @@ class MechaClient(Client):
 
     async def on_topic_change(self, channel: str, topic: str, author: str):
         """called when a channel's topic gets changed"""
-        ircUser = await User.from_whois(self, author)
+        ircUser = await User.from_pydle(self, author)
         await events.on_topic_change.emit(channel=channel,
                                           topic=topic,
                                           user=ircUser,

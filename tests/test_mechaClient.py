@@ -351,7 +351,7 @@ async def test_topic_change(bot_fx, async_callable_fx):
     # this method uses a different kwarg than what we give it
     # so we mutate the dict so it matches the expected output
     del kwargs["author"]
-    kwargs["user"] = await User.from_whois(bot_fx, "some_ov")
+    kwargs["user"] = await User.from_pydle(bot_fx, "some_ov")
     assert async_callable_fx.was_called_with(**kwargs, bot=bot_fx)
 
 

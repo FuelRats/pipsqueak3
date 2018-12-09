@@ -86,22 +86,7 @@ class MockBot(MechaClient):
                 "server": "irc.fuelrats.com",
                 "server_info": "Fuel Rat IRC server"
             },
-            "Mechasqueak3-tests[BOT]": {
-                "nickname": "mock_mecha3[BOT]",
-                "username": "SPARK",
-                "hostname": "services.fuelrats.com",
-                "away": False,
-                "away_message": None,
-                "account": "Mechasqueak",
-                "identified": True,
-                "oper": True,
-                "idle": 0,
-                "realname": "Mechasqueak3",
-                "secure": True,
-                "server": "irc.fuelrats.com",
-                "server_info": "Fuel Rat IRC server"
 
-            }
         }
 
     async def message(self, target: str, message: str):

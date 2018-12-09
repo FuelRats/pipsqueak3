@@ -120,7 +120,7 @@ def bot_fx():
     """
     Create a Mock bot object, and tell it not to handle errors gracefully
     """
-    return MockBot(nickname="Mechasqueak3-tests[BOT]",
+    return MockBot(nickname="unit_test[bot]",
                    handle_errors_gracefully=False)
 
 

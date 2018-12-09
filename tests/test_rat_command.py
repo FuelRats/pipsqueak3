@@ -26,7 +26,6 @@ from Modules.rat_command import NameCollisionException
 def Setup_fx(bot_fx):
     """Sets up the test environment"""
     Commands._flush()
-    Commands.bot = bot_fx
 
 
 @pytest.mark.commands

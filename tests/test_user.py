@@ -96,7 +96,7 @@ def test_user_constructor(data: dict):
 
 
 @pytest.mark.asyncio
-async def test_user_from_whois_existing_user(bot_fx):
+async def test_user_from_pydle_existing_user(bot_fx):
     """
     verifies building a User from a full IRC reply when said user exists
     """
