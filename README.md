@@ -44,11 +44,18 @@ docker-compose run mechasqueak
 ```
 
 ## Run Locally
-> If you are not using pip, please see requirements.txt for the list of required libraries.  You will need to install these manually.
+> ## NOTE:
+> ontop of pip you must have installed `pipenv`, this guide assumes this fact.
+
+> If you are not using pipenv, please see [Pipfile](Pipfile) for the list of required libraries. 
+ You will need to install these libraries manually.
 
 1. Clone the repository from the ``master`` branch, or for bleeding edge, use ``develop``.  Please keep in mind, Develop changes frequently and may be broken.
-2. Build your configuration file.  Please see the [Configuration](#Configuration) section.
-3. Execute Mecha with ``python main.py --config <your configuration file>``  (You may need to use the python3 alias)
+2. Install the project's requirements, `pipenv install`
+    - For development, please use `pipenv install -d` to install our development dependencies.
+3. once installed, activate the venv `pipenv shell`
+4. Build your configuration file.  Please see the [Configuration](#Configuration) section.
+5. Execute Mecha with ``python main.py --config <your configuration file>``  (You may need to use the python3 alias)
 
 |    Flag         |    Description                     |
 | :--------------:|------------------------------------|

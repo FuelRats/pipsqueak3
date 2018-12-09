@@ -6,12 +6,14 @@ version: 2
 jobs:
   build:
     environment:
+      # tell pipenv
+      PIPENV_VENV_IN_PROJECT: true
       CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
 
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.5
+      - image: circleci/python:3.6.6
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -26,16 +28,18 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+            - v3-dependencies-{{ checksum "Pipfile.lock" }}
+
 
       - run:
           name: install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
+            pipenv install -d
+
+      # give CircleCi access to cached venv
+      - run:
+          name: Fix permissions on venv
+          command: sudo chown -R circleci:circleci ".venv"
 
       - run:
           name: Setup Code Climate test-reporter
@@ -46,20 +50,24 @@ jobs:
       # do caching magic
       - save_cache:
           paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
+            - ".venv"
+          key: v3-dependencies-{{ checksum "Pipfile.lock" }}
 
       # run tests
       - run:
           name: run tests
           command: |
-            . venv/bin/activate
+
             ./cc-test-reporter before-build
-            pytest -v --cov --cov-report xml --junit-xml=test-reports --doctest-modules
+            pipenv run pytest -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
             ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
 
       - store_artifacts:
           path: logs/unit_tests.log
+
+      - store_artifacts:
+          path: test-reports
+
 
       - store_test_results:
           path: test-reports
