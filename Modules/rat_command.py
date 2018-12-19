@@ -60,7 +60,7 @@ async def trigger() -> Any:
     if words_eol.get()[0] == "":
         return  # empty message, bail out
 
-    if prefixed:
+    if prefixed.get():
         if words.get()[0].casefold() in _registered_commands:
             # A regular command
             command_fun = _registered_commands[words.get()[0].casefold()]
@@ -76,7 +76,7 @@ async def trigger() -> Any:
                 log.debug(f"Could not find command or rule for {prefix}{words.get()[0]}.")
     else:
         # Might still be a prefixless rule
-        command_fun, extra_args = get_rule(words, words_eol, prefixless=True)
+        command_fun, extra_args = get_rule(words.get(), words_eol.get(), prefixless=True)
         if command_fun:
             log.debug(
                 f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {words.get()[0]} "
