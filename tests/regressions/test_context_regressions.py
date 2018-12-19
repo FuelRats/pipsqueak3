@@ -22,9 +22,7 @@ async def test_on_command_double_prefix(bot_fx, monkeypatch, context_fx, async_c
     # patch the whois lookup as its outside the scope of our test.
     monkeypatch.setattr(User, "from_pydle", async_callable_fx)
 
-    ctx = await Context.from_message(bot_fx, "#unit_test", context_fx.user.nickname,
-
-                                     f"{prefix}{prefix}boom")
+    ctx = await Context.from_message()
 
     monkeypatch.setattr(rat_command, "_registered_commands", dict())
 
@@ -32,5 +30,5 @@ async def test_on_command_double_prefix(bot_fx, monkeypatch, context_fx, async_c
     async def cmd_boom(context: Context):
         return 42
 
-    result = await rat_command.trigger(ctx=ctx)
+    result = await rat_command.trigger()
     assert 42 == result

@@ -15,9 +15,7 @@ This module is built on top of the Pydle system.
 import logging
 from typing import Callable, Any
 
-from pydle import BasicClient
-
-from Modules.context import Context
+from Modules.context import words_eol, words, prefixed
 from Modules.rules import get_rule, clear_rules
 from config import config
 
@@ -52,45 +50,42 @@ _registered_commands = {}
 prefix = config['commands']['prefix']
 
 
-async def trigger(ctx) -> Any:
+async def trigger() -> Any:
     """
-
-    Args:
-        ctx (Context): Invocation context
 
     Returns:
         result of command execution
     """
 
-    if ctx.words_eol[0] == "":
+    if words_eol.get()[0] == "":
         return  # empty message, bail out
 
-    if ctx.prefixed:
-        if ctx.words[0].casefold() in _registered_commands:
+    if prefixed:
+        if words.get()[0].casefold() in _registered_commands:
             # A regular command
-            command_fun = _registered_commands[ctx.words[0].casefold()]
+            command_fun = _registered_commands[words.get()[0].casefold()]
             extra_args = ()
-            log.debug(f"Regular command {ctx.words[0]} invoked.")
+            log.debug(f"Regular command {words.get()[0]} invoked.")
         else:
             # Might be a regular rule
-            command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=False)
+            command_fun, extra_args = get_rule(words.get(), words_eol.get(), prefixless=False)
             if command_fun:
                 log.debug(
-                    f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found.")
+                    f"Rule {getattr(command_fun, '__name__', '')} matching {words.get()[0]} found.")
             else:
-                log.debug(f"Could not find command or rule for {prefix}{ctx.words[0]}.")
+                log.debug(f"Could not find command or rule for {prefix}{words.get()[0]}.")
     else:
         # Might still be a prefixless rule
-        command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=True)
+        command_fun, extra_args = get_rule(words, words_eol, prefixless=True)
         if command_fun:
             log.debug(
-                f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} "
+                f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {words.get()[0]} "
                 f"found.")
 
     if command_fun:
-        return await command_fun(ctx, *extra_args)
+        return await command_fun(*extra_args)
     else:
-        log.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
+        log.debug(f"Ignoring message '{words_eol.get()[0]}'. Not a command or rule.")
 
 
 def _register(func, names: list or str) -> bool:

@@ -134,7 +134,7 @@ class User(object):
         return self._nickname
 
     @classmethod
-    async def from_pydle(cls, bot: BasicClient, nickname: str) -> Optional['User']:
+    def from_pydle(cls, bot: BasicClient, nickname: str) -> Optional['User']:
         """
         Returns a user object from pydle's backend
 

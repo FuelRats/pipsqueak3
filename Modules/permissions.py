@@ -16,6 +16,7 @@ from functools import wraps
 from typing import Any, Union, Callable, List, Dict, Set
 
 from Modules.context import Context
+from Modules import context
 from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -225,10 +226,10 @@ def require_permission(permission: Permission,
         log.debug(f"Wrapping a command with permission {permission}")
 
         @wraps(func)
-        async def guarded(context: Context, *args):
-            if context.user.hostname in _by_vhost.keys() \
-                    and _by_vhost[context.user.hostname] >= permission:
-                return await func(context, *args)
+        async def guarded(*args):
+            if context.user.get().hostname in _by_vhost.keys() \
+                    and _by_vhost[context.user.get().hostname] >= permission:
+                return await func(*args)
             else:
                 await context.reply(override_message if override_message
                                     else permission.denied_message)
@@ -239,7 +240,7 @@ def require_permission(permission: Permission,
 
 
 def require_channel(func: Union[str, Callable] = None,
-                    message: str = "This command must be invoked in a channel."):
+                    _message: str = "This command must be invoked in a channel."):
     """
     Require the wrapped IRC command to be invoked in a channel context.
 
@@ -256,13 +257,13 @@ def require_channel(func: Union[str, Callable] = None,
         ... async def my_command(context: Context):
         ...     pass
 
-        >>> @require_channel(message="access denied.")
+        >>> @require_channel(_message="access denied.")
         ... async def my_command(context: Context):
         ...     pass
     """
     # form of @decorator("message") and @decorator(message=str)
     if isinstance(func, str):
-        message = func
+        _message = func
 
     # direct decoration
     if not callable(func):
@@ -283,7 +284,7 @@ def require_channel(func: Union[str, Callable] = None,
         """
 
         @wraps(wrapped)
-        async def guarded(context: Context, *args) -> Any:
+        async def guarded(*args) -> Any:
             """
             Enforces channel requirement
 
@@ -293,11 +294,11 @@ def require_channel(func: Union[str, Callable] = None,
             Returns:
                 Any: whatever the called function returned
             """
-            if context.channel is not None:
-                return await wrapped(context, *args)
+            if context.channel.get() is not None:
+                return await wrapped(*args)
             else:
                 log.debug(f"channel was None, enforcing channel requirement...")
-                await context.reply(message)
+                await context.reply(_message)
 
         return guarded
 
@@ -354,18 +355,15 @@ def require_dm(func: Union[str, Callable] = None,
         """
 
         @wraps(wrapped)
-        async def guarded(context: Context, *args) -> Any:
+        async def guarded(*args) -> Any:
             """
             Enforces channel requirement
-
-            Args:
-                context (Context): IRC command context
 
             Returns:
                 Any: whatever the called function returned
             """
-            if context.channel is None:
-                return await wrapped(context, *args)
+            if context.channel.get() is None:
+                return await wrapped(*args)
             else:
                 log.debug(f"channel was None, enforcing channel requirement...")
                 await context.reply(message)

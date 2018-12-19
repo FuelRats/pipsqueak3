@@ -37,8 +37,7 @@ class TestRatCommand(object):
         """
         Ensures that nothing happens and `trigger` exits quietly when no command can be found.
         """
-        await Commands.trigger(Context(None, None, "#unit_test", ['!unknowncommandsad hi!'],
-                                       ['!unknowncommandsad hi!', "hi!"]))
+        await Commands.trigger()
 
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     def test_double_command_registration(self, alias):
@@ -75,8 +74,8 @@ class TestRatCommand(object):
             # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
             return context.bot, context.channel, context.user.nickname
 
-        ctx = await Context.from_message(bot_fx, "#unittest", "unit_test", trigger_alias)
-        retn = await Commands.trigger(ctx)
+        ctx = await Context.from_message()
+        retn = await Commands.trigger()
         out_bot, out_channel, out_sender = retn
 
         assert 'unit_test' == out_sender
@@ -141,5 +140,5 @@ class TestRatCommand(object):
             """asserts its arguments equal the outer scope"""
             assert words == context.words
 
-        ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", ftrigger)
-        await Commands.trigger(ctx)
+        ctx = await Context.from_message()
+        await Commands.trigger()

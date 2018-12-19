@@ -99,20 +99,20 @@ class TestPermissions(object):
 
     @pytest.mark.asyncio
     async def test_restricted_command_inferior(self, bot_fx, restricted_command_fx):
-        context = await Context.from_message(bot_fx, "#somechannel", "some_recruit", "!restricted")
-        await Commands.trigger(context)
+        context = await Context.from_message()
+        await Commands.trigger()
         assert not restricted_command_fx.was_called_once
 
     @pytest.mark.asyncio
     async def test_restricted_command_exact(self, bot_fx, restricted_command_fx):
-        context = await Context.from_message(bot_fx, "#somechannel", "some_ov", "!restricted")
-        await Commands.trigger(context)
+        context = await Context.from_message()
+        await Commands.trigger()
         assert restricted_command_fx.was_called_once
 
     @pytest.mark.asyncio
     async def test_restricted_command_superior(self, bot_fx, restricted_command_fx):
-        context = await Context.from_message(bot_fx, "#somechannel", "some_ov", "!restricted")
-        await Commands.trigger(context)
+        context = await Context.from_message()
+        await Commands.trigger()
         assert restricted_command_fx.was_called_once
 
     def test_hash(self):
@@ -126,7 +126,7 @@ class TestPermissions(object):
     async def test_require_channel_valid(self, bot_fx, context_channel_fx):
         """Verifies @require_channel does not stop commands invoked in a channel"""
 
-        @require_channel(message="https://www.youtube.com/watch?v=gvdf5n-zI14")
+        @require_channel(_message="https://www.youtube.com/watch?v=gvdf5n-zI14")
         async def potato(context: Context):
             return "hi there!"
 
@@ -183,7 +183,7 @@ class TestPermissions(object):
             in a channel context
         """
 
-        @require_channel(message=message)
+        @require_channel(_message=message)
         async def protected(context: Context):
             """protected function"""
             return "hot potato!"
@@ -199,7 +199,7 @@ class TestPermissions(object):
             in a pm context
         """
 
-        @require_channel(message=message)
+        @require_channel(_message=message)
         async def protected(context: Context):
             """protected function"""
             return "hot potato!"

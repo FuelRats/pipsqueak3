@@ -10,6 +10,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from contextvars import ContextVar
 from typing import Optional, Tuple, List, TYPE_CHECKING
 
 from Modules.user import User
@@ -17,6 +18,15 @@ from config import config
 
 if TYPE_CHECKING:
     from main import MechaClient
+target: ContextVar[str] = ContextVar('target')
+channel: ContextVar[str] = ContextVar('channel', default=None)
+user: ContextVar[User] = ContextVar('user')
+words: ContextVar[List[str]] = ContextVar('words')
+words_eol: ContextVar[List[str]] = ContextVar('words_eol')
+prefixed: ContextVar[bool] = ContextVar('prefixed', default=False)
+message: ContextVar[str] = ContextVar('message')
+bot: ContextVar['MechaClient'] = ContextVar('bot')
+sender: ContextVar[str] = ContextVar('sender')
 
 prefix = config['commands']['prefix']
 
@@ -118,45 +128,46 @@ class Context(object):
         return self.target if self.bot.is_channel(self.target) else None
 
     @classmethod
-    async def from_message(cls, bot: 'MechaClient', channel: str, sender: str, message: str):
+    async def from_message(cls):
         """
         Creates a context from a IRC message
 
         Args:
-            bot (MechaClient): MechaClient instance
-            message (str):  raw message
-            sender (str): IRC nickname of the sender
-            channel (str): IRC channel the message was sent from
 
         Returns:
             Context
         """
         # check if the message has our prefix
-        prefixed = message.startswith(prefix)
+        prefixed.set(message.get().startswith(prefix))
 
-        if prefixed:
+        if prefixed.get():
             # before removing it from the message
-            message = message[len(prefix):]
+            message.set(message.get()[len(prefix):])
 
         # build the words and words_eol lists
-        words, words_eol = _split_message(message)
+        _words, _words_eol = _split_message(message.get())
+
+        words.set(_words)
+        words_eol.set(_words_eol)
         # get the user from a WHOIS query
-        user = await User.from_pydle(bot, sender)
+        user.set(User.from_pydle(bot.get(), sender.get()))
 
-        # return a built context object
-        return cls(bot, user, channel, words, words_eol, prefixed=prefixed)
+        # determine if we were in a channel
+        if bot.get().is_channel(target.get()):
+            channel.set(target.get())
 
-    async def reply(self, msg: str):
-        """
-        Sends a message in the same channel or query window as the command was sent.
 
-        Arguments:
-            msg (str): Message to send.
-        """
-        if self.channel is not None:
-            await self.bot.message(self.channel, msg)
-        else:
-            await self.bot.message(self.user.nickname, msg)
+async def reply(msg: str):
+    """
+    Sends a message in the same channel or query window as the command was sent.
+
+    Arguments:
+        msg (str): Message to send.
+    """
+    if target.get() is not None:
+        await bot.get().message(target.get(), msg)
+    else:
+        await bot.get().message(user.get().nickname, msg)
 
 
 def _split_message(string: str) -> Tuple[List[str], List[str]]:
@@ -176,18 +187,18 @@ def _split_message(string: str) -> Tuple[List[str], List[str]]:
         >>> _split_message("pink fluffy unicorns")
         (['pink', 'fluffy', 'unicorns'], ['pink fluffy unicorns', 'fluffy unicorns', 'unicorns'])
     """
-    words = []
-    words_eol = []
+    _words = []
+    _words_eol = []
     remaining = string
     while True:
-        words_eol.append(remaining)
+        _words_eol.append(remaining)
         try:
             word, remaining = remaining.split(maxsplit=1)
         except ValueError:
             # we couldn't split -> only one word left
-            words.append(remaining)
+            _words.append(remaining)
             break
         else:
-            words.append(word)
+            _words.append(word)
 
-    return words, words_eol
+    return _words, _words_eol

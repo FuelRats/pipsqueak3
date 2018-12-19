@@ -101,7 +101,7 @@ async def test_user_from_whois_existing_user(bot_fx):
     verifies building a User from a full IRC reply when said user exists
     """
 
-    my_user = await User.from_pydle(bot_fx, "some_recruit")
+    my_user = User.from_pydle(bot_fx, "some_recruit")
 
     data = bot_fx.users['some_recruit']
 
@@ -123,7 +123,7 @@ async def test_user_from_whois_miss(monkeypatch, bot_fx):
     # patch in the exception raiser
     monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_whois)
 
-    ret = await User.from_pydle(bot_fx, "snafu")
+    ret = User.from_pydle(bot_fx, "snafu")
     assert ret is None
 
 
@@ -156,7 +156,7 @@ async def test_user_eq(data: dict, monkeypatch, bot_fx):
 
     monkeypatch.setattr(bot_fx, 'users', {data['nickname'].casefold(): data})
 
-    user_alpha = await User.from_pydle(bot_fx, data['nickname'])
+    user_alpha = User.from_pydle(bot_fx, data['nickname'])
     user_beta = User(**data)
 
     assert user_alpha == user_beta

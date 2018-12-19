@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pydle = {editable = true, ref = "asyncio", git = "git://github.com/Shizmob/pydle.git"}
+pydle = {editable = true, ref = "pydle-2", git = "git://github.com/theunkn0wn1/pydle.git"}
 pure-sasl = "*"
 coloredlogs = "*"
 
@@ -14,4 +14,4 @@ pytest-cov = "*"
 pytest-asyncio = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"

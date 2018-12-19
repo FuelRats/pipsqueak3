@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "75d3cc3f78b400e3e423aaf7d126023a1394b2d877173d913dcb7bbdaa76fa09"
+            "sha256": "6b4d5fc4e433cf421e3f2d128457615ecaacf55682352d77e083f8905e43e94d"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.6"
+            "python_version": "3.7"
         },
         "sources": [
             {
@@ -49,8 +49,8 @@
         },
         "pydle": {
             "editable": true,
-            "git": "git://github.com/Shizmob/pydle.git",
-            "ref": "b9517071e42c601fd2b7c90f5823c098cd3e6d33"
+            "git": "git://github.com/theunkn0wn1/pydle.git",
+            "ref": "3e1aa27a1f40e16092d8f4d29863a057ee27d2ff"
         },
         "pyreadline": {
             "hashes": [
@@ -143,11 +143,11 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:1d131cc532be0023ef8ae265e2a779938d0619bb6c2510f52987ffcba7fa1ee4",
-                "sha256:ca4761407f1acc85ffd1609f464ca20bb71a767803505bd4127d0e45c5a50e23"
+                "sha256:f689bf2fc18c4585403348dd56f47d87780bf217c53ed9ae7a3e2d7faa45f8e9",
+                "sha256:f812ea39a0153566be53d88f8de94839db1e8a05352ed8a49525d7d7f37861e9"
             ],
             "index": "pypi",
-            "version": "==4.0.1"
+            "version": "==4.0.2"
         },
         "pytest-asyncio": {
             "hashes": [
@@ -167,10 +167,10 @@
         },
         "six": {
             "hashes": [
-                "sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9",
-                "sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb"
+                "sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c",
+                "sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73"
             ],
-            "version": "==1.11.0"
+            "version": "==1.12.0"
         }
     }
 }

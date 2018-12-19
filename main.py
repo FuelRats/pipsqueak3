@@ -14,7 +14,6 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
-from asyncio import AbstractEventLoop
 from uuid import uuid4
 
 from pydle import Client
@@ -22,7 +21,8 @@ from pydle import Client
 # noinspection PyUnresolvedReferences
 import commands
 from Modules import graceful_errors, rat_command
-from Modules.context import Context
+from Modules.context import Context, user as user_ctx, target as target_ctx, \
+    message as message_ctx, bot as bot_ctx, sender as sender_ctx
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
 from config import config
@@ -83,6 +83,11 @@ class MechaClient(Client):
         """
         log.debug(f"{channel}: <{user}> {message}")
 
+        target_ctx.set(channel)
+        sender_ctx.set(user)
+        message_ctx.set(message)
+        bot_ctx.set(self)
+
         if user == config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
@@ -93,8 +98,8 @@ class MechaClient(Client):
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             try:
-                ctx = await Context.from_message(self, channel, user, sanitized_message)
-                await rat_command.trigger(ctx)
+                await Context.from_message()
+                await rat_command.trigger()
 
             except Exception as ex:
                 ex_uuid = uuid4()
@@ -164,6 +169,7 @@ async def start():
                          )
 
     log.info("Connected to IRC.")
+
 
 # entry point
 if __name__ == "__main__":

@@ -79,7 +79,7 @@ async def test_reply(context_fx: Context):
                          ])
 @pytest.mark.asyncio
 async def test_from_message(bot_fx, channel, user, message, words, words_eol, prefixed):
-    ctx = await Context.from_message(bot_fx, channel, user, message)
+    ctx = await Context.from_message()
 
     if prefixed:
         assert ctx.prefixed

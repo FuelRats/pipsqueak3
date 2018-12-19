@@ -13,7 +13,7 @@ See LICENSE.md
 """
 import logging
 
-from Modules.context import Context
+from Modules import context
 from Modules.permissions import require_permission, TECHRAT, require_channel
 from Modules.rat_command import command
 
@@ -37,5 +37,5 @@ async def cmd_debug_whois(context):
 @command("superPing!")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_superping(context: Context):
+async def cmd_superping():
     await context.reply("pong!")
