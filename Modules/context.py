@@ -127,34 +127,32 @@ class Context(object):
         """
         return self.target if self.bot.is_channel(self.target) else None
 
-    @classmethod
-    async def from_message(cls):
-        """
-        Creates a context from a IRC message
 
-        Args:
+def from_message():
+    """
+    Populates the context from a IRC message
+    """
+    _message = message.get()
+    _bot = bot.get()
+    # check if the message has our prefix
+    _prefixed = _message.startswith(prefix)
 
-        Returns:
-            Context
-        """
-        # check if the message has our prefix
-        prefixed.set(message.get().startswith(prefix))
+    if _prefixed:
+        prefixed.set(_message.startswith(prefix))
+        # before removing it from the message
+        _message = _message[len(prefix):]
+        message.set(_message)
 
-        if prefixed.get():
-            # before removing it from the message
-            message.set(message.get()[len(prefix):])
+    # build the words and words_eol lists
+    _words, _words_eol = _split_message(_message)
+    words.set(_words)
+    words_eol.set(_words_eol)
+    # get the user from a WHOIS query
 
-        # build the words and words_eol lists
-        _words, _words_eol = _split_message(message.get())
-
-        words.set(_words)
-        words_eol.set(_words_eol)
-        # get the user from a WHOIS query
-        user.set(User.from_pydle(bot.get(), sender.get()))
-
-        # determine if we were in a channel
-        if bot.get().is_channel(target.get()):
-            channel.set(target.get())
+    user.set(User.from_pydle(_bot, sender.get()))
+    # determine if we were in a channel
+    if _bot.is_channel(target.get()):
+        channel.set(target.get())
 
 
 async def reply(msg: str):
