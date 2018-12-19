@@ -14,6 +14,7 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
+from _contextvars import copy_context
 from uuid import uuid4
 
 from pydle import Client
@@ -21,8 +22,7 @@ from pydle import Client
 # noinspection PyUnresolvedReferences
 import commands
 from Modules import graceful_errors, rat_command
-from Modules.context import Context, user as user_ctx, target as target_ctx, \
-    message as message_ctx, bot as bot_ctx, sender as sender_ctx
+from Modules import context
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
 from config import config
@@ -83,10 +83,10 @@ class MechaClient(Client):
         """
         log.debug(f"{channel}: <{user}> {message}")
 
-        target_ctx.set(channel)
-        sender_ctx.set(user)
-        message_ctx.set(message)
-        bot_ctx.set(self)
+        context.target.set(channel)
+        context.sender.set(user)
+        context.message.set(message)
+        context.bot.set(self)
 
         if user == config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
@@ -98,8 +98,12 @@ class MechaClient(Client):
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             try:
-                await Context.from_message()
-                await rat_command.trigger()
+                context.from_message()
+
+                # copy the context
+                sandbox = copy_context()
+                # invoke the command in the sandbox
+                await sandbox.run(rat_command.trigger)
 
             except Exception as ex:
                 ex_uuid = uuid4()
@@ -132,14 +136,13 @@ class MechaClient(Client):
 
 @require_permission(RAT)
 @command("ping")
-async def cmd_ping(context: Context):
+async def cmd_ping():
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)
-    :param context: `Context` object for the command call.
     """
-    log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
-                f"'{context.user.nickname}'")
-    await context.reply(f"{context.user.nickname} pong!")
+    log.warning(f"cmd_ping triggered on channel '{context.channel.get()}' for user "
+                f"'{context.user.get().nickname}'")
+    await context.reply(f"{context.user.get().nickname} pong!")
 
 
 async def start():
