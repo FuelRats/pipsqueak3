@@ -21,15 +21,12 @@ import pytest
 import Modules.rat_command as Commands
 from Modules import permissions, context
 from Modules.permissions import require_permission, require_channel, require_dm, Permission
-from Modules.user import User
-from config import config
 
 
 @pytest.fixture
 def Setup_fx(bot_fx):
     """Sets up the test environment"""
     Commands._flush()
-    Commands.bot = bot_fx
 
 
 @pytest.fixture
@@ -133,88 +130,104 @@ class TestPermissions(object):
                 assert hash(perm1) != hash(perm2)
 
     @pytest.mark.asyncio
-    async def test_require_channel_valid(self, bot_fx, context_channel_fx):
+    async def test_require_channel_valid(self, bot_fx):
         """Verifies @require_channel does not stop commands invoked in a channel"""
+        context.channel.set("#unit_test")
+        context.target.set(("#unit_test"))
 
         @require_channel(_message="https://www.youtube.com/watch?v=gvdf5n-zI14")
         async def potato():
             return "hi there!"
 
-        retn = await context_channel_fx.run(potato())
+        retn = await potato()
         assert retn == "hi there!"
 
     @pytest.mark.asyncio
-    async def test_require_channel_invalid(self, context_pm_fx, bot_fx):
+    async def test_require_channel_invalid(self, bot_fx):
         """verifies require_channel stops commands invoked in PM contexts"""
+        context.target.set(bot_fx.nickname)
+        context.bot.set(bot_fx)
 
         @require_channel
         async def potato():
             await context.reply("hi there!")
 
-        await context_pm_fx.run(potato())
+        await potato()
 
         assert "This command must be invoked in a channel." == bot_fx.sent_messages[0]['message']
 
     @pytest.mark.asyncio
-    async def test_require_channel_bare_channel(self, context_channel_fx):
+    async def test_require_channel_bare_channel(self, bot_fx):
         """
         Verifies @require_channel behaves properly as a plain invocation behaves as expected
-            in a channel context
+            in a channel context (not called with arguments)
         """
+        context.target.set("#unit_test")
+        context.bot.set(bot_fx)
+        context.channel.set("#unit_test")
 
         @require_channel
         async def protected():
             """protected function"""
             return "hot potato!"
 
-        data = await context_channel_fx.run(protected())
+        data = await protected()
         assert data == "hot potato!"
 
     @pytest.mark.asyncio
-    async def test_require_channel_bare_pm(self, context_pm_fx, bot_fx):
+    async def test_require_channel_bare_pm(self, bot_fx):
         """
         Verifies @require_channel behaves properly as a plain invocation behaves as expected
             in a pm context
         """
+        context.target.set(bot_fx.nickname)
+        context.channel.set(None)
+        context.bot.set(bot_fx)
 
         @require_channel
         async def protected():
             """protected function"""
             return "hot potato!"
 
-        await context_pm_fx.run(protected())
+        retn = await protected()
+        assert retn is None
         assert "This command must be invoked in a channel." == bot_fx.sent_messages[0]['message']
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize("message", ["nope.", "https://www.youtube.com/watch?v=gvdf5n-zI14"])
-    async def test_require_channel_call_channel(self, context_channel_fx, message: str):
+    @pytest.mark.asyncio
+    async def test_require_channel_call_channel(self, message: str):
         """
         Verifies @require_channel behaves properly as a plain invocation behaves as expected
             in a channel context
         """
+        context.target.set("#unit_test")
+        context.channel.set("#unit_test")
 
         @require_channel(_message=message)
         async def protected():
             """protected function"""
             return "hot potato!"
 
-        data = await context_channel_fx.run(protected())
+        data = await protected()
         assert data == "hot potato!"
 
-    @pytest.mark.asyncio
     @pytest.mark.parametrize("message", ["nope.", "https://www.youtube.com/watch?v=gvdf5n-zI14"])
-    async def test_require_channel_call_pm(self, context_pm_fx, bot_fx, message: str):
+    @pytest.mark.asyncio
+    async def test_require_channel_call_pm(self, bot_fx, message: str):
         """
         Verifies @require_channel behaves properly as a plain invocation behaves as expected
             in a pm context
         """
+        context.target.set("some_rando")
+        context.bot.set(bot_fx)
 
         @require_channel(_message=message)
         async def protected():
             """protected function"""
             return "hot potato!"
 
-        await context_pm_fx.run(protected())
+        data = await protected()
+        assert data is None
         assert message == bot_fx.sent_messages[0]['message']
 
     @pytest.mark.asyncio
@@ -227,12 +240,15 @@ class TestPermissions(object):
         assert retn == "hi there!"
 
     @pytest.mark.asyncio
-    async def test_require_dm_invalid(self, context_channel_fx):
+    async def test_require_dm_invalid(self):
+        context.channel.set("#unit_test")
+        context.target.set("#unit_test")
+
         @require_dm()
         async def potato():
             return "oh noes!"
 
-        retn = await context_channel_fx.run(potato())
+        retn = await potato()
         assert retn != "oh noes!"
 
     @pytest.mark.parametrize("vhost",

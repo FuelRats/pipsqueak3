@@ -15,7 +15,6 @@ import logging
 from functools import wraps
 from typing import Any, Union, Callable, List, Dict, Set
 
-from Modules.context import Context
 from Modules import context
 from config import config
 
@@ -250,15 +249,15 @@ def require_channel(func: Union[str, Callable] = None,
 
     Usage:
         >>> @require_channel
-        ... async def my_command(context: Context):
+        ... async def my_command():
         ...     pass
 
         >>> @require_channel("access denied.")
-        ... async def my_command(context: Context):
+        ... async def my_command():
         ...     pass
 
         >>> @require_channel(_message="access denied.")
-        ... async def my_command(context: Context):
+        ... async def my_command():
         ...     pass
     """
     # form of @decorator("message") and @decorator(message=str)
@@ -320,15 +319,15 @@ def require_dm(func: Union[str, Callable] = None,
 
     Usage:
         >>> @require_dm
-        ... async def my_command(context: Context):
+        ... async def my_command():
         ...     pass
 
         >>> @require_dm("access denied.")
-        ... async def my_command(context: Context):
+        ... async def my_command():
         ...     pass
 
         >>> @require_dm(message="access denied.")
-        ... async def my_command(context: Context):
+        ... async def my_command():
         ...     pass
     """
     # form of @decorator("message") and @decorator(message=str)

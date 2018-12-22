@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from Modules.context import Context
+from Modules import context
 from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -134,7 +134,7 @@ class Quotation(object):
         else:
             raise ValueError(f"Expected string got {type(value)}")
 
-    def modify(self, context: Context, message: str) -> None:
+    def modify(self, message: str) -> None:
         """
         Helper method for modifying a quote
 
@@ -147,4 +147,4 @@ class Quotation(object):
         """
         self._message = message
         self._updated_at = datetime.utcnow()
-        self._last_author = context.user.nickname
+        self._last_author = context.user.get().nickname
