@@ -3,7 +3,7 @@ from typing import Match
 import pytest
 
 from Modules import context
-from Modules.rat_command import trigger
+from Modules.rat_command import trigger, prefix
 from Modules.rules import rule, clear_rules, RuleNotPresentException, DuplicateRuleException, \
     get_rule
 from tests.mock_callables import AsyncCallableMock, InstanceOf, CallableMock
@@ -69,13 +69,15 @@ async def test_rule_passes_match(async_callable_fx: AsyncCallableMock, bot_fx):
     Verifies that the rules get passed the match object correctly.
     """
     rule("her(lo)", pass_match=True)(async_callable_fx)
+
+    context.message.set(f"{prefix}herlo")
     ctx = await context.from_message()
 
     await trigger()
 
     assert async_callable_fx.was_called_once
     assert async_callable_fx.was_called_with(InstanceOf(Match))
-    assert async_callable_fx.calls[0].args[1].groups() == ("lo",)
+    assert async_callable_fx.calls[0].args[0].groups() == ("lo",)
 
 
 @pytest.mark.usefixtures('context_fx')
@@ -85,11 +87,12 @@ async def test_prefixless_rule_called(async_callable_fx: AsyncCallableMock, bot_
     Verifies that prefixless rules are considered when the prefix is not present.
     """
     rule("da_da(_da)?", prefixless=True)(async_callable_fx)
-    ctx = await context.from_message()
+
+    context.message.set("da_da")
+    await context.from_message()
     await trigger()
 
     assert async_callable_fx.was_called_once
-    assert async_callable_fx.was_called_with(InstanceOf(context))
 
 
 @pytest.mark.usefixtures('context_fx')
@@ -171,7 +174,7 @@ async def test_rule_after(bot_fx):
     rule1 = rule("gaah")(async_callable_1)
     rule2 = rule("(g|b)aah", after=rule1)(async_callable_2)
 
-    context.message.set("gaah")
+    context.message.set(f"{prefix}gaah")
     await context.from_message()
 
     await trigger()
