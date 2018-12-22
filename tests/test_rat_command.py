@@ -18,7 +18,7 @@ import pydle
 import pytest
 
 import Modules.rat_command as Commands
-from Modules.context import Context
+from Modules import context
 from Modules.rat_command import NameCollisionException
 
 
@@ -33,10 +33,14 @@ def Setup_fx(bot_fx):
 @pytest.mark.usefixtures("Setup_fx")
 class TestRatCommand(object):
     @pytest.mark.asyncio
+    @pytest.mark.usefixtures('context_fx')
     async def test_invalid_command(self):
         """
         Ensures that nothing happens and `trigger` exits quietly when no command can be found.
         """
+        # sets the message to something that shouldn't exist
+        context.message.set("waknf;joabf;IJAGB;oaegjn'APSOIVNA'woign'PAK;GLMF AW'PKGNAPG")
+        await context.from_message()
         await Commands.trigger()
 
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
@@ -60,6 +64,7 @@ class TestRatCommand(object):
                 pass
 
     @pytest.mark.asyncio
+    @pytest.mark.usefixtures('context_fx')
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     async def test_call_command(self, alias, bot_fx):
         """
@@ -69,17 +74,20 @@ class TestRatCommand(object):
 
         trigger_alias = f"{Commands.prefix}{alias}"
 
-        @Commands.command(alias)
-        async def potato(context: Context):
-            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
-            return context.bot, context.channel, context.user.nickname
+        context.message.set(trigger_alias)
 
-        ctx = await Context.from_message()
+        await context.from_message()
+
+        @Commands.command(alias)
+        async def potato():
+            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+            return context.bot.get(), context.channel.get(), context.user.get().nickname
+
         retn = await Commands.trigger()
         out_bot, out_channel, out_sender = retn
 
-        assert 'unit_test' == out_sender
-        assert "#unittest" == out_channel
+        assert 'unit_test[BOT]' == out_sender
+        assert "#unit_test" == out_channel
 
     @pytest.mark.parametrize("garbage", [12, None, "str"])
     def test_register_non_callable(self, garbage):
@@ -122,23 +130,29 @@ class TestRatCommand(object):
             assert name.lower() in Commands._registered_commands.keys()
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("name", ("unit_test[BOT]", "some_recruit", "some_ov"))
+    @pytest.mark.parametrize("sender", ("unit_test[bot]", "some_recruit", "some_ov"))
+    @pytest.mark.parametrize("cmd_name", [f"{Commands.prefix}badda", "boom", "👌goodstuff💯"])
     @pytest.mark.parametrize("trigger_message", ["salad Baton", "Crunchy Cheddar", "POTATOES!",
                                                  "carrots"])
-    async def test_command_preserves_arguments(self, trigger_message: str, name: str, bot_fx):
+    async def test_command_preserves_arguments(self, trigger_message: str, sender: str, bot_fx,
+                                               context_fx, cmd_name: str):
         """
         Verifies commands do not mutate argument words
             - because someone had the bright idea of casting ALL words to lower...
             (that would break things)
         """
         Commands._flush()
-        ftrigger = f"!{name} {trigger_message}"
-        words = [name] + trigger_message.split(" ")
+        ftrigger = f"!{cmd_name} {trigger_message}"
+        _words = [cmd_name] + trigger_message.split(" ")
 
-        @Commands.command(name)
-        async def the_command(context: Context):
+        context.sender.set(sender)
+        context.message.set(ftrigger)
+
+        await context.from_message()
+
+        @Commands.command(cmd_name)
+        async def the_command():
             """asserts its arguments equal the outer scope"""
-            assert words == context.words
+            assert _words == context.words.get()
 
-        ctx = await Context.from_message()
         await Commands.trigger()

@@ -40,7 +40,7 @@ from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rat import Rat
 from utils.ratlib import Platforms
-from Modules.context import Context
+from Modules import context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
@@ -131,39 +131,28 @@ def user_fx():
                 )
 
 
-@pytest.fixture
-def context_channel_fx(user_fx, bot_fx) -> Context:
-    """
-    Provides a context fixture
-
-    Returns:
-        Context
-    """
-    context = Context(bot_fx, user_fx, "#unit_test", ["my", "word"], ["my", "my word"])
-    return context
-
-
-@pytest.fixture
-def context_pm_fx(user_fx, bot_fx) -> Context:
-    """
-    Provides a context fixture
-
-    Returns:
-        Context
-    """
-    context = Context(bot_fx, user_fx, "someUSer", ["my", "word"], ["my", "my word"])
-    return context
-
-
 @pytest.fixture(params=[0, 1])
 def context_fx(request, bot_fx, user_fx):
     """Parametrized context fixture, returning a channel and non-channel Context object"""
     if request.param == 0:
-        return Context(bot_fx, user_fx, "#unit_test", ["my", "word"], ["my", "my word"])
-    elif request.param == 1:
-        return Context(bot_fx, user_fx, "someUSer", ["my", "word"], ["my", "my word"])
+        context.bot.set(bot_fx)
+        context.sender.set(user_fx.nickname)
+        context.user.set(user_fx)
+        context.target.set("#unit_test")
+        context.channel.set("#unit_test")
+        context.words.set(["my", "word"])
+        context.words_eol.set(["my word", "word"])
 
-    raise ValueError
+    elif request.param == 1:
+        context.sender.set(user_fx.nickname)
+        context.bot.set(bot_fx)
+        context.user.set(user_fx)
+        context.target.set("pmContextTArget")
+        context.words.set(["my", "word"])
+        context.words_eol.set(["my word", "word"])
+
+    else:
+        raise ValueError
 
 
 @pytest.fixture
@@ -235,6 +224,7 @@ def reset_rat_cache_fx(rat_cache_fx: RatCache):
     # and clean up after ourselves
     rat_cache_fx.flush()
 
+
 @pytest.fixture
 def permission_fx(monkeypatch) -> Permission:
     """
@@ -250,6 +240,7 @@ def permission_fx(monkeypatch) -> Permission:
     monkeypatch.setattr("Modules.permissions._by_vhost", {})
     permission = Permission(0, {"testing.fuelrats.com", "cheddar.fuelrats.com"})
     return permission
+
 
 @pytest.fixture
 def callable_fx():

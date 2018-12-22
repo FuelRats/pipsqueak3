@@ -108,7 +108,7 @@ class TestQuotes(object):
         """
 
         quote = Quotation("foo")
-        quote.modify(context_fx, message="bar")
+        quote.modify(message="bar")
         assert "bar" == quote.message
         assert quote.created_at != quote.updated_at
         assert quote.author != quote.last_author

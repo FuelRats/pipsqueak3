@@ -12,34 +12,15 @@ See LICENSE.md
 """
 import pytest
 
-from Modules.context import Context
+from Modules import context
+from Modules.user import User
 
 pytestmark = pytest.mark.context
 
 
-def test_constructor(bot_fx, user_fx):
-    """verifies the constructor functions"""
-    my_context = Context(bot_fx, user_fx, "#unittest", ["bird", "is", "the", "word"], [""])
-
-    assert my_context.bot is bot_fx
-    assert my_context.channel == "#unittest"
-    assert my_context.words == ["bird", "is", "the", "word"]
-    assert my_context.words_eol == [""]
-    assert my_context.user == user_fx
-
-
-def test_channel_true(context_channel_fx: Context):
-    """Verifies the Context.channel function behaves as expected in a channel context"""
-    assert context_channel_fx.channel == "#unit_test"
-
-
-def test_channel_false(context_pm_fx: Context):
-    """Verifies Context.channel behaves as expected in a PM context"""
-    assert context_pm_fx.channel is None
-
-
 @pytest.mark.asyncio
-async def test_reply(context_fx: Context):
+@pytest.mark.usefixtures('context_fx')
+async def test_reply(bot_fx):
     """
     Verifies `context.reply` functions as expected
 
@@ -51,10 +32,11 @@ async def test_reply(context_fx: Context):
     """
     payload = "This is my reply!!!!"
 
+    context.target.set("#unit_test")
     # make the call
-    await context_fx.reply(payload)
+    await context.reply(payload)
 
-    assert payload == context_fx.bot.sent_messages[0]['message']
+    assert payload == bot_fx.sent_messages[0]['message']
 
 
 @pytest.mark.parametrize("channel, user, message, words, words_eol, prefixed",
@@ -67,7 +49,7 @@ async def test_reply(context_fx: Context):
                                  ['foo bar', 'bar'], True
                              ],
                              [
-                                 "#unit_test", "unit_test[BOT]", "I wonder...", ["I", "wonder..."],
+                                 "#unit_test", "unit_test[bot]", "I wonder...", ["I", "wonder..."],
                                  ["I wonder...", "wonder..."], False
                              ],
                              [
@@ -78,15 +60,21 @@ async def test_reply(context_fx: Context):
                              ]
                          ])
 @pytest.mark.asyncio
+@pytest.mark.usefixtures('context_fx')
 async def test_from_message(bot_fx, channel, user, message, words, words_eol, prefixed):
-    ctx = await Context.from_message()
+    context.bot.set(bot_fx)
+    context.target.set(channel)
+    context.message.set(message)
+    context.sender.set(user)
 
+    # run the target
+    await context.from_message()
     if prefixed:
-        assert ctx.prefixed
+        assert context.prefixed.get()
     else:
-        assert not ctx.prefixed
+        assert not context.prefixed.get()
 
-    assert channel == ctx.channel
-    assert user == ctx.user.nickname
-    assert words == ctx.words
-    assert words_eol == ctx.words_eol
+    assert channel == context.channel.get()
+    assert User(**bot_fx.users[user]) == context.user.get()
+    assert words == context.words.get()
+    assert words_eol == context.words_eol.get()
