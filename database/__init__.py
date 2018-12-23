@@ -8,6 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["database_manager"]
+__all__ = ["DatabaseManager"]
 
 from .database_manager import DatabaseManager

@@ -23,6 +23,13 @@
     "base_logger": "testmecha",
     "log_file": "logs/unit_tests.log"
   },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "mecha3",
+    "username": "mecha3",
+    "password": "mecha3"
+  },
   "commands": {
     "prefix": "!"
   },
