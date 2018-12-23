@@ -27,7 +27,7 @@ def log_severity_call(logger, severity, random_string):
     elif severity == logging.INFO:
         logger.info(logging_string)
     elif severity == logging.WARN:
-        logger.warn(logging_string)
+        logger.warning(logging_string)
     elif severity == logging.ERROR:
         logger.error(logging_string)
 
