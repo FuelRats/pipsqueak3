@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pydle = {editable = true, ref = "pydle-2", git = "git://github.com/theunkn0wn1/pydle.git"}
+pydle = ">=0.8.5"
 pure-sasl = "*"
 coloredlogs = "*"
 

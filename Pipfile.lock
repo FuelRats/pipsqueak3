@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e18a3ea4c4b30a9b064f6015d093d7e446245b464b90954ea634a0e2ca4d1e8d"
+            "sha256": "39369e34cbf8a15001c5acd3bca359b30c1f3f27aaa430bf9c6c4a1f0e48caf3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -48,9 +48,12 @@
             "version": "==0.5.1"
         },
         "pydle": {
-            "editable": true,
-            "git": "git://github.com/theunkn0wn1/pydle.git",
-            "ref": "3e1aa27a1f40e16092d8f4d29863a057ee27d2ff"
+            "hashes": [
+                "sha256:046c16ac119734cde969e5519255a9e4eae98976cf5262e13975aeb219041b2a",
+                "sha256:d801b03d902b0265fe4c7450b8880d7a01e424cbc985edf578a610c5cdbce75a"
+            ],
+            "index": "pypi",
+            "version": "==0.8.5"
         },
         "pyreadline": {
             "hashes": [
