@@ -14,15 +14,14 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
-from _contextvars import copy_context
 from uuid import uuid4
 
 from pydle import Client
 
 # noinspection PyUnresolvedReferences
 import commands
-from Modules import graceful_errors, rat_command
 from Modules import context
+from Modules import graceful_errors, rat_command
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
 from config import config
@@ -83,10 +82,7 @@ class MechaClient(Client):
         """
         log.debug(f"{channel}: <{user}> {message}")
 
-        context.target.set(channel)
-        context.sender.set(user)
-        context.message.set(message)
-        context.bot.set(self)
+
 
         if user == config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
@@ -96,14 +92,16 @@ class MechaClient(Client):
         else:  # await command execution
             # sanitize input string headed to command executor
             sanitized_message = sanitize(message)
+            context.target.set(channel)
+            context.sender.set(user)
+            context.message.set(sanitized_message)
+            context.bot.set(self)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             try:
-                context.from_message()
+                await context.from_message()
 
-                # copy the context
-                sandbox = copy_context()
-                # invoke the command in the sandbox
-                await sandbox.run(rat_command.trigger)
+                # create a asyncio task for the trigger and run it
+                await asyncio.create_task(rat_command.trigger())
 
             except Exception as ex:
                 ex_uuid = uuid4()
