@@ -24,7 +24,7 @@ sanitize_test_list = [
      'Um die Rat zu deiner Freundesliste hinzuzufügen drücke'),
     ('которые отдают топливо, нажмите здесь: http://t.fuelr.at/kgbfoamru',
      'которые отдают топливо, нажмите здесь: http://t.fuelr.at/kgbfoamru'),
-    ('a;A;B;b;C;c;1\'2\'3', 'aABbCc123'),
+    ('a;A;B;b;C;c;123', 'aABbCc123'),
     ('!inject 99 5:30 o2 remaining', '!inject 99 5:30 o2 remaining'),
     (',Banana', 'Banana'),
     ('137Banana', 'Banana'),

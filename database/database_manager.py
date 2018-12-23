@@ -23,28 +23,44 @@ class DatabaseManager(Singleton, object):
 
     def __init__(self,
                  dbhost=None,
-                 dbPort=None,
-                 dbName=None,
-                 dbUser=None,
-                 dbPassword=None
+                 dbport=None,
+                 dbname=None,
+                 dbuser=None,
+                 dbpassword=None
                  ):
 
         if not hasattr(self, "_initialized"):
             self._initialized = True
 
-            self._dbhost = config['database'].get('host')
+            # Use values passed during instantiation, otherwise use config values.
+            if dbhost:
+                self._dbhost = dbhost
+            else:
+                self._dbhost = config['database'].get('host')
             assert self._dbhost
 
-            self._dbport = config['database'].get('port')
+            if dbport:
+                self._dbport = dbport
+            else:
+                self._dbport = config['database'].get('port')
             assert self._dbport
 
-            self._dbname = config['database'].get('dbname')
+            if dbname:
+                self._dbname = dbname
+            else:
+                self._dbname = config['database'].get('dbname')
             assert self._dbname
 
-            self._dbuser = config['database'].get('username')
+            if dbuser:
+                self._dbuser = dbuser
+            else:
+                self._dbuser = config['database'].get('username')
             assert self._dbuser
 
-            self._dbpass = config['database'].get('password')
+            if dbpassword:
+                self._dbpass = dbpassword
+            else:
+                self._dbpass = config['database'].get('password')
             assert self._dbpass
 
         # Create Database Connections Pool
