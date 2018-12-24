@@ -59,8 +59,9 @@ class DatabaseManager(Singleton, object):
 
     async def query(self, query: sql.SQL, values: tuple) -> list:
         """
-        Send a query to the connected database.  Pulls a connection from the pool and creates a cursor,
-        executing the composed query with the values.  Requires a composed SQL object (See psycopg2 docs)
+        Send a query to the connected database.  Pulls a connection from the pool and creates
+        a cursor, executing the composed query with the values.
+        Requires a composed SQL object (See psycopg2 docs)
         Args:
             query: composed SQL query object
             values: tuple of values for query
@@ -77,7 +78,8 @@ class DatabaseManager(Singleton, object):
 
         # Pull a connection from the pool, and create a cursor from it.
         with self._dbpool.getconn() as connection:
-            # If we could set these at connection time, we would, but they must be set outside the pool.
+            # If we could set these at connection time, we would,
+            # but they must be set outside the pool.
             connection.autocommit = True
             connection.set_client_encoding('utf-8')
             # Create cursor, and execute the query.
