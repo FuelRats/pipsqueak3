@@ -65,12 +65,6 @@ def test_init_values(test_dbm):
     assert test_dbm._dbuser
 
 
-def test_private_settings(test_dbm):
-    """
-    Assign values to
-    """
-
-
 def test_db_connection(test_dbm_pool):
     """
     Pull a connection from the pool, and verify the status is able to receive a query.
