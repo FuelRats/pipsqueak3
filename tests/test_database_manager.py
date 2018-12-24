@@ -65,6 +65,12 @@ def test_init_values(test_dbm):
     assert test_dbm._dbuser
 
 
+def test_private_settings(test_dbm):
+    """
+    Assign values to
+    """
+
+
 def test_db_connection(test_dbm_pool):
     """
     Pull a connection from the pool, and verify the status is able to receive a query.
@@ -99,20 +105,24 @@ def test_db_connection_client_encoding(test_dbm_pool):
         assert conn.encoding == 'UTF8'
 
 
+@pytest.mark.asyncio
 async def test_query_sql_error(test_dbm):
     """
     Verify a TypeError is raised if sending a string to query.
     """
-    result = await test_dbm.query("This is a test", (15, 122))
-    assert pytest.raises(TypeError)
+    # Below statement is incorrect intentionally.
+    with pytest.raises(TypeError) as error:
+        result = await test_dbm.query("This is a test", (15, 122))
 
 
+@pytest.mark.asyncio
 async def test_query_value_error(test_dbm):
     """
     Verify a TypeError is raised if sending a non-tuple as query value.
     """
-    result = await test_dbm.query(sql.SQL("SELECT * FROM {}", ["Happy", [1, 3, 4]]))
-    assert pytest.raises(TypeError)
+    # Below statement is incorrect intentionally.
+    with pytest.raises(TypeError) as error:
+        result = await test_dbm.query(sql.SQL("SELECT * FROM {}", ["Happy", [1, 3, 4]]))
 
 
 def test_db_query_pool(test_dbm_pool):
@@ -126,9 +136,11 @@ def test_db_query_pool(test_dbm_pool):
         assert result == [('test', 'en', 'This is a test fact.')]
 
 
-def test_db_query_direct(test_dbm):
+@pytest.mark.asyncio
+async def test_db_query_direct(test_dbm):
     """
     Query the database using the query function directly.
     """
-    assert test_dbm.query(sql.SQL("SELECT name, lang, message from fact WHERE name=%s AND lang=%s"), ('test', 'en')) == [('test', 'en', 'This is a test fact.')]
-
+    assert await test_dbm.query(sql.SQL("SELECT name, lang, message "
+                                        "from fact WHERE name=%s AND lang=%s"),
+                                ('test', 'en')) == [('test', 'en', 'This is a test fact.')]

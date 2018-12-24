@@ -1,13 +1,9 @@
 """
 database_manager.py - Debug and diagnostics commands
-
 Provides postgreSQL connectivity for mechasqueak3.
-
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
-
 Licensed under the BSD 3-Clause License.
-
 See LICENSE.md
 """
 from config import config
@@ -32,41 +28,28 @@ class DatabaseManager(Singleton, object):
         if not hasattr(self, "_initialized"):
             self._initialized = True
 
-            # Use values passed during instantiation, otherwise use config values.
-            if dbhost:
-                self._dbhost = dbhost
-            else:
-                self._dbhost = config['database'].get('host')
+            self._dbhost = dbhost if dbhost is not None else config['database'].get('host')
             assert self._dbhost
 
-            if dbport:
-                self._dbport = dbport
-            else:
-                self._dbport = config['database'].get('port')
+            self._dbport = dbport if dbhost is not None else config['database'].get('port')
             assert self._dbport
 
-            if dbname:
-                self._dbname = dbname
-            else:
-                self._dbname = config['database'].get('dbname')
+            self._dbname = dbname if dbname is not None else config['database'].get('dbname')
             assert self._dbname
 
-            if dbuser:
-                self._dbuser = dbuser
-            else:
-                self._dbuser = config['database'].get('username')
+            self._dbuser = dbuser if dbuser is not None else config['database'].get('username')
             assert self._dbuser
 
-            if dbpassword:
-                self._dbpass = dbpassword
-            else:
-                self._dbpass = config['database'].get('password')
+            self._dbpass = dbpassword if dbpassword is not None else \
+                config['database'].get('password')
             assert self._dbpass
 
         # Create Database Connections Pool
         try:
-            self._dbpool = psycopg2.pool.SimpleConnectionPool(5, 10, host=self._dbhost, port=self._dbport,
-                                                              dbname=self._dbname, user=self._dbuser,
+            self._dbpool = psycopg2.pool.SimpleConnectionPool(5, 10, host=self._dbhost,
+                                                              port=self._dbport,
+                                                              dbname=self._dbname,
+                                                              user=self._dbuser,
                                                               password=self._dbpass)
 
             if self._dbpool:
@@ -81,10 +64,8 @@ class DatabaseManager(Singleton, object):
         Args:
             query: composed SQL query object
             values: tuple of values for query
-
         Returns:
             List of rows matching query.  May return an empty list if there are no matching rows.
-
         """
         # Verify composed SQL object
         if not isinstance(query, sql.SQL):
