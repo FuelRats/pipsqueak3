@@ -17,13 +17,14 @@ jobs:
         environment:
           # set an env token to where our circleci database is
           # by default the user is `root` and the db name is `circle_test`
-          TEST_DATABASE_URL: postgresql://root@localhost/circle_test
+          TEST_DATABASE_URL: postgresql://mecha:mecha@mecha/mecha
 
       # Postgres container
       - image: circleci/postgres:9.6.2-alpine
         environment:
           DB_USER: mecha
           DB_DATABASE: mecha
+          POSTGRES_PASSWORD: mecha
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -70,6 +71,14 @@ jobs:
           environment:
             - DOCKERIZE_VERSION: v0.3.0
 
+      # install psql tools
+      - run:
+          name: update apt tables
+          command: sudo apt-get update
+      - run:
+          name: install psql client
+          command: sudo apt-get install postgresql-client-9.6
+      - run: whoami
       # wait for the database to spin up
       - run:
           name: Wait for db
