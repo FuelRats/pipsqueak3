@@ -89,7 +89,7 @@ jobs:
           name: Setup postgres database
           command: |
             psql -d $TEST_DATABASE_URL -c "CREATE TABLE public.fact ( name character varying NOT NULL, lang character varying NOT NULL, message character varying NOT NULL, author character varying, CONSTRAINT fact_pkey PRIMARY KEY (name, lang));"
-
+            psql -d $TEST_DATABASE_URL -c INSERT INTO public.fact(name, lang, message, author) VALUES ('test', 'en', 'This is a test fact.', 'Shatt');
 
       # run tests
       - run:
