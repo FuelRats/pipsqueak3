@@ -13,23 +13,9 @@ See LICENSE
 """
 import pytest
 import psycopg2
-from database import DatabaseManager
-from psycopg2 import extensions, pool, sql
+from psycopg2 import extensions, sql
 
 pytestmark = pytest.mark.database_manager
-
-
-def test_dbm_singleton():
-    """
-    Verify that DBM is indeed a singleton and not spawning a new instance.
-    """
-    class Pirate(DatabaseManager):
-        ...
-
-    ship_crew = Pirate()
-    hating_sharks = Pirate()
-
-    assert ship_crew is hating_sharks
 
 
 def test_init_values(test_dbm_fx):

@@ -8,14 +8,13 @@ See LICENSE.md
 """
 from config import config
 from psycopg2 import sql, pool
-from utils.ratlib import Singleton
 import logging
 import psycopg2
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class DatabaseManager(Singleton, object):
+class DatabaseManager(object):
 
     def __init__(self,
                  dbhost=None,
@@ -54,7 +53,7 @@ class DatabaseManager(Singleton, object):
 
             if self._dbpool:
                 log.info("SQL Database Connected.")
-        except (Exception, psycopg2.DatabaseError) as error:
+        except psycopg2.DatabaseError as error:
             log.warning("Error connecting to SQL database.", error)
 
     async def query(self, query: sql.SQL, values: tuple) -> list:
