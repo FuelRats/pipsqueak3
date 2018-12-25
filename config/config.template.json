@@ -23,6 +23,13 @@
     "base_logger": "mecha",
     "log_file": "logs/mechasqueak.log"
   },
+  "database": {
+    "host": null,
+    "port": null,
+    "dbname": null,
+    "username": null,
+    "password": null
+  },
   "commands": {
     "prefix": "!"
   },
