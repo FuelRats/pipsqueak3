@@ -19,27 +19,6 @@ from psycopg2 import extensions, pool, sql
 pytestmark = pytest.mark.database_manager
 
 
-@pytest.fixture
-def test_dbm() -> DatabaseManager:
-    """
-    Test fixture for Database Manager.
-
-    A DATABASE CONFIGURATION AND CONNECTION IS REQUIRED FOR THESE TESTS.
-    """
-    database = DatabaseManager()
-    return database
-
-
-@pytest.fixture()
-def test_dbm_pool(test_dbm) -> psycopg2.pool.SimpleConnectionPool:
-    """
-    Test fixture for Database Manager's connection pool.
-
-    A DATABASE CONFIGURATION AND CONNECTION IS REQUIRED FOR THESE TESTS.
-    """
-    return test_dbm._dbpool
-
-
 def test_dbm_singleton():
     """
     Verify that DBM is indeed a singleton and not spawning a new instance.
