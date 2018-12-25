@@ -278,7 +278,7 @@ def async_callable_fx():
 
 
 @pytest.fixture(scope="session")
-def test_dbm() -> DatabaseManager:
+def test_dbm_fx() -> DatabaseManager:
     """
     Test fixture for Database Manager.
 
@@ -289,10 +289,10 @@ def test_dbm() -> DatabaseManager:
 
 
 @pytest.fixture(scope="session")
-def test_dbm_pool(test_dbm) -> psycopg2.pool.SimpleConnectionPool:
+def test_dbm_pool_fx(test_dbm_fx) -> psycopg2.pool.SimpleConnectionPool:
     """
     Test fixture for Database Manager's connection pool.
 
     A DATABASE CONFIGURATION AND CONNECTION IS REQUIRED FOR THESE TESTS.
     """
-    return test_dbm._dbpool
+    return test_dbm_fx._dbpool
