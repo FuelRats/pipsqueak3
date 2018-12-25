@@ -45,7 +45,7 @@ def test_dbm_singleton():
     Verify that DBM is indeed a singleton and not spawning a new instance.
     """
     class Pirate(DatabaseManager):
-        pass
+        ...
 
     ship_crew = Pirate()
     hating_sharks = Pirate()
