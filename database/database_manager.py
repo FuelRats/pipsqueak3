@@ -62,6 +62,7 @@ class DatabaseManager(object):
         Send a query to the connected database.  Pulls a connection from the pool and creates
         a cursor, executing the composed query with the values.
         Requires a composed SQL object (See psycopg2 docs)
+
         Args:
             query: composed SQL query object
             values: tuple of values for query
