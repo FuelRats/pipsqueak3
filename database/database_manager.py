@@ -28,7 +28,7 @@ class DatabaseManager(object):
             self._initialized = True
 
             # Utilize function arguments if they are provided,
-            # otherwise retrieve from config.json and use those values.
+            # otherwise retrieve from config file and use those values.
             self._dbhost = dbhost if dbhost is not None else config['database'].get('host')
             assert self._dbhost
 
