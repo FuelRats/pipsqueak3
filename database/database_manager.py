@@ -54,7 +54,8 @@ class DatabaseManager(object):
             if self._dbpool:
                 log.info("SQL Database Connected.")
         except psycopg2.DatabaseError as error:
-            log.warning("Error connecting to SQL database.", error)
+            log.exception("Unable to connect to database!")
+            raise error
 
     async def query(self, query: sql.SQL, values: tuple) -> list:
         """
