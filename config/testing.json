@@ -1,11 +1,11 @@
 {
   "irc": {
     "nickname": "Mechasqueak3-tests[BOT]",
-    "server": null,
+    "server": "localhost",
     "port": 6697,
     "tls": true,
     "channels": [
-      "#unkn0wndev"
+      "#dev"
     ]
   },
   "authentication": {
@@ -26,9 +26,9 @@
   "database": {
     "host": "localhost",
     "port": 5432,
-    "dbname": "circle_test",
-    "username": "root",
-    "password": "mecha"
+    "dbname": "mecha3",
+    "username": "mecha3",
+    "password": "mecha3"
   },
   "commands": {
     "prefix": "!"

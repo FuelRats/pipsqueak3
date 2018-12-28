@@ -16,6 +16,7 @@ import logging
 from Modules.context import Context
 from Modules.permissions import require_permission, TECHRAT, require_channel
 from Modules.rat_command import command
+from Modules.fact_manager import FactManager, Fact
 from database import DatabaseManager
 from psycopg2 import sql
 
@@ -53,3 +54,15 @@ async def cmd_query(context: Context):
     data = await database.query(sql_query, sql_values)
     for item in data:
         await context.reply(str(item))
+
+
+@command("fm-find")
+@require_permission(TECHRAT)
+async def cmd_fm_find(context: Context):
+    fm = FactManager()
+    result = Fact()
+    result = await fm.find(context.words[1], context.words[2])
+
+    await context.reply(f"Name: {result.name}")
+    await context.reply(f"Message: {result.message}")
+    await context.reply(f"Author: {result.author}")
