@@ -26,7 +26,9 @@ class DatabaseManager(object):
 
         if not hasattr(self, "_initialized"):
             self._initialized = True
-            # utilize function arguments if they are provided, otherwise retrieve them from the config
+
+            # Utilize function arguments if they are provided,
+            # otherwise retrieve from config.json and use those values.
             self._dbhost = dbhost if dbhost is not None else config['database'].get('host')
             assert self._dbhost
 
