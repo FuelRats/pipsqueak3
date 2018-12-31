@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+aiohttp = "*"
 pydle = ">=0.8.5"
 pure-sasl = "*"
 coloredlogs = "*"
