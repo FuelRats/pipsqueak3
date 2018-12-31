@@ -2,7 +2,7 @@
 fact_manager.py - Fact Management
 
 Provides a context manager for manipulating, retrieving, and storing facts.
-This module depends on database.DatabaseManager, and a database connection.
+This class requires database.DatabaseManager and Modules.fact.
 
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
@@ -12,89 +12,26 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
+
+from Modules.fact import Fact
 from database import DatabaseManager
 from psycopg2 import sql
-
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class Fact(object):
-    def __init__(self, name=None, lang='en', message=None):
-        self._name = name
-        self._lang = lang
-        self._message = message
-
-    @property
-    def name(self) -> str:
-        """
-        Name of fact, ie 'prep'
-        Returns: name of fact
-        """
-        return self._name
-
-    @property
-    def lang(self) -> str:
-        """
-        language code, ie 'en'
-        Returns: language of fact.
-
-        This may be may be longer than two, in the case of template facts.
-        """
-        return self._lang
-
-    @property
-    def message(self) -> str:
-        """
-        Message for fact - the set content.
-        Returns: str fact content
-        """
-        return self._message
-
-    @name.setter
-    def name(self, value: str):
-        """
-        Sets fact name.
-        Args:
-            value: str
-        Returns: Nothing.
-        """
-        if not isinstance(value, str):
-            raise TypeError("Fact.name must be of string type.")
-
-        self._name = value
-
-    @lang.setter
-    def lang(self, value: str):
-        """
-        Sets fact language ID.
-        Args:
-            value: str language ID
-        Returns: Nothing
-        """
-        if not isinstance(value, str):
-            raise TypeError("Fact.lang must be of string type.")
-
-        self._lang = value
-
-    @message.setter
-    def message(self, value: str):
-        """
-        Sets the returned message for the fact
-        Args:
-            value: str fact message
-        Returns: Nothing
-        """
-
-        if not isinstance(value, str):
-            raise TypeError("Fact.message must be of string type.")
-
-        self._message = value
-
-
 class FactManager(object):
 
+    _FACT_TABLE = 'fact2'
+
+    _CREATE_SQL = ''
+    _DEL_SQL = ''
+    _FIND_SQL = ''
+    _UPDATE_SQL = ''
+    _HIST_SQL = ''
+
     # TODO: Context manager support
+    # FIXME: Update table names for production database
 
     async def find(self, name: str, lang: str) -> Fact:
         """
@@ -109,7 +46,8 @@ class FactManager(object):
         # Pass nothing to DBM, use config file values
         dbm = DatabaseManager()
         # Build SQL Object for our query
-        query = sql.SQL("SELECT name, lang, message from fact where name=%s AND lang=%s")
+        query = sql.SQL(f"SELECT name, lang, message from "
+                        f"{FactManager._FACT_TABLE} where name=%s AND lang=%s")
 
         rows = await dbm.query(query, (name, lang))
         result = Fact()
@@ -121,15 +59,8 @@ class FactManager(object):
 
         return result
 
-    async def modify(self, fact: Fact, attribute: str, value: str):
+    async def add(self, fact: Fact):
         """
-        Change a property of a fact, and commit to the database.
-        Args:
-            fact: Fact object to be modified
-            attribute: name, author, etc to be modified.
-            value: new value.
-
-        Returns: Nothing
-
+        Adds a new fact to the database.
         """
-        pass
+

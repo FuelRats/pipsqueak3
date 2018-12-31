@@ -66,3 +66,17 @@ async def cmd_fm_find(context: Context):
     await context.reply(f"Name: {result.name}")
     await context.reply(f"Message: {result.message}")
     await context.reply(f"Author: {result.author}")
+
+
+@command("fm-add")
+@require_permission(TECHRAT)
+async def cmd_fm_add(context: Context):
+    new_fact = Fact(name='irctest',
+                    lang='en',
+                    author='Shatt',
+                    message='This is a test fact',
+                    editedby='Shatt',
+                    mfd=False)
+    await context.reply(f"Message: {new_fact.message}")
+    await context.reply(f"Author: {new_fact.author}")
+    await context.reply(f"Edited: {new_fact.edited}")
