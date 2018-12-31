@@ -61,13 +61,16 @@ async def cmd_query(context: Context):
 async def cmd_search(context: Context):
     galaxy = Galaxy()
     data = await galaxy.find_system_by_name(context.words_eol[1])
-    response = f"{data.name} is a {data.spectral_class}-class star."
-    response += f" It is located at ({data.x}, {data.y}, {data.z})."
-    if data.is_populated:
-        response += f" It is populated."
+    if data:
+        response = f"{data.name} is a {data.spectral_class}-class star."
+        response += f" It is located at ({data.position.x}, {data.position.y}, {data.position.z})."
+        if data.is_populated:
+            response += f" It is populated."
+        else:
+            response += f" It is not populated."
+        await context.reply(response)
     else:
-        response += f" It is not populated."
-    await context.reply(response)
+        await context.reply("That system could not be found.")
 
 
 @command("fuzzy")
@@ -75,7 +78,10 @@ async def cmd_search(context: Context):
 async def cmd_fuzzy(context: Context):
     galaxy = Galaxy()
     data = await galaxy.search_systems_by_name(context.words_eol[1])
-    await context.reply(', '.join(data))
+    if data:
+        await context.reply(', '.join(data))
+    else:
+        await context.reply("Could not find any systems with similar names!")
 
 
 @command("plot")
@@ -83,9 +89,11 @@ async def cmd_fuzzy(context: Context):
 async def cmd_plot(context: Context):
     galaxy = Galaxy()
     args = context.words_eol[1].split(',')
-    log.info(' '.join(args))
     data = await galaxy.plot_waypoint_route(args[0].strip(), args[1].strip())
-    await context.reply(', '.join(data))
+    if data:
+        await context.reply(', '.join(data))
+    else:
+        await context.reply("Could not plot that route.")
 
 
 @command("scoopable")
@@ -93,4 +101,7 @@ async def cmd_plot(context: Context):
 async def cmd_scoopable(context: Context):
     galaxy = Galaxy()
     data = await galaxy.find_nearest_scoopable(context.words_eol[1])
-    await context.reply(f"{data[0].name}, {data[0].spectral_class}-class, {data[1]}ly away")
+    if data:
+        await context.reply(f"{data.name}, {data.spectral_class}-class")
+    else:
+        await context.reply(f"Could not find any scoopables nearby.")

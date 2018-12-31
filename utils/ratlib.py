@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 """
 import re
 from enum import Enum
+from math import sqrt
 from uuid import UUID
 from typing import Optional
 
@@ -241,3 +242,50 @@ def reverse(text: str) -> str:
 
     """
     return f'{Formatting.FORMAT_REVERSE.value}{text}{Formatting.FORMAT_REVERSE.value}'
+
+
+class Vector(object):
+    """
+    Represents a point within 3D space.
+    """
+
+    def __init__(self, x, y, z):
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
+
+    def magnitude(self):
+        """
+        The magnitude of the vector, or the total distance between it and
+        the origin (0, 0, 0).
+        """
+
+        return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+
+    def normal(self):
+        """
+        The normalized vector, representing 1 "unit" of distance in the Vector's
+        original direction.
+        """
+
+        mag = self.magnitude()
+        return Vector(self.x / mag, self.y / mag, self.z / mag)
+
+    def distance(self, other):
+        """
+        Calculates the total distance between two Vectors.
+        """
+
+        return sqrt(
+            ((other.x - self.x) ** 2) +
+            ((other.y - self.y) ** 2) +
+            ((other.z - self.z) ** 2))
+
+    def __add__(self, other):
+        return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+
+    def __sub__(self, other):
+        return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    def __mul__(self, other):
+        return Vector(self.x * other, self.y * other, self.z * other)
