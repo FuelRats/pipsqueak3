@@ -1,5 +1,5 @@
 """
-database_manager.py - Debug and diagnostics commands
+database_manager.py - allows connections to SQL databases.
 Provides postgreSQL connectivity for mechasqueak3.
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
@@ -88,7 +88,11 @@ class DatabaseManager(object):
             # Create cursor, and execute the query.
             with connection.cursor() as cursor:
                 cursor.execute(query, values)
-                result = cursor.fetchall()
+                # Check if cursor.description is NONE - meaning no results returned.
+                if cursor.description:
+                    result = cursor.fetchall()
+                else:
+                    result = tuple()
 
         # Release connection back to the pool.
         self._dbpool.putconn(connection)

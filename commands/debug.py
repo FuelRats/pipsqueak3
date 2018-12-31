@@ -49,11 +49,14 @@ async def cmd_superping(context: Context):
 async def cmd_query(context: Context):
     # assuming `database` is a instance of the DBM
     database = DatabaseManager()
-    sql_query = sql.SQL("SELECT message from fact WHERE name=%s AND lang=%s")
+    sql_query = sql.SQL("SELECT message from fact2 WHERE name=%s AND lang=%s")
     sql_values = (context.words[1], context.words[2])
     data = await database.query(sql_query, sql_values)
-    for item in data:
-        await context.reply(str(item))
+    if not data:
+        await context.reply("No fact matched query.")
+    else:
+        for item in data:
+            await context.reply(str(item))
 
 
 @command("fm-find")
@@ -71,12 +74,12 @@ async def cmd_fm_find(context: Context):
 @command("fm-add")
 @require_permission(TECHRAT)
 async def cmd_fm_add(context: Context):
-    new_fact = Fact(name='irctest',
+    new_fact = Fact(name='insert',
                     lang='en',
                     author='Shatt',
-                    message='This is a test fact',
+                    message='This is a test fact inserted by debug command.',
                     editedby='Shatt',
                     mfd=False)
-    await context.reply(f"Message: {new_fact.message}")
-    await context.reply(f"Author: {new_fact.author}")
-    await context.reply(f"Edited: {new_fact.edited}")
+    fm = FactManager()
+    await fm.add(new_fact)
+    await context.reply("Debug Fact Added.")
