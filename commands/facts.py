@@ -33,12 +33,29 @@ async def cmd_fm_factadd(context: Context):
     """
     if len(context.words) == 1:
         await context.reply("Usage: !factadd <name> <lang> <message>")
+        return
     else:
         # Build elements for Fact creation
-        fact_name = context.words[1].lower()
-        fact_lang = context.words[2].lower()
-        fact_msg = context.words_eol[3]
-        fact_author = context.user.nickname
+        try:
+            fact_name = context.words[1].lower()
+
+            # Check for bad first character (must be a-z)
+            if not fact_name[0].isalpha():
+                await context.reply("Unable to add fact: Fact name must begin with a-z/A-Z")
+                return
+
+            fact_lang = context.words[2].lower()
+            # Check for bad first character in lang (must be a-z)
+            if not fact_lang[0].isalpha():
+                await context.reply("Unable to add fact: Fact langID must begin with a-z/A-Z")
+                return
+
+            fact_msg = context.words_eol[3]
+            fact_author = context.user.nickname
+        except IndexError as error:
+            await context.reply("Usage: !factadd <name> <lang> <message>")
+            log.warning(f"Malformed factadd request by {context.user.nickname}")
+            return
 
         # Verify that a fact with this name doesn't exist already:
         fm = FactManager()
@@ -104,7 +121,27 @@ async def cmd_fm_factmfd(context: Context):
     Marks a fact for deletion.
     !factmfd <name> <langID>
     """
-    await context.reply("Not Yet Implemented. Sorry!")
+    if len(context.words) != 3:
+        await context.reply("Usage: !factmfd <name> <lang> "
+                            "(Marks or Unmarks a fact for deletion.)")
+        return
+    else:
+        # Get elements from context
+        fact_name = context.words[1].lower()
+        fact_lang = context.words[2].lower()
+
+        # Verify fact exists
+        fm = FactManager()
+        if await fm.exists(fact_name, fact_lang):
+            if await fm.mfd(fact_name, fact_lang):
+                await context.reply(f"Fact '{fact_name}-{fact_lang}' marked for deletion.  "
+                                    f"It can no longer be triggered.")
+            else:
+                await context.reply(f"'{fact_name}-{fact_lang}' "
+                                    f"is no longer marked for deletion and can be triggered.")
+        else:
+            await context.reply(f"No fact matching '{fact_name}-{fact_lang}' found.")
+            return
 
 
 @command("facthistory", "fact-history")
