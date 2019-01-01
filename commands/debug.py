@@ -14,7 +14,6 @@ See LICENSE.md
 import logging
 
 from Modules.context import Context
-from Modules.galaxy import Galaxy
 from Modules.permissions import require_permission, TECHRAT, require_channel
 from Modules.rat_command import command
 from database import DatabaseManager
@@ -54,54 +53,3 @@ async def cmd_query(context: Context):
     data = await database.query(sql_query, sql_values)
     for item in data:
         await context.reply(str(item))
-
-
-@command("search")
-@require_permission(TECHRAT)
-async def cmd_search(context: Context):
-    galaxy = Galaxy()
-    data = await galaxy.find_system_by_name(context.words_eol[1])
-    if data:
-        response = f"{data.name} is a {data.spectral_class}-class star."
-        response += f" It is located at ({data.position.x}, {data.position.y}, {data.position.z})."
-        if data.is_populated:
-            response += f" It is populated."
-        else:
-            response += f" It is not populated."
-        await context.reply(response)
-    else:
-        await context.reply("That system could not be found.")
-
-
-@command("fuzzy")
-@require_permission(TECHRAT)
-async def cmd_fuzzy(context: Context):
-    galaxy = Galaxy()
-    data = await galaxy.search_systems_by_name(context.words_eol[1])
-    if data:
-        await context.reply(', '.join(data))
-    else:
-        await context.reply("Could not find any systems with similar names!")
-
-
-@command("plot")
-@require_permission(TECHRAT)
-async def cmd_plot(context: Context):
-    galaxy = Galaxy()
-    args = context.words_eol[1].split(',')
-    data = await galaxy.plot_waypoint_route(args[0].strip(), args[1].strip())
-    if data:
-        await context.reply(', '.join(data))
-    else:
-        await context.reply("Could not plot that route.")
-
-
-@command("scoopable")
-@require_permission(TECHRAT)
-async def cmd_scoopable(context: Context):
-    galaxy = Galaxy()
-    data = await galaxy.find_nearest_scoopable(context.words_eol[1])
-    if data:
-        await context.reply(f"{data.name}, {data.spectral_class}-class")
-    else:
-        await context.reply(f"Could not find any scoopables nearby.")
