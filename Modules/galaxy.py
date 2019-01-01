@@ -9,6 +9,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
+from config import config
 from html import escape
 import json
 import logging
@@ -27,14 +28,17 @@ class Galaxy:
 
     MAX_PLOT_DISTANCE = 20000
 
+    def __init__(self, url: str = None):
+        self.url = url or config['api'].get('url')
+
     async def find_system_by_name(self, name: str):
         """
         Finds a single system by its name and return its StarSystem object
         """
 
-        data = await self._call(
-            "systems",
-            {"filter[name:like]": name.upper(), "include": "bodies"})
+        data = await self._call("systems",
+                                {"filter[name:like]": name.upper(),
+                                 "include": "bodies"})
         result_count = data['meta']['results']['available']
         if result_count > 0:
             sys = data['data'][0]['attributes']
@@ -53,16 +57,26 @@ class Galaxy:
 
         scoopables = ['K', 'G', 'B', 'F', 'O', 'A', 'M']
         system = await self.find_system_by_name(name)
+        if system is None:
+            return None
         if system.spectral_class in scoopables:
-            return (system, 0)
-        nearest = await self._find_nearest_systems(system.position.x,
-                                                   system.position.y,
-                                                   system.position.z,
-                                                   50)
-        for neighbor in nearest:
-            sys = await self.find_system_by_name(neighbor)
-            if sys.spectral_class in scoopables:
-                return sys
+            return system
+
+        data = await self._call("nearest",
+                                {"x": system.position.x,
+                                 "y": system.position.y,
+                                 "z": system.position.z,
+                                 "aggressive": 1,
+                                 "limit": 50,
+                                 "include": 1})
+
+        for candidate in data['candidates']:
+            star_name = f"{candidate['name']} A".upper()
+            for body in data['included']['bodies']:
+                body_name = body['name'].upper()
+                if body_name == candidate['name'].upper() or body_name == star_name:
+                    if body['spectral_class'] in scoopables:
+                        return await self.find_system_by_name(candidate['name'])
 
     async def search_systems_by_name(self, name: str) -> list:
         """
@@ -70,9 +84,10 @@ class Galaxy:
         Returns the top 10 results.
         """
 
-        matches = await self._call(
-            "search",
-            {"name": name.upper(), "type": "soundex", "limit": "5"})
+        matches = await self._call("search",
+                                   {"name": name.upper(),
+                                    "type": "soundex",
+                                    "limit": "5"})
         matched_systems = []
         if matches['data']:
             for match in matches['data']:
@@ -122,8 +137,6 @@ class Galaxy:
         start_position = start.position
         end_position = end.position
         full_distance = start_position.distance(end_position)
-        if full_distance <= distance:
-            return end
         normal = (end_position - start_position).normal()
         new_position = start_position + (normal * distance)
         nearest = await self._find_nearest_systems(new_position.x,
@@ -141,9 +154,12 @@ class Galaxy:
         Given a set of galactic coordinates, find the closest star systems.
         """
 
-        nearest = await self._call(
-            "nearest",
-            {"x": x, "y": y, "z": z, "aggressive": "1", "limit": str(limit)})
+        nearest = await self._call("nearest",
+                                   {"x": x,
+                                    "y": y,
+                                    "z": z,
+                                    "aggressive": "1",
+                                    "limit": limit})
         systems = []
         if nearest['data']:
             for neighbor in nearest['data']:
@@ -155,7 +171,7 @@ class Galaxy:
         Perform an API call on the Fuel Rats Systems API.
         """
 
-        base_url = "https://system.api.fuelrats.com/"
+        base_url = self.url
         param_string = "?"
         if params:
             for key, value in params.items():
