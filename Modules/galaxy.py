@@ -45,8 +45,9 @@ class Galaxy:
             star_name = f"{sys['name']} A".upper()
             bodies = data['included']
             for body in bodies:
-                if (body['attributes']['name'].upper() == sys['name'].upper() or
-                    body['attributes']['name'].upper() == star_name):
+                body_name = body['attributes']['name'].upper()
+                if (body_name == sys['name'].upper() or
+                        body_name == star_name):
                     sys['spectral_class'] = body['attributes']['spectral_class']
             return StarSystem.from_dict(sys)
 
@@ -74,13 +75,15 @@ class Galaxy:
             star_name = f"{candidate['name']} A".upper()
             for body in data['included']['bodies']:
                 body_name = body['name'].upper()
-                if body_name == candidate['name'].upper() or body_name == star_name:
-                    if body['spectral_class'] in scoopables:
-                        return await self.find_system_by_name(candidate['name'])
+                if ((body_name == candidate['name'].upper() or
+                        body_name == star_name) and
+                        body['spectral_class'] in scoopables):
+                    return await self.find_system_by_name(candidate['name'])
 
     async def search_systems_by_name(self, name: str) -> list:
         """
-        Perform a fuzzy (Soundex) search for star systems on the name given to us.
+        Perform a fuzzy (Soundex) search for star systems on the name
+        given to us.
         Returns the top 10 results.
         """
 
@@ -136,7 +139,6 @@ class Galaxy:
 
         start_position = start.position
         end_position = end.position
-        full_distance = start_position.distance(end_position)
         normal = (end_position - start_position).normal()
         new_position = start_position + (normal * distance)
         nearest = await self._find_nearest_systems(new_position.x,
