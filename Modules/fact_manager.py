@@ -25,14 +25,7 @@ class FactManager(object):
 
     _FACT_TABLE = 'fact2'
 
-    _CREATE_SQL = ''
-    _DEL_SQL = ''
-    _FIND_SQL = ''
-    _UPDATE_SQL = ''
-    _HIST_SQL = ''
-
     # TODO: Context manager support
-    # FIXME: Update table names for production database
 
     async def find(self, name: str, lang: str) -> Fact:
         """
@@ -82,4 +75,21 @@ class FactManager(object):
         except (psycopg2.DatabaseError, psycopg2.ProgrammingError) as error:
             log.exception(f"Unable to add fact '{fact.name}!", error)
             raise error
+
+    async def exists(self, name: str, lang: str) -> bool:
+        """
+        Quick True/False return if a fact with that combo already exists.
+        Args:
+            name: name of fact
+            lang: language ID of fact
+
+        Returns: True/False, if already exists.
+
+        """
+        dbm = DatabaseManager()
+        query = sql.SQL(f"SELECT COUNT(*) message from "
+                        f"{FactManager._FACT_TABLE} where name=%s AND lang=%s")
+        qresult = await dbm.query(query, (name, lang))
+
+        return qresult[0][0]
 

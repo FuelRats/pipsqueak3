@@ -37,6 +37,14 @@ async def cmd_debug_whois(context):
     await context.reply(f"{data}")
 
 
+@command("debug-userinfo")
+@require_permission(TECHRAT)
+@require_channel
+async def cmd_debug_userinfo(context: Context):
+    await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
+    await context.reply(f"user identifed?: {context.user.identified}")
+
+
 @command("superPing!")
 @require_channel
 @require_permission(TECHRAT)
