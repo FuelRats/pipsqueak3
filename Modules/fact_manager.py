@@ -40,7 +40,7 @@ class FactManager(object):
         # Pass nothing to DBM, use config file values
         dbm = DatabaseManager()
         # Build SQL Object for our query
-        query = sql.SQL(f"SELECT name, lang, message from "
+        query = sql.SQL(f"SELECT name, lang, message, aliases, author, edited, editedby, mfd from "
                         f"{FactManager._FACT_TABLE} where name=%s AND lang=%s")
 
         rows = await dbm.query(query, (name, lang))
@@ -49,7 +49,8 @@ class FactManager(object):
         # Unpack list, first checking if it is empty:
         if rows:
             result_tup = next(iter(rows or []))
-            result.name, result.lang, result.message = result_tup
+            result.name, result.lang, result.message, result.aliases, result.author, \
+                result.edited, result.editedby, result.mfd = result_tup
 
         return result
 
@@ -87,9 +88,37 @@ class FactManager(object):
 
         """
         dbm = DatabaseManager()
-        query = sql.SQL(f"SELECT COUNT(*) message from "
-                        f"{FactManager._FACT_TABLE} where name=%s AND lang=%s")
+        query = sql.SQL(f"SELECT COUNT(*) message FROM "
+                        f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
         qresult = await dbm.query(query, (name, lang))
 
         return qresult[0][0]
+
+    async def mfd(self, name: str, lang: str) -> bool:
+        """
+        Toggles the MFD flag on a fact.
+        Args:
+            name: name of fact to update
+            lang: lang of fact to update
+
+        Returns: True/False that fact was set to.
+        """
+        dbm = DatabaseManager()
+        query = sql.SQL(f"SELECT fact2.mfd FROM "
+                        f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
+        qresult = await dbm.query(query, (name, lang))
+
+        # Set MFD to inverted value of qresult
+        mfd_query = sql.SQL(f"UPDATE {FactManager._FACT_TABLE} "
+                            f"SET mfd=%s WHERE name=%s AND lang=%s")
+        mfd_value = not qresult[0][0]
+        await dbm.query(mfd_query, (mfd_value, name, lang))
+
+        return mfd_value
+
+
+
+
+
+
 

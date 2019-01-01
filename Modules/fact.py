@@ -178,6 +178,22 @@ class Fact(object):
 
         self._editedby = value
 
+    @edited.setter
+    def edited(self, value: datetime):
+        """
+        Sets the edited timestamp.  This is a datetime stamp and should not be
+        modified willy-nilly.
+        Args:
+            value: datetime last edit date
+
+        Returns: Nothing
+        """
+
+        if not isinstance(value, datetime.datetime):
+            raise TypeError("Fact.edited must be of datetime type")
+
+        self._edited = value
+
     @mfd.setter
     def mfd(self, value: bool):
         """
