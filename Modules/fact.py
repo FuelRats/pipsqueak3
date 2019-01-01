@@ -134,17 +134,15 @@ class Fact(object):
         self._message = value
 
     @aliases.setter
-    def aliases(self, value: list):
+    def aliases(self, value: str):
         """
-        Sets the list of aliases
+        Sets the list of aliases.  This must be a comma-delimited string for proper conversion
+        into a postgreSQL TSVECTOR type.
         Args:
-            value: list of aliases
+            value: list of comma-separated aliases.
 
         Returns: Nothing
         """
-
-        if not isinstance(value, list):
-            raise TypeError("Fact.aliases must be of list type")
 
         self._aliases = value
 

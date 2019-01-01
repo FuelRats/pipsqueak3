@@ -53,8 +53,6 @@ class DatabaseManager(object):
                                                               user=self._dbuser,
                                                               password=self._dbpass)
 
-            if self._dbpool:
-                log.info("SQL Database Connected.")
         except psycopg2.DatabaseError as error:
             log.exception("Unable to connect to database!")
             raise error
