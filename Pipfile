@@ -15,6 +15,7 @@ pytest = "*"
 pytest-cov = "*"
 pytest-asyncio = "*"
 pylint = "*"
+pytest-httpserver = "*"
 
 [requires]
 python_version = "3.7"
