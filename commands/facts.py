@@ -17,6 +17,7 @@ from Modules.context import Context
 from Modules.permissions import require_permission, TECHRAT, OVERSEER, RAT, require_channel
 from Modules.rat_command import command
 from Modules.fact_manager import FactManager, Fact
+from datetime import timezone
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -111,7 +112,23 @@ async def cmd_fm_factdetail(context: Context):
 
     !factdetail <name> <langID>
     """
-    await context.reply("Not Yet Implemented. Sorry!")
+    if len(context.words) != 3:
+        await context.reply("Usage: !factdetail <name> <lang>")
+        return
+    else:
+        fact_name = context.words[1].lower()
+        fact_lang = context.words[2].lower()
+
+        fm = FactManager()
+        if await fm.exists(fact_name, fact_lang):
+            fact_result = await fm.find(fact_name, fact_lang)
+            fact_edit_time = fact_result.edited.astimezone(timezone.utc).strftime('%d-%m-%Y %H:%M')
+            await context.reply(f"Fact Detail for {fact_name}-{fact_lang}:")
+            await context.reply(f"Msg: {fact_result.message}")
+            await context.reply(f"Last edited by {fact_result.editedby} on {fact_edit_time}")
+            await context.reply(f"MFD: {fact_result.mfd}  Aliases: {fact_result.aliases}")
+        else:
+            await context.reply(f"No fact matching '{fact_name}-{fact_lang}' found.")
 
 
 @command("factmfd", "fact-mfd")
@@ -126,6 +143,7 @@ async def cmd_fm_factmfd(context: Context):
                             "(Marks or Unmarks a fact for deletion.)")
         return
     else:
+
         # Get elements from context
         fact_name = context.words[1].lower()
         fact_lang = context.words[2].lower()
@@ -142,6 +160,17 @@ async def cmd_fm_factmfd(context: Context):
         else:
             await context.reply(f"No fact matching '{fact_name}-{fact_lang}' found.")
             return
+
+
+@command("factmfdlist")
+@require_permission(OVERSEER)
+async def cmd_fm_factmfdlist(context: Context):
+
+    fm = FactManager()
+    mfdlist = await fm.mfd_list()
+
+    await context.reply("These facts are marked for deletion:")
+    await context.reply(", ".join(mfdlist))
 
 
 @command("facthistory", "fact-history")

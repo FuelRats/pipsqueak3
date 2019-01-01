@@ -116,6 +116,26 @@ class FactManager(object):
 
         return mfd_value
 
+    async def mfd_list(self, numresults=5) -> list:
+        """
+        Returns a list of facts marked for deletion
+
+        Returns: list of facts
+        Example: ['test-en', 'prep-en', 'mfdtest-en']
+        """
+        dbm = DatabaseManager()
+        query = sql.SQL(f"SELECT name, lang FROM "
+                        f"{FactManager._FACT_TABLE} WHERE mfd=%s "
+                        f"ORDER BY edited DESC LIMIT {numresults}")
+        raw_results = await dbm.query(query, (True,))
+        result = []
+
+        for item in raw_results:
+            result.append(f"{item[0]}-{item[1]}")
+
+        return result
+
+
 
 
 
