@@ -9,6 +9,7 @@ pure-sasl = "*"
 coloredlogs = "*"
 
 [dev-packages]
+pylint = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-asyncio = "*"
