@@ -40,20 +40,20 @@ Use docstrings and comments to document how your features function and why. Docs
 Example docstring:
 ```python
 def example_function(param1: int, param2: str) -> bool:
-"""
-This is an example doc string.  It may span multiple lines, however
-it may not break the 100 characters per line PEP8 standard.  It is a
-good standard to include expected types, explain what your function
-attempts to accomplish, and what result is returned, if any.
-
-Args:
-    param1 (int): First Parameter.
-    param2 (str): Second Parameter.
-
-Returns:
-    bool: True if successful, False otherwise.
-"""
-return False
+    """
+    This is an example doc string.  It may span multiple lines, however
+    it may not break the 100 characters per line PEP8 standard.  It is a
+    good standard to include expected types, explain what your function
+    attempts to accomplish, and what result is returned, if any.
+    
+    Args:
+        param1 (int): First Parameter.
+        param2 (str): Second Parameter.
+    
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    return False
 ```
 
 ### Build Integrity
