@@ -16,7 +16,7 @@ import psycopg2
 from Modules.context import Context
 from Modules.permissions import require_permission, TECHRAT, OVERSEER, RAT, require_channel
 from Modules.rat_command import command
-from Modules.fact_manager import FactManager, Fact
+from Modules.fact_manager import Fact
 from datetime import timezone
 
 log = logging.getLogger(f"mecha.{__name__}")
@@ -53,13 +53,13 @@ async def cmd_fm_factadd(context: Context):
 
             fact_msg = context.words_eol[3]
             fact_author = context.user.nickname
-        except IndexError as error:
+        except IndexError:
             await context.reply("Usage: !factadd <name> <lang> <message>")
             log.warning(f"Malformed factadd request by {context.user.nickname}")
             return
 
         # Verify that a fact with this name doesn't exist already:
-        fm = FactManager()
+        fm = context.bot.fact_mgr
         if await fm.exists(fact_name, fact_lang):
             await context.reply("That fact already exists.  Use factedit to "
                                 "edit an existing fact.")
@@ -119,7 +119,7 @@ async def cmd_fm_factdetail(context: Context):
         fact_name = context.words[1].lower()
         fact_lang = context.words[2].lower()
 
-        fm = FactManager()
+        fm = context.bot.fact_mgr
         if await fm.exists(fact_name, fact_lang):
             fact_result = await fm.find(fact_name, fact_lang)
             fact_edit_time = fact_result.edited.astimezone(timezone.utc).strftime('%d-%m-%Y %H:%M')
@@ -149,7 +149,7 @@ async def cmd_fm_factmfd(context: Context):
         fact_lang = context.words[2].lower()
 
         # Verify fact exists
-        fm = FactManager()
+        fm = context.bot.fact_mgr
         if await fm.exists(fact_name, fact_lang):
             if await fm.mfd(fact_name, fact_lang):
                 await context.reply(f"Fact '{fact_name}-{fact_lang}' marked for deletion.  "
@@ -166,7 +166,7 @@ async def cmd_fm_factmfd(context: Context):
 @require_permission(OVERSEER)
 async def cmd_fm_factmfdlist(context: Context):
 
-    fm = FactManager()
+    fm = context.bot.fact_mgr
     mfdlist = await fm.mfd_list()
 
     await context.reply("These facts are marked for deletion:")

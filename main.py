@@ -21,6 +21,7 @@ from pydle import Client
 
 # noinspection PyUnresolvedReferences
 import commands
+from Modules.fact_manager import FactManager
 from Modules import graceful_errors, rat_command
 from Modules.context import Context
 from Modules.permissions import require_permission, RAT
@@ -50,7 +51,7 @@ class MechaClient(Client):
 
         """
         self._api_handler = None  # TODO: replace with handler init once it exists
-        self._database_manager = None  # TODO: replace with dbm once it exists
+        self._fact_manager = FactManager()  # Instantiate Global Fact Manager
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         super().__init__(*args, **kwargs)
 
@@ -111,11 +112,30 @@ class MechaClient(Client):
         return self._rat_cache
 
     @property
-    def database_mgr(self) -> object:
+    def fact_mgr(self) -> FactManager:
         """
-        Mecha's database connection
+        Mecha's fact manager (property)
         """
-        return self._database_mgr
+        return self._fact_manager
+
+    @fact_mgr.setter
+    def fact_mgr(self, manager: FactManager):
+        """
+        Mecha's fact manager setter.
+        """
+        if not isinstance(manager, FactManager):
+            raise TypeError("fact_mgr requires a FactManager.")
+
+        log.warning("Fact manager setter invoked!")
+        self._fact_manager = manager
+
+    @fact_mgr.deleter
+    def fact_mgr(self):
+        """
+        Mecha's fact manager (deleter)
+        """
+        log.warning("Fact Manager deleter invoked!")
+        del self._fact_manager
 
     @property
     def api_handler(self) -> object:
