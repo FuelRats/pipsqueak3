@@ -13,7 +13,8 @@ This module is built on top of the Pydle system.
 """
 import re
 import humanfriendly
-from datetime import datetime, timedelta
+import datetime
+from datetime import timedelta
 from enum import Enum
 from math import isclose, sqrt
 from uuid import UUID
@@ -171,12 +172,12 @@ def try_parse_uuid(suspect: str) -> UUID:
 
 
 # duration functions
-def duration(time: datetime) -> str:
+def duration(time: datetime.timedelta) -> str:
     """
     Converts a datetime object into a human readable duration string.
     """
-    if not isinstance(time, datetime):
-        raise TypeError("ratlib.duration method requires a datetime object.")
+    if not isinstance(time, datetime.timedelta):
+        raise TypeError("ratlib.duration method requires a datetime or timedelta.")
 
     return humanfriendly.format_timespan(time, detailed=False, max_units=2)
 

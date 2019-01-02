@@ -71,6 +71,28 @@ class FactManager(DatabaseManager):
             log.exception(f"Unable to add fact '{fact.name}!", error)
             raise error
 
+    async def delete(self, name: str, lang: str):
+        """
+        Deletes a fact from the database.  This is an un-recoverable action.
+        Raises if performed on a fact not marked for deletion.
+        Args:
+            name: name of fact to be deleted
+            lang: langID of fact to be deleted
+
+        Returns: Nothing
+        """
+        del_query = sql.SQL(f"DELETE FROM {FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
+
+        fact = await self.find(name, lang)
+        log.info(f"Fact MFD is {fact.mfd}")
+        if fact.mfd:
+            try:
+                await self.query(del_query, (name, lang))
+            except psycopg2.ProgrammingError:
+                log.exception("Unable to delete fact row from database.")
+        else:
+            raise psycopg2.ProgrammingError(f"{name}-{lang} is not marked for deletion.")
+
     async def exists(self, name: str, lang: str) -> bool:
         """
         Quick True/False return if a fact with that combo already exists.
