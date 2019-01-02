@@ -9,6 +9,7 @@ pydle = ">=0.8.5"
 pure-sasl = "*"
 coloredlogs = "*"
 psycopg2 = "*"
+humanfriendly = "*"
 
 [dev-packages]
 pytest = "==4.0.2"  #FIXME remove limit when pytest-asyncio updates and pytest is no longer breaking things
