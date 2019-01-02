@@ -1,5 +1,5 @@
 """
-star_system.py - Represents a single star system.
+star_system.py - Handles the creation and parsing of Elite: Dangerous star systems.
 
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
