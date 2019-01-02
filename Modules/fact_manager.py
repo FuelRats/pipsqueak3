@@ -21,9 +21,13 @@ from psycopg2 import sql
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class FactManager(object):
+class FactManager(DatabaseManager):
 
     _FACT_TABLE = 'fact2'
+
+    def __init__(self):
+        log.info("Fact Manager Initialized.")
+        super().__init__()
 
     # TODO: Context manager support
 
@@ -37,22 +41,13 @@ class FactManager(object):
         Returns: Populated Fact Object
 
         """
-        # Pass nothing to DBM, use config file values
-        dbm = DatabaseManager()
         # Build SQL Object for our query
         query = sql.SQL(f"SELECT name, lang, message, aliases, author, edited, editedby, mfd from "
                         f"{FactManager._FACT_TABLE} where name=%s AND lang=%s")
 
-        rows = await dbm.query(query, (name, lang))
-        result = Fact()
+        rows = await self.query(query, (name, lang))
 
-        # Unpack list, first checking if it is empty:
-        if rows:
-            result_tup = next(iter(rows or []))
-            result.name, result.lang, result.message, result.aliases, result.author, \
-                result.edited, result.editedby, result.mfd = result_tup
-
-        return result
+        return Fact(*rows[0]) if rows else Fact()
 
     async def add(self, fact: Fact):
         """
@@ -67,10 +62,9 @@ class FactManager(object):
 
         try:
             if fact.complete:
-                dbm = DatabaseManager()
                 add_values = (fact.name, fact.lang, fact.message, None,
                               fact.author, fact.edited, fact.editedby, fact.mfd)
-                await dbm.query(add_query, add_values)
+                await self.query(add_query, add_values)
             else:
                 raise TypeError("Attempted commit on incomplete Fact.")
         except (psycopg2.DatabaseError, psycopg2.ProgrammingError) as error:
@@ -87,10 +81,9 @@ class FactManager(object):
         Returns: True/False, if already exists.
 
         """
-        dbm = DatabaseManager()
         query = sql.SQL(f"SELECT COUNT(*) message FROM "
                         f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
-        qresult = await dbm.query(query, (name, lang))
+        qresult = await self.query(query, (name, lang))
 
         return qresult[0][0]
 
@@ -103,16 +96,15 @@ class FactManager(object):
 
         Returns: True/False that fact was set to.
         """
-        dbm = DatabaseManager()
         query = sql.SQL(f"SELECT fact2.mfd FROM "
                         f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
-        qresult = await dbm.query(query, (name, lang))
+        qresult = await self.query(query, (name, lang))
 
         # Set MFD to inverted value of qresult
         mfd_query = sql.SQL(f"UPDATE {FactManager._FACT_TABLE} "
                             f"SET mfd=%s WHERE name=%s AND lang=%s")
         mfd_value = not qresult[0][0]
-        await dbm.query(mfd_query, (mfd_value, name, lang))
+        await self.query(mfd_query, (mfd_value, name, lang))
 
         return mfd_value
 
@@ -123,15 +115,13 @@ class FactManager(object):
         Returns: list of facts
         Example: ['test-en', 'prep-en', 'mfdtest-en']
         """
-        dbm = DatabaseManager()
         query = sql.SQL(f"SELECT name, lang FROM "
                         f"{FactManager._FACT_TABLE} WHERE mfd=%s "
                         f"ORDER BY edited DESC LIMIT {numresults}")
-        raw_results = await dbm.query(query, (True,))
+        raw_results = await self.query(query, (True,))
         result = []
 
-        for item in raw_results:
-            result.append(f"{item[0]}-{item[1]}")
+        result = [f"{item[0]}-{item[1]}" for item in raw_results]
 
         return result
 
