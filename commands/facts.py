@@ -17,7 +17,8 @@ from Modules.context import Context
 from Modules.permissions import require_permission, TECHRAT, OVERSEER, RAT, require_channel
 from Modules.rat_command import command
 from Modules.fact_manager import Fact
-from datetime import timezone
+from utils import ratlib
+from datetime import datetime, timezone
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -89,7 +90,28 @@ async def cmd_fm_factdel(context: Context):
 
     !factdel <name> <langID>
     """
-    await context.reply("Not Yet Implemented. Sorry!")
+    if len(context.words) != 3:
+        await context.reply("Usage: !factdel <name> <lang> ")
+        await context.reply("This command will DELETE the database entry. Use with caution.")
+    else:
+        fact_name = context.words[1].lower()
+        fact_lang = context.words[2].lower()
+
+        fm = context.bot.fact_mgr
+        fact = await fm.find(fact_name, fact_lang)
+
+        if fact.mfd:
+            try:
+                await fm.delete(fact_name, fact_lang)
+            except psycopg2.ProgrammingError as error:
+                await context.reply(f"'{fact.name}-{fact_lang}' was not deleted.")
+                raise error
+            else:
+                await context.reply(f"'{fact.name}-{fact_lang}' DELETED. THIS CANNOT BE UNDONE.")
+                await context.reply(f"Content: '{fact.message}'")
+        else:
+            await context.reply(f"Unable to delete '{fact.name}-{fact_lang}.'  "
+                                f"It is not marked for delete.  ")
 
 
 @command("factalias", "fact-alias")
@@ -122,11 +144,15 @@ async def cmd_fm_factdetail(context: Context):
         fm = context.bot.fact_mgr
         if await fm.exists(fact_name, fact_lang):
             fact_result = await fm.find(fact_name, fact_lang)
-            fact_edit_time = fact_result.edited.astimezone(timezone.utc).strftime('%d-%m-%Y %H:%M')
+            fact_time = fact_result.edited.replace(tzinfo=timezone.utc)
+            fact_duration = \
+                datetime.now(tz=timezone.utc) - fact_time
+            log.info(f"fact_duration: {fact_duration} type: {type(fact_duration)}")
             await context.reply(f"Fact Detail for {fact_name}-{fact_lang}:")
             await context.reply(f"Msg: {fact_result.message}")
-            await context.reply(f"Last edited by {fact_result.editedby} on {fact_edit_time}")
-            await context.reply(f"MFD: {fact_result.mfd}  Aliases: {fact_result.aliases}")
+            await context.reply(f"Last edited by {fact_result.editedby} "
+                                f"({ratlib.duration(fact_duration)} ago)")
+            await context.reply(f"MFD: {fact_result.mfd} , Aliases: {fact_result.aliases}")
         else:
             await context.reply(f"No fact matching '{fact_name}-{fact_lang}' found.")
 
