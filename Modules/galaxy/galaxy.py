@@ -1,5 +1,6 @@
 """
-galaxy.py - Interface for the Fuel Rats Systems API
+galaxy.py - Provide functions to interact with and retrieve useful information from the
+            Fuel Rats Systems API.
 
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
@@ -11,7 +12,7 @@ See LICENSE.md
 
 from html import escape
 import json
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import aiohttp
 
@@ -87,7 +88,7 @@ class Galaxy:
                         body['spectral_class'] in self.SCOOPABLE_SPECTRAL_CLASSES):
                     return await self.find_system_by_name(candidate['name'])
 
-    async def search_systems_by_name(self, name: str) -> Optional[list]:
+    async def search_systems_by_name(self, name: str) -> Optional[List[str]]:
         """
         Perform a fuzzy (Soundex) search for star systems on the name
         given to us.
@@ -104,13 +105,14 @@ class Galaxy:
                                    {"name": name.upper(),
                                     "type": "soundex",
                                     "limit": "5"})
+        # Check to ensure the data set is not missing or empty.
         if matches['data']:
             return [match['name'] for match in matches['data']]
 
     async def plot_waypoint_route(self,
                                   start: str,
                                   end: str,
-                                  interval: int = MAX_PLOT_DISTANCE) -> list:
+                                  interval: int = MAX_PLOT_DISTANCE) -> List[str]:
         """
         Plot a route of waypoints between two faraway systems. Distance between
         waypoints should not exceed "interval" light-years.
@@ -183,6 +185,7 @@ class Galaxy:
         nearest = await self._find_nearest_systems(new_position.x,
                                                    new_position.y,
                                                    new_position.z)
+        # Check to ensure the data set is not missing or empty.
         if nearest:
             return await self.find_system_by_name(nearest[0])
 
@@ -190,7 +193,7 @@ class Galaxy:
                                     x: float,
                                     y: float,
                                     z: float,
-                                    limit: int = 10) -> Optional[list]:
+                                    limit: int = 10) -> Optional[List[str]]:
         """
         Given a set of galactic coordinates, find the closest star systems.
 
