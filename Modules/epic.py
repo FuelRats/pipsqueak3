@@ -13,10 +13,13 @@ See LICENSE.md
 """
 from functools import reduce
 from operator import xor
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
 from Modules.rat import Rat
+
+if TYPE_CHECKING:
+    from Modules.rat_rescue import Rescue
 
 
 class Epic(object):

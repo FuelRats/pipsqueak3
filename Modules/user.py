@@ -65,7 +65,6 @@ class User:
         """
         Creates a new IRC user object
         Args:
-            idle (int): time user is idle for
             away (bool): user's away flag
             away_message (str): user's away message
             username (str): username

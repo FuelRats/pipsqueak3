@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 
 from Modules.context import Context
-from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
 

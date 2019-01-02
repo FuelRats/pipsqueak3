@@ -153,7 +153,7 @@ def strip_name(nickname: str) -> str:
     return split_string[0]
 
 
-def try_parse_uuid(suspect: str) -> UUID:
+def try_parse_uuid(suspect: str) -> Optional[UUID]:
     result = None
 
     try:

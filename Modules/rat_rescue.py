@@ -277,7 +277,7 @@ class Rescue(object):
         return self._firstLimpet
 
     @first_limpet.setter
-    def first_limpet(self, value: UUID) -> None:
+    def first_limpet(self, value: Union[UUID, str]) -> None:
         """
         Set the value of the first limpet rat
 

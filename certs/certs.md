@@ -26,5 +26,6 @@ a example configuration is provided below
       "tls_client_key":"mecha3.pem",
       "tls_client_cert":"mecha3.pem"
     }
-  },
+  }
+  
 ```

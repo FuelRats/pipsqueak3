@@ -13,12 +13,10 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 import logging
-from typing import Union, Optional
+from typing import Optional
 from uuid import UUID
 
-import config
 from Modules.rat_rescue import Rescue
-from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
 

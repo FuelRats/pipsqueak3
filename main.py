@@ -14,7 +14,6 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
-from asyncio import AbstractEventLoop
 from uuid import uuid4
 
 from pydle import Client
@@ -164,6 +163,7 @@ async def start():
                          )
 
     log.info("Connected to IRC.")
+
 
 # entry point
 if __name__ == "__main__":
