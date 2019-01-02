@@ -59,9 +59,9 @@ async def test_plot_waypoint_route(galaxy_fx):
     assert route[0] == 'FUELUM'
     assert route[1] == 'ANGRBONII'
 
-    # Test that plotting an invalid route returns None.
-    invalid = await galaxy_fx.plot_waypoint_route("Fuelum", "Fualun")
-    assert invalid is None
+    # Test that plotting an invalid route raises an exception.
+    with pytest.raises(ValueError):
+        await galaxy_fx.plot_waypoint_route("Fuelum", "Fualun")
 
 
 @pytest.mark.asyncio
@@ -73,6 +73,6 @@ async def test_find_nearest_scoopable(galaxy_fx):
     scoopable = await galaxy_fx.find_nearest_scoopable('Fuelum')
     assert scoopable.name == 'FUELUM'
 
-    # Test that an invalid system will return None.
-    invalid = await galaxy_fx.find_nearest_scoopable('Fualun')
-    assert invalid is None
+    # Test that an invalid system will raise an exception.
+    with pytest.raises(ValueError):
+        await galaxy_fx.find_nearest_scoopable('Fualun')
