@@ -41,12 +41,12 @@ class StarSystem:
             set upon it.
         """
 
-        return cls(Vector(data.get('x'),
-                          data.get('y'),
-                          data.get('z')),
-                   data.get('name'),
-                   data.get('spectral_class'),
-                   data.get('is_populated')
+        return cls(Vector(data['x'],
+                          data['y'],
+                          data['z']),
+                   data['name'],
+                   data.get('spectral_class'),  # spectral_class may be omitted
+                   data['is_populated']
                    )
 
     def distance(self, other: 'StarSystem') -> float:
