@@ -181,8 +181,8 @@ class User(object):
 
     def __hash__(self) -> int:
         if self._hash is None:
-            attrs = (self.oper, self.idle, self.away, self.away_message, self.username,
-                     self.hostname, self.identified, self.server, self.server_info, self.secure,
+            attrs = (self.away, self.away_message, self.username,
+                     self.hostname, self.identified,
                      self.account, self.nickname)
 
             # borrowed hashing mechanism from the old Trigger object
