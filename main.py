@@ -51,7 +51,7 @@ class MechaClient(Client):
 
         """
         self._api_handler = None  # TODO: replace with handler init once it exists
-        self._fact_manager = FactManager()  # Instantiate Global Fact Manager
+        self._fact_manager = None  # Instantiate Global Fact Manager
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         super().__init__(*args, **kwargs)
 
@@ -115,7 +115,11 @@ class MechaClient(Client):
     def fact_mgr(self) -> FactManager:
         """
         Mecha's fact manager (property)
+
+        This is initialized in a lazy way to increase overall startup speed.
         """
+        if not self._fact_manager:
+            self._fact_manager = FactManager()  # Instantiate Global Fact Manager
         return self._fact_manager
 
     @fact_mgr.setter

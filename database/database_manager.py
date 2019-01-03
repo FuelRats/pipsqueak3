@@ -15,6 +15,39 @@ log = logging.getLogger(f"mecha.{__name__}")
 
 
 class DatabaseManager(object):
+    """
+    Database Manager class intended to be inherited by a parent class that requires database
+    connectivity.  Currently, only PostgreSQL 9.5+ is supported.
+
+    ODBC drivers are not required on Windows.
+
+        Usage:
+        >>> DatabaseManager(dbhost='DatabaseServer.org',
+        ...                 dport=5432,
+        ...                 dbname='DatabaseName',
+        ...                 dbuser='DatabaseUserName',
+        ...                 dbpassword='UserPassword')
+
+        All arguments are optional.  If omitted, config values will be pulled from config file.
+
+        Instantiation of the DBM is not intended to be done per method, but rather once as a
+        class property, and the DatabaseManage.query() method used to perform a query.
+
+        Connections are managed by a SimpleConnectionPool, keeping a minimum of 5 and a maximum
+        of 10 connections, able to dynamically open/close ports as needed.
+
+        Performing A Query:
+        .query() does not accept a direct string.  You must use a psycopg2 composed SQL (sql.SQL)
+        object, with appropriate substitutions.
+
+        DO NOT USE STRING CONCATENATION OR APPEND VALUES.  THIS IS BAD PRACTICE, AND AN INJECTION
+        RISK!
+
+        >>> query = sql.SQL("SELECT FROM public.table WHERE" \
+        ...                 "table.name=%s AND table.lang=%s AND table.something=%s")
+        ... DatabaseManager.query(query, ('tuple','of','values'))
+
+    """
 
     def __init__(self,
                  dbhost=None,
@@ -90,6 +123,8 @@ class DatabaseManager(object):
                 if cursor.description:
                     result = cursor.fetchall()
                 else:
+                    # Return a blank tuple if there are no results, since we are
+                    # forcing this to a list.
                     result = tuple()
 
         # Release connection back to the pool.
