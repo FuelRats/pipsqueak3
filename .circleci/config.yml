@@ -4,7 +4,7 @@
 #
 version: 2
 jobs:
-  build:
+  tests:
     environment:
       # tell pipenv
       PIPENV_VENV_IN_PROJECT: true
@@ -29,7 +29,6 @@ jobs:
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
 
     working_directory: ~/repo
 
@@ -109,6 +108,69 @@ jobs:
       - store_test_results:
           path: test-reports
 
+  linting:
+    environment:
+      # tell pipenv
+      PIPENV_VENV_IN_PROJECT: true
+
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:3.7
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v3-dependencies-{{ checksum "Pipfile.lock" }}
+
+
+      - run:
+          name: install dependencies
+          command: |
+            pipenv install -d
+
+      # give CircleCi access to cached venv
+      - run:
+          name: Fix permissions on venv
+          command: sudo chown -R circleci:circleci ".venv"
+
+      # do caching magic
+      - save_cache:
+          paths:
+            - ".venv"
+          key: v3-dependencies-{{ checksum "Pipfile.lock" }}
+
+      - run:
+          name: retrieve pylint-exit
+          command: curl -o pylint-exit https://raw.githubusercontent.com/theunkn0wn1/pylint-exit/master/pylint_exit.py
+      - run:
+          name: retrieve pylint-exit's dependency
+          command: pipenv run pip install bitarray
+      - run:
+          name: Run pylint over project
+          # run pylint, pass it through pylint-exit so Circle doesn't throw a fit
+          command: pipenv run pylint --rcfile pylint.ini Modules database || pipenv run python pylint-exit $?
+
+workflows:
+  version: 2
+  build_and_lint:
+    jobs:
+#       run tests first
+      - linting
+      - tests:
+#          don't bother running tests if linting catches any errors
+          requires:
+            - linting
 
 notify:
   branches:
