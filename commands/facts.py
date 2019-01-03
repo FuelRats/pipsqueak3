@@ -81,6 +81,9 @@ async def cmd_fm_factadd(context: Context):
         else:
             await context.reply(f"New fact '{fact_name}-{fact_lang}' {fact_msg}")
 
+            # Generate transaction log
+            await fm.log(fact_name, fact_lang, context.user.nickname, 'Fact Added', fact_msg)
+
 
 @command("factdel", "fact-del")
 @require_permission(TECHRAT)
@@ -109,6 +112,10 @@ async def cmd_fm_factdel(context: Context):
             else:
                 await context.reply(f"'{fact.name}-{fact_lang}' DELETED. THIS CANNOT BE UNDONE.")
                 await context.reply(f"Content: '{fact.message}'")
+
+                # Generate Transaction log
+                await fm.log(fact.name, fact.lang,
+                             context.user.nickname, 'Fact Deleted', None, fact.message)
         else:
             await context.reply(f"Unable to delete '{fact.name}-{fact_lang}.'  "
                                 f"It is not marked for delete.  ")
@@ -147,7 +154,6 @@ async def cmd_fm_factdetail(context: Context):
             fact_time = fact_result.edited.replace(tzinfo=timezone.utc)
             fact_duration = \
                 datetime.now(tz=timezone.utc) - fact_time
-            log.info(f"fact_duration: {fact_duration} type: {type(fact_duration)}")
             await context.reply(f"Fact Detail for {fact_name}-{fact_lang}:")
             await context.reply(f"Msg: {fact_result.message}")
             await context.reply(f"Last edited by {fact_result.editedby} "
@@ -180,9 +186,13 @@ async def cmd_fm_factmfd(context: Context):
             if await fm.mfd(fact_name, fact_lang):
                 await context.reply(f"Fact '{fact_name}-{fact_lang}' marked for deletion.  "
                                     f"It can no longer be triggered.")
+
+                await fm.log(fact_name, fact_lang, context.user.nickname, 'Marked for Delete')
             else:
                 await context.reply(f"'{fact_name}-{fact_lang}' "
                                     f"is no longer marked for deletion and can be triggered.")
+
+                await fm.log(fact_name, fact_lang, context.user.nickname, 'Un-Marked for Delete')
         else:
             await context.reply(f"No fact matching '{fact_name}-{fact_lang}' found.")
             return
@@ -191,7 +201,14 @@ async def cmd_fm_factmfd(context: Context):
 @command("factmfdlist")
 @require_permission(OVERSEER)
 async def cmd_fm_factmfdlist(context: Context):
+    """
+    Generates a list of facts marked for deletion.
 
+    Args:
+        context: from pydle
+
+    Returns: Nothing
+    """
     fm = context.bot.fact_mgr
     mfdlist = await fm.mfd_list()
 
@@ -206,4 +223,38 @@ async def cmd_fm_facthistory(context: Context):
     Detailed history of fact and revisions.
     !facthistory <name> <langID>
     """
-    await context.reply("Not Yet Implemented. Sorry!")
+    if len(context.words) != 3:
+        await context.reply("Usage: !facthistory <name> <lang>")
+    else:
+        fact_name = context.words[1].lower()
+        fact_lang = context.words[2].lower()
+
+        fm = context.bot.fact_mgr
+        history = await fm.facthistory(fact_name, fact_lang)
+
+        if history:
+            await context.reply(f"Fact History for '{fact_name}-{fact_lang}:'")
+        else:
+            await context.reply("No transaction history for that fact.")
+
+        for item in history:
+
+            fact_duration = datetime.now(tz=timezone.utc) - item[4]
+            friendly_time = ratlib.duration(fact_duration)
+
+            old_display = f"Prev: {item[5][0:45]}..." if item[5] else ""
+            new_display = f"Current: {item[6][0:45]}..." if item[6] else ""
+
+            await context.reply(f"{item[3]} by {item[2]}, "
+                                f"{friendly_time} ago. {old_display} {new_display}")
+
+# FIXME: Remove Debug commands before PR
+
+
+@command("debug-log")
+@require_permission(TECHRAT)
+async def cmd_fm_debug_log(context: Context):
+    fm = context.bot.fact_mgr
+    await fm.log('test', 'en', 'Shatt', 'Test Log Entry', 'New Field Entry', 'Old Field Entry')
+    testing = await fm.facthistory('test', 'ru')
+    await context.reply("Log Entry created.")

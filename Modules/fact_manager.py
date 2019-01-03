@@ -11,21 +11,20 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+import datetime
 import logging
-import psycopg2
-
-from Modules.fact import Fact
-from database import DatabaseManager
-from psycopg2 import sql
-from typing import Union
 from enum import Enum
 
+import psycopg2
+from psycopg2 import sql
+from datetime import timezone
+from Modules.fact import Fact
+from database import DatabaseManager
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
 class FactManager(DatabaseManager):
-
     class Action(Enum):
         ADD = 1
         REMOVE = 0
@@ -114,6 +113,7 @@ class FactManager(DatabaseManager):
         """
         query = sql.SQL(f"SELECT COUNT(*) message FROM "
                         f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
+
         qresult = await self.query(query, (name, lang))
 
         return qresult[0][0]
@@ -156,17 +156,42 @@ class FactManager(DatabaseManager):
 
         return result
 
-    async def alias_add(self, name: str, lang: str, alias: str, action: Action):
+    async def log(self, fact_name: str, fact_lang: str, author: str, msg: str,
+                  new_field=None, old_field=None):
         """
-        Add an alias to existing alias group, with base fact 'name-lang'
+        Writes a transaction log entry to the transaction log table.
+        Args:
+            fact_name: Name of fact this applies to.
+            fact_lang: langID of fact this applies to.
+            author: the user that triggered the log entry.
+            msg: Message to be written to log.
+            new_field: Contents to place in the 'new' field for the log row.
+            old_field: Contents to place in the 'old' field for the log row.
+
+        Returns: Nothing.
         """
-        ...
+        log_query = sql.SQL(f"INSERT INTO fact_transaction VALUES "
+                            f"(DEFAULT, %s, %s, %s, %s, %s, %s, %s)")
+        query_data = (fact_name, fact_lang, author, msg, old_field, new_field,
+                      datetime.datetime.now(tz=timezone.utc))
+        try:
+            await self.query(log_query, query_data)
+        except psycopg2.ProgrammingError as error:
+            log.exception("Unable to write transaction log to table.")
+            raise error
 
+    async def facthistory(self, fact_name: str, fact_lang: str) -> list:
+        """
+        Pulls the last 5 transaction logs for a fact, as a tuple
+        Args:
+            fact_name: Name of the fact
+            fact_lang: LangID of the fact.
 
+        Returns: tuple of transaction log items, for fact.
+        """
+        query = sql.SQL(f"SELECT name, lang, author, message, ts, old, new "
+                        f"FROM fact_transaction WHERE name=%s AND lang=%s ORDER BY ts DESC LIMIT 5")
+        query_data = (fact_name, fact_lang)
+        result = await self.query(query, query_data)
 
-
-
-
-
-
-
+        return result
