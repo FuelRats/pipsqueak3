@@ -17,13 +17,22 @@ import psycopg2
 from Modules.fact import Fact
 from database import DatabaseManager
 from psycopg2 import sql
+from typing import Union
+from enum import Enum
+
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
 class FactManager(DatabaseManager):
 
+    class Action(Enum):
+        ADD = 1
+        REMOVE = 0
+
+    # Name of tables, for DBM
     _FACT_TABLE = 'fact2'
+    _FACT_HISTORY = 'fact_history'
 
     def __init__(self):
         log.info("Fact Manager Initialized.")
@@ -146,6 +155,13 @@ class FactManager(DatabaseManager):
         result = [f"{item[0]}-{item[1]}" for item in raw_results]
 
         return result
+
+    async def alias_add(self, name: str, lang: str, alias: str, action: Action):
+        """
+        Add an alias to existing alias group, with base fact 'name-lang'
+        """
+        ...
+
 
 
 
