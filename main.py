@@ -92,7 +92,7 @@ class MechaClient(Client):
             sanitized_message = sanitize(message)
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             try:
-                ctx = await Context.from_message(self, channel, user, message)
+                ctx = await Context.from_message(self, channel, user, sanitized_message)
                 await rat_command.trigger(ctx)
 
             except Exception as ex:

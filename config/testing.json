@@ -23,6 +23,13 @@
     "base_logger": "testmecha",
     "log_file": "logs/unit_tests.log"
   },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "circle_test",
+    "username": "root",
+    "password": "mecha"
+  },
   "commands": {
     "prefix": "!"
   },
