@@ -160,3 +160,8 @@ async def test_user_eq(data: dict, monkeypatch, bot_fx):
     user_beta = User(**data)
 
     assert user_alpha == user_beta
+
+
+@pytest.mark.regressions
+def test_hash(user_fx):
+    assert hash(user_fx)
