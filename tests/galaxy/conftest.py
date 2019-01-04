@@ -9,21 +9,20 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.
 """
 
-from Modules.galaxy import Galaxy
 import pytest
 from pytest_httpserver import HTTPServer
-import logging
 
-log = logging.getLogger(f"mecha.{__name__}")
+from Modules.galaxy import Galaxy
 
 
 @pytest.fixture(scope="session")
-def mock_api_server_fx():
-    with HTTPServer() as httpserver:
-        ###
-        # Mocked Data Starts
-        ###
+def mock_system_api_server_fx():
+    """
+    Returns a mock HTTP server with pre-built data resembling the Fuel Rats Systems API.
+    """
+    # pylint: disable=line-too-long
 
+    with HTTPServer() as httpserver:
         # System Data
         # - Fuelum
         httpserver.expect_request("/systems", query_string=b"filter%5Bname:like%5D=FUELUM&include=bodies&").respond_with_data(
@@ -94,9 +93,9 @@ def mock_api_server_fx():
 
 
 @pytest.fixture(scope="session")
-def galaxy_fx(mock_api_server_fx) -> Galaxy:
+def galaxy_fx(mock_system_api_server_fx) -> Galaxy: # pylint: disable=redefined-outer-name
     """
     Test fixture for Galaxy. Includes a mock API server with pre-made calls.
     """
 
-    return Galaxy(mock_api_server_fx.url_for("/"))
+    return Galaxy(mock_system_api_server_fx.url_for("/"))
