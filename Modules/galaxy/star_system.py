@@ -11,7 +11,7 @@ See LICENSE.md
 
 from typing import Dict
 
-from dataclasses import dataclass
+from dataclasses import dataclass, InitVar
 
 from utils.ratlib import Vector
 
@@ -22,32 +22,10 @@ class StarSystem:
     Dataclass representing a single star system within Elite: Dangerous.
     """
 
-    position: Vector
     name: str
-    spectral_class: str
     is_populated: bool
-
-    @classmethod
-    def from_dict(cls, data: Dict) -> 'StarSystem':
-        """
-        Takes a Dict of data about a system and parses it out into a proper StarSystem
-        object.
-
-        Args:
-            data (Dict): A Dict of data containing fields describing a star system.
-
-        Returns:
-            An initialized ``StarSystem`` object with the applicable fields in ``data``
-            set upon it.
-        """
-
-        return cls(Vector(data['x'],
-                          data['y'],
-                          data['z']),
-                   data['name'],
-                   data.get('spectral_class'),  # spectral_class may be omitted
-                   data['is_populated']
-                   )
+    position: Vector
+    spectral_class: str = None
 
     def distance(self, other: 'StarSystem') -> float:
         """

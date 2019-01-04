@@ -17,6 +17,7 @@ from typing import Dict, List, Optional
 import aiohttp
 
 from config import config
+from utils.ratlib import Vector
 from .star_system import StarSystem
 
 
@@ -50,7 +51,10 @@ class Galaxy:
             for body in bodies:
                 if self._match_main_star(sys['name'], body['attributes']['name']):
                     sys['spectral_class'] = body['attributes']['spectral_class']
-            return StarSystem.from_dict(sys)
+            return StarSystem(position=Vector(sys['x'], sys['y'], sys['z']),
+                              name=sys['name'],
+                              is_populated=sys['is_populated'],
+                              spectral_class=sys.get('spectral_class'))
 
     async def find_nearest_scoopable(self, name: str) -> Optional[StarSystem]:
         """
