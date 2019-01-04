@@ -1,7 +1,7 @@
 
 [run]
 branch = False
-source = Modules,ratlib,database
+source = Modules,ratlib,database,utils
 
 [report]
 exclude_lines =
