@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 """
 import re
 from enum import Enum
-from math import sqrt
+from math import isclose, sqrt
 from uuid import UUID
 from typing import Optional
 
@@ -269,6 +269,9 @@ class Vector(object):
         """
 
         mag = self.magnitude()
+        if mag == 0:
+            # Make sure we avoid a divide by zero issue.
+            return Vector(0, 0, 0)
         return Vector(self.x / mag, self.y / mag, self.z / mag)
 
     def distance(self, other):
@@ -289,3 +292,8 @@ class Vector(object):
 
     def __mul__(self, other):
         return Vector(self.x * other, self.y * other, self.z * other)
+
+    def __eq__(self, other):
+        return (isclose(self.x, other.x) and
+                isclose(self.y, other.y) and
+                isclose(self.z, other.z))

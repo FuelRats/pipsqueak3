@@ -3,6 +3,7 @@ import pytest
 import utils.ratlib
 from utils.ratlib import Singleton
 from utils.ratlib import Colors, Formatting, color, bold, underline, italic, reverse
+from utils.ratlib import Vector
 
 pytestmark = pytest.mark.ratlib
 
@@ -145,3 +146,87 @@ def test_color_reverse(random_string_fx):
     test_string = random_string_fx
     assert f"{Formatting.FORMAT_REVERSE.value}{test_string}{Formatting.FORMAT_REVERSE.value}" \
            == reverse(test_string)
+
+
+@pytest.mark.parametrize("x, y, z",
+                         ((0, 0, 0),
+                          (5.5, 10.6, 20.4),
+                          (-65535.1865, 18237.40, 6)))
+def test_vector_init(x, y, z):
+    """
+    Test that the Vector object initializes its properties properly.
+    """
+    vector = utils.ratlib.Vector(x, y, z)
+    assert vector.x == x
+    assert vector.y == y
+    assert vector.z == z
+
+@pytest.mark.parametrize("vector, expected",
+                         ((Vector(0, 0, 0), 0),
+                          (Vector(1, 1, 1), 1.73205),
+                          (Vector(5.5, 10.6, 20.4), 23.63832)))
+def test_vector_magnitude(vector, expected):
+    """
+    Test the functionality of magnitude, which returns the total distance from origin.
+    Round to 5 digits for comparison purposes.
+    """
+    magnitude = round(vector.magnitude(), 5)
+    assert magnitude == expected
+
+
+@pytest.mark.parametrize("vector, expected",
+                         ((Vector(0, 0, 0), Vector(0, 0, 0)),
+                          (Vector(1, 1, 1), Vector(0.57735, 0.57735, 0.57735)),
+                          (Vector(5.5, 10.6, 20.4), Vector(0.23267, 0.44842, 0.86301))))
+def test_vector_normal(vector, expected):
+    """
+    Test the functionality of normal, which returns a Vector of magnitude 1, pointing in
+    the same direction as the original Vector.
+    """
+    normal_vector = vector.normal()
+    assert round(normal_vector.x, 5) == expected.x
+    assert round(normal_vector.y, 5) == expected.y
+    assert round(normal_vector.z, 5) == expected.z
+
+
+@pytest.mark.parametrize("vector1, vector2, expected",
+                         ((Vector(0, 0, 0), Vector(1, 0, 0), 1),
+                          (Vector(0, 0, 0), Vector(0, 0, 0), 0),
+                          (Vector(5.5, 10.6, 20.4), Vector(56.3, 81.4, 105.7), 121.94003)))
+def test_vector_distance(vector1, vector2, expected):
+    """
+    Test the functionality of distance, which measures the absolute distance between
+    two Vectors.
+    """
+    distance = vector1.distance(vector2)
+    assert round(distance, 5) == expected
+
+
+@pytest.mark.parametrize("vector1, vector2, expected",
+                         ((Vector(0, 0, 0), Vector(1, 1, 1), Vector(1, 1, 1)),
+                          (Vector(5.5, 10.6, 20.4), Vector(-5.5, -10.6, -20.4), Vector(0, 0, 0))))
+def test_vector_add(vector1, vector2, expected):
+    """
+    Test the functionality of the add operator.
+    """
+    assert vector1 + vector2 == expected
+
+
+@pytest.mark.parametrize("vector1, vector2, expected",
+                         ((Vector(0, 0, 0), Vector(1, 1, 1), Vector(-1, -1, -1)),
+                          (Vector(5.5, 10.6, 20.4), Vector(5.5, 10.6, 20.4), Vector(0, 0, 0))))
+def test_vector_sub(vector1, vector2, expected):
+    """
+    Test the functionality of the sub operator.
+    """
+    assert vector1 - vector2 == expected
+
+
+@pytest.mark.parametrize("vector, multiplier, expected",
+                         ((Vector(0, 0, 0), 1, Vector(0, 0, 0)),
+                          (Vector(5.5, 10.6, 20.4), 2, Vector(11, 21.2, 40.8))))
+def test_vector_mul(vector, multiplier, expected):
+    """
+    Test the functionality of the mul operator.
+    """
+    assert vector * multiplier == expected
