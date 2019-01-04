@@ -46,11 +46,9 @@ class Galaxy:
         result_count = data['meta']['results']['available']
         if result_count > 0:
             sys = data['data'][0]['attributes']
-            star_name = f"{sys['name']} A".casefold()
             bodies = data['included']
             for body in bodies:
-                body_name = body['attributes']['name'].casefold()
-                if (body_name == sys['name'].casefold() or body_name == star_name):
+                if self._match_main_star(sys['name'], body['attributes']['name']):
                     sys['spectral_class'] = body['attributes']['spectral_class']
             return StarSystem.from_dict(sys)
 
@@ -81,10 +79,8 @@ class Galaxy:
                                  "include": 1})
 
         for candidate in data['candidates']:
-            star_name = f"{candidate['name']} A".casefold()
             for body in data['included']['bodies']:
-                body_name = body['name'].casefold()
-                if ((body_name == candidate['name'].casefold() or body_name == star_name) and
+                if (self._match_main_star(candidate['name'], body['name']) and
                         body['spectral_class'] in self.SCOOPABLE_SPECTRAL_CLASSES):
                     return await self.find_system_by_name(candidate['name'])
 
@@ -217,6 +213,26 @@ class Galaxy:
                                     "limit": limit})
         if nearest['data']:
             return [neighbor['name'] for neighbor in nearest['data']]
+
+    @staticmethod
+    def _match_main_star(system_name: str, body_name: str) -> bool:
+        """
+        Attempts to match a star system's name with the actual name of its main star,
+        case insensitively.
+
+        Elite: Dangerous is a bit inconsistent with naming conventions, so the main star
+        can either share the same name as the system, or have an "A" appended to the end.
+
+        Args:
+            system_name (str): The name of the star system.
+            body_name (str): The name of the stellar body.
+
+        Returns:
+            True if the stellar body's name matches the star system, or if it matches the
+            naming convention for the main star in a system ("System_Name A"). False otherwise.
+        """
+        return (system_name.casefold() == body_name.casefold() or
+                f"{system_name} A".casefold() == body_name.casefold())
 
     async def _call(self, endpoint: str, params: Dict[str, str]) -> object:
         """
