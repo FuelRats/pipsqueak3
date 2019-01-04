@@ -16,6 +16,7 @@ from enum import Enum
 from math import isclose, sqrt
 from uuid import UUID
 from typing import Optional
+from dataclasses import dataclass
 
 STRIPPED_CHARS = '\t'
 
@@ -244,15 +245,15 @@ def reverse(text: str) -> str:
     return f'{Formatting.FORMAT_REVERSE.value}{text}{Formatting.FORMAT_REVERSE.value}'
 
 
-class Vector(object):
+@dataclass(frozen=True)
+class Vector:
     """
     Represents a point within 3D space.
     """
 
-    def __init__(self, x, y, z):
-        self.x = float(x)
-        self.y = float(y)
-        self.z = float(z)
+    x: float
+    y: float
+    z: float
 
     def magnitude(self):
         """
