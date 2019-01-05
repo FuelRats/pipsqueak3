@@ -48,6 +48,7 @@ from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
 from database import DatabaseManager
+from Modules.fact import Fact
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -296,3 +297,20 @@ def test_dbm_pool_fx(test_dbm_fx) -> psycopg2.pool.SimpleConnectionPool:
     A DATABASE CONFIGURATION AND CONNECTION IS REQUIRED FOR THESE TESTS.
     """
     return test_dbm_fx._dbpool
+
+
+@pytest.fixture
+def test_fact_empty_fx() -> Fact:
+    return Fact()
+
+
+@pytest.fixture()
+def test_fact_fx() -> Fact:
+    return Fact(name='test',
+                lang='en',
+                message='This is a test fact.',
+                aliases=['testfact'],
+                author='Shatt',
+                editedby='Shatt',
+                mfd=False
+                )
