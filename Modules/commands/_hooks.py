@@ -26,16 +26,24 @@ from being invoked. it is ignored outside pre-execution hooks.
 """
 
 
-async def require_channel(context: Context):
+# #######
+# pre-execute hooks
+# #
+
+async def require_channel(context: Context, *args,**kwargs):
     LOG.debug("in require_channel")
     return STOP_EXECUTION
 
 
-async def require_direct_message(context: Context):
+async def require_direct_message(context: Context, *args,**kwargs):
     LOG.debug("in require_direct_message")
     ...
 
 
-async def require_permission(context: Context, permission: Permission):
+async def require_permission(context: Context, permission: Permission, *args,**kwargs):
     LOG.debug("in require_permission")
     ...
+
+# #######
+# post-execute hooks
+# #
