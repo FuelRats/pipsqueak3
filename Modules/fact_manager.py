@@ -13,11 +13,10 @@ See LICENSE.md
 """
 import datetime
 import logging
+from datetime import timezone
 from enum import Enum
-
 import psycopg2
 from psycopg2 import sql
-from datetime import timezone
 from Modules.fact import Fact
 from database import DatabaseManager
 
