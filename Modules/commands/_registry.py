@@ -27,8 +27,10 @@ class Registry(MutableMapping):
 
     This class extends `collections.abc.MutableMapping` and subsequently supports mapping features.
 
+    >>> registry = Registry()  # setup task
+
     To demonstrate this, we will define an example command..
-    >>> @command('doc_reg_ex0')
+    >>> @registry.command('doc_reg_ex0')
     ... async def doc_reg_ex0(*args, **kwargs):
     ...     print("in doc_reg_ex0!")
 
@@ -78,46 +80,45 @@ class Registry(MutableMapping):
     def __iter__(self) -> Iterator[str]:
         return iter(self.commands)
 
+    def command(self, *aliases, **kwargs: Dict) -> Callable:
+        """
+        `@command` decorator
 
-registry = Registry()
+        registers the decorated function as a Command within the commands :obj:`registry`
 
+        Examples:
+            Firstly we need a registry to register against,
+            >>> registry = Registry()
 
-def command(*aliases, **kwargs: Dict) -> Callable:
-    """
-    `@command` decorator
+            Then, we can register a plain old command, with no execution hooks
+            >>> @registry.command('doc_alias_foo', 'doc_alias_bar')
+            ... async def doc_cmd_foo(*args, **kwargs):
+            ...     print("in doc_cmd_foo!")
 
-    registers the decorated function as a Command within the commands :obj:`registry`
+            Once registration is complete, the original function is returned unmodified.
+            >>> doc_cmd_foo
+            <function doc_cmd_foo at ...>
 
-    Examples:
-        Register a plain old command, with no execution hooks
-        >>> @command('doc_alias_foo', 'doc_alias_bar')
-        ... async def doc_cmd_foo(*args, **kwargs):
-        ...     print("in doc_cmd_foo!")
-
-        Once registration is complete, the original function is returned unmodified.
-        >>> doc_cmd_foo
-        <function doc_cmd_foo at ...>
-
-    Kwargs:
-        This function will pass keyword arguments to :class:`Command`'s constructor to enable
-        pre-execution and post-execution hooks. see that class for more details
-
+        Kwargs:
+            This function will pass keyword arguments to :class:`Command`'s constructor to enable
+            pre-execution and post-execution hooks. see that class for more details
 
 
-    Args:
-        *aliases: string names to register
-        **kwargs: keyword arguments to pass to the underlying :class:`Command` constructor
 
-    Returns:
-        Callable: decorated function, unmodified.
-    """
+        Args:
+            *aliases: string names to register
+            **kwargs: keyword arguments to pass to the underlying :class:`Command` constructor
 
-    def real_decorator(func: Callable):
-        cmd = Command(*aliases, underlying=func, **kwargs)
-        for alias in aliases:
-            assert alias not in registry, f"command with alias '{alias}' already exists!"
-            # register each alias
-            registry[alias] = cmd
-        return func
+        Returns:
+            Callable: decorated function, unmodified.
+        """
 
-    return real_decorator
+        def real_decorator(func: Callable):
+            cmd = Command(*aliases, underlying=func, **kwargs)
+            for alias in aliases:
+                assert alias not in self, f"command with alias '{alias}' already exists!"
+                # register each alias
+                self[alias] = cmd
+            return func
+
+        return real_decorator

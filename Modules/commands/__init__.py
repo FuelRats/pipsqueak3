@@ -11,8 +11,9 @@ Implements:
 Examples:
     To define a command, its rather straight forward. you pass it an arbitry number of aliases
     you want to register, and use keyword arguments to define what modifiers to apply
+
     >>> from Modules.context import Context
-    >>> @command('alias1', 'alias2')
+    >>> @command_registry.command('alias1', 'alias2')
     ... async def doc_alias1(context:Context):
     ...     print("in doc_alias1")
 
@@ -20,7 +21,7 @@ Examples:
 
     Most notably it will register a command object for each alias you have specified in the
     registry
-    >>> 'alias1' in registry and "alias2" in registry
+    >>> 'alias1' in command_registry and "alias2" in command_registry
     True
 
 
@@ -39,6 +40,11 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from ._registry import registry, command
+from ._registry import Registry
 
-__all__ = ['command', 'registry']
+command_registry = Registry()
+"""
+Commands registry
+"""
+
+__all__ = ['command_registry']

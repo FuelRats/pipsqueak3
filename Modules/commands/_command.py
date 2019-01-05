@@ -139,13 +139,20 @@ class Command(abc.Callable, abc.Container):
         """
         Invoke this command.
 
+        First thing this function does is call the setup hooks, allowing for pre-command execution
+        behavior.
+        If any of the setup hooks return :obj:`_hooks.STOP_EXECUTION` then execution will be
+        canceled.
+
+        TODO:: implement @teardown and @setup subscribers?
+        TODO:: invoke teardown tasks if setup fails?
+
+        Any uncalled setup hooks are discarded, and the underlying / teardown hooks are
+        also discarded.
 
         Args:
-            *args ():
-            **kwargs ():
-
-        Returns:
-
+            *args: Positional arguments to pass to hooks and underlying
+            **kwargs (): Keyword arguments to pass to hooks and underlying
         """
 
         LOG.debug(f"command {self.aliases[0]} invoked...")
