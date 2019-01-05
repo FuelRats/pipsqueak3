@@ -55,7 +55,6 @@ class Galaxy:
                               is_populated=sys['is_populated'],
                               spectral_class=sys.get('spectral_class'))
 
-
     async def search_systems_by_name(self, name: str) -> Optional[List[str]]:
         """
         Perform a fuzzy (Soundex) search for star systems on the name
