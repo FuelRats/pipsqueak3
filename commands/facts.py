@@ -17,6 +17,7 @@ from Modules.context import Context
 from Modules.permissions import require_permission, TECHRAT, OVERSEER, RAT, require_channel
 from Modules.rat_command import command
 from Modules.fact_manager import Fact
+from Modules.rules import rule
 from utils import ratlib
 from datetime import datetime, timezone
 
@@ -226,8 +227,8 @@ async def cmd_fm_facthistory(context: Context):
     if len(context.words) != 3:
         await context.reply("Usage: !facthistory <name> <lang>")
     else:
-        fact_name = context.words[1].lower()
-        fact_lang = context.words[2].lower()
+        fact_name = context.words[1]
+        fact_lang = context.words[2]
 
         fm = context.bot.fact_mgr
         history = await fm.facthistory(fact_name, fact_lang)
