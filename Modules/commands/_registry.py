@@ -115,7 +115,9 @@ def command(*aliases, **kwargs: Dict) -> Callable:
     def real_decorator(func: Callable):
         cmd = Command(*aliases, underlying=func, **kwargs)
         for alias in aliases:
+            assert alias not in registry, f"command with alias '{alias}' already exists!"
             # register each alias
             registry[alias] = cmd
         return func
+
     return real_decorator
