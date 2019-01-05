@@ -224,21 +224,6 @@ class Galaxy:
             for key, value in params.items():
                 param_string += f"{key}={escape(str(value))}&"
         url = f"{base_url}{endpoint}{param_string}"
-        body = await self._get(url)
-        data = json.loads(body)
-        return data
-
-    async def _get(self, uri: str) -> str:
-        """
-        Performs an HTTP GET request on the URI and returns the response body.
-
-        Args:
-            uri (str): The URI to query, including query string.
-
-        Returns:
-            A string representing the data returned from the URI.
-        """
-
         async with aiohttp.ClientSession() as session:
-            async with session.get(uri) as response:
-                return await response.text()
+            async with session.get(url) as response:
+                return json.loads(await(response.text()))
