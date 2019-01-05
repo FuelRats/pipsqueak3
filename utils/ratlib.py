@@ -16,9 +16,7 @@ from enum import Enum
 from uuid import UUID
 from typing import Optional
 
-MIRC_CONTROL_CODES = ["\x0F", "\x16", "\x1D", "\x1F", "\x02",
-                      "\x03([1-9][0-6]?)?,?([1-9][0-6]?)?"]
-STRIPPED_CHARS = ';'
+STRIPPED_CHARS = '\t'
 
 
 class Platforms(Enum):
@@ -121,11 +119,14 @@ def sanitize(message: str) -> str:
     """
     sanitized_string = message
 
-    # Remove mIRC codes
-    for code in MIRC_CONTROL_CODES:
-        sanitized_string = re.sub(code, '', sanitized_string, re.UNICODE)
+    # Remove IRC control codes for color, bold, underline, etc.
+    control_code_regex = re.compile(r"([\x02\x1D\x1F\x1E\x11\x16\x0F]|"
+                                    r"(\x03([0-9]{1,2}(,[0-9]{1,2})?)?)|"
+                                    r"(\x04([0-9a-fA-F]{6}(,[0-9a-fA-F]{6})?)?))"
+                                    )
+    sanitized_string = control_code_regex.sub('', sanitized_string)
 
-    # Remove tabs and semi-colons
+    # Remove stripped characters. (e.g. Tabs)
     for character in sanitized_string:
         if character in STRIPPED_CHARS:
             sanitized_string = sanitized_string.replace(character, '')
