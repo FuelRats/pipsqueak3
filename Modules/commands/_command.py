@@ -62,6 +62,13 @@ class Command:
             return NotImplemented
 
     @property
+    def name(self):
+        """
+        return the first alias this command is known by, aka its name
+        """
+        return self.aliases[0]
+
+    @property
     def underlying(self) -> Callable:
         """
         The underlying command function, with no setup_hooks applied.

@@ -57,6 +57,14 @@ class Registry(MutableMapping):
         return iter(self.commands)
 
 
+registry = Registry()
+
+
 def command(*aliases, **kwargs):
     def real_decorator(func: Callable):
         cmd = Command(*aliases, underlying=func, **kwargs)
+        for alias in aliases:
+            # register each alias
+            registry[alias] = cmd
+        return func
+    return real_decorator
