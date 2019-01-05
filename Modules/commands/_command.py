@@ -10,6 +10,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from asyncio import gather
 from logging import getLogger
 from typing import List, Callable
 
@@ -52,6 +53,14 @@ class Command:
             assert not require_dm, "require_dm and require_channel are mutually exclusive."
             self._setup_hooks.append(_hooks.require_channel)
 
+    def __contains__(self, item):
+        # check if the item is one of our aliases
+        if item in self.aliases:
+            return True
+        else:
+            # its not, bail out
+            return NotImplemented
+
     @property
     def underlying(self) -> Callable:
         """
@@ -84,13 +93,22 @@ class Command:
         """
         Executes setup setup_hooks,
 
-        this method is a GENERATOR
+        Yields:
+            result of each setup task
         """
         for task in self.setup_hooks:
             yield await task(*args, **kwargs)
 
     async def teardown(self, *args, **kwargs):
-        ...  # fixme implement
+        """
+        Executes teardown tasks
+
+        Yields:
+            result of each teardown hook
+
+        """
+        for task in self.teardown_hooks:
+            yield await task(*args, **kwargs)
 
     async def __call__(self, *args, **kwargs):
         """
@@ -106,7 +124,7 @@ class Command:
         """
 
         LOG.debug(f"command {self.aliases[0]} invoked...")
-        # call setup tasks
+        # call setup tasks sequentially
         async for result in self.setup(*args, **kwargs):
             LOG.debug(f"result of setup hook:= {result}")
             # check if the hook wants to stop the execution
@@ -119,4 +137,4 @@ class Command:
         await self.underlying(*args, **kwargs)
 
         # finally execute teardown tasks some teardown
-        await self.teardown(*args, **kwargs)
+        await gather(self.teardown(*args, **kwargs))
