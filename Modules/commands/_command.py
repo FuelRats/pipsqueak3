@@ -20,7 +20,24 @@ from . import _hooks
 LOG = getLogger(f"mecha.{__name__}")
 
 
-class Command:
+class Command(abc.Callable, abc.Container):
+    """
+    Defines a Command.
+
+    Examples:
+        This class implements :class:`abc.Container`, using string aliases for the contains check.
+        >>> async def foo(*args, **kwargs):
+        ...     print("foo called!")
+        >>> cmd = Command('doc_command_foo', underlying=foo)
+
+        >>> 'doc_command_foo' in cmd
+        True
+
+        This class is also :class:`abc.Callable`, thus can be called directly
+        >>> run(cmd())
+        foo called!
+    """
+
     def __init__(self, *names,
                  underlying: Callable,
                  require_permission=False,
