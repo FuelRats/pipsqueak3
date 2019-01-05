@@ -224,8 +224,8 @@ class Galaxy:
         Attempts to match a star system's name with the actual name of its main star,
         case insensitively.
 
-        Elite: Dangerous is a bit inconsistent with naming conventions, so the main star
-        can either share the same name as the system, or have an "A" appended to the end.
+        Elite: Dangerous will append an "A" to a system's main star if the system contains
+        more than one star. This method simplifies searching for both variations at once.
 
         Args:
             system_name (str): The name of the star system.
