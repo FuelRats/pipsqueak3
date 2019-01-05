@@ -11,7 +11,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 from collections.abc import MutableMapping
-from typing import Callable, Dict, Iterator
+from typing import Callable, Dict, Iterator, List
 
 from ._command import Command
 
@@ -19,6 +19,28 @@ _registry_type: Dict[str, Command] = {}
 
 
 class Registry(MutableMapping):
+    """
+
+    Commands registry.
+
+    This class maintains a registry of registered Command objects.
+
+    This class extends `collections.abc.MutableMapping` and subsequently supports mapping features.
+
+    To demonstrate this, we will define an example command..
+    >>> @command('doc_reg_ex0')
+    ... async def doc_reg_ex0(*args, **kwargs):
+    ...     print("in doc_reg_ex0!")
+
+    Now that our command is registered, it's name can be used as keys into this registry
+    >>> registry['doc_reg_ex0'].underlying
+    <function doc_reg_ex0 at ...>
+
+    The function is registered as an :class:`Command` object, which also contains information
+    about the requested hooks. See :class:`Command` for more.
+
+    """
+
     def __init__(self):
         self._commands: Dict[str, Command] = {}
 
@@ -60,7 +82,36 @@ class Registry(MutableMapping):
 registry = Registry()
 
 
-def command(*aliases, **kwargs):
+def command(*aliases, **kwargs: Dict) -> Callable:
+    """
+    `@command` decorator
+
+    registers the decorated function as a Command within the commands :obj:`registry`
+
+    Examples:
+        Register a plain old command, with no execution hooks
+        >>> @command('doc_alias_foo', 'doc_alias_bar')
+        ... async def doc_cmd_foo(*args, **kwargs):
+        ...     print("in doc_cmd_foo!")
+
+        Once registration is complete, the original function is returned unmodified.
+        >>> doc_cmd_foo
+        <function doc_cmd_foo at ...>
+
+    Kwargs:
+        This function will pass keyword arguments to :class:`Command`'s constructor to enable
+        pre-execution and post-execution hooks. see that class for more details
+
+
+
+    Args:
+        *aliases: string names to register
+        **kwargs: keyword arguments to pass to the underlying :class:`Command` constructor
+
+    Returns:
+        Callable: decorated function, unmodified.
+    """
+
     def real_decorator(func: Callable):
         cmd = Command(*aliases, underlying=func, **kwargs)
         for alias in aliases:
