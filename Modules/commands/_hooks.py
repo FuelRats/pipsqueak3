@@ -32,7 +32,6 @@ from being invoked. it is ignored outside pre-execution hooks.
 
 async def require_channel(context: Context, *args,**kwargs):
     LOG.debug("in require_channel")
-    return STOP_EXECUTION
 
 
 async def require_direct_message(context: Context, *args,**kwargs):
