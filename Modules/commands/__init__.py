@@ -6,6 +6,8 @@ This package contains the various tools required to define a command.
 All you really need to define a command is to use the `@command` decorator, the system will handle
 the rest.
 
+Implements:
+    collections.abc.MutableMapping
 Examples:
     To define a command, its rather straight forward. you pass it an arbitry number of aliases
     you want to register, and use keyword arguments to define what modifiers to apply
@@ -13,6 +15,14 @@ Examples:
     >>> @command('alias1', 'alias2')
     ... async def doc_alias1(context:Context):
     ...     print("in doc_alias1")
+
+    This registration will do a couple things for you in the background.
+
+    Most notably it will register a command object for each alias you have specified in the
+    registry
+    >>> 'alias1' in registry and "alias2" in registry
+    True
+
 
     Using this decorator does not change the decorated, so it can be safely called elsewhere without
     complications.
