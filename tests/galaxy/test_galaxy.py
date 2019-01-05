@@ -87,30 +87,3 @@ async def test_plot_waypoint_route_invalid(galaxy_fx):
     """
     with pytest.raises(ValueError):
         await galaxy_fx.plot_waypoint_route("Fuelum", "Fualun")
-
-
-@pytest.mark.asyncio
-async def test_find_nearest_scoopable(galaxy_fx):
-    """
-    Test that searching for the nearest scoopable star returns the proper system name.
-    """
-    scoopable = await galaxy_fx.find_nearest_scoopable('Angrbonii')
-    assert scoopable.name == 'CRUCIS SECTOR EW-N A6-0'
-
-
-@pytest.mark.asyncio
-async def test_find_nearest_scoopable_self(galaxy_fx):
-    """
-    Test that an already scoopable star will return itself.
-    """
-    scoopable = await galaxy_fx.find_nearest_scoopable('Fuelum')
-    assert scoopable.name == 'FUELUM'
-
-
-@pytest.mark.asyncio
-async def test_find_nearest_scoopable_invalid(galaxy_fx):
-    """
-    Test that an invalid system will raise an exception.
-    """
-    with pytest.raises(ValueError):
-        await galaxy_fx.find_nearest_scoopable('Fualun')
