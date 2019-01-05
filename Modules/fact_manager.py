@@ -14,9 +14,10 @@ See LICENSE.md
 import datetime
 import logging
 from datetime import timezone
-from enum import Enum
+
 import psycopg2
 from psycopg2 import sql
+
 from Modules.fact import Fact
 from database import DatabaseManager
 
@@ -24,64 +25,68 @@ log = logging.getLogger(f"mecha.{__name__}")
 
 
 class FactManager(DatabaseManager):
-    class Action(Enum):
-        ADD = 1
-        REMOVE = 0
-
-    # Name of tables, for DBM
+    # Query constants, for SQL strings.  Perhaps these should be in config, but for now,
+    # here is sufficient.
     _FACT_TABLE = 'fact2'
-    _FACT_HISTORY = 'fact_history'
+    _FACT_LOG = 'fact_transaction'
 
     def __init__(self):
+        # Proclaim loudly into the void that we are loaded.
         log.info("Fact Manager Initialized.")
+
+        # Check that DBM was able to connect:
+        if self._dbpool is None:
+            log.exception("Unable to substantiate Database.  Fact Manager will NOT function.")
+
         super().__init__()
-
-    # TODO: Context manager support
-
-    async def find(self, name: str, lang: str) -> Fact:
-        """
-        Queries the database for a fact, and returns a populated Fact object.
-        Args:
-            name: name of fact to search, ie. 'prep'
-            lang: language ID for fact, defaults to 'en' (see Fact Class)
-
-        Returns: Populated Fact Object
-
-        """
-        # Build SQL Object for our query
-        query = sql.SQL(f"SELECT name, lang, message, aliases, author, edited, editedby, mfd from "
-                        f"{FactManager._FACT_TABLE} where name=%s AND lang=%s")
-
-        rows = await self.query(query, (name, lang))
-
-        return Fact(*rows[0]) if rows else Fact()
 
     async def add(self, fact: Fact):
         """
         Adds a new fact to the database.  This will result in a ProgrammingError being thrown
-        if a fact added this way violates the name, lang PK relationship.  Verify a fact
-        does NOT exist before adding to avoid this.
+        if a fact violates the (name, lang) Primary Key relationship.
+
+        VERIFY IF THE FACT EXISTS WITH self.EXISTS() FIRST.
+
+        >>> if self.exists("test", "en"):
+        ...     await self.add(NewFact)
+        ... else:
+        ...     # Abandon Ship!
+        ...     raise TypeError("Attempted commit on incomplete Fact.")
 
         Aliases cannot be inserted this way, at this time.  None is forced for fact.aliases.
         """
+        # Don't judge this SQL, its the most compact way to do it. (Thanks PEP8)
         add_query = sql.SQL(f"INSERT INTO {FactManager._FACT_TABLE} "
                             f"VALUES ( %s, %s, %s, %s, %s, %s, %s, %s )")
 
         try:
             if fact.complete:
+                # No tuple to unpack here, so assign manually:
                 add_values = (fact.name, fact.lang, fact.message, None,
                               fact.author, fact.edited, fact.editedby, fact.mfd)
+
+                # run INSERT query
                 await self.query(add_query, add_values)
             else:
+                # Lets handle this TypeError here, because if .complete is False, we didn't
+                # get enough information to create it without violating NOT NULL fields.
                 raise TypeError("Attempted commit on incomplete Fact.")
+
         except (psycopg2.DatabaseError, psycopg2.ProgrammingError) as error:
+            # Database is not available, or fact already exists and wasn't checked.
+            # Raise error, generating graceful cheese error and log the exception.
             log.exception(f"Unable to add fact '{fact.name}!", error)
             raise error
 
     async def delete(self, name: str, lang: str):
         """
-        Deletes a fact from the database.  This is an un-recoverable action.
-        Raises if performed on a fact not marked for deletion.
+        Deletes a fact from the database.  This is an un-recoverable action.  This must be done
+        on a fact actually marked for deletion, using !factmfd.  Doing otherwise will result in
+        a thrown psycopg2.ProgrammingError.
+
+        >>> if await self.mfd('test', 'en'): # Attempt to mark a fact for deletion
+        ...     await self.delete('test', 'en')
+
         Args:
             name: name of fact to be deleted
             lang: langID of fact to be deleted
@@ -91,18 +96,26 @@ class FactManager(DatabaseManager):
         del_query = sql.SQL(f"DELETE FROM {FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
 
         fact = await self.find(name, lang)
-        log.info(f"Fact MFD is {fact.mfd}")
+
+        # Check the fact's property to verify it is marked for deletion
         if fact.mfd:
             try:
                 await self.query(del_query, (name, lang))
-            except psycopg2.ProgrammingError:
+            except (psycopg2.ProgrammingError, psycopg2.DatabaseError):
+                # Again, if a DatabaseError is raised, the DB isn't available. A ProgrammingError
+                # indicates an issue with the query, or if raised from the else statement,
+                # an attempt to delete a fact not marked for deletion.
                 log.exception("Unable to delete fact row from database.")
         else:
+            log.exception("Attempted deletion of fact not marked for delete.")
             raise psycopg2.ProgrammingError(f"{name}-{lang} is not marked for deletion.")
 
     async def exists(self, name: str, lang: str) -> bool:
         """
-        Quick True/False return if a fact with that combo already exists.
+        Check if a fact exists, without having to substantiate a full Fact object.
+
+        >>> fact_existence = self.exists('test', 'en')
+
         Args:
             name: name of fact
             lang: language ID of fact
@@ -113,52 +126,94 @@ class FactManager(DatabaseManager):
         query = sql.SQL(f"SELECT COUNT(*) message FROM "
                         f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
 
-        qresult = await self.query(query, (name, lang))
+        try:
+            result = await self.query(query, (name, lang))
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
+            # Check for offline database, or issues with the query.
+            log.exception(f"Could not establish existence of {name}-{lang}")
+            raise error
 
-        return qresult[0][0]
+        # We are only getting a single integer as a response, so we can unpack it by index.
+        # it will always return a single integer.
+        return result[0][0]
 
-    async def mfd(self, name: str, lang: str) -> bool:
+    async def facthistory(self, fact_name: str, fact_lang: str) -> list:
         """
-        Toggles the MFD flag on a fact.
+        Pulls the last 5 transaction logs for a fact, as a tuple
+
+        >>> history_list = self.facthistory("test", "en")
+
         Args:
-            name: name of fact to update
-            lang: lang of fact to update
+            fact_name: Name of the fact
+            fact_lang: LangID of the fact.
 
-        Returns: True/False that fact was set to.
+        Returns: tuple of transaction log items, for fact.
         """
-        query = sql.SQL(f"SELECT fact2.mfd FROM "
-                        f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
-        qresult = await self.query(query, (name, lang))
+        query = sql.SQL(f"SELECT name, lang, author, message, ts, old, new "
+                        f"FROM {self._FACT_LOG} WHERE name=%s AND lang=%s "
+                        f"ORDER BY ts DESC LIMIT 5")
 
-        # Set MFD to inverted value of qresult
-        mfd_query = sql.SQL(f"UPDATE {FactManager._FACT_TABLE} "
-                            f"SET mfd=%s WHERE name=%s AND lang=%s")
-        mfd_value = not qresult[0][0]
-        await self.query(mfd_query, (mfd_value, name, lang))
+        query_data = (fact_name, fact_lang)
 
-        return mfd_value
-
-    async def mfd_list(self, numresults=5) -> list:
-        """
-        Returns a list of facts marked for deletion
-
-        Returns: list of facts
-        Example: ['test-en', 'prep-en', 'mfdtest-en']
-        """
-        query = sql.SQL(f"SELECT name, lang FROM "
-                        f"{FactManager._FACT_TABLE} WHERE mfd=%s "
-                        f"ORDER BY edited DESC LIMIT {numresults}")
-        raw_results = await self.query(query, (True,))
-        result = []
-
-        result = [f"{item[0]}-{item[1]}" for item in raw_results]
+        try:
+            result = await self.query(query, query_data)
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
+            # ProgrammingError is a query failure, DatabaseError is database unavailable.
+            log.exception(f"Unable to retrieve history for {fact_name}-{fact_lang}")
+            raise error
 
         return result
+
+    async def find(self, name: str, lang: str) -> Fact:
+        """
+        Queries the database for a fact, and returns a populated Fact object.
+
+        See Fact class for more information on Fact properties (Modules\fact.py)
+
+        >>> example_query = sql.SQL("SELECT * some_table WHERE some_value=%s")
+        ... returned_fact = await self.query(example_query, ('something',))
+
+        Args:
+            name: name of fact to search, ie. 'prep'
+            lang: language ID for fact, defaults to 'en' (see Fact Class)
+
+        Returns: Fact()
+
+        """
+        # Build SQL Object for our query
+        query = sql.SQL(f"SELECT name, lang, message, aliases, author, edited, editedby, mfd from "
+                        f"{FactManager._FACT_TABLE} where name=%s AND lang=%s")
+
+        # await our raw result from query
+        try:
+            rows = await self.query(query, (name, lang))
+        except (psycopg2.DatabaseError, psycopg2.ProgrammingError) as error:
+            # Check for offline database, or query errors
+            log.exception("Unable to find fact due to exception.")
+            raise error
+
+        # unpack query into a fact object, or return an empty Fact if there is no result.
+        return Fact(*rows[0]) if rows else Fact()
 
     async def log(self, fact_name: str, fact_lang: str, author: str, msg: str,
                   new_field=None, old_field=None):
         """
         Writes a transaction log entry to the transaction log table.
+
+        The msg field should be only be one of the following (by convention):
+
+        * Added
+        * Deleted
+        * Edited
+        * Marked for delete
+        * Unmarked for delete
+
+        >>> await self.log("test", "en", "Shatt", "Marked for delete")
+
+        An Enum for these values is silly, as we need to output the strings directly
+        elsewhere, and so we do not preclude the use of future or custom strings from outside
+        mecha.
+
         Args:
             fact_name: Name of fact this applies to.
             fact_lang: langID of fact this applies to.
@@ -171,26 +226,74 @@ class FactManager(DatabaseManager):
         """
         log_query = sql.SQL(f"INSERT INTO fact_transaction VALUES "
                             f"(DEFAULT, %s, %s, %s, %s, %s, %s, %s)")
+
         query_data = (fact_name, fact_lang, author, msg, old_field, new_field,
                       datetime.datetime.now(tz=timezone.utc))
+
         try:
             await self.query(log_query, query_data)
-        except psycopg2.ProgrammingError as error:
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             log.exception("Unable to write transaction log to table.")
             raise error
 
-    async def facthistory(self, fact_name: str, fact_lang: str) -> list:
+    async def mfd(self, name: str, lang: str) -> bool:
         """
-        Pulls the last 5 transaction logs for a fact, as a tuple
-        Args:
-            fact_name: Name of the fact
-            fact_lang: LangID of the fact.
+        Toggles the MFD flag on a fact.
 
-        Returns: tuple of transaction log items, for fact.
+        >>> mfd_value = await self.mfd("test", "en")
+
+        Args:
+            name: name of fact to update
+            lang: lang of fact to update
+
+        Returns: True/False that fact was set to.
         """
-        query = sql.SQL(f"SELECT name, lang, author, message, ts, old, new "
-                        f"FROM fact_transaction WHERE name=%s AND lang=%s ORDER BY ts DESC LIMIT 5")
-        query_data = (fact_name, fact_lang)
-        result = await self.query(query, query_data)
+
+        query = sql.SQL(f"SELECT fact2.mfd FROM "
+                        f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
+
+        try:
+            result = await self.query(query, (name, lang))
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
+            # ProgrammingError is a query failure, DatabaseError is database unavailable.
+            log.exception(f"Error setting MFD field value for {name}-{lang}")
+            raise error
+
+        # Invert MFD field value, and set it again.
+        mfd_query = sql.SQL(f"UPDATE {FactManager._FACT_TABLE} "
+                            f"SET mfd=%s WHERE name=%s AND lang=%s")
+        mfd_value = not result[0][0]
+
+        # Yes, we use another try block here.  We do so for every transaction, to catch
+        # DB offline or bad queries.
+        try:
+            await self.query(mfd_query, (mfd_value, name, lang))
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
+            # ProgrammingError is a query failure, DatabaseError is database unavailable.
+            log.exception(f"Error setting MFD field value for {name}-{lang}")
+            raise error
+
+        return mfd_value
+
+    async def mfd_list(self, num_results=5) -> list:
+        """
+        Returns a list of facts marked for deletion
+
+        >>> mfd_list = await self.mfd_list(3)
+
+        Returns: list of facts
+        """
+        query = sql.SQL(f"SELECT name, lang FROM "
+                        f"{FactManager._FACT_TABLE} WHERE mfd=%s "
+                        f"ORDER BY edited DESC LIMIT {num_results}")
+
+        try:
+            raw_results = await self.query(query, (True,))
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
+            # ProgrammingError is a query failure, DatabaseError is database unavailable.
+            log.exception(f"Error getting MFD list.")
+            raise error
+        else:
+            result = [f"{item[0]}-{item[1]}" for item in raw_results]
 
         return result
