@@ -27,7 +27,6 @@ class Galaxy:
     """
 
     MAX_PLOT_DISTANCE = 20000
-    SCOOPABLE_SPECTRAL_CLASSES = ('K', 'G', 'B', 'F', 'O', 'A', 'M')
 
     def __init__(self, url: str = None):
         self.url = url or config['api']['url']
@@ -56,37 +55,6 @@ class Galaxy:
                               is_populated=sys['is_populated'],
                               spectral_class=sys.get('spectral_class'))
 
-    async def find_nearest_scoopable(self, name: str) -> Optional[StarSystem]:
-        """
-        Find the nearest fuel-scoopable star from the system given to us.
-
-        Args:
-            name (str): The name of the system to center the search on.
-
-        Returns:
-            A ``StarSystem`` object representing the nearest scoopable star, or ``None`` if
-            none was found.
-        """
-
-        system = await self.find_system_by_name(name)
-        if system is None:
-            raise ValueError("Provided system could not be located!")
-        if system.spectral_class in self.SCOOPABLE_SPECTRAL_CLASSES:
-            return system
-
-        data = await self._call("nearest",
-                                {"x": system.position.x,
-                                 "y": system.position.y,
-                                 "z": system.position.z,
-                                 "aggressive": 1,
-                                 "limit": 50,
-                                 "include": 1})
-
-        for candidate in data['candidates']:
-            for body in data['included']['bodies']:
-                if (self._match_main_star(candidate['name'], body['name']) and
-                        body['spectral_class'] in self.SCOOPABLE_SPECTRAL_CLASSES):
-                    return await self.find_system_by_name(candidate['name'])
 
     async def search_systems_by_name(self, name: str) -> Optional[List[str]]:
         """
