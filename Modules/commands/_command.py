@@ -144,7 +144,6 @@ class Command(abc.Callable, abc.Container):
         If any of the setup hooks return :obj:`_hooks.STOP_EXECUTION` then execution will be
         canceled.
 
-        TODO:: implement @teardown and @setup subscribers?
         TODO:: invoke teardown tasks if setup fails?
 
         Any uncalled setup hooks are discarded, and the underlying / teardown hooks are
@@ -156,14 +155,16 @@ class Command(abc.Callable, abc.Container):
         """
 
         LOG.debug(f"command {self.aliases[0]} invoked...")
-        # call setup tasks sequentially
 
+        # if we have setup tasks to do
         if self.setup_hooks:
+            # call setup tasks sequentially
             async for result in self.setup(*args, **kwargs):
                 LOG.debug(f"<{self.name}>:result of setup hook:= {result}")
                 # check if the hook wants to stop the execution
                 if result is _hooks.STOP_EXECUTION:
                     LOG.debug(f"<{self.name}>:Setup hook terminated execution for command")
+                    # bail out
                     return
         else:
             LOG.debug(f"<{self.name}>:no setup hooks for command, skipping...")
@@ -175,7 +176,7 @@ class Command(abc.Callable, abc.Container):
         # finally execute teardown tasks some teardown
 
         if self.teardown_hooks:
-            LOG.debug(f"<{self.name}>:executing teardown tasks for command")
+            LOG.debug(f"<{self.name}>:executing teardown tasks for command...")
             async for task_result in self.teardown(*args, **kwargs):
                 LOG.debug(f"<{self.name}>: result of teardown hook: {task_result}")
         else:
