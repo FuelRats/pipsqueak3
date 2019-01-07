@@ -18,6 +18,7 @@ from datetime import timezone
 import psycopg2
 from psycopg2 import sql
 
+
 from Modules.fact import Fact
 from database import DatabaseManager
 
@@ -25,12 +26,17 @@ log = logging.getLogger(f"mecha.{__name__}")
 
 
 class FactManager(DatabaseManager):
-    # Query constants, for SQL strings.  Perhaps these should be in config, but for now,
-    # here is sufficient.
-    _FACT_TABLE = 'fact2'
-    _FACT_LOG = 'fact_transaction'
 
-    def __init__(self):
+    def __init__(self, fact_table="fact2", fact_log="fact_transaction"):
+        if not isinstance(fact_table, str):
+            raise TypeError("fact table must be a string.")
+
+        if not isinstance(fact_log, str):
+            raise TypeError("fact log must be a string.")
+
+        self._FACT_TABLE = fact_table
+        self._FACT_LOG = fact_log
+
         # Proclaim loudly into the void that we are loaded.
         log.info("Fact Manager Initialized.")
         super().__init__()
@@ -51,7 +57,7 @@ class FactManager(DatabaseManager):
         Aliases cannot be inserted this way, at this time.  None is forced for fact.aliases.
         """
         # Don't judge this SQL, its the most compact way to do it. (Thanks PEP8)
-        add_query = sql.SQL(f"INSERT INTO {FactManager._FACT_TABLE} "
+        add_query = sql.SQL(f"INSERT INTO {self._FACT_TABLE} "
                             f"VALUES ( %s, %s, %s, %s, %s, %s, %s, %s )")
 
         try:
@@ -67,11 +73,25 @@ class FactManager(DatabaseManager):
                 # get enough information to create it without violating NOT NULL fields.
                 raise TypeError("Attempted commit on incomplete Fact.")
 
-        except (psycopg2.DatabaseError, psycopg2.ProgrammingError) as error:
+        except (psycopg2.DatabaseError, psycopg2.IntegrityError) as error:
             # Database is not available, or fact already exists and wasn't checked.
             # Raise error, generating graceful cheese error and log the exception.
             log.exception(f"Unable to add fact '{fact.name}!", error)
             raise error
+
+    async def _destroy(self, name: str, lang: str):
+        """
+        Internal method to destroy a fact.  This is not to be invoked outside the delete
+        method.
+        Args:
+            name: name of fact to destroy
+            lang: langID of fact to destroy
+
+        Returns: Nothing.
+        """
+        del_query = sql.SQL(f"DELETE FROM {self._FACT_TABLE} WHERE name=%s AND lang=%s")
+
+        await self.query(del_query, (name, lang))
 
     async def delete(self, name: str, lang: str):
         """
@@ -88,19 +108,11 @@ class FactManager(DatabaseManager):
 
         Returns: Nothing
         """
-        del_query = sql.SQL(f"DELETE FROM {FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
-
         fact = await self.find(name, lang)
 
         # Check the fact's property to verify it is marked for deletion
         if fact.mfd:
-            try:
-                await self.query(del_query, (name, lang))
-            except (psycopg2.ProgrammingError, psycopg2.DatabaseError):
-                # Again, if a DatabaseError is raised, the DB isn't available. A ProgrammingError
-                # indicates an issue with the query, or if raised from the else statement,
-                # an attempt to delete a fact not marked for deletion.
-                log.exception("Unable to delete fact row from database.")
+            await self._destroy(name, lang)
         else:
             log.exception("Attempted deletion of fact not marked for delete.")
             raise psycopg2.ProgrammingError(f"{name}-{lang} is not marked for deletion.")
@@ -125,15 +137,15 @@ class FactManager(DatabaseManager):
             log.exception("Attempted edit on non-existent fact.")
             raise ValueError
 
-        current_fact = await self.find(name, lang)
-
-        edit_query = sql.SQL(f"UPDATE {self._FACT_TABLE} SET message=%(message)s, "
-                             f"edited=%(edit_time)s WHERE name=%(name)s AND lang=%(lang)s")
-
-        query_values = {"edit_time": datetime.datetime.now(datetime.timezone.utc),
-                        "message": new_message, "name": name, "lang": lang}
-
         try:
+            current_fact = await self.find(name, lang)
+
+            edit_query = sql.SQL(f"UPDATE {self._FACT_TABLE} SET message=%(message)s, "
+                                 f"edited=%(edit_time)s WHERE name=%(name)s AND lang=%(lang)s")
+
+            query_values = {"edit_time": datetime.datetime.now(datetime.timezone.utc),
+                            "message": new_message, "name": name, "lang": lang}
+
             await self.query(edit_query, query_values)
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             log.exception(f"Editing fact '{name}-{lang}' failed.")
@@ -155,14 +167,14 @@ class FactManager(DatabaseManager):
 
         """
         query = sql.SQL(f"SELECT COUNT(*) message FROM "
-                        f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
+                        f"{self._FACT_TABLE} WHERE name=%s AND lang=%s")
 
         try:
             result = await self.query(query, (name, lang))
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # Check for offline database, or issues with the query.
             log.exception(f"Could not establish existence of {name}-{lang}")
-            raise error
+            raise
 
         # We are only getting a single integer as a response, so we can unpack it by index.
         # it will always return a single integer.
@@ -191,7 +203,7 @@ class FactManager(DatabaseManager):
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # ProgrammingError is a query failure, DatabaseError is database unavailable.
             log.exception(f"Unable to retrieve history for {fact_name}-{fact_lang}")
-            raise error
+            raise
 
         return result
 
@@ -213,7 +225,7 @@ class FactManager(DatabaseManager):
         """
         # Build SQL Object for our query
         query = sql.SQL(f"SELECT name, lang, message, aliases, author, edited, editedby, mfd from "
-                        f"{FactManager._FACT_TABLE} where name=%s AND lang=%s")
+                        f"{self._FACT_TABLE} where name=%s AND lang=%s")
 
         # await our raw result from query
         try:
@@ -221,7 +233,7 @@ class FactManager(DatabaseManager):
         except (psycopg2.DatabaseError, psycopg2.ProgrammingError) as error:
             # Check for offline database, or query errors
             log.exception("Unable to find fact due to exception.")
-            raise error
+            raise
 
         # unpack query into a fact object, or return an empty Fact if there is no result.
         return Fact(*rows[0]) if rows else Fact()
@@ -255,7 +267,7 @@ class FactManager(DatabaseManager):
 
         Returns: Nothing.
         """
-        log_query = sql.SQL(f"INSERT INTO fact_transaction VALUES "
+        log_query = sql.SQL(f"INSERT INTO {self._FACT_LOG} VALUES "
                             f"(DEFAULT, %s, %s, %s, %s, %s, %s, %s)")
 
         query_data = (fact_name, fact_lang, author, msg, old_field, new_field,
@@ -263,9 +275,9 @@ class FactManager(DatabaseManager):
 
         try:
             await self.query(log_query, query_data)
-        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError):
             log.exception("Unable to write transaction log to table.")
-            raise error
+            raise
 
     async def mfd(self, name: str, lang: str) -> bool:
         """
@@ -280,8 +292,8 @@ class FactManager(DatabaseManager):
         Returns: True/False that fact was set to.
         """
 
-        query = sql.SQL(f"SELECT fact2.mfd FROM "
-                        f"{FactManager._FACT_TABLE} WHERE name=%s AND lang=%s")
+        query = sql.SQL(f"SELECT mfd FROM "
+                        f"{self._FACT_TABLE} WHERE name=%s AND lang=%s")
 
         try:
             result = await self.query(query, (name, lang))
@@ -291,7 +303,7 @@ class FactManager(DatabaseManager):
             raise error
 
         # Invert MFD field value, and set it again.
-        mfd_query = sql.SQL(f"UPDATE {FactManager._FACT_TABLE} "
+        mfd_query = sql.SQL(f"UPDATE {self._FACT_TABLE} "
                             f"SET mfd=%s WHERE name=%s AND lang=%s")
         mfd_value = not result[0][0]
 
@@ -315,7 +327,7 @@ class FactManager(DatabaseManager):
         Returns: list of facts
         """
         query = sql.SQL(f"SELECT name, lang FROM "
-                        f"{FactManager._FACT_TABLE} WHERE mfd=%s "
+                        f"{self._FACT_TABLE} WHERE mfd=%s "
                         f"ORDER BY edited DESC LIMIT {num_results}")
 
         try:

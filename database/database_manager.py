@@ -8,7 +8,7 @@ See LICENSE.md
 """
 from config import config
 from psycopg2 import sql, pool
-from typing import Union
+from typing import Union, Tuple, List, Dict
 import logging
 import psycopg2
 
@@ -91,7 +91,7 @@ class DatabaseManager(object):
             log.exception("Unable to connect to database!")
             raise error
 
-    async def query(self, query: sql.SQL, values: Union[tuple, dict]) -> list:
+    async def query(self, query: sql.SQL, values: Union[Tuple, Dict]) -> List:
         """
         Send a query to the connected database.  Pulls a connection from the pool and creates
         a cursor, executing the composed query with the values.
@@ -108,7 +108,7 @@ class DatabaseManager(object):
             raise TypeError("Expected composed SQL object for query.")
 
         # Verify value is tuple or dict.
-        if not isinstance(values, (dict, tuple)):
+        if not isinstance(values, (Dict, Tuple)):
             raise TypeError(f"Expected tuple or dict for query values.")
 
         # Pull a connection from the pool, and create a cursor from it.
