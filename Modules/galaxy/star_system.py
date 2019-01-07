@@ -9,9 +9,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from typing import Dict
-
-from dataclasses import dataclass, InitVar
+from dataclasses import dataclass
 
 from utils.ratlib import Vector
 
@@ -23,7 +21,6 @@ class StarSystem:
     """
 
     name: str
-    is_populated: bool
     position: Vector
     spectral_class: str = None
 

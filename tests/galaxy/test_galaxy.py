@@ -25,7 +25,6 @@ async def test_find_system_by_name(galaxy_fx):
     assert system.position.z == 49.8125
     assert system.name == "FUELUM"
     assert system.spectral_class == "K"
-    assert system.is_populated
 
 
 @pytest.mark.asyncio
@@ -43,9 +42,9 @@ async def test_search_systems_by_name(galaxy_fx):
     Test that we can get a list of similar systems by name.
     """
     nearest = await galaxy_fx.search_systems_by_name("Fualun")
-    assert nearest[0] == 'FUELUM'
-    assert nearest[1] == 'FOLNA'
-    assert nearest[2] == 'FEI LIN'
+    assert nearest[0] == 'FOLNA'
+    assert nearest[1] == 'FEI LIN'
+    assert nearest[2] == 'FEI LIAN'
 
 
 @pytest.mark.asyncio
