@@ -11,7 +11,7 @@ coloredlogs = "*"
 psycopg2 = "*"
 
 [dev-packages]
-pytest = "==4.0.2"
+pytest = "==4.0.2"  #FIXME remove limit when pytest-asyncio updates and pytest is no longer breaking things
 pytest-cov = "*"
 pytest-asyncio = "*"
 pylint = "*"
