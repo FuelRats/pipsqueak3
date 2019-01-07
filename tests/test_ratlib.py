@@ -193,7 +193,7 @@ def test_vector_normal_zero():
     Test that attempting to normalize a zero Vector will raise a ValueError.
     """
     with pytest.raises(ValueError):
-        Vector(0, 0, 0).normal()
+        Vector.zero().normal()
 
 
 @pytest.mark.parametrize("vector1, vector2, expected",
