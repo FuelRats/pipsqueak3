@@ -99,6 +99,11 @@ class Registry(MutableMapping):
             >>> doc_cmd_foo
             <function doc_cmd_foo at ...>
 
+            Of course, even though this decorator returns the original, it does store a reference
+            to it in the registry.
+            >>> registry['doc_alias_foo'].underlying
+            <function doc_cmd_foo at ...>
+
         Kwargs:
             This function will pass keyword arguments to :class:`Command`'s constructor to enable
             pre-execution and post-execution hooks. see that class for more details
