@@ -291,6 +291,13 @@ class Vector:
             ((other.y - self.y) ** 2) +
             ((other.z - self.z) ** 2))
 
+    @classmethod
+    def zero(cls) -> 'Vector':
+        """
+        Returns a Vector at (0, 0, 0).
+        """
+        return cls(0, 0, 0)
+
     def __add__(self, other):
         return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
 
