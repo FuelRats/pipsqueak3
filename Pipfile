@@ -11,7 +11,7 @@ coloredlogs = "*"
 psycopg2 = "*"
 
 [dev-packages]
-pytest = "*"
+pytest = "==4.0.2"
 pytest-cov = "*"
 pytest-asyncio = "*"
 pylint = "*"
