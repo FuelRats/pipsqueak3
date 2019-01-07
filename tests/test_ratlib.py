@@ -175,8 +175,7 @@ def test_vector_magnitude(vector, expected):
 
 
 @pytest.mark.parametrize("vector, expected",
-                         ((Vector(0, 0, 0), Vector(0, 0, 0)),
-                          (Vector(1, 1, 1), Vector(0.57735, 0.57735, 0.57735)),
+                         ((Vector(1, 1, 1), Vector(0.57735, 0.57735, 0.57735)),
                           (Vector(5.5, 10.6, 20.4), Vector(0.23267, 0.44842, 0.86301))))
 def test_vector_normal(vector, expected):
     """
@@ -187,6 +186,14 @@ def test_vector_normal(vector, expected):
     assert round(normal_vector.x, 5) == expected.x
     assert round(normal_vector.y, 5) == expected.y
     assert round(normal_vector.z, 5) == expected.z
+
+
+def test_vector_normal_zero():
+    """
+    Test that attempting to normalize a zero Vector will raise a ValueError.
+    """
+    with pytest.raises(ValueError):
+        Vector(0, 0, 0).normal()
 
 
 @pytest.mark.parametrize("vector1, vector2, expected",

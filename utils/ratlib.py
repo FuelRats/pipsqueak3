@@ -255,7 +255,7 @@ class Vector:
     y: float
     z: float
 
-    def magnitude(self):
+    def magnitude(self) -> float:
         """
         The magnitude of the vector, or the total distance between it and
         the origin (0, 0, 0).
@@ -263,19 +263,25 @@ class Vector:
 
         return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
-    def normal(self):
+    def normal(self) -> 'Vector':
         """
         The normalized vector, representing 1 "unit" of distance in the Vector's
         original direction.
+
+        Returns:
+            The normalized vector, if valid.
+
+        Raises:
+            ValueError: If `magnitude()` is zero, the Vector must be (0, 0, 0), and therefore
+                        has no normal.
         """
 
         mag = self.magnitude()
         if mag == 0:
-            # Make sure we avoid a divide by zero issue.
-            return Vector(0, 0, 0)
+            raise ValueError('Cannot normalize a zero Vector.')
         return Vector(self.x / mag, self.y / mag, self.z / mag)
 
-    def distance(self, other):
+    def distance(self, other) -> float:
         """
         Calculates the total distance between two Vectors.
         """
