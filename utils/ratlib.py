@@ -294,7 +294,7 @@ class Vector:
     @classmethod
     def zero(cls) -> 'Vector':
         """
-        Returns a Vector at (0, 0, 0).
+        Returns the zero Vector.
         """
         return cls(0, 0, 0)
 
