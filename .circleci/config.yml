@@ -90,24 +90,7 @@ jobs:
 
       - store_test_results:
           path: test-reports
-
-  linting:
-    environment:
-      # tell pipenv
-      PIPENV_VENV_IN_PROJECT: true
-
-    docker:
-      # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.7
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
-
-    working_directory: ~/repo
-
+  setup_workspace:
     steps:
       - checkout
 
@@ -132,12 +115,33 @@ jobs:
           paths:
             - ".venv"
           key: v3-dependencies-{{ checksum "Pipfile.lock" }}
-
-
       # cache code and dependencies for later jobs
       - persist_to_workspace:
           root: .
           paths: .
+
+
+
+  linting:
+    environment:
+      # tell pipenv
+      PIPENV_VENV_IN_PROJECT: true
+
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:3.7
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    steps:
+      - attach_workspace:
+          at: .
 
       - run:
           name: retrieve pylint-exit
@@ -154,12 +158,16 @@ workflows:
   version: 2
   build_and_lint:
     jobs:
+      - setup_workspace
       #       run tests first
-      - linting
+      - linting:
+          requires:
+            - setup_workspace
       - tests:
           #          don't bother running tests if linting catches any errors
           requires:
             - linting
+            - setup_workspace
 
 notify:
   branches:
