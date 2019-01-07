@@ -209,6 +209,14 @@ def test_vector_distance(vector1, vector2, expected):
     assert round(distance, 5) == expected
 
 
+def test_vector_zero():
+    """
+    Test the functionality of zero, which returns a zero Vector.
+    """
+    vector = Vector.zero()
+    assert vector == Vector(0, 0, 0)
+
+
 @pytest.mark.parametrize("vector1, vector2, expected",
                          ((Vector(0, 0, 0), Vector(1, 1, 1), Vector(1, 1, 1)),
                           (Vector(5.5, 10.6, 20.4), Vector(-5.5, -10.6, -20.4), Vector(0, 0, 0))))
