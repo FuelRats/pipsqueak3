@@ -42,17 +42,17 @@ class Galaxy:
             A ``StarSystem`` object representing the found system, or ``None`` if none was found.
         """
 
-        data = await self._call("systems", {"filter[name:like]": name.upper(), "include": "bodies"})
+        data = await self._call("api/systems", {"filter[name:eq]": name.upper()})
         result_count = data['meta']['results']['available']
         if result_count > 0:
             sys = data['data'][0]['attributes']
-            bodies = data['included']
-            for body in bodies:
-                if self._match_main_star(sys['name'], body['attributes']['name']):
-                    sys['spectral_class'] = body['attributes']['spectral_class']
-            return StarSystem(position=Vector(sys['x'], sys['y'], sys['z']),
+            main_star = await self._call("api/stars",
+                                         {"filter[systemId64:eq]": sys['id64'],
+                                          "filter[isMainStar:eq]": 1})
+            if main_star['meta']['results']['available'] > 0:
+                sys['spectral_class'] = main_star['data'][0]['attributes']['subType'][0]
+            return StarSystem(position=Vector(**sys['coords']),
                               name=sys['name'],
-                              is_populated=sys['is_populated'],
                               spectral_class=sys.get('spectral_class'))
 
     async def search_systems_by_name(self, name: str) -> Optional[List[str]]:
@@ -70,7 +70,7 @@ class Galaxy:
 
         matches = await self._call("search",
                                    {"name": name.upper(),
-                                    "type": "soundex",
+                                    "type": "dmeta",
                                     "limit": "5"})
         # Check to ensure the data set is not missing or empty.
         if matches['data']:
@@ -160,7 +160,8 @@ class Galaxy:
                                     x: float,
                                     y: float,
                                     z: float,
-                                    limit: int = 10) -> Optional[List[str]]:
+                                    limit: int = 10,
+                                    cubesize: int = 50) -> Optional[List[str]]:
         """
         Given a set of galactic coordinates, find the closest star systems.
 
@@ -181,7 +182,8 @@ class Galaxy:
                                     "y": y,
                                     "z": z,
                                     "aggressive": "1",
-                                    "limit": limit})
+                                    "limit": limit,
+                                    "cubesize": cubesize})
         if nearest['data']:
             return [neighbor['name'] for neighbor in nearest['data']]
 
@@ -218,11 +220,12 @@ class Galaxy:
         """
 
         base_url = self.url
-        param_string = "?"
+        param_string = ""
         if params:
-            for key, value in params.items():
-                param_string += f"{key}={escape(str(value))}&"
-        url = f"{base_url}{endpoint}{param_string}"
+            param_string = '&'.join(
+                [f"{key}={escape(str(value))}" for key, value in params.items()]
+            )
+        url = f"{base_url}{endpoint}?{param_string}"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
-                return json.loads(await(response.text()))
+                return json.loads(await response.text())
