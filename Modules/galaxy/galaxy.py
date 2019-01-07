@@ -85,8 +85,8 @@ class Galaxy:
         waypoints should not exceed "interval" light-years.
 
         Args:
-            start (StarSystem): The system in which to begin our journey.
-            end (StarSystem): The system which we're travelling towards.
+            start (str): The system in which to begin our journey.
+            end (str): The system which we're travelling towards.
             interval (int): The maximum distance between two waypoints, in light-years.
 
         Returns:
