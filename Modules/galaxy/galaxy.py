@@ -187,26 +187,6 @@ class Galaxy:
         if nearest['data']:
             return [neighbor['name'] for neighbor in nearest['data']]
 
-    @staticmethod
-    def _match_main_star(system_name: str, body_name: str) -> bool:
-        """
-        Attempts to match a star system's name with the actual name of its main star,
-        case insensitively.
-
-        Elite: Dangerous will append an "A" to a system's main star if the system contains
-        more than one star. This method simplifies searching for both variations at once.
-
-        Args:
-            system_name (str): The name of the star system.
-            body_name (str): The name of the stellar body.
-
-        Returns:
-            True if the stellar body's name matches the star system, or if it matches the
-            naming convention for the main star in a system ("System_Name A"). False otherwise.
-        """
-        return (system_name.casefold() == body_name.casefold() or
-                f"{system_name} A".casefold() == body_name.casefold())
-
     async def _call(self, endpoint: str, params: Dict[str, str]) -> object:
         """
         Perform an API call on the Fuel Rats Systems API.
