@@ -1,6 +1,6 @@
 
 [run]
-branch = False
+branch = True
 source = Modules,database,utils
 
 [report]
