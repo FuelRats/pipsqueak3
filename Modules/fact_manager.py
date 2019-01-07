@@ -33,11 +33,6 @@ class FactManager(DatabaseManager):
     def __init__(self):
         # Proclaim loudly into the void that we are loaded.
         log.info("Fact Manager Initialized.")
-
-        # Check that DBM was able to connect:
-        if self._dbpool is None:
-            log.exception("Unable to substantiate Database.  Fact Manager will NOT function.")
-
         super().__init__()
 
     async def add(self, fact: Fact):
@@ -109,6 +104,42 @@ class FactManager(DatabaseManager):
         else:
             log.exception("Attempted deletion of fact not marked for delete.")
             raise psycopg2.ProgrammingError(f"{name}-{lang} is not marked for deletion.")
+
+    async def edit_message(self, name: str, lang: str, editor: str, new_message: str):
+        """
+        Edit a fact's message property on the database side.
+        Generates a transaction log record.
+
+        >>> await self.edit_message("fact_name", "fact_language",
+        ...                         "TheGuyWhoEdited", 'This is an edited fact')
+
+        Args:
+            name: name of fact
+            lang: langID of fact
+            editor: editor of fact (use context.user.nickname)
+            new_message: New content of message property.
+
+        Returns: Nothing
+        """
+        if not await self.exists(name, lang):
+            log.exception("Attempted edit on non-existent fact.")
+            raise ValueError
+
+        current_fact = await self.find(name, lang)
+
+        edit_query = sql.SQL(f"UPDATE {self._FACT_TABLE} SET message=%(message)s, "
+                             f"edited=%(edit_time)s WHERE name=%(name)s AND lang=%(lang)s")
+
+        query_values = {"edit_time": datetime.datetime.now(datetime.timezone.utc),
+                        "message": new_message, "name": name, "lang": lang}
+
+        try:
+            await self.query(edit_query, query_values)
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
+            log.exception(f"Editing fact '{name}-{lang}' failed.")
+            raise error
+        else:
+            await self.log(name, lang, editor, 'Edited', new_message, current_fact.message)
 
     async def exists(self, name: str, lang: str) -> bool:
         """
@@ -228,7 +259,7 @@ class FactManager(DatabaseManager):
                             f"(DEFAULT, %s, %s, %s, %s, %s, %s, %s)")
 
         query_data = (fact_name, fact_lang, author, msg, old_field, new_field,
-                      datetime.datetime.now(tz=timezone.utc))
+                      datetime.datetime.utcnow())
 
         try:
             await self.query(log_query, query_data)

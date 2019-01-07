@@ -8,6 +8,7 @@ See LICENSE.md
 """
 from config import config
 from psycopg2 import sql, pool
+from typing import Union
 import logging
 import psycopg2
 
@@ -90,7 +91,7 @@ class DatabaseManager(object):
             log.exception("Unable to connect to database!")
             raise error
 
-    async def query(self, query: sql.SQL, values: tuple) -> list:
+    async def query(self, query: sql.SQL, values: Union[tuple, dict]) -> list:
         """
         Send a query to the connected database.  Pulls a connection from the pool and creates
         a cursor, executing the composed query with the values.
@@ -98,7 +99,7 @@ class DatabaseManager(object):
 
         Args:
             query: composed SQL query object
-            values: tuple of values for query
+            values: tuple or dict of values for query
         Returns:
             List of rows matching query.  May return an empty list if there are no matching rows.
         """
@@ -106,9 +107,9 @@ class DatabaseManager(object):
         if not isinstance(query, sql.SQL):
             raise TypeError("Expected composed SQL object for query.")
 
-        # Verify value is tuple
-        if not isinstance(values, tuple):
-            raise TypeError("Expected tuples for query values.")
+        # Verify value is tuple or dict.
+        if not isinstance(values, (dict, tuple)):
+            raise TypeError(f"Expected tuple or dict for query values.")
 
         # Pull a connection from the pool, and create a cursor from it.
         with self._dbpool.getconn() as connection:

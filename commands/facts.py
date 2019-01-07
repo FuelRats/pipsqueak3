@@ -11,15 +11,15 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
+from datetime import datetime, timezone
+
 import psycopg2
 
 from Modules.context import Context
+from Modules.fact_manager import Fact
 from Modules.permissions import require_permission, TECHRAT, OVERSEER, RAT, require_channel
 from Modules.rat_command import command
-from Modules.fact_manager import Fact
-from Modules.rules import rule
 from utils import ratlib
-from datetime import datetime, timezone
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -239,7 +239,6 @@ async def cmd_fm_facthistory(context: Context):
             await context.reply("No transaction history for that fact.")
 
         for item in history:
-
             fact_duration = datetime.now(tz=timezone.utc) - item[4]
             friendly_time = ratlib.duration(fact_duration)
 
@@ -249,13 +248,17 @@ async def cmd_fm_facthistory(context: Context):
             await context.reply(f"{item[3]} by {item[2]}, "
                                 f"{friendly_time} ago. {old_display} {new_display}")
 
-# FIXME: Remove Debug commands before PR
 
-
-@command("debug-log")
-@require_permission(TECHRAT)
-async def cmd_fm_debug_log(context: Context):
+@command("factedit")
+@require_permission(OVERSEER)
+async def cmd_fm_edit(context: Context):
     fm = context.bot.fact_mgr
-    await fm.log('test', 'en', 'Shatt', 'Test Log Entry', 'New Field Entry', 'Old Field Entry')
-    testing = await fm.facthistory('test', 'ru')
-    await context.reply("Log Entry created.")
+    fact_name = context.words[1]
+    fact_lang = context.words[2]
+
+    fact_new_message = context.words_eol[3]
+
+    await fm.edit_message(fact_name, fact_lang, context.user.nickname, fact_new_message)
+    await context.reply('Fact Edited:')
+    await context.reply(f"Message: {fact_new_message}")
+
