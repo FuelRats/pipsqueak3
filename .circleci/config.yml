@@ -154,7 +154,7 @@ jobs:
       - run:
           name: Run pylint over project
           # run pylint, pass it through pylint-exit so Circle doesn't throw a fit
-          command: pipenv run pylint --rcfile pylint.ini Modules database || pipenv run python pylint-exit $?
+          command: pipenv run pylint --rcfile pylint.ini Modules database utils || pipenv run python pylint-exit $?
 
 workflows:
   version: 2
