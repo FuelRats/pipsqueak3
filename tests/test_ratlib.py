@@ -13,23 +13,40 @@ nickname_test_list = [
     ('Shatt[PC|afk]', 'Shatt')
 ]
 
-sanitize_test_list = [
-    ('4Red Text,12,', 'Red Text,12,'),
-    ('4,4Red Text on Red B@ckground', 'Red Text on Red B@ckground'),
-    ('10,10Lorem ipsum dolor sit amet', 'Lorem ipsum dolor sit amet'),
-    ('Bold Text;;;', 'Bold Text'),
-    ('Bold Italic Text', 'Bold Italic Text'),
-    ('4Bold Red Text', 'Bold Red Text'),
+SANITIZE_TEST_LIST = [
     ('Um die Rat zu deiner Freundesliste hinzuzufügen drücke',
      'Um die Rat zu deiner Freundesliste hinzuzufügen drücke'),
     ('которые отдают топливо, нажмите здесь: http://t.fuelr.at/kgbfoamru',
      'которые отдают топливо, нажмите здесь: http://t.fuelr.at/kgbfoamru'),
-    ('a;A;B;b;C;c;123', 'aABbCc123'),
     ('!inject 99 5:30 o2 remaining', '!inject 99 5:30 o2 remaining'),
-    (',Banana', 'Banana'),
-    ('137Banana', 'Banana'),
+    ('\tTab\tbing\tton', 'Tabbington'),
+    ('Strikethrough', 'Strikethrough'),
+    ('Underline', 'Underline'),
+    ('Monospace', 'Monospace'),
+    ('Reverse', 'Reverse'),
+    ('Reset', 'Reset'),
+    ('Bold Text', 'Bold Text'),
+    ('Bold Italic Text', 'Bold Italic Text'),
+    ('4Bold Red Text', 'Bold Red Text'),
+    (',Banana', ',Banana'),
+    ('137Banana', '7Banana'),
+    ('4Red Text,12,', 'Red Text,12,'),
+    ('4,4Red Text on Red B@ckground', 'Red Text on Red B@ckground'),
+    ('10,10Lorem ipsum dolor sit amet', 'Lorem ipsum dolor sit amet'),
+    ('04Red 03Green 02Blue', 'Red Green Blue'),
+    ('13,Banana', ',Banana'),
+    ('13,01Banana', 'Banana'),
     (',Banana', ',Banana'),
-    ('13,15Banana', 'Banana')
+    ('13,15Banana', 'Banana'),
+    (',15Banana', ',15Banana'),
+    ('Bold Italic Underline', 'Bold Italic Underline'),
+    ('HexColor', 'HexColor'),
+    ('fFa5DCBanana', 'Banana'),
+    ('ffffff,000000Banana', 'Banana'),
+    ('123456,Banana', ',Banana'),
+    ('FF0000Red 00fF00Green 0000ffBlue', 'Red Green Blue'),
+    ('no 4ite56AdcBms2, fo\tx onlyFF66AA, final des\tt555555ination',
+     'no items, fox only, final destination')
 ]
 
 
@@ -41,7 +58,7 @@ def test_strip_name(nickname, expected):
     assert utils.ratlib.strip_name(nickname) == expected
 
 
-@pytest.mark.parametrize("input_message, expected_message", sanitize_test_list)
+@pytest.mark.parametrize("input_message, expected_message", SANITIZE_TEST_LIST)
 def test_sanitize(input_message, expected_message):
     """
     Verifies sanitize routine is properly removing string elements.
