@@ -42,9 +42,9 @@ async def test_search_systems_by_name(galaxy_fx):
     Test that we can get a list of similar systems by name.
     """
     nearest = await galaxy_fx.search_systems_by_name("Fualun")
-    assert nearest[0] == 'FOLNA'
-    assert nearest[1] == 'FEI LIN'
-    assert nearest[2] == 'FEI LIAN'
+    assert 'FOLNA' in nearest
+    assert 'FEI LIN' in nearest
+    assert 'FEI LIAN' in nearest
 
 
 @pytest.mark.asyncio
