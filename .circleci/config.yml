@@ -40,11 +40,6 @@ jobs:
           keys:
             - v3-dependencies-{{ checksum "Pipfile.lock" }}
 
-      - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
 
       # do caching magic
       - save_cache:
@@ -83,9 +78,8 @@ jobs:
       - run:
           name: run tests
           command: |
-            ./cc-test-reporter before-build
             pipenv run pytest -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
-            ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
+            pipenv run codecov
 
       - store_artifacts:
           path: logs/unit_tests.log
@@ -154,7 +148,7 @@ jobs:
       - run:
           name: Run pylint over project
           # run pylint, pass it through pylint-exit so Circle doesn't throw a fit
-          command: pipenv run pylint --rcfile pylint.ini Modules database utils || pipenv run python pylint-exit $?
+          command: pipenv run pylint --rcfile pylint.ini Modules database || pipenv run python pylint-exit $?
 
 workflows:
   version: 2
