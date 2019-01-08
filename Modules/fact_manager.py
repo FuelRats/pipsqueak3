@@ -295,22 +295,16 @@ class FactManager(DatabaseManager):
         query = sql.SQL(f"SELECT mfd FROM "
                         f"{self._FACT_TABLE} WHERE name=%s AND lang=%s")
 
-        try:
-            result = await self.query(query, (name, lang))
-        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
-            # ProgrammingError is a query failure, DatabaseError is database unavailable.
-            log.exception(f"Error setting MFD field value for {name}-{lang}")
-            raise error
-
-        # Invert MFD field value, and set it again.
         mfd_query = sql.SQL(f"UPDATE {self._FACT_TABLE} "
                             f"SET mfd=%s WHERE name=%s AND lang=%s")
-        mfd_value = not result[0][0]
 
-        # Yes, we use another try block here.  We do so for every transaction, to catch
-        # DB offline or bad queries.
         try:
+            result = await self.query(query, (name, lang))
+
+            # Invert MFD field value, and set it again.
+            mfd_value = not result[0][0]
             await self.query(mfd_query, (mfd_value, name, lang))
+
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # ProgrammingError is a query failure, DatabaseError is database unavailable.
             log.exception(f"Error setting MFD field value for {name}-{lang}")
