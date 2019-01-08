@@ -36,8 +36,8 @@ class DuplicateRuleException(Exception):
         self.rule = rule_
 
 
-def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
-         pass_match: bool=False, prefixless: bool=False, after: Rule=None):
+def rule(regex: str, *, case_sensitive: bool = False, full_message: bool = False,
+         pass_match: bool = False, prefixless: bool = False, after: Rule = None):
     """
     Decorator to have the underlying coroutine be called when two conditions apply:
     1. No conventional command was found for the incoming message.
@@ -71,6 +71,7 @@ def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
         DuplicateRuleException: If the same rule has already been registered.
         RuleNotPresentException: If the rule *after* hasn't yet been registered.
     """
+
     def decorator(coro: Callable):
         if case_sensitive:
             pattern = re.compile(regex)
@@ -94,6 +95,7 @@ def rule(regex: str, *, case_sensitive: bool=False, full_message: bool=False,
         log.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
                  f" created.")
         return tuple_
+
     return decorator
 
 
