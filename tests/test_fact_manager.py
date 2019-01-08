@@ -11,17 +11,18 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from Modules.fact_manager import FactManager, Fact
-import pytest
 import datetime
+
 import psycopg2
-from unittest import mock
+import pytest
 from psycopg2 import sql
+
+from Modules.fact_manager import FactManager, Fact
 
 pytestmark = pytest.mark.fact_manager
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def test_fm_fx(request) -> FactManager:
     """
     This fixture uses some dirty tricks to create a table, inject test data into it,
@@ -35,20 +36,20 @@ def test_fm_fx(request) -> FactManager:
     test_log = "pytest_session_log"
 
     test_table_creation = sql.SQL(f"CREATE TABLE {test_table} "
-                         f"(name VARCHAR NOT NULL, lang VARCHAR NOT NULL,"
-                         f" message VARCHAR NOT NULL, aliases TSVECTOR,"
-                         f" author VARCHAR, edited TIMESTAMP WITH TIME ZONE,"
-                         f" editedby VARCHAR, mfd BOOLEAN,"
-                         f" CONSTRAINT pytest_fact_pkey PRIMARY KEY (name, lang))")
+                                  f"(name VARCHAR NOT NULL, lang VARCHAR NOT NULL,"
+                                  f" message VARCHAR NOT NULL, aliases TSVECTOR,"
+                                  f" author VARCHAR, edited TIMESTAMP WITH TIME ZONE,"
+                                  f" editedby VARCHAR, mfd BOOLEAN,"
+                                  f" CONSTRAINT pytest_fact_pkey PRIMARY KEY (name, lang))")
 
     test_log_table_creation = sql.SQL(f"CREATE TABLE {test_log} "
-                             f"(id SERIAL, name VARCHAR NOT NULL,"
-                             f" lang VARCHAR NOT NULL,"
-                             f" author VARCHAR NOT NULL,"
-                             f" message VARCHAR NOT NULL,"
-                             f" old VARCHAR, new VARCHAR,"
-                             f" ts TIMESTAMP WITH TIME ZONE,"
-                             f" CONSTRAINT pytest_log_pkey PRIMARY KEY (id))")
+                                      f"(id SERIAL, name VARCHAR NOT NULL,"
+                                      f" lang VARCHAR NOT NULL,"
+                                      f" author VARCHAR NOT NULL,"
+                                      f" message VARCHAR NOT NULL,"
+                                      f" old VARCHAR, new VARCHAR,"
+                                      f" ts TIMESTAMP WITH TIME ZONE,"
+                                      f" CONSTRAINT pytest_log_pkey PRIMARY KEY (id))")
 
     test_data = [f"INSERT INTO {test_table} (name, lang, message, author, editedby, edited) "
                  f"VALUES ('stats', 'en', 'Fuel Rats Statistics: https://t.fuelr.at/stats',"
@@ -102,7 +103,7 @@ def test_module_typeerror_log_table(test_fm_fx):
     Verify a TypeError is thrown, if assigning a non-str value to an optional property.
     """
     with pytest.raises(TypeError):
-        testFM2 = FactManager(fact_log={"some": "dict"})
+        test_fm = FactManager(fact_log={"some": "dict"})
 
 
 def test_module_prop_table(test_fm_fx):
@@ -112,9 +113,9 @@ def test_module_prop_table(test_fm_fx):
     table_name = "some fact table"
     log_table_name = "some log table"
 
-    testFM = FactManager(table_name, log_table_name)
+    test_fm = FactManager(table_name, log_table_name)
 
-    assert testFM._FACT_TABLE == table_name
+    assert test_fm._FACT_TABLE == table_name
 
 
 def test_module_prop_log(test_fm_fx):
@@ -124,9 +125,9 @@ def test_module_prop_log(test_fm_fx):
     table_name = "some fact table"
     log_table_name = "some log table"
 
-    testFM = FactManager(table_name, log_table_name)
+    test_fm = FactManager(table_name, log_table_name)
 
-    assert testFM._FACT_LOG == log_table_name
+    assert test_fm._FACT_LOG == log_table_name
 
 
 @pytest.mark.asyncio
@@ -208,6 +209,16 @@ async def test_fm_delete_no_mfd_flag(test_fm_fx):
 
 
 @pytest.mark.asyncio
+async def test_mfdlist_returns_list(test_fm_fx):
+    """
+    mfd_list method must return a list.
+    """
+    fm = test_fm_fx
+
+    assert isinstance(await fm.mfd_list(), list)
+
+
+@pytest.mark.asyncio
 async def test_fm_destroy(test_fm_fx):
     """
     Verify _destroy function works properly.
@@ -250,19 +261,6 @@ async def test_edit_message_failure(test_fm_fx):
 
     with pytest.raises(ValueError):
         await fm.edit_message('nopeavi', 'nope', 'Kovacs', 'This is not a fact')
-
-
-@pytest.mark.asyncio
-async def test_edit_exceptions(test_fm_fx):
-    """
-    Use mock to throw an exception into edit, testing handling.
-    """
-
-    fm = test_fm_fx
-    fm.edit_message = mock.MagicMock(side_effect=psycopg2.DatabaseError)
-
-    with pytest.raises(psycopg2.DatabaseError):
-        await fm.edit_message('nope', 'en', 'Shatt', 'New Message')
 
 
 @pytest.mark.asyncio
@@ -321,7 +319,121 @@ async def test_fact_find_return(test_fm_fx):
     assert found_fact.complete is True
 
 
+@pytest.mark.asyncio
+async def test_exist_exception_handling(test_fm_fx, monkeypatch):
+    """
+    Verify the error is caught if psycopg2.ProgrammingError is raised.
+    """
+
+    async def boomstick(*args, **kwargs):
+        raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
+
+    fm = test_fm_fx
+
+    monkeypatch.setattr(test_fm_fx, "query", boomstick)
+
+    with pytest.raises(psycopg2.ProgrammingError):
+        result = await fm.exists('fake', 'en')
 
 
+@pytest.mark.asyncio
+async def test_edit_exception_handling(test_fm_fx, monkeypatch):
+    """
+    Verify the error is caught if psycopg2.ProgrammingError is raised.
+    """
+
+    async def boomstick(*args, **kwargs):
+        raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
+
+    fm = test_fm_fx
+
+    monkeypatch.setattr(test_fm_fx, "query", boomstick)
+
+    with pytest.raises(psycopg2.ProgrammingError):
+        result = await fm.edit_message('test', 'en', 'Shatt',
+                                       'This fact has been edited during testing.')
 
 
+@pytest.mark.asyncio
+async def test_facthistory_exception_handling(test_fm_fx, monkeypatch):
+    """
+    Verify the error is caught if psycopg2.ProgrammingError is raised.
+    """
+
+    async def boomstick(*args, **kwargs):
+        raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
+
+    fm = test_fm_fx
+
+    monkeypatch.setattr(test_fm_fx, "query", boomstick)
+
+    with pytest.raises(psycopg2.ProgrammingError):
+        result = await fm.facthistory('test', 'en')
+
+
+@pytest.mark.asyncio
+async def test_find_exception_handling(test_fm_fx, monkeypatch):
+    """
+    Verify the error is caught if psycopg2.ProgrammingError is raised.
+    """
+
+    async def boomstick(*args, **kwargs):
+        raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
+
+    fm = test_fm_fx
+
+    monkeypatch.setattr(test_fm_fx, "query", boomstick)
+
+    with pytest.raises(psycopg2.ProgrammingError):
+        result = await fm.find('test', 'en')
+
+
+@pytest.mark.asyncio
+async def test_log_exception_handling(test_fm_fx, monkeypatch):
+    """
+    Verify the error is caught if psycopg2.ProgrammingError is raised.
+    """
+
+    async def boomstick(*args, **kwargs):
+        raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
+
+    fm = test_fm_fx
+
+    monkeypatch.setattr(test_fm_fx, "query", boomstick)
+
+    with pytest.raises(psycopg2.ProgrammingError):
+        result = await fm.log('test', 'en', 'Shatt', 'Edited')
+
+
+@pytest.mark.asyncio
+async def test_mfd_handling(test_fm_fx, monkeypatch):
+    """
+    Verify the error is caught if psycopg2.ProgrammingError is raised.
+    """
+
+    async def boomstick(*args, **kwargs):
+        raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
+
+    fm = test_fm_fx
+
+    monkeypatch.setattr(test_fm_fx, "query", boomstick)
+
+    with pytest.raises(psycopg2.ProgrammingError):
+        result = await fm.mfd('test', 'en')
+
+
+@pytest.mark.asyncio
+async def test_mfdlist_handling(test_fm_fx, monkeypatch):
+    """
+    Verify the error is caught if psycopg2.ProgrammingError is raised.
+    """
+
+    async def boomstick(*args, **kwargs):
+        raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
+
+    fm = test_fm_fx
+
+    monkeypatch.setattr(test_fm_fx, "query", boomstick)
+
+    with pytest.raises(psycopg2.ProgrammingError):
+        result = await fm.mfd_list()
