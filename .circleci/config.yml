@@ -170,7 +170,7 @@ jobs:
           command: pipenv run pylint --rcfile pylint.ini Modules database || pipenv run python pylint-exit $?
       - run:
           name: run pycodestyle over project
-          command: pipenv run pycodestyle modules database utilities
+          command: pipenv run pycodestyle Modules database utils
 
 workflows:
   version: 2
