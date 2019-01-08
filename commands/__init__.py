@@ -8,6 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["debug", "facts"]
+__all__ = ["debug"]
 
 from commands import *
