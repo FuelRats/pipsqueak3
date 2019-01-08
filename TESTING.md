@@ -35,7 +35,14 @@ with pytest.raises(SomeErrorType):
 ```
 If the above function raised _SomeErrorType_, this test would pass.  Raising a different error or if nothing is raised, fails the test.  If you are not asserting an exception was raised, it should not be caught.
 
+* mark asynchronous  tests with `@pytest.mark.asyncio`, otherwise they will xpass
+    ```python
+    from pytest import mark
 
+    @mark.asyncio
+    async def test_testing_md_mark():
+      assert 2+2==4
+    ```
 * Use Parametrize to reduce test function count.  There is no need to copy/paste a test with a different set of input values.
 
 # Fixtures & Parametrization
