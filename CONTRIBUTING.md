@@ -67,6 +67,8 @@ All pull requests must pass standard checks:
     * Circleci unit test run (Pytest)
 * Circleci deployment testing (if applicable)
 
+Everything should be runnable in your dev environment, all necessary configuration files are provided
+in VCS. for pylint you may need to manually point it at `pylint.ini`
 ## Hygiene
 
 **Please do not squash your commits prior to your PR.**  If this is necessary, it will be brought up during the review process.
