@@ -253,17 +253,6 @@ async def test_edit_message(test_fm_fx):
 
 
 @pytest.mark.asyncio
-async def test_edit_message_failure(test_fm_fx):
-    """
-    Verify an error is raised if an edit on a non-existent fact is attempted.
-    """
-    fm = test_fm_fx
-
-    with pytest.raises(ValueError):
-        await fm.edit_message('nopeavi', 'nope', 'Kovacs', 'This is not a fact')
-
-
-@pytest.mark.asyncio
 async def test_fact_exists(test_fm_fx):
     """
     Verify a fact looked up with the exists method returns true.
@@ -294,7 +283,7 @@ async def test_facthistory_return(test_fm_fx):
     await fm.log('stats', 'en', 'Shatt', 'Added')
     await fm.log('stats', 'en', 'Shatt', 'Marked for Delete')
 
-    history = await fm.facthistory('stats', 'en')
+    history = await fm.fact_history('stats', 'en')
     assert history is not None
 
 
@@ -305,7 +294,7 @@ async def test_facthistory_invalid_query(test_fm_fx):
     """
     fm = test_fm_fx
 
-    history = await fm.facthistory('s205gw', 'sdjn3nw')
+    history = await fm.fact_history('s205gw', 'sdjn3nw')
 
 
 @pytest.mark.asyncio
@@ -368,7 +357,7 @@ async def test_facthistory_exception_handling(test_fm_fx, monkeypatch):
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.facthistory('test', 'en')
+        result = await fm.fact_history('test', 'en')
 
 
 @pytest.mark.asyncio

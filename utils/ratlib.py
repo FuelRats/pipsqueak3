@@ -174,7 +174,13 @@ def try_parse_uuid(suspect: str) -> UUID:
 # duration functions
 def duration(time: datetime.timedelta) -> str:
     """
-    Converts a datetime object into a human readable duration string.
+    Converts a timedeltaa into a more friendly human readable string, such as
+    '5m 3w 4d ago'
+    Args:
+        time: (timedelta) time.
+
+    Returns: (str) Easier-to-read time.
+
     """
     if not isinstance(time, datetime.timedelta):
         raise TypeError("ratlib.duration method requires a datetime or timedelta.")
