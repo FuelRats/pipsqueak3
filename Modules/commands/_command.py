@@ -133,7 +133,7 @@ class Command(abc.Callable, abc.Container):
 
         """
         for task in self.teardown_hooks:
-            yield await task(*args, **kwargs)
+            await task(*args, **kwargs)
 
     async def __call__(self, *args, **kwargs):
         """
@@ -176,7 +176,7 @@ class Command(abc.Callable, abc.Container):
 
         if self.teardown_hooks:
             LOG.debug(f"<{self.name}>:executing teardown tasks for command...")
-            async for task_result in self.teardown(*args, **kwargs):
-                LOG.debug(f"<{self.name}>: result of teardown hook: {task_result}")
+            await self.teardown(*args, **kwargs)
+
         else:
             LOG.debug(f"<{self.name}>:no teardown hooks for command.")
