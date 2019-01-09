@@ -12,7 +12,7 @@ psycopg2 = "*"
 humanfriendly = "*"
 
 [dev-packages]
-pytest = "==4.0.2"  #FIXME remove limit when pytest-asyncio updates and pytest is no longer breaking things
+pytest = "*"
 pytest-cov = "*"
 pytest-asyncio = "*"
 pylint = "*"
