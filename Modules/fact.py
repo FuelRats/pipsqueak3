@@ -14,7 +14,7 @@ See LICENSE.md
 import datetime
 
 
-class Fact(object):
+class Fact:
     def __init__(self, name=None, lang='en', message=None,
                  aliases=None, author=None, edited=None,
                  editedby=None, mfd=False):

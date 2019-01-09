@@ -180,11 +180,11 @@ class FactManager(DatabaseManager):
         # it will always return a single integer.
         return result[0][0]
 
-    async def facthistory(self, fact_name: str, fact_lang: str) -> list:
+    async def fact_history(self, fact_name: str, fact_lang: str) -> list:
         """
         Pulls the last 5 transaction logs for a fact, as a tuple
 
-        >>> history_list = self.facthistory("test", "en")
+        >>> history_list = self.fact_history("test", "en")
 
         Args:
             fact_name: Name of the fact
@@ -281,7 +281,7 @@ class FactManager(DatabaseManager):
 
     async def mfd(self, name: str, lang: str) -> bool:
         """
-        Toggles the MFD flag on a fact.
+        Toggles the 'marked for deletion' flag on a fact.
 
         >>> mfd_value = await self.mfd("test", "en")
 
