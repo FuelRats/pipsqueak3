@@ -24,7 +24,7 @@ class Fact:
         self._aliases = aliases
         self._author = author
         self._editedby = editedby
-        self._edited = edited if edited else datetime.datetime.now(datetime.timezone.utc)
+        self._edited = edited if edited else datetime.datetime.now(tz=datetime.timezone.utc)
         self._mfd = mfd
 
     @property
@@ -33,6 +33,7 @@ class Fact:
         Name of fact, ie 'prep'
         Returns: name of fact
         """
+
         return self._name
 
     @property
@@ -41,8 +42,9 @@ class Fact:
         language code, ie 'en'
         Returns: language of fact.
 
-        This may be may be longer than two, in the case of template facts.
+        This may be may be longer than two characters, in the case of template facts.
         """
+
         return self._lang
 
     @property
@@ -51,6 +53,7 @@ class Fact:
         Message for fact - the set content.
         Returns: str fact content
         """
+
         return self._message
 
     @property
@@ -59,6 +62,7 @@ class Fact:
         Registered Aliases for a command.  They are globally unique.
         Returns: list of aliases for fact
         """
+
         return self._aliases
 
     @property
@@ -67,6 +71,7 @@ class Fact:
         Author of fact.
         Returns: str author of fact.
         """
+
         return self._author
 
     @property
@@ -75,6 +80,7 @@ class Fact:
         Last editor of fact. Editor is the the rat who added the fact, if new.
         Returns: str editor of fact.
         """
+
         return self._editedby
 
     @property
@@ -83,6 +89,7 @@ class Fact:
         Datetime stamp for last edit of fact
         Returns: datetime object
         """
+
         return self._edited
 
     @property
@@ -91,6 +98,7 @@ class Fact:
         If Fact is marked for deletion, True/False
         Returns: bool marked for deletion
         """
+
         return self._mfd
 
     @name.setter
@@ -98,9 +106,10 @@ class Fact:
         """
         Sets fact name.
         Args:
-            value: str
+            value: str name
         Returns: Nothing.
         """
+
         if not isinstance(value, str):
             raise TypeError("Fact.name must be of string type.")
 
@@ -114,6 +123,7 @@ class Fact:
             value: str language ID
         Returns: Nothing
         """
+
         if not isinstance(value, str):
             raise TypeError("Fact.lang must be of string type.")
 
@@ -221,5 +231,6 @@ class Fact:
 
         Returns: bool True/False
         """
+
         return True if self.name and self.lang and self.author \
                        and self.message and self.editedby else False
