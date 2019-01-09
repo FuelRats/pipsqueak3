@@ -47,17 +47,18 @@ class FactManager(DatabaseManager):
         if a fact violates the (name, lang) Primary Key relationship.
 
         VERIFY IF THE FACT EXISTS WITH self.EXISTS() FIRST.
-
-        >>> if self.exists("test", "en"):
-        ...     await self.add(NewFact)
+        >>> fm = FactManager()
+        ... if self.exists("test", "en"):
+        ...     await fm.add(NewFact)
         ... else:
         ...     # Abandon Ship!
         ...     raise TypeError("Attempted commit on incomplete Fact.")
 
         Aliases cannot be inserted this way, at this time.  None is forced for fact.aliases.
         """
-        # Don't judge this SQL, its the most compact way to do it. (Thanks PEP8)
+        # I said don't judge my SQL :(
         add_query = sql.SQL(f"INSERT INTO {self._FACT_TABLE} "
+                            f"(name, lang, message, aliases, author, edited, editedby, mfd) "
                             f"VALUES ( %s, %s, %s, %s, %s, %s, %s, %s )")
 
         try:
@@ -99,14 +100,17 @@ class FactManager(DatabaseManager):
         on a fact actually marked for deletion, using !factmfd.  Doing otherwise will result in
         a thrown psycopg2.ProgrammingError.
 
-        >>> if await self.mfd('test', 'en'): # Attempt to mark a fact for deletion
-        ...     await self.delete('test', 'en')
+        >>> fm = FactManager()
+        ... if await fm.mfd('test', 'en'): # Attempt to mark a fact for deletion
+        ...    await fm.delete('test', 'en')
 
         Args:
             name: name of fact to be deleted
             lang: langID of fact to be deleted
 
         Returns: Nothing
+
+        Raises: psycopg2.ProgrammingError if fact not marked for deletion.
         """
         fact = await self.find(name, lang)
 
@@ -123,7 +127,8 @@ class FactManager(DatabaseManager):
         Edit a fact's message property on the database side.
         Generates a transaction log record.
 
-        >>> await self.edit_message("fact_name", "fact_language",
+        >>> fm = FactManager()
+        ... await fm.edit_message("fact_name", "fact_language",
         ...                         "TheGuyWhoEdited", 'This is an edited fact')
 
         Args:
@@ -133,6 +138,10 @@ class FactManager(DatabaseManager):
             new_message: New content of message property.
 
         Returns: Nothing
+
+        Raises:
+            psycopg2.ProgrammingError: On query failure.
+            psycopg2.DatabaseError: On any connectivity issue or no database available.
         """
         if not await self.exists(name, lang):
             log.exception("Attempted edit on non-existent fact.")
@@ -152,13 +161,15 @@ class FactManager(DatabaseManager):
             log.exception(f"Editing fact '{name}-{lang}' failed.")
             raise error
         else:
-            await self.log(name, lang, editor, 'Edited', new_message, current_fact.message)
+            await self.add_transaction(name, lang, editor, 'Edited',
+                                       new_message, current_fact.message)
 
     async def exists(self, name: str, lang: str) -> bool:
         """
         Check if a fact exists, without having to substantiate a full Fact object.
 
-        >>> fact_existence = self.exists('test', 'en')
+        >>> fm = FactManager()
+        ... fact_existence = await fm.exists('test', 'en')
 
         Args:
             name: name of fact
@@ -175,7 +186,7 @@ class FactManager(DatabaseManager):
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # Check for offline database, or issues with the query.
             log.exception(f"Could not establish existence of {name}-{lang}")
-            raise
+            raise error
 
         # We are only getting a single integer as a response, so we can unpack it by index.
         # it will always return a single integer.
@@ -185,7 +196,8 @@ class FactManager(DatabaseManager):
         """
         Pulls the last 5 transaction logs for a fact, as a tuple
 
-        >>> history_list = self.fact_history("test", "en")
+        >>> fm = FactManager()
+        ... history_list = fm.fact_history("test", "en")
 
         Args:
             fact_name: Name of the fact
@@ -204,7 +216,7 @@ class FactManager(DatabaseManager):
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # ProgrammingError is a query failure, DatabaseError is database unavailable.
             log.exception(f"Unable to retrieve history for {fact_name}-{fact_lang}")
-            raise
+            raise error
 
         return result
 
@@ -214,8 +226,9 @@ class FactManager(DatabaseManager):
 
         See Fact class for more information on Fact properties (Modules\fact.py)
 
-        >>> example_query = sql.SQL("SELECT * some_table WHERE some_value=%s")
-        ... returned_fact = await self.query(example_query, ('something',))
+        >>> fm = FactManager()
+        ... example_query = sql.SQL("SELECT * some_table WHERE some_value=%s")
+        ... returned_fact = await fm.query(example_query, ('something',))
 
         Args:
             name: name of fact to search, ie. 'prep'
@@ -234,13 +247,13 @@ class FactManager(DatabaseManager):
         except (psycopg2.DatabaseError, psycopg2.ProgrammingError) as error:
             # Check for offline database, or query errors
             log.exception("Unable to find fact due to exception.")
-            raise
+            raise error
 
         # unpack query into a fact object, or return None if there is no result.
         return Fact(*rows[0]) if rows else None
 
-    async def log(self, fact_name: str, fact_lang: str, author: str, msg: str,
-                  new_field=None, old_field=None):
+    async def add_transaction(self, fact_name: str, fact_lang: str, author: str, msg: str,
+                              new_field=None, old_field=None):
         """
         Writes a transaction log entry to the transaction log table.
 
@@ -252,7 +265,8 @@ class FactManager(DatabaseManager):
         * Marked for delete
         * Unmarked for delete
 
-        >>> await self.log("test", "en", "Shatt", "Marked for delete")
+        >>> fm = FactManager()
+        >>> await fm.add_transaction("test", "en", "Shatt", "Marked for delete")
 
         An Enum for these values is silly, as we need to output the strings directly
         elsewhere, and so we do not preclude the use of future or custom strings from outside
@@ -268,23 +282,26 @@ class FactManager(DatabaseManager):
 
         Returns: Nothing.
         """
-        log_query = sql.SQL(f"INSERT INTO {self._FACT_LOG} VALUES "
-                            f"(DEFAULT, %s, %s, %s, %s, %s, %s, %s)")
+        log_query = sql.SQL(f"INSERT INTO {self._FACT_LOG} "
+                            f"(name, lang, author, message, old, new, ts) "
+                            f"VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
         query_data = (fact_name, fact_lang, author, msg, old_field, new_field,
                       datetime.datetime.utcnow())
 
         try:
             await self.query(log_query, query_data)
-        except (psycopg2.ProgrammingError, psycopg2.DatabaseError):
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             log.exception("Unable to write transaction log to table.")
-            raise
+            raise error
 
     async def mfd(self, name: str, lang: str) -> bool:
         """
         Toggles the 'marked for deletion' flag on a fact.
 
-        >>> mfd_value = await self.mfd("test", "en")
+        >>> fm = FactManager()
+        ... mfd_value = await fm.mfd("test", "en")
+        True # if previously False (or vice versa)
 
         Args:
             name: name of fact to update
@@ -315,9 +332,14 @@ class FactManager(DatabaseManager):
 
     async def mfd_list(self, num_results=5) -> list:
         """
-        Returns a list of facts marked for deletion
+        Returns a list of facts marked for deletion.
 
-        >>> mfd_list = await self.mfd_list(3)
+            >>> fm = FactManager()
+            ... mfd_list = await fm.mfd_list(3)
+
+
+        Args:
+            num_results: (Optional) number of results to return. Default 5.
 
         Returns: list of facts
         """

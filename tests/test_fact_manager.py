@@ -278,10 +278,10 @@ async def test_facthistory_return(test_fm_fx):
     fm = test_fm_fx
 
     # Add some log entries.
-    await fm.log('stats', 'en', 'Shatt', 'Added')
-    await fm.log('stats', 'en', 'Shatt', 'Deleted')
-    await fm.log('stats', 'en', 'Shatt', 'Added')
-    await fm.log('stats', 'en', 'Shatt', 'Marked for Delete')
+    await fm.add_transaction('stats', 'en', 'Shatt', 'Added')
+    await fm.add_transaction('stats', 'en', 'Shatt', 'Deleted')
+    await fm.add_transaction('stats', 'en', 'Shatt', 'Added')
+    await fm.add_transaction('stats', 'en', 'Shatt', 'Marked for Delete')
 
     history = await fm.fact_history('stats', 'en')
     assert history is not None
@@ -391,7 +391,7 @@ async def test_log_exception_handling(test_fm_fx, monkeypatch):
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.log('test', 'en', 'Shatt', 'Edited')
+        result = await fm.add_transaction('test', 'en', 'Shatt', 'Edited')
 
 
 @pytest.mark.asyncio
