@@ -174,7 +174,7 @@ def try_parse_uuid(suspect: str) -> UUID:
 # duration functions
 def duration(time: datetime.timedelta) -> str:
     """
-    Converts a timedeltaa into a more friendly human readable string, such as
+    Converts a timedelta into a more friendly human readable string, such as
     '5m 3w 4d ago'
     Args:
         time: (timedelta) time.

@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime, timedelta
 
 import utils.ratlib
 from utils.ratlib import Singleton
@@ -245,3 +246,23 @@ def test_vector_mul(vector, multiplier, expected):
     Test the functionality of the mul operator.
     """
     assert vector * multiplier == expected
+
+
+def test_duration_type_error():
+    """
+    Pass a non-timedelta to ratlib.duration and ensure it raises a TypeError.
+    """
+    with pytest.raises(TypeError):
+        result = utils.ratlib.duration('This is not a timedelta')
+
+
+def test_duration_output():
+    """
+    pass a timedelta to duration and ensure it does not raise, and returns a string.
+    """
+    time = datetime.utcnow()
+    test_time_delta = timedelta(hours=time.hour, minutes=time.minute, seconds=time.second)
+
+    result = utils.ratlib.duration(test_time_delta)
+
+    assert isinstance(result, str)
