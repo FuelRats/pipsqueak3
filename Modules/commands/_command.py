@@ -166,17 +166,20 @@ class Command(abc.Callable, abc.Container):
         except _hooks.CancelExecution:
             # check if the hook wants to stop the execution
             LOG.debug(f"<{self.name}>: setup hook canceled execution.")
-            return  # bailout
-
-        LOG.debug(f"<{self.name}>:invoking the underlying...")
-        # all is good, invoke the underlying
-        await self.underlying(*args, **kwargs)
-
-        # finally execute teardown tasks some teardown
-
-        if self.teardown_hooks:
-            LOG.debug(f"<{self.name}>:executing teardown tasks for command...")
-            await self.teardown(*args, **kwargs)
 
         else:
-            LOG.debug(f"<{self.name}>:no teardown hooks for command.")
+            # no setup errors, no setup cancels. invoke the underlying.
+            LOG.debug(f"<{self.name}>:invoking the underlying...")
+            # all is good, invoke the underlying
+            await self.underlying(*args, **kwargs)
+
+            # finally execute teardown tasks some teardown
+
+        finally:
+            # always call teardown
+            if self.teardown_hooks:
+                LOG.debug(f"<{self.name}>:executing teardown tasks for command...")
+                await self.teardown(*args, **kwargs)
+
+            else:
+                LOG.debug(f"<{self.name}>:no teardown hooks for command.")
