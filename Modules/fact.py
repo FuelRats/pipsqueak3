@@ -31,6 +31,7 @@ class Fact:
     def name(self) -> str:
         """
         Name of fact, ie 'prep'
+
         Returns: name of fact
         """
 
@@ -40,6 +41,7 @@ class Fact:
     def lang(self) -> str:
         """
         language code, ie 'en'
+
         Returns: language of fact.
 
         This may be may be longer than two characters, in the case of template facts.
@@ -51,6 +53,7 @@ class Fact:
     def message(self) -> str:
         """
         Message for fact - the set content.
+
         Returns: str fact content
         """
 
@@ -60,6 +63,7 @@ class Fact:
     def aliases(self) -> list:
         """
         Registered Aliases for a command.  They are globally unique.
+
         Returns: list of aliases for fact
         """
 
@@ -69,6 +73,7 @@ class Fact:
     def author(self) -> str:
         """
         Author of fact.
+
         Returns: str author of fact.
         """
 
@@ -78,6 +83,7 @@ class Fact:
     def editedby(self) -> str:
         """
         Last editor of fact. Editor is the the rat who added the fact, if new.
+
         Returns: str editor of fact.
         """
 
@@ -86,7 +92,8 @@ class Fact:
     @property
     def edited(self) -> datetime:
         """
-        Datetime stamp for last edit of fact
+        Datetime stamp for last edit of fact.
+
         Returns: datetime object
         """
 
@@ -95,7 +102,8 @@ class Fact:
     @property
     def mfd(self) -> bool:
         """
-        If Fact is marked for deletion, True/False
+        If Fact is marked for deletion
+
         Returns: bool marked for deletion
         """
 
@@ -105,8 +113,10 @@ class Fact:
     def name(self, value: str):
         """
         Sets fact name.
+
         Args:
             value: str name
+
         Returns: Nothing.
         """
 
@@ -119,8 +129,10 @@ class Fact:
     def lang(self, value: str):
         """
         Sets fact language ID.
+
         Args:
             value: str language ID
+
         Returns: Nothing
         """
 
@@ -133,8 +145,10 @@ class Fact:
     def message(self, value: str):
         """
         Sets the returned message for the fact
+
         Args:
             value: str fact message
+
         Returns: Nothing
         """
 
@@ -148,6 +162,7 @@ class Fact:
         """
         Sets the list of aliases.  This must be a comma-delimited string for proper conversion
         into a postgreSQL TSVECTOR type.
+
         Args:
             value: list of aliases
 
@@ -163,6 +178,7 @@ class Fact:
     def author(self, value: str):
         """
         Sets the author of the fact.
+
         Args:
             value: str author of fact.
 
@@ -178,6 +194,7 @@ class Fact:
     def editedby(self, value: str):
         """
         Sets the editor of the fact. This is the creator upon initial creation.
+
         Args:
             value: editor of fact
 
@@ -194,6 +211,7 @@ class Fact:
         """
         Sets the edited timestamp.  This is a datetime stamp and should not be
         modified willy-nilly.
+
         Args:
             value: datetime last edit date
 
@@ -209,6 +227,7 @@ class Fact:
     def mfd(self, value: bool):
         """
         Sets the Marked For Deletion flag on this fact.
+
         Args:
             value: bool 'marked for deletion' flag.
 
@@ -227,7 +246,6 @@ class Fact:
 
         We do not check fact.mfd or fact.edited here, as they are forced.  Aliases may be
         omitted if there are none to add, and fact.lang defaults to 'en' if not explicitly set.
-
 
         Returns: bool True/False
         """
