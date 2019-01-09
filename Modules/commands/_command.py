@@ -122,7 +122,7 @@ class Command(abc.Callable, abc.Container):
             result of each setup task
         """
         for task in self.setup_hooks:
-            yield await task(*args, **kwargs)
+            await task(*args, **kwargs)
 
     async def teardown(self, *args, **kwargs):
         """
@@ -157,17 +157,16 @@ class Command(abc.Callable, abc.Container):
         LOG.debug(f"command {self.aliases[0]} invoked...")
 
         # if we have setup tasks to do
-        if self.setup_hooks:
-            # call setup tasks sequentially
-            async for result in self.setup(*args, **kwargs):
-                LOG.debug(f"<{self.name}>:result of setup hook:= {result}")
-                # check if the hook wants to stop the execution
-                if result is _hooks.STOP_EXECUTION:
-                    LOG.debug(f"<{self.name}>:Setup hook terminated execution for command")
-                    # bail out
-                    return
-        else:
-            LOG.debug(f"<{self.name}>:no setup hooks for command, skipping...")
+        try:
+            if self.setup_hooks:
+                # call setup tasks sequentially
+                await self.setup(*args, **kwargs)
+            else:
+                LOG.debug(f"<{self.name}>:no setup hooks for command, skipping...")
+        except _hooks.CancelExecution:
+            # check if the hook wants to stop the execution
+            LOG.debug(f"<{self.name}>: setup hook canceled execution.")
+            return  # bailout
 
         LOG.debug(f"<{self.name}>:invoking the underlying...")
         # all is good, invoke the underlying

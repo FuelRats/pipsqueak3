@@ -26,20 +26,28 @@ from being invoked. it is ignored outside pre-execution hooks.
 """
 
 
+class CancelExecution(Exception):
+    """
+    Raised when a setup hook wants to cancel execution
+    """
+    ...
+
+
 # #######
 # pre-execute hooks
 # #
 
-async def require_channel(context: Context, *args,**kwargs):
+async def require_channel(context: Context, *args, **kwargs):
     LOG.debug("in require_channel")
+    raise CancelExecution("nope!")
 
 
-async def require_direct_message(context: Context, *args,**kwargs):
+async def require_direct_message(context: Context, *args, **kwargs):
     LOG.debug("in require_direct_message")
     ...
 
 
-async def require_permission(context: Context, permission: Permission, *args,**kwargs):
+async def require_permission(context: Context, permission: Permission, *args, **kwargs):
     LOG.debug("in require_permission")
     ...
 
