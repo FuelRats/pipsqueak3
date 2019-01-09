@@ -76,7 +76,7 @@ class FactManager(DatabaseManager):
         except (psycopg2.DatabaseError, psycopg2.IntegrityError) as error:
             # Database is not available, or fact already exists and wasn't checked.
             # Raise error, generating graceful cheese error and log the exception.
-            log.exception(f"Unable to add fact '{fact.name}!", error)
+            log.exception(f"Unable to add fact '{fact.name}!")
             raise error
 
     async def _destroy(self, name: str, lang: str):
@@ -111,11 +111,12 @@ class FactManager(DatabaseManager):
         fact = await self.find(name, lang)
 
         # Check the fact's property to verify it is marked for deletion
-        if fact.mfd:
+        if fact is not None and fact.mfd:
             await self._destroy(name, lang)
         else:
-            log.exception("Attempted deletion of fact not marked for delete.")
-            raise psycopg2.ProgrammingError(f"{name}-{lang} is not marked for deletion.")
+            log.exception("Attempted deletion of fact not marked for delete or does not exist.")
+            raise psycopg2.ProgrammingError(f"{name}-{lang} is not marked for "
+                                            f"deletion or does not exist")
 
     async def edit_message(self, name: str, lang: str, editor: str, new_message: str):
         """
@@ -235,8 +236,8 @@ class FactManager(DatabaseManager):
             log.exception("Unable to find fact due to exception.")
             raise
 
-        # unpack query into a fact object, or return an empty Fact if there is no result.
-        return Fact(*rows[0]) if rows else Fact()
+        # unpack query into a fact object, or return None if there is no result.
+        return Fact(*rows[0]) if rows else None
 
     async def log(self, fact_name: str, fact_lang: str, author: str, msg: str,
                   new_field=None, old_field=None):

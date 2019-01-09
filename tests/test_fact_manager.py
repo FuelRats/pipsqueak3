@@ -258,7 +258,7 @@ async def test_fact_exists(test_fm_fx):
     Verify a fact looked up with the exists method returns true.
     """
     fm = test_fm_fx
-    assert bool(await fm.exists('stats', 'en'))
+    assert await fm.exists('stats', 'en')
 
 
 @pytest.mark.asyncio
@@ -267,7 +267,7 @@ async def test_fact_exists_no(test_fm_fx):
     Verify a fact looked up with the exist method returns false if not found.
     """
     fm = test_fm_fx
-    assert not bool(await fm.exists('asdf', 'asdfa'))
+    assert not await fm.exists('asdf', 'asdfa')
 
 
 @pytest.mark.asyncio
