@@ -59,16 +59,20 @@ class Command(abc.Callable, abc.Container):
 
         self._underlying = underlying
 
+        # sanity check
+        if require_channel and require_dm:
+            raise ValueError("require_dm and require_channel are mutually exclusive.")
         # hook registration checks
         if require_permission:
+            LOG.debug(f"adding permission hook at level {require_permission} ...")
             self._setup_hooks.append(_hooks.require_permission)
 
         if require_dm:
-            assert not require_channel, "require_dm and require_channel are mutually exclusive."
+            LOG.debug("enabling require direct message hook...")
             self._setup_hooks.append(_hooks.require_direct_message)
 
         if require_channel:
-            assert not require_dm, "require_dm and require_channel are mutually exclusive."
+            LOG.debug("enabling require channel hook...")
             self._setup_hooks.append(_hooks.require_channel)
 
     def __contains__(self, item: str):
