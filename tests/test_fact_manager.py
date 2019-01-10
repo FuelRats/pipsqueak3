@@ -139,8 +139,8 @@ async def test_fm_add(test_fm_fx):
                               fact.author, fact.edited, fact.editedby, fact.mfd)
     """
     fm = test_fm_fx
-    test_fact = Fact('test123', 'en', 'This is a test fact for pytest',
-                     None, 'Shatt', None, 'Shatt', False)
+    test_fact = Fact(name='test123', lang='en', message='This is a test fact for pytest',
+                     editedby='Shatt', author='Shatt', mfd=False, edited=None, aliases=[])
 
     await fm.add(test_fact)
 
@@ -154,7 +154,7 @@ async def test_fm_add_incomplete(test_fm_fx):
     """
     fm = test_fm_fx
     test_fact = Fact('test123', 'en', 'This is an incomplete Fact',
-                     None, 'Shatt')
+                     None, 'Shatt', editedby=None)
 
     with pytest.raises(TypeError):
         await fm.add(test_fact)
@@ -166,8 +166,8 @@ async def test_fm_add_psycopg2_errors(test_fm_fx):
     Verify an error is raised if a fact already exists.
     """
     fm = test_fm_fx
-    test_fact = Fact('test', 'en', 'This is a test fact for pytest',
-                     None, 'Shatt', None, 'Shatt', False)
+    test_fact = Fact(name='test123', lang='en', message='This is a test fact for pytest',
+                     editedby='Shatt', author='Shatt', mfd=False, edited=None, aliases=[])
 
     # Intentionally add a fact with the same name:
     with pytest.raises(psycopg2.IntegrityError):
@@ -181,9 +181,8 @@ async def test_fm_delete_mfd_check(test_fm_fx):
     """
     fm = test_fm_fx
 
-    test_fact = Fact('test127', 'en', 'This is a test fact for pytest',
-                     None, 'Shatt', None, 'Shatt', False)
-
+    test_fact = Fact(name='test127', lang='en', message='This is a test fact for pytest',
+                     editedby='Shatt', author='Shatt', mfd=False, edited=None, aliases=[])
     await fm.add(test_fact)
     assert await fm.exists('test127', 'en')
 
@@ -245,6 +244,7 @@ async def test_edit_message(test_fm_fx):
     Test edit_message functionally works.
     """
     fm = test_fm_fx
+    # async def edi(self, name: str, lang: str, editor: str, new_message: str):
     await fm.edit_message('test', 'en', 'Shatt', 'This fact has been edited during testing.')
 
     result = await fm.find('test', 'en')
