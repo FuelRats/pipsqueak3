@@ -13,7 +13,7 @@ See LICENSE.md
 from asyncio import run
 from collections import abc
 from logging import getLogger
-from typing import List, Callable
+from typing import List, Callable, Optional, Any, Dict
 
 from . import _hooks
 
@@ -114,15 +114,17 @@ class Command(abc.Callable, abc.Container):
         """
         return self._aliases
 
-    async def setup(self, *args, **kwargs):
+    async def setup(self, *args, **kwargs) -> List[Optional[Dict[str, Any]]]:
         """
-        Executes setup setup_hooks,
+        Executes setup setup_hooks, gathers the results
 
-        Yields:
-            result of each setup task
+        Returns:
+            list of kwarg dictionary objects, the results of each setup hook.
         """
-        for task in self.setup_hooks:
-            await task(*args, **kwargs)
+
+        # build a list from the output of each setup task
+        results = [await task(*args, **kwargs) for task in self._setup_hooks]
+        return results
 
     async def teardown(self, *args, **kwargs):
         """
@@ -144,8 +146,6 @@ class Command(abc.Callable, abc.Container):
         If any of the setup hooks return :obj:`_hooks.STOP_EXECUTION` then execution will be
         canceled.
 
-        TODO:: invoke teardown tasks if setup fails?
-
         Any uncalled setup hooks are discarded, and the underlying / teardown hooks are
         also discarded.
 
@@ -156,11 +156,21 @@ class Command(abc.Callable, abc.Container):
 
         LOG.debug(f"command {self.aliases[0]} invoked...")
 
-        # if we have setup tasks to do
         try:
+            # extra arguments to pass to the underlying
+            extra_arguments = {}
+
+            # if we have setup tasks to do
             if self.setup_hooks:
-                # call setup tasks sequentially
-                await self.setup(*args, **kwargs)
+                # Invoke the setup tasks and filter out the no-returns
+                results = [result for result in await self.setup(*args, **kwargs) if
+                           result is not None]
+                LOG.debug(f"processing results list {results}...")
+                for item in results:
+                    extra_arguments.update(item)
+
+                LOG.debug(f"done parsing results list. final dict to be unpacked into underlying:"
+                          f"{extra_arguments}")
             else:
                 LOG.debug(f"<{self.name}>:no setup hooks for command, skipping...")
         except _hooks.CancelExecution:
@@ -171,7 +181,7 @@ class Command(abc.Callable, abc.Container):
             # no setup errors, no setup cancels. invoke the underlying.
             LOG.debug(f"<{self.name}>:invoking the underlying...")
             # all is good, invoke the underlying
-            await self.underlying(*args, **kwargs)
+            await self.underlying(*args, **kwargs, **extra_arguments)
 
             # finally execute teardown tasks some teardown
 
