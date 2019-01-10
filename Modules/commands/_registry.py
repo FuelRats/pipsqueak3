@@ -10,12 +10,14 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+import logging
 from collections import abc
-from typing import Callable, Dict, Iterator, List
+from typing import Callable, Dict, Iterator
 
 from ._command import Command
 
 _registry_type: Dict[str, Command] = {}
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class Registry(abc.Mapping):
@@ -76,14 +78,17 @@ class Registry(abc.Mapping):
 
         Examples:
             Firstly we need a registry to register against,
+
             >>> registry = Registry()
 
             Then, we can register a plain old command, with no execution hooks
+
             >>> @registry.register('doc_alias_foo', 'doc_alias_bar')
             ... async def doc_cmd_foo(*args, **kwargs):
             ...     print("in doc_cmd_foo!")
 
             Once registration is complete, the original function is returned unmodified.
+
             >>> doc_cmd_foo
             <function doc_cmd_foo at ...>
 
@@ -110,6 +115,7 @@ class Registry(abc.Mapping):
             cmd = Command(*aliases, underlying=func, **kwargs)
             for alias in aliases:
                 assert alias not in self, f"command with alias '{alias}' already exists!"
+                LOG.debug(f"registering '{alias}' for underlying {func}...")
                 # register each alias
                 self.commands[alias] = cmd
             return func
