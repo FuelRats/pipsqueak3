@@ -13,11 +13,9 @@ See LICENSE.md
 """
 import datetime
 import logging
-from datetime import timezone
 
 import psycopg2
 from psycopg2 import sql
-
 
 from Modules.fact import Fact
 from database import DatabaseManager
@@ -156,13 +154,15 @@ class FactManager(DatabaseManager):
             query_values = {"edit_time": datetime.datetime.now(datetime.timezone.utc),
                             "message": new_message, "name": name, "lang": lang}
 
+            log.debug(f"query_values = {query_values}")
+
             await self.query(edit_query, query_values)
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             log.exception(f"Editing fact '{name}-{lang}' failed.")
             raise error
         else:
-            await self.add_transaction(name, lang, editor, 'Edited',
-                                       new_message, current_fact.message)
+            await self.add_transaction(fact_name=name, fact_lang=lang, author=editor, msg='Edited',
+                                       new_field=new_message, old_field=current_fact.message)
 
     async def exists(self, name: str, lang: str) -> bool:
         """
@@ -250,7 +250,17 @@ class FactManager(DatabaseManager):
             raise error
 
         # unpack query into a fact object, or return None if there is no result.
-        return Fact(*rows[0]) if rows else None
+
+        if rows:
+            result = rows[0]
+            return Fact(name=result[0],
+                        lang=result[1],
+                        message=result[2],
+                        aliases=result[3],
+                        author=result[4],
+                        edited=result[5],
+                        editedby=result[6],
+                        mfd=result[7])
 
     async def add_transaction(self, fact_name: str, fact_lang: str, author: str, msg: str,
                               new_field=None, old_field=None):
