@@ -12,13 +12,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE
 """
 import logging
-import psycopg2
 import random
 import string
 import sys
-
 from uuid import uuid4, UUID
 
+import psycopg2
 import pytest
 
 from Modules.rat_cache import RatCache
@@ -48,6 +47,15 @@ from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
 from database import DatabaseManager
+from Modules.commands._registry import Registry
+
+
+@pytest.fixture
+def command_registry_fx() -> Registry:
+    """
+    Provides a empty command registry
+    """
+    return Registry()
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
