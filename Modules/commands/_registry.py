@@ -10,7 +10,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from collections.abc import MutableMapping
+from collections import abc
 from typing import Callable, Dict, Iterator, List
 
 from ._command import Command
@@ -18,7 +18,7 @@ from ._command import Command
 _registry_type: Dict[str, Command] = {}
 
 
-class Registry(MutableMapping):
+class Registry(abc.Mapping):
     """
 
     Commands registry.
@@ -58,18 +58,6 @@ class Registry(MutableMapping):
         if not isinstance(value, dict):
             raise TypeError(f"value must be a dict, got {type(value)}")
         self._commands = value
-
-    def __setitem__(self, key: str, value: Command) -> None:
-        if not isinstance(key, str):
-            raise TypeError(f"Registry keys must be of type str. got {type(key)}")
-
-        if not isinstance(value, Command):
-            raise TypeError(f"Registry keys must be Command objects. got {type(value)}")
-
-        self.commands[key] = value
-
-    def __delitem__(self, key: str) -> None:
-        del self.commands[key]
 
     def __getitem__(self, key: str) -> Command:
         return self.commands[key]
@@ -123,7 +111,7 @@ class Registry(MutableMapping):
             for alias in aliases:
                 assert alias not in self, f"command with alias '{alias}' already exists!"
                 # register each alias
-                self[alias] = cmd
+                self.commands[alias] = cmd
             return func
 
         return real_decorator
