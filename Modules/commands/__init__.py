@@ -13,7 +13,7 @@ Examples:
     you want to register, and use keyword arguments to define what modifiers to apply
 
     >>> from Modules.context import Context
-    >>> @command_registry.command('alias1', 'alias2')
+    >>> @command_registry.register('alias1', 'alias2')
     ... async def doc_alias1(context:Context):
     ...     print("in doc_alias1")
 

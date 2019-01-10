@@ -30,7 +30,7 @@ class Registry(abc.Mapping):
     >>> registry = Registry()  # setup task
 
     To demonstrate this, we will define an example command..
-    >>> @registry.command('doc_reg_ex0')
+    >>> @registry.register('doc_reg_ex0')
     ... async def doc_reg_ex0(*args, **kwargs):
     ...     print("in doc_reg_ex0!")
 
@@ -68,9 +68,9 @@ class Registry(abc.Mapping):
     def __iter__(self) -> Iterator[str]:
         return iter(self.commands)
 
-    def command(self, *aliases, **kwargs: Dict) -> Callable:
+    def register(self, *aliases, **kwargs: Dict) -> Callable:
         """
-        `@command` decorator
+        `@register` decorator
 
         registers the decorated function as a Command within the commands :obj:`registry`
 
@@ -79,7 +79,7 @@ class Registry(abc.Mapping):
             >>> registry = Registry()
 
             Then, we can register a plain old command, with no execution hooks
-            >>> @registry.command('doc_alias_foo', 'doc_alias_bar')
+            >>> @registry.register('doc_alias_foo', 'doc_alias_bar')
             ... async def doc_cmd_foo(*args, **kwargs):
             ...     print("in doc_cmd_foo!")
 

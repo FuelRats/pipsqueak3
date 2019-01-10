@@ -44,7 +44,7 @@ async def require_channel(context: Context, *args, **kwargs):
 
 async def require_direct_message(context: Context, *args, **kwargs):
     LOG.debug("in require_direct_message")
-    ...
+    return {'dm': True}
 
 
 async def require_permission(context: Context, permission: Permission, *args, **kwargs):
