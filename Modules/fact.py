@@ -15,9 +15,9 @@ import datetime
 
 
 class Fact:
-    def __init__(self, name=None, lang='en', message=None,
-                 aliases=None, author=None, edited=None,
-                 editedby=None, mfd=False):
+    def __init__(self, name, message,
+                 aliases, author, edited,
+                 editedby, mfd=False, lang='en'):
         self._name = name
         self._lang = lang
         self._message = message

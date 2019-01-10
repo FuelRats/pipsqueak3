@@ -301,7 +301,7 @@ def test_dbm_pool_fx(test_dbm_fx) -> psycopg2.pool.SimpleConnectionPool:
 
 @pytest.fixture
 def test_fact_empty_fx() -> Fact:
-    return Fact()
+    return Fact("", "", [], "", "", "")
 
 
 @pytest.fixture()
