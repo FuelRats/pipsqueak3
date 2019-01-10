@@ -311,5 +311,6 @@ def test_fact_fx() -> Fact:
                 aliases=['testfact'],
                 author='Shatt',
                 editedby='Shatt',
-                mfd=False
+                mfd=False,
+                edited=None
                 )
