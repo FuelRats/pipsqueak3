@@ -58,7 +58,7 @@ class Command(abc.Container):
         if 'require_dm' in kwargs and 'require_channel' in kwargs:
             raise ValueError("require_dm and require_channel are mutually exclusive.")
 
-        self.hooks: List = []  # todo proper type hint
+        self.hooks: List[_hooks.HookImplementation] = []
 
         self._aliases: List[str] = names
 
