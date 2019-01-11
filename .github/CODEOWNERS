@@ -1,0 +1,32 @@
+#https://help.github.com/articles/about-code-owners/
+
+
+# global rule
+@theunkn0wn1
+
+# documentation directory
+/docs/ @shatteredbeam
+
+# database module
+/database/ @shatteredbeam
+
+# facts module
+/Modules/fact_manager.py @shatteredbeam
+
+# commands module
+/commands/ @theunkn0wn1
+
+# galaxy module
+/Modules/galaxy/ @Eearslya
+
+# rules module
+/Modules/rules.py @MHajoha
+
+# #####
+various CI configuration files.
+*.yml @theunkn0wn1
+*.ini @theunkn0wn1
+*.cfg @theunkn0wn1
+
+/.circleci/ @theunkn0wn1
+.coveragerc @theunkn0wn1
