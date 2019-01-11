@@ -60,10 +60,10 @@ class HookImplementation:
 
     Cancel = CancelExecution  # convenience alias
 
-    async def __call__(self, context: Context) -> AsyncGenerator:
+    def __call__(self, context: Context):
         # call our setup routine
-        yield await self.pre_execute(context)
-        await self.post_execute(context)
+        yield self.pre_execute(context)
+        return self.post_execute(context)
 
 
 # module attribute
