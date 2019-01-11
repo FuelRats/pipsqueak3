@@ -44,7 +44,7 @@ class Command(abc.Container):
     """
     __slots__ = [
         '_underlying',
-        'hooks',
+        '_hooks',
         '_aliases'
     ]
 
@@ -58,7 +58,7 @@ class Command(abc.Container):
         if 'require_dm' in kwargs and 'require_channel' in kwargs:
             raise ValueError("require_dm and require_channel are mutually exclusive.")
 
-        self.hooks: List[_hooks.HookImplementation] = []
+        self._hooks: List[_hooks.HookImplementation] = []
 
         self._aliases: List[str] = names
 
@@ -89,6 +89,10 @@ class Command(abc.Container):
         return the first alias this command is known by, aka its name
         """
         return self.aliases[0]
+
+    @property
+    def hooks(self):
+        return self._hooks
 
     @property
     def underlying(self) -> Callable:

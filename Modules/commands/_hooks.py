@@ -27,6 +27,17 @@ class CancelExecution(Exception):
 
 
 class HookImplementation:
+    """
+    Base class for hook implementations.
+
+    Any useful child implementation should implement either `pre_execute` or `post_execute` but it
+    is not required.
+
+    It is also recommended subclasses implement a repr method.
+
+    Notes:
+        objects derived this base cannot be dynamically assigned to, this is by design.
+    """
     __slots__ = ['__weakref__']  # disallow dynamic attribute creation (__dict__)
 
     def __repr__(self):
