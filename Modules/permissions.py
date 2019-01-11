@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 """
 import logging
 from functools import wraps
-from typing import Any, Union, Callable, List, Dict, Set
+from typing import Any, Union, Callable, List, Dict, Set, Optional
 
 from Modules.commands._hooks import hook, HookImplementation
 from Modules.context import Context
@@ -413,3 +413,29 @@ class RequireDirectMessageHook(HookImplementation):
         if context.channel:
             await context.reply(self.message)
             raise self.Cancel(self.message)
+
+
+@hook("require_permission")
+class RequirePermissionHook(HookImplementation):
+    __slots__ = [
+        'permission',
+        'denied_message',
+    ]
+
+    def __init__(self, permission: Permission, denied_message: Optional[str] = None):
+        self.permission = permission
+        self.denied_message: Optional[str] = None
+
+    def __repr__(self):
+        return f"RequirePermissionHook(permission={self.permission})"
+
+    async def pre_execute(self, context: Context):
+        LOG.debug(f"in RequirePermissionHook setup...")
+        if context.user.hostname not in _by_vhost.keys() \
+                or _by_vhost[context.user.hostname] < self.permission:
+            LOG.info(f"{context.user.nickname} attempted to invoke a command they do not have "
+                     f"permissions to.")
+            await context.reply(self.denied_message if self.denied_message
+                                else self.permission.denied_message)
+            raise self.Cancel("Someone attempted to execute a command to which they do not have the"
+                              "necessary permissions for.")

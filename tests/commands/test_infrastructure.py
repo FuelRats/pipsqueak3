@@ -92,19 +92,18 @@ async def test_require_channel(command_registry_fx, async_callable_fx, context_p
 @pytest.mark.asyncio
 async def test_require_permission_lesser(async_callable_fx,
                                          command_registry_fx,
-                                         permission_fx,
                                          bot_fx):
     """
     asserts calling a callable protected by require_permission without the requisite permission
     fails.
     """
 
-    @command_registry_fx.register(require_permission=permissions.OVERSEER)
+    @command_registry_fx.register('guarded', require_permission=permissions.OVERSEER)
     async def guarded(*args, **kwargs):
         assert False, "guarded should not be callable"
 
-    ctx = Context.from_message(bot_fx, "#unit_test", "some_recruit",
-                               "guarded oh guarded! reveal your secrets to me!")
+    ctx = await Context.from_message(bot_fx, "#unit_test", "some_recruit",
+                                     "guarded oh guarded! reveal your secrets to me!")
 
     await command_registry_fx['guarded'](context=ctx)
 
@@ -112,7 +111,6 @@ async def test_require_permission_lesser(async_callable_fx,
 @pytest.mark.asyncio
 async def test_require_permission_ge(async_callable_fx,
                                      command_registry_fx,
-                                     permission_fx,
                                      bot_fx):
     """
     asserts calling a callable protected by require_permission  with necessary permissions works.
@@ -122,8 +120,8 @@ async def test_require_permission_ge(async_callable_fx,
     async def guarded(*args, **kwargs):
         await async_callable_fx(*args, **kwargs)
 
-    ctx = Context.from_message(bot_fx, "#unit_test", "some_recruit",
-                               "guarded oh guarded! reveal your secrets to me!")
+    ctx = await Context.from_message(bot_fx, "#unit_test", "some_ov",
+                                     "guarded oh guarded! reveal your secrets to me!")
 
     await command_registry_fx['guarded'](context=ctx)
 
