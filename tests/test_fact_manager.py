@@ -138,13 +138,12 @@ async def test_fm_add(test_fm_fx):
     add_values = (fact.name, fact.lang, fact.message, None,
                               fact.author, fact.edited, fact.editedby, fact.mfd)
     """
-    fm = test_fm_fx
     test_fact = Fact(name='test123', lang='en', message='This is a test fact for pytest',
                      editedby='Shatt', author='Shatt', mfd=False, edited=None, aliases=[])
 
-    await fm.add(test_fact)
+    await test_fm_fx.add(test_fact)
 
-    assert await fm.exists("test123", "en")
+    assert await test_fm_fx.exists("test123", "en")
 
 
 @pytest.mark.asyncio
@@ -152,12 +151,11 @@ async def test_fm_add_incomplete(test_fm_fx):
     """
     Verify inserting an incomplete Fact raises TypeError.
     """
-    fm = test_fm_fx
     test_fact = Fact('test123', 'en', 'This is an incomplete Fact',
                      None, 'Shatt', editedby=None)
 
     with pytest.raises(TypeError):
-        await fm.add(test_fact)
+        await test_fm_fx.add(test_fact)
 
 
 @pytest.mark.asyncio
@@ -165,13 +163,12 @@ async def test_fm_add_psycopg2_errors(test_fm_fx):
     """
     Verify an error is raised if a fact already exists.
     """
-    fm = test_fm_fx
     test_fact = Fact(name='test123', lang='en', message='This is a test fact for pytest',
                      editedby='Shatt', author='Shatt', mfd=False, edited=None, aliases=[])
 
     # Intentionally add a fact with the same name:
     with pytest.raises(psycopg2.IntegrityError):
-        await fm.add(test_fact)
+        await test_fm_fx.add(test_fact)
 
 
 @pytest.mark.asyncio
@@ -179,21 +176,20 @@ async def test_fm_delete_mfd_check(test_fm_fx):
     """
     Verify deleting a fact marked mfd succeeds
     """
-    fm = test_fm_fx
 
     test_fact = Fact(name='test127', lang='en', message='This is a test fact for pytest',
                      editedby='Shatt', author='Shatt', mfd=False, edited=None, aliases=[])
-    await fm.add(test_fact)
-    assert await fm.exists('test127', 'en')
+    await test_fm_fx.add(test_fact)
+    assert await test_fm_fx.exists('test127', 'en')
 
     # Mark it for deletion
-    await fm.mfd('test127', 'en')
+    await test_fm_fx.mfd('test127', 'en')
 
     # Attempt to delete it:
-    await fm.delete('test127', 'en')
+    await test_fm_fx.delete('test127', 'en')
 
     # ..and verify it is deleted.
-    assert not await fm.exists('test127', 'en')
+    assert not await test_fm_fx.exists('test127', 'en')
 
 
 @pytest.mark.asyncio
@@ -201,10 +197,8 @@ async def test_fm_delete_no_mfd_flag(test_fm_fx):
     """
     Verify deleting a fact NOT marked mfd fails, throwing a psycopg2.ProgrammingError
     """
-    fm = test_fm_fx
-
     with pytest.raises(psycopg2.ProgrammingError):
-        await fm.delete('prep', 'en')
+        await test_fm_fx.delete('prep', 'en')
 
 
 @pytest.mark.asyncio
@@ -212,9 +206,7 @@ async def test_mfdlist_returns_list(test_fm_fx):
     """
     mfd_list method must return a list.
     """
-    fm = test_fm_fx
-
-    assert isinstance(await fm.mfd_list(), list)
+    assert isinstance(await test_fm_fx.mfd_list(), list)
 
 
 @pytest.mark.asyncio
@@ -222,9 +214,7 @@ async def test_fm_destroy(test_fm_fx):
     """
     Verify _destroy function works properly.
     """
-    fm = test_fm_fx
-
-    await fm._destroy('test', 'ru')
+    await test_fm_fx._destroy('test', 'ru')
 
 
 @pytest.mark.asyncio
@@ -232,10 +222,8 @@ async def test_edit_message_bad_fact(test_fm_fx):
     """
     Verify attempt to edit a fact that does not exist throws exception.
     """
-    fm = test_fm_fx
-
     with pytest.raises(ValueError):
-        await fm.edit_message('notafact', 'nope', 'Shatt', 'This is not a fact')
+        await test_fm_fx.edit_message('notafact', 'nope', 'Shatt', 'This is not a fact')
 
 
 @pytest.mark.asyncio
@@ -243,11 +231,10 @@ async def test_edit_message(test_fm_fx):
     """
     Test edit_message functionally works.
     """
-    fm = test_fm_fx
     # async def edi(self, name: str, lang: str, editor: str, new_message: str):
-    await fm.edit_message('test', 'en', 'Shatt', 'This fact has been edited during testing.')
+    await test_fm_fx.edit_message('test', 'en', 'Shatt', 'This fact has been edited during testing.')
 
-    result = await fm.find('test', 'en')
+    result = await test_fm_fx.find('test', 'en')
 
     assert result.message == 'This fact has been edited during testing.'
 
@@ -257,8 +244,7 @@ async def test_fact_exists(test_fm_fx):
     """
     Verify a fact looked up with the exists method returns true.
     """
-    fm = test_fm_fx
-    assert await fm.exists('stats', 'en')
+    assert await test_fm_fx.exists('stats', 'en')
 
 
 @pytest.mark.asyncio
@@ -266,8 +252,7 @@ async def test_fact_exists_no(test_fm_fx):
     """
     Verify a fact looked up with the exist method returns false if not found.
     """
-    fm = test_fm_fx
-    assert not await fm.exists('asdf', 'asdfa')
+    assert not await test_fm_fx.exists('asdf', 'asdfa')
 
 
 @pytest.mark.asyncio
@@ -275,15 +260,13 @@ async def test_facthistory_return(test_fm_fx):
     """
     Verify fact history returns log entries.
     """
-    fm = test_fm_fx
-
     # Add some log entries.
-    await fm.add_transaction('stats', 'en', 'Shatt', 'Added')
-    await fm.add_transaction('stats', 'en', 'Shatt', 'Deleted')
-    await fm.add_transaction('stats', 'en', 'Shatt', 'Added')
-    await fm.add_transaction('stats', 'en', 'Shatt', 'Marked for Delete')
+    await test_fm_fx.add_transaction('stats', 'en', 'Shatt', 'Added')
+    await test_fm_fx.add_transaction('stats', 'en', 'Shatt', 'Deleted')
+    await test_fm_fx.add_transaction('stats', 'en', 'Shatt', 'Added')
+    await test_fm_fx.add_transaction('stats', 'en', 'Shatt', 'Marked for Delete')
 
-    history = await fm.fact_history('stats', 'en')
+    history = await test_fm_fx.fact_history('stats', 'en')
     assert history is not None
 
 
@@ -292,9 +275,7 @@ async def test_facthistory_invalid_query(test_fm_fx):
     """
     Verify fact history raises no errors on an invalid fact lookup.
     """
-    fm = test_fm_fx
-
-    history = await fm.fact_history('s205gw', 'sdjn3nw')
+    history = await test_fm_fx.fact_history('s205gw', 'sdjn3nw')
 
 
 @pytest.mark.asyncio
@@ -302,8 +283,7 @@ async def test_fact_find_return(test_fm_fx):
     """
     Verify fact finder returns a complete fact object.
     """
-    fm = test_fm_fx
-    found_fact = await fm.find('stats', 'en')
+    found_fact = await test_fm_fx.find('stats', 'en')
 
     assert found_fact.complete is True
 
@@ -317,12 +297,10 @@ async def test_exist_exception_handling(test_fm_fx, monkeypatch):
     async def boomstick(*args, **kwargs):
         raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
 
-    fm = test_fm_fx
-
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.exists('fake', 'en')
+        result = await test_fm_fx.exists('fake', 'en')
 
 
 @pytest.mark.asyncio
@@ -334,13 +312,11 @@ async def test_edit_exception_handling(test_fm_fx, monkeypatch):
     async def boomstick(*args, **kwargs):
         raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
 
-    fm = test_fm_fx
-
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.edit_message('test', 'en', 'Shatt',
-                                       'This fact has been edited during testing.')
+        result = await test_fm_fx.edit_message('test', 'en', 'Shatt',
+                                               'This fact has been edited during testing.')
 
 
 @pytest.mark.asyncio
@@ -352,12 +328,10 @@ async def test_facthistory_exception_handling(test_fm_fx, monkeypatch):
     async def boomstick(*args, **kwargs):
         raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
 
-    fm = test_fm_fx
-
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.fact_history('test', 'en')
+        result = await test_fm_fx.fact_history('test', 'en')
 
 
 @pytest.mark.asyncio
@@ -369,12 +343,10 @@ async def test_find_exception_handling(test_fm_fx, monkeypatch):
     async def boomstick(*args, **kwargs):
         raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
 
-    fm = test_fm_fx
-
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.find('test', 'en')
+        result = await test_fm_fx.find('test', 'en')
 
 
 @pytest.mark.asyncio
@@ -386,12 +358,10 @@ async def test_log_exception_handling(test_fm_fx, monkeypatch):
     async def boomstick(*args, **kwargs):
         raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
 
-    fm = test_fm_fx
-
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.add_transaction('test', 'en', 'Shatt', 'Edited')
+        result = await test_fm_fx.add_transaction('test', 'en', 'Shatt', 'Edited')
 
 
 @pytest.mark.asyncio
@@ -403,12 +373,10 @@ async def test_mfd_handling(test_fm_fx, monkeypatch):
     async def boomstick(*args, **kwargs):
         raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
 
-    fm = test_fm_fx
-
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.mfd('test', 'en')
+        result = await test_fm_fx.mfd('test', 'en')
 
 
 @pytest.mark.asyncio
@@ -420,9 +388,7 @@ async def test_mfdlist_handling(test_fm_fx, monkeypatch):
     async def boomstick(*args, **kwargs):
         raise psycopg2.ProgrammingError("Raised by Pytest - Fire in the hole!")
 
-    fm = test_fm_fx
-
     monkeypatch.setattr(test_fm_fx, "query", boomstick)
 
     with pytest.raises(psycopg2.ProgrammingError):
-        result = await fm.mfd_list()
+        result = await test_fm_fx.mfd_list()
