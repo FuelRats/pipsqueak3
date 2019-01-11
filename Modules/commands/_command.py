@@ -93,6 +93,9 @@ class Command(abc.Container):
 
     @property
     def hooks(self):
+        """
+        This Command's hooks
+        """
         return self._hooks
 
     @property
@@ -150,7 +153,9 @@ class Command(abc.Container):
 
         else:
             LOG.debug(f"calling underlying with extra_args:= {extra_arguments}")
-            await self.underlying(context=context, **extra_arguments)
+            # the underlying is callable, false positive.
+            await self.underlying(context=context,  # pylint: disable=not-callable
+                                  **extra_arguments)  # pylint: disable=not-callable
 
         finally:
             for hook in executed_gens:

@@ -58,11 +58,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from ._registry import Registry
-from ._hooks import hook, HookImplementation
 from ._command import ENABLED
+from ._hooks import hook, HookImplementation
+from ._registry import Registry
 
-command_registry = Registry()
+# this isn't a constant, pylint false positive
+command_registry = Registry()  # pylint: disable=invalid-name
 """
 Commands registry
 """
