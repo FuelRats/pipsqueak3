@@ -27,7 +27,7 @@ class DatabaseManager(object):
         ...                 dbport=5432,
         ...                 dbname='DatabaseName',
         ...                 dbuser='DatabaseUserName',
-        ...                 dbpassword='UserPassword')
+        ...                 dbpassword='UserPassword') # doctest: +SKIP
 
         All arguments are optional.  If omitted, config values will be pulled from config file.
 
