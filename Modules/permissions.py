@@ -15,7 +15,7 @@ import logging
 from functools import wraps
 from typing import Any, Union, Callable, List, Dict, Set, Optional
 
-from Modules.commands._hooks import hook, HookImplementation
+from Modules import commands
 from Modules.context import Context
 from config import config
 
@@ -378,8 +378,8 @@ def require_dm(func: Union[str, Callable] = None,
     return real_decorator(func) if func else real_decorator
 
 
-@hook("require_channel")
-class RequireChannelHook(HookImplementation):
+@commands.hook("require_channel")
+class RequireChannelHook(commands.HookImplementation):
     """
     Require Channel hook implementation
     """
@@ -398,8 +398,8 @@ class RequireChannelHook(HookImplementation):
             raise self.Cancel(self.message)
 
 
-@hook("require_dm")
-class RequireDirectMessageHook(HookImplementation):
+@commands.hook("require_dm")
+class RequireDirectMessageHook(commands.HookImplementation):
     __slots__ = ['message']
 
     def __init__(self, message="this MUST be executed from a direct message with me!"):
@@ -415,8 +415,8 @@ class RequireDirectMessageHook(HookImplementation):
             raise self.Cancel(self.message)
 
 
-@hook("require_permission")
-class RequirePermissionHook(HookImplementation):
+@commands.hook("require_permission")
+class RequirePermissionHook(commands.HookImplementation):
     __slots__ = [
         'permission',
         'denied_message',

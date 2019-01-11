@@ -8,6 +8,7 @@ the rest.
 
 Implements:
     collections.abc.MutableMapping
+
 Examples:
     To define a command, its rather straight forward. you pass it an arbitry number of aliases
     you want to register, and use keyword arguments to define what modifiers to apply
@@ -30,6 +31,23 @@ Examples:
     >>> doc_alias1
     <function doc_alias1 at ...>
 
+    To have your command be guarded by an execution hook, assign the hook **by name** a value.
+    Please note many hooks will use the assigned value for specific functions, unless you need to
+    change their default behavior, please assign :obj:`ENABLED` as the argument's value.
+
+    >>> @command_registry.register('doc_alias3', require_dm=ENABLED)
+    ... async def cmd_alias3(context:Context):
+    ...     ...
+
+    If we peak at the registered hooks we will see require_dm has had its hook added.
+    >>> command_registry['doc_alias3'].hooks
+    [RequireDirectMessageHook(message='this MUST be executed from a direct message with me!')]
+
+
+    For more information, see the Corresponding hook implementations.
+
+
+
 
 
 Copyright (c) 2018 The Fuel Rats Mischief,
@@ -41,10 +59,17 @@ See LICENSE.md
 """
 
 from ._registry import Registry
+from ._hooks import hook, HookImplementation
+from ._command import ENABLED
 
 command_registry = Registry()
 """
 Commands registry
 """
 
-__all__ = ['command_registry']
+__all__ = [
+    'command_registry',
+    'hook',
+    'HookImplementation',
+    'ENABLED'
+]

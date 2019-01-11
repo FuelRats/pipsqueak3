@@ -44,7 +44,7 @@ class Command(abc.Container):
     """
     __slots__ = [
         '_underlying',
-        '_hooks',
+        'hooks',
         '_aliases'
     ]
 
@@ -58,7 +58,11 @@ class Command(abc.Container):
         if 'require_dm' in kwargs and 'require_channel' in kwargs:
             raise ValueError("require_dm and require_channel are mutually exclusive.")
 
-        self._hooks: List = []  # todo proper type hint
+        self.hooks: List = []  # todo proper type hint
+
+        self._aliases: List[str] = names
+
+        self._underlying = underlying
 
         # for each kwarg
         for key, value in kwargs.items():
@@ -69,11 +73,7 @@ class Command(abc.Container):
                 hook = _hooks.hooks[key](value)
             else:
                 hook = _hooks.hooks[key]()  # otehrwise allow the default to be used instead
-            self._hooks.append(hook)
-
-        self._aliases: List[str] = names
-
-        self._underlying = underlying
+            self.hooks.append(hook)
 
     def __contains__(self, item: str):
         # check if its a string
@@ -124,7 +124,7 @@ class Command(abc.Container):
         LOG.debug(f"command {self.aliases[0]} invoked...")
 
         # initialize each generator
-        hook_gens = (hook(context) for hook in self._hooks)
+        hook_gens = (hook(context) for hook in self.hooks)
 
         executed_gens = set()
 

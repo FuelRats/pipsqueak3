@@ -1,7 +1,7 @@
 """
-_hooks.py - {summery}
+_hooks.py - Core execution hooks implementation
 
-{long description}
+provides the core implementation of execution hooks.
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
@@ -59,18 +59,40 @@ class HookImplementation:
         ...
 
     Cancel = CancelExecution  # convenience alias
+    """
+    Pre-execution methods can raise this to stop the execution, this will cause the underlying
+    to **not** be called, and any previously run hooks to have their teardowns called.
+    """
 
     def __call__(self, context: Context):
         # call our setup routine
         yield self.pre_execute(context)
+        # call our teardown routine
         return self.post_execute(context)
 
 
 # module attribute
 hooks: Dict[str, type(HookImplementation)] = {}
+"""
+All known event hooks.
+"""
 
 
 def hook(name: str):
+    """
+    Registers the decorated class as a Command hook.
+
+    Args:
+        name (str): name to use as the keyword argument to enable this hook
+
+    once registered, it can be "enabled" for any command registration simply by passing a value
+    to `name` as a keyword argument.
+
+    See Also
+        :class:`Modules.commands.Registry`
+    Returns:
+        cls unchanged.
+    """
     def real_decorator(cls):
         assert issubclass(cls, HookImplementation)
         hooks[name] = cls
