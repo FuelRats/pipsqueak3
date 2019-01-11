@@ -126,7 +126,7 @@ class DatabaseManager(object):
                 else:
                     # Return a blank tuple if there are no results, since we are
                     # forcing this to a list.
-                    result = tuple()
+                    result = ()
 
         # Release connection back to the pool.
         self._dbpool.putconn(connection)
