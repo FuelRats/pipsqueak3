@@ -10,7 +10,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from asyncio import run
 from collections import abc
 from contextlib import suppress
 from logging import getLogger
@@ -30,6 +29,8 @@ class Command(abc.Container):
     Defines a Command.
 
     Examples:
+        >>> from asyncio import run  # setup chore
+
         This class implements :class:`abc.Container`, using string aliases for the contains check.
         >>> async def foo(*args, **kwargs):
         ...     print("foo called!")
@@ -62,7 +63,7 @@ class Command(abc.Container):
 
         self._aliases: List[str] = names
 
-        self._underlying = underlying
+        self._underlying: Callable = underlying
 
         # for each kwarg
         for key, value in kwargs.items():

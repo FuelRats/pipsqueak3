@@ -11,7 +11,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 from logging import getLogger
-from typing import AsyncGenerator, Optional, Dict, Any, NoReturn
+from typing import Optional, Dict, Any, NoReturn
 
 from Modules.context import Context
 
@@ -56,7 +56,6 @@ class HookImplementation:
         Returns:
             Optional[Dict]: keyword arguments to pass to underling executable
         """
-        ...
 
     async def post_execute(self, context: Context) -> NoReturn:
         """
@@ -67,7 +66,6 @@ class HookImplementation:
         Args:
             context (Context): execution Cotnext
         """
-        ...
 
     Cancel = CancelExecution  # convenience alias
     """
@@ -104,11 +102,10 @@ def hook(name: str):
     Returns:
         cls unchanged.
     """
+
     def real_decorator(cls):
         assert issubclass(cls, HookImplementation)
         hooks[name] = cls
         return cls
 
     return real_decorator
-
-
