@@ -24,7 +24,7 @@ class DatabaseManager(object):
 
         Usage:
         >>> DatabaseManager(dbhost='DatabaseServer.org',
-        ...                 dport=5432,
+        ...                 dbport=5432,
         ...                 dbname='DatabaseName',
         ...                 dbuser='DatabaseUserName',
         ...                 dbpassword='UserPassword')
