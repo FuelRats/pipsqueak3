@@ -10,25 +10,19 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from collections.abc import Callable
 from logging import getLogger
+from typing import AsyncGenerator
 
 from Modules.context import Context
-from Modules.permissions import Permission
 
 LOG = getLogger(f"mecha.{__name__}")
-
-STOP_EXECUTION = object()
-"""
-Stop execution of this command/rule.
-
-This sentinel should only be returned by pre-execution hooks that want to prevent the underlying
-from being invoked. it is ignored outside pre-execution hooks.
-"""
-
 
 class CancelExecution(Exception):
     """
     Raised when a setup hook wants to cancel execution
+
+    **note** This should __only__ be raised by pre-execution hooks!
     """
     ...
 
@@ -39,17 +33,17 @@ class CancelExecution(Exception):
 
 async def require_channel(context: Context, *args, **kwargs):
     LOG.debug("in require_channel")
-    raise CancelExecution("nope!")
+    if not context.channel:
+        await context.reply("this callable must be invoked in a channel")
+        raise CancelExecution("this callable must be invoked in a channel")
 
 
 async def require_direct_message(context: Context, *args, **kwargs):
     LOG.debug("in require_direct_message")
-    return {'dm': True}
 
-
-async def require_permission(context: Context, permission: Permission, *args, **kwargs):
-    LOG.debug("in require_permission")
-    ...
+    if context.channel:
+        await context.reply("this callable must be invoked from a direct message with me.")
+        raise CancelExecution("this callable must be invoked from a direct message with me.")
 
 # #######
 # post-execute hooks

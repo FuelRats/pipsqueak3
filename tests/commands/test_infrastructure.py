@@ -77,13 +77,13 @@ async def test_require_channel(command_registry_fx, async_callable_fx, context_p
 
     # set the underlying to the mock, note .underlying isn't settable and is intended to be
     # immutable at runtime. test hax
-    command_registry_fx['catnip']._underlying = async_callable_fx
+    command_registry_fx['bear_trap']._underlying = async_callable_fx
 
-    await command_registry_fx['catnip'](context_pm_fx)
+    await command_registry_fx['bear_trap'](context_pm_fx)
 
     assert not async_callable_fx.was_called
 
-    await command_registry_fx['catnip'](context_channel_fx)
+    await command_registry_fx['bear_trap'](context_channel_fx)
 
     assert async_callable_fx.was_called
     assert async_callable_fx.was_called_once
