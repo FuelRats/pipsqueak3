@@ -10,11 +10,11 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from asyncio import run
 from collections import abc
 from logging import getLogger
 from typing import List, Callable, Optional, Any, Dict
 
+from Modules.context import Context
 from . import _hooks
 
 LOG = getLogger(f"mecha.{__name__}")
@@ -37,43 +37,27 @@ class Command(abc.Callable, abc.Container):
         >>> run(cmd())
         foo called!
     """
+    __slots__ = ['_underlying',
+                 '_hooks'
+                 ]
 
     def __init__(self, *names,
                  underlying: Callable,
-                 require_permission=False,
-                 require_dm=False,
-                 require_channel=False):
+                 **kwargs):
 
-        assert names, "at least one name is required."
+        if not names:
+            raise ValueError("at least one name is required.")
+        self._hooks: List = []  # todo proper type hint
+
+        # for each kwarg
+        for key, value in kwargs.items():
+            # match it to its corresponding hook
+            hook = _hooks.hooks[key](value)
+            self._hooks.append(hook)
 
         self._aliases: List[str] = names
-        self._setup_hooks: List[Callable] = []
-        """
-        pre-execution setup_hooks
-        """
-
-        self._teardown_hooks: List[Callable] = []
-        """
-        post-execution setup_hooks
-        """
 
         self._underlying = underlying
-
-        # sanity check
-        if require_channel and require_dm:
-            raise ValueError("require_dm and require_channel are mutually exclusive.")
-        # hook registration checks
-        if require_permission:
-            LOG.debug(f"adding permission hook at level {require_permission} ...")
-            self._setup_hooks.append(_hooks.require_permission)
-
-        if require_dm:
-            LOG.debug("enabling require direct message hook...")
-            self._setup_hooks.append(_hooks.require_direct_message)
-
-        if require_channel:
-            LOG.debug("enabling require channel hook...")
-            self._setup_hooks.append(_hooks.require_channel)
 
     def __contains__(self, item: str):
         # check if its a string
@@ -98,50 +82,13 @@ class Command(abc.Callable, abc.Container):
         return self._underlying
 
     @property
-    def setup_hooks(self) -> List[Callable]:
-        """
-        List of pre-execution setup_hooks
-        """
-        return self._setup_hooks
-
-    @property
-    def teardown_hooks(self) -> List[Callable]:
-        """
-        List of post-execution hooks
-        """
-        return self._teardown_hooks
-
-    @property
     def aliases(self) -> List[str]:
         """
         Lists of alias the underlying can be invoked by
         """
         return self._aliases
 
-    async def setup(self, *args, **kwargs) -> List[Optional[Dict[str, Any]]]:
-        """
-        Executes setup setup_hooks, gathers the results
-
-        Returns:
-            list of kwarg dictionary objects, the results of each setup hook.
-        """
-
-        # build a list from the output of each setup task
-        results = [await task(*args, **kwargs) for task in self._setup_hooks]
-        return results
-
-    async def teardown(self, *args, **kwargs):
-        """
-        Executes teardown tasks
-
-        Yields:
-            result of each teardown hook
-
-        """
-        for task in self.teardown_hooks:
-            await task(*args, **kwargs)
-
-    async def __call__(self, *args, **kwargs):
+    async def __call__(self, context:Context):
         """
         Invoke this command.
 
@@ -163,6 +110,8 @@ class Command(abc.Callable, abc.Container):
         try:
             # extra arguments to pass to the underlying
             extra_arguments = {}
+
+            hook_gens = (hook(context) for hook in self._hooks)
 
             # if we have setup tasks to do
             if self.setup_hooks:

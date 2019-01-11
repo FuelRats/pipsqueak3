@@ -17,17 +17,20 @@ from Modules.context import Context
 
 LOG = getLogger(f"mecha.{__name__}")
 
+
 class CancelExecution(Exception):
     """
     Raised when a setup hook wants to cancel execution
 
     **note** This should __only__ be raised by pre-execution hooks!
     """
-    ...
 
 
 class HookImplementation:
     __slots__ = ['__weakref__']  # disallow dynamic attribute creation (__dict__)
+
+    def __repr__(self):
+        return f"HookImplementation()"
 
     async def pre_execute(self, context: Context) -> Optional[Dict[str, Any]]:
         """
@@ -63,6 +66,20 @@ class HookImplementation:
         await self.post_execute(context)
 
 
+# module attribute
+hooks: Dict[str, type(HookImplementation)] = {}
+
+
+def hook(name: str):
+    def real_decorator(cls):
+        assert issubclass(cls, HookImplementation)
+        hooks[name] = cls
+        return cls
+
+    return real_decorator
+
+
+@hook("require_channel")
 class RequireChannelHook(HookImplementation):
     """
     Require Channel hook implementation
@@ -72,6 +89,9 @@ class RequireChannelHook(HookImplementation):
     def __init__(self, message="this MUST be executed in a channel"):
         self.message = message
 
+    def __repr__(self):
+        return f"RequireChannelHook(message='{self.message}')"
+
     async def pre_execute(self, context: Context):
         LOG.debug("in require_channel")
         if not context.channel:
@@ -79,11 +99,15 @@ class RequireChannelHook(HookImplementation):
             raise self.Cancel(self.message)
 
 
+@hook("require_dm")
 class RequireDirectMessageHook(HookImplementation):
     __slots__ = ['message']
 
     def __init__(self, message="this MUST be executed from a direct message with me!"):
         self.message = message
+
+    def __repr__(self):
+        return f"RequireDirectMessageHook(message='{self.message}')"
 
     async def pre_execute(self, context: Context):
         LOG.debug("in RequireDirectMessage setup...")
@@ -92,24 +116,3 @@ class RequireDirectMessageHook(HookImplementation):
             raise self.Cancel(self.message)
 
 
-# #######
-# pre-execute hooks
-# #
-
-async def require_channel(context: Context, *args, **kwargs):
-    LOG.debug("in require_channel")
-    if not context.channel:
-        await context.reply("this callable must be invoked in a channel")
-        raise CancelExecution("this callable must be invoked in a channel")
-
-
-async def require_direct_message(context: Context, *args, **kwargs):
-    LOG.debug("in require_direct_message")
-
-    if context.channel:
-        await context.reply("this callable must be invoked from a direct message with me.")
-        raise CancelExecution("this callable must be invoked from a direct message with me.")
-
-# #######
-# post-execute hooks
-# #
