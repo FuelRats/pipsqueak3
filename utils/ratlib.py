@@ -13,12 +13,12 @@ This module is built on top of the Pydle system.
 """
 import re
 from enum import Enum
+from math import isclose, sqrt
 from uuid import UUID
 from typing import Optional
+from dataclasses import dataclass
 
-MIRC_CONTROL_CODES = ["\x0F", "\x16", "\x1D", "\x1F", "\x02",
-                      "\x03([1-9][0-6]?)?,?([1-9][0-6]?)?"]
-STRIPPED_CHARS = ';'
+STRIPPED_CHARS = '\t'
 
 
 class Platforms(Enum):
@@ -121,11 +121,14 @@ def sanitize(message: str) -> str:
     """
     sanitized_string = message
 
-    # Remove mIRC codes
-    for code in MIRC_CONTROL_CODES:
-        sanitized_string = re.sub(code, '', sanitized_string, re.UNICODE)
+    # Remove IRC control codes for color, bold, underline, etc.
+    control_code_regex = re.compile(r"([\x02\x1D\x1F\x1E\x11\x16\x0F]|"
+                                    r"(\x03([0-9]{1,2}(,[0-9]{1,2})?)?)|"
+                                    r"(\x04([0-9a-fA-F]{6}(,[0-9a-fA-F]{6})?)?))"
+                                    )
+    sanitized_string = control_code_regex.sub('', sanitized_string)
 
-    # Remove tabs and semi-colons
+    # Remove stripped characters. (e.g. Tabs)
     for character in sanitized_string:
         if character in STRIPPED_CHARS:
             sanitized_string = sanitized_string.replace(character, '')
@@ -240,3 +243,71 @@ def reverse(text: str) -> str:
 
     """
     return f'{Formatting.FORMAT_REVERSE.value}{text}{Formatting.FORMAT_REVERSE.value}'
+
+
+@dataclass(frozen=True)
+class Vector:
+    """
+    Represents a point within 3D space.
+    """
+
+    x: float
+    y: float
+    z: float
+
+    def magnitude(self) -> float:
+        """
+        The magnitude of the vector, or the total distance between it and
+        the origin (0, 0, 0).
+        """
+
+        return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+
+    def normal(self) -> 'Vector':
+        """
+        The normalized vector, representing 1 "unit" of distance in the Vector's
+        original direction.
+
+        Returns:
+            The normalized vector, if valid.
+
+        Raises:
+            ValueError: If `magnitude()` is zero, the Vector must be (0, 0, 0), and therefore
+                        has no normal.
+        """
+
+        mag = self.magnitude()
+        if mag == 0:
+            raise ValueError('Cannot normalize a zero Vector.')
+        return Vector(self.x / mag, self.y / mag, self.z / mag)
+
+    def distance(self, other) -> float:
+        """
+        Calculates the total distance between two Vectors.
+        """
+
+        return sqrt(
+            ((other.x - self.x) ** 2) +
+            ((other.y - self.y) ** 2) +
+            ((other.z - self.z) ** 2))
+
+    @classmethod
+    def zero(cls) -> 'Vector':
+        """
+        Returns the zero Vector.
+        """
+        return cls(0, 0, 0)
+
+    def __add__(self, other):
+        return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+
+    def __sub__(self, other):
+        return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    def __mul__(self, other):
+        return Vector(self.x * other, self.y * other, self.z * other)
+
+    def __eq__(self, other):
+        return (isclose(self.x, other.x) and
+                isclose(self.y, other.y) and
+                isclose(self.z, other.z))

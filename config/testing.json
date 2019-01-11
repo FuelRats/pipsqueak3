@@ -35,7 +35,7 @@
   },
   "api": {
     "online_mode": false,
-    "url": null,
+    "url": "http://localhost/",
     "tokenfile": null
   },
   "permissions": {

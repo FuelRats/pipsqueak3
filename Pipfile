@@ -4,15 +4,20 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+aiohttp = "*"
 pydle = ">=0.8.5"
 pure-sasl = "*"
 coloredlogs = "*"
 psycopg2 = "*"
 
 [dev-packages]
-pytest = "*"
+pytest = "==4.0.2"  #FIXME remove limit when pytest-asyncio updates and pytest is no longer breaking things
 pytest-cov = "*"
 pytest-asyncio = "*"
+pylint = "*"
+pytest-httpserver = "*"
+codecov = "*"
+pycodestyle = "*"
 
 [requires]
 python_version = "3.7"

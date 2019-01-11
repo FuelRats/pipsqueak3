@@ -40,20 +40,20 @@ Use docstrings and comments to document how your features function and why. Docs
 Example docstring:
 ```python
 def example_function(param1: int, param2: str) -> bool:
-"""
-This is an example doc string.  It may span multiple lines, however
-it may not break the 100 characters per line PEP8 standard.  It is a
-good standard to include expected types, explain what your function
-attempts to accomplish, and what result is returned, if any.
-
-Args:
-    param1 (int): First Parameter.
-    param2 (str): Second Parameter.
-
-Returns:
-    bool: True if successful, False otherwise.
-"""
-return False
+    """
+    This is an example doc string.  It may span multiple lines, however
+    it may not break the 100 characters per line PEP8 standard.  It is a
+    good standard to include expected types, explain what your function
+    attempts to accomplish, and what result is returned, if any.
+    
+    Args:
+        param1 (int): First Parameter.
+        param2 (str): Second Parameter.
+    
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    return False
 ```
 
 ### Build Integrity
@@ -61,11 +61,14 @@ return False
 All pull requests must pass standard checks:
 * Build must be be successful and functional (obviously!)
 * Must pass all integrity checks
-* CodeClimate diff-coverage (85% required)
-* CodeClimate total-coverage (>95% required)
-* PEP8 Standards
+    * Codecov diff-coverage (85% required)
+    * Codecov total-coverage (>90% required)
+    * pycodestyle pep8 standards
+    * Circleci unit test run (Pytest)
 * Circleci deployment testing (if applicable)
 
+Everything should be runnable in your dev environment, all necessary configuration files are provided
+in VCS. for pylint you may need to manually point it at `pylint.ini`
 ## Hygiene
 
 **Please do not squash your commits prior to your PR.**  If this is necessary, it will be brought up during the review process.
@@ -81,7 +84,7 @@ The easiest way to do that is to make the main repo a remote using `git remote a
 
 ## Testing
 
-**NOTICE: New tests must be done with py.test!  Furthermore, no Pull Request may break any existing test.**
+**NOTICE: All tests will be run with pytest. Furthermore, no Pull Request may break any existing test.**
 
 New functionality should not compromise existing tests. Test definitions shall contain a docstring with the intended purpose of the testing function.
 

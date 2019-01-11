@@ -4,7 +4,7 @@
 #
 version: 2
 jobs:
-  build:
+  tests:
     environment:
       # tell pipenv
       PIPENV_VENV_IN_PROJECT: true
@@ -22,41 +22,24 @@ jobs:
       # Postgres container
       - image: circleci/postgres:9.6.2-alpine
         environment:
-#          DB_USER: mecha
-#          DB_DATABASE: mecha
+          #          DB_USER: mecha
+          #          DB_DATABASE: mecha
           POSTGRES_PASSWORD: mecha
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
 
     working_directory: ~/repo
 
     steps:
-      - checkout
-
+      - attach_workspace:
+          at: .
       # Download and cache dependencies
       - restore_cache:
           keys:
             - v3-dependencies-{{ checksum "Pipfile.lock" }}
 
-
-      - run:
-          name: install dependencies
-          command: |
-            pipenv install -d
-
-      # give CircleCi access to cached venv
-      - run:
-          name: Fix permissions on venv
-          command: sudo chown -R circleci:circleci ".venv"
-
-      - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
 
       # do caching magic
       - save_cache:
@@ -95,9 +78,8 @@ jobs:
       - run:
           name: run tests
           command: |
-            ./cc-test-reporter before-build
             pipenv run pytest -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
-            ./cc-test-reporter after-build --coverage-input-type coverage.py --exit-code $?
+            pipenv run codecov
 
       - store_artifacts:
           path: logs/unit_tests.log
@@ -108,7 +90,102 @@ jobs:
 
       - store_test_results:
           path: test-reports
+  setup_workspace:
+    environment:
+      # tell pipenv
+      PIPENV_VENV_IN_PROJECT: true
 
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:3.7
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v3-dependencies-{{ checksum "Pipfile.lock" }}
+
+
+      - run:
+          name: install dependencies
+          command: |
+            pipenv install -d
+
+      # give CircleCi access to cached venv
+      - run:
+          name: Fix permissions on venv
+          command: sudo chown -R circleci:circleci ".venv"
+
+      # do caching magic
+      - save_cache:
+          paths:
+            - ".venv"
+          key: v3-dependencies-{{ checksum "Pipfile.lock" }}
+      # cache code and dependencies for later jobs
+      - persist_to_workspace:
+          root: .
+          paths: .
+
+
+
+  linting:
+    environment:
+      # tell pipenv
+      PIPENV_VENV_IN_PROJECT: true
+
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:3.7
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    working_directory: ~/repo
+
+    steps:
+      - attach_workspace:
+          at: .
+
+      - run:
+          name: retrieve pylint-exit
+          command: curl -o pylint-exit https://raw.githubusercontent.com/theunkn0wn1/pylint-exit/master/pylint_exit.py
+      - run:
+          name: retrieve pylint-exit's dependency
+          command: pipenv run pip install bitarray
+      - run:
+          name: Run pylint over project
+          # run pylint, pass it through pylint-exit so Circle doesn't throw a fit
+          command: pipenv run pylint --rcfile pylint.ini Modules database utils || pipenv run python pylint-exit $?
+      - run:
+          name: run pycodestyle over project
+          command: pipenv run pycodestyle Modules database utils
+
+workflows:
+  version: 2
+  build_and_lint:
+    jobs:
+      - setup_workspace
+      #       run tests first
+      - linting:
+          requires:
+            - setup_workspace
+      - tests:
+          #          don't bother running tests if linting catches any errors
+          requires:
+            - linting
+            - setup_workspace
 
 notify:
   branches:
