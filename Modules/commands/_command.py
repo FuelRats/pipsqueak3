@@ -10,6 +10,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from asyncio import run
 from collections import abc
 from contextlib import suppress
 from logging import getLogger
@@ -22,7 +23,9 @@ from . import _hooks
 LOG = getLogger(f"mecha.{__name__}")
 
 ENABLED = object()
-class Command(abc.Callable, abc.Container):
+
+
+class Command(abc.Container):
     """
     Defines a Command.
 
@@ -35,8 +38,8 @@ class Command(abc.Callable, abc.Container):
         >>> 'doc_command_foo' in cmd
         True
 
-        This class is also :class:`abc.Callable`, thus can be called directly
-        >>> run(cmd())
+        Instances of this class are callable,
+        >>> run(cmd(None))
         foo called!
     """
     __slots__ = [
