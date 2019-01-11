@@ -18,7 +18,10 @@ import sys
 from uuid import uuid4, UUID
 
 import psycopg2
+import psycopg2.pool
 import pytest
+
+# from psycopg2.pool import SimpleConnectionPool
 
 from Modules.rat_cache import RatCache
 
