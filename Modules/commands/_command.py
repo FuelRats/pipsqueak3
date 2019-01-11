@@ -11,15 +11,17 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 from collections import abc
+from contextlib import suppress
 from logging import getLogger
-from typing import List, Callable, Optional, Any, Dict
+from typing import List, Callable
 
+from Modules.commands._hooks import CancelExecution
 from Modules.context import Context
 from . import _hooks
 
 LOG = getLogger(f"mecha.{__name__}")
 
-
+ENABLED = object()
 class Command(abc.Callable, abc.Container):
     """
     Defines a Command.
@@ -37,9 +39,11 @@ class Command(abc.Callable, abc.Container):
         >>> run(cmd())
         foo called!
     """
-    __slots__ = ['_underlying',
-                 '_hooks'
-                 ]
+    __slots__ = [
+        '_underlying',
+        '_hooks',
+        '_aliases'
+    ]
 
     def __init__(self, *names,
                  underlying: Callable,
@@ -47,12 +51,21 @@ class Command(abc.Callable, abc.Container):
 
         if not names:
             raise ValueError("at least one name is required.")
+
+        if 'require_dm' in kwargs and 'require_channel' in kwargs:
+            raise ValueError("require_dm and require_channel are mutually exclusive.")
+
         self._hooks: List = []  # todo proper type hint
 
         # for each kwarg
         for key, value in kwargs.items():
             # match it to its corresponding hook
-            hook = _hooks.hooks[key](value)
+
+            if value is not ENABLED:
+                # if the value is not Enabled, pass the value to the hook's constructor
+                hook = _hooks.hooks[key](value)
+            else:
+                hook = _hooks.hooks[key]()  # otehrwise allow the default to be used instead
             self._hooks.append(hook)
 
         self._aliases: List[str] = names
@@ -88,7 +101,7 @@ class Command(abc.Callable, abc.Container):
         """
         return self._aliases
 
-    async def __call__(self, context:Context):
+    async def __call__(self, context: Context):
         """
         Invoke this command.
 
@@ -107,42 +120,31 @@ class Command(abc.Callable, abc.Container):
 
         LOG.debug(f"command {self.aliases[0]} invoked...")
 
+        # initialize each generator
+        hook_gens = (hook(context) for hook in self._hooks)
+
+        executed_gens = set()
+
+        extra_arguments = {}
+
         try:
-            # extra arguments to pass to the underlying
-            extra_arguments = {}
+            for hook in hook_gens:
+                LOG.debug(f"calling setup for hook {hook}...")
+                result = await next(hook)
 
-            hook_gens = (hook(context) for hook in self._hooks)
+                # keep track of which generators we have actually executed for teardown
 
-            # if we have setup tasks to do
-            if self.setup_hooks:
-                # Invoke the setup tasks and filter out the no-returns
-                results = [result for result in await self.setup(*args, **kwargs) if
-                           result is not None]
-                LOG.debug(f"processing results list {results}...")
-                for item in results:
-                    extra_arguments.update(item)
-
-                LOG.debug(f"done parsing results list. final dict to be unpacked into underlying:"
-                          f"{extra_arguments}")
-            else:
-                LOG.debug(f"<{self.name}>:no setup hooks for command, skipping...")
-        except _hooks.CancelExecution:
-            # check if the hook wants to stop the execution
-            LOG.debug(f"<{self.name}>: setup hook canceled execution.")
+                executed_gens.add(hook)
+                if result:
+                    extra_arguments.update(result)
+        except CancelExecution:
+            LOG.debug("setup task canceled event execution.")
 
         else:
-            # no setup errors, no setup cancels. invoke the underlying.
-            LOG.debug(f"<{self.name}>:invoking the underlying...")
-            # all is good, invoke the underlying
-            await self.underlying(*args, **kwargs, **extra_arguments)
-
-            # finally execute teardown tasks some teardown
+            LOG.debug(f"calling underlying with extra_args:= {extra_arguments}")
+            await self.underlying(context=context, **extra_arguments)
 
         finally:
-            # always call teardown
-            if self.teardown_hooks:
-                LOG.debug(f"<{self.name}>:executing teardown tasks for command...")
-                await self.teardown(*args, **kwargs)
-
-            else:
-                LOG.debug(f"<{self.name}>:no teardown hooks for command.")
+            for hook in executed_gens:
+                with suppress(StopIteration):
+                    await next(hook)
