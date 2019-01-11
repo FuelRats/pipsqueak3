@@ -15,10 +15,11 @@ import logging
 from functools import wraps
 from typing import Any, Union, Callable, List, Dict, Set
 
+from Modules.commands._hooks import hook, HookImplementation
 from Modules.context import Context
 from config import config
 
-log = logging.getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class Permission:
@@ -38,7 +39,7 @@ class Permission:
                 required
         """
 
-        log.debug(f"Created new Permission object with permission {level}")
+        LOG.debug(f"Created new Permission object with permission {level}")
         self._level = level
         self._vhosts = vhosts
         self._denied_message = deny_message
@@ -221,8 +222,8 @@ def require_permission(permission: Permission,
     """
 
     def real_decorator(func):
-        log.debug("Inside the real_decorator")
-        log.debug(f"Wrapping a command with permission {permission}")
+        LOG.debug("Inside the real_decorator")
+        LOG.debug(f"Wrapping a command with permission {permission}")
 
         @wraps(func)
         async def guarded(context: Context, *args):
@@ -296,7 +297,7 @@ def require_channel(func: Union[str, Callable] = None,
             if context.channel is not None:
                 return await wrapped(context, *args)
             else:
-                log.debug(f"channel was None, enforcing channel requirement...")
+                LOG.debug(f"channel was None, enforcing channel requirement...")
                 await context.reply(message)
 
         return guarded
@@ -367,7 +368,7 @@ def require_dm(func: Union[str, Callable] = None,
             if context.channel is None:
                 return await wrapped(context, *args)
             else:
-                log.debug(f"channel was None, enforcing channel requirement...")
+                LOG.debug(f"channel was None, enforcing channel requirement...")
                 await context.reply(message)
 
         return guarded
@@ -375,3 +376,40 @@ def require_dm(func: Union[str, Callable] = None,
     # if the form is @require_dm(*args, **kwargs) we need to call and return real_decorator
     # otherwise we can just return real_decorator directly
     return real_decorator(func) if func else real_decorator
+
+
+@hook("require_channel")
+class RequireChannelHook(HookImplementation):
+    """
+    Require Channel hook implementation
+    """
+    __slots__ = ['message']
+
+    def __init__(self, message="this MUST be executed in a channel"):
+        self.message = message
+
+    def __repr__(self):
+        return f"RequireChannelHook(message='{self.message}')"
+
+    async def pre_execute(self, context: Context):
+        LOG.debug("in require_channel")
+        if not context.channel:
+            await context.reply(self.message)
+            raise self.Cancel(self.message)
+
+
+@hook("require_dm")
+class RequireDirectMessageHook(HookImplementation):
+    __slots__ = ['message']
+
+    def __init__(self, message="this MUST be executed from a direct message with me!"):
+        self.message = message
+
+    def __repr__(self):
+        return f"RequireDirectMessageHook(message='{self.message}')"
+
+    async def pre_execute(self, context: Context):
+        LOG.debug("in RequireDirectMessage setup...")
+        if context.channel:
+            await context.reply(self.message)
+            raise self.Cancel(self.message)
