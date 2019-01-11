@@ -339,7 +339,7 @@ async def test_add_rats_bad_id(rat_no_id_fx, rescue_sop_fx):
     """
     Verifies attempting to add a rat that does not have a API id fails as expected
     """
-    with pytest.raises(ValueError, message="Assigned rat does not have a known API ID"):
+    with pytest.raises(ValueError, match="Assigned rat does not have a known API ID"):
         await rescue_sop_fx.add_rat(rat=rat_no_id_fx)
         assert rat_no_id_fx not in rescue_sop_fx.rats
 
