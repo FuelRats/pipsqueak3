@@ -112,7 +112,7 @@ class MechaClient(Client):
         return self._rat_cache
 
     @property
-    def fact_mgr(self) -> FactManager:
+    def fact_manager(self) -> FactManager:
         """
         Mecha's fact manager (property)
 
@@ -122,19 +122,19 @@ class MechaClient(Client):
             self._fact_manager = FactManager()  # Instantiate Global Fact Manager
         return self._fact_manager
 
-    @fact_mgr.setter
-    def fact_mgr(self, manager: FactManager):
+    @fact_manager.setter
+    def fact_manager(self, manager: FactManager):
         """
         Mecha's fact manager setter.
         """
         if not isinstance(manager, FactManager):
-            raise TypeError("fact_mgr requires a FactManager.")
+            raise TypeError("fact_manager requires a FactManager.")
 
         log.warning("Fact manager setter invoked!")
         self._fact_manager = manager
 
-    @fact_mgr.deleter
-    def fact_mgr(self):
+    @fact_manager.deleter
+    def fact_manager(self):
         """
         Mecha's fact manager (deleter)
         """
