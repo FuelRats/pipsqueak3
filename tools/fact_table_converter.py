@@ -124,5 +124,3 @@ if __name__ == "__main__":
                 print("If nothing died and blew chunks...SUCCESS!")
                 print(f"The old table '{old_fact_table}' has not been removed. Back it up first.")
                 quit()
-else:
-    raise NotImplementedError("Don't run this as a module.")
