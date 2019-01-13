@@ -159,5 +159,4 @@ class Command(abc.Container):
 
         finally:
             for hook in executed_gens:
-                with suppress(StopIteration):
-                    await next(hook)
+                await next(hook)

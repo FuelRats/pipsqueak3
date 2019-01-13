@@ -77,7 +77,7 @@ class HookImplementation:
         # call our setup routine
         yield self.pre_execute(context)
         # call our teardown routine
-        return self.post_execute(context)
+        yield self.post_execute(context)
 
 
 # module attribute
