@@ -6,11 +6,13 @@ All rights reserved.
 Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
-from config import config
-from psycopg2 import sql, pool
-from typing import Union, Tuple, List, Dict
 import logging
+from typing import Union, Tuple, List, Dict
+
 import psycopg2
+from psycopg2 import sql
+
+from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -24,10 +26,10 @@ class DatabaseManager(object):
 
         Usage:
         >>> DatabaseManager(dbhost='DatabaseServer.org',
-        ...                 dport=5432,
+        ...                 dbport=5432,
         ...                 dbname='DatabaseName',
         ...                 dbuser='DatabaseUserName',
-        ...                 dbpassword='UserPassword')
+        ...                 dbpassword='UserPassword') # doctest: +SKIP
 
         All arguments are optional.  If omitted, config values will be pulled from config file.
 
@@ -44,9 +46,10 @@ class DatabaseManager(object):
         DO NOT USE STRING CONCATENATION OR APPEND VALUES.  THIS IS BAD PRACTICE, AND AN INJECTION
         RISK!
 
-        >>> query = sql.SQL("SELECT FROM public.table WHERE" \
-        ...                 "table.name=%s AND table.lang=%s AND table.something=%s")
-        ... DatabaseManager.query(query, ('tuple','of','values'))
+        >>> query = sql.SQL(
+        ... "SELECT FROM public.table WHERE table.name=%s AND table.lang=%s AND table.something=%s")
+
+        >>> dbm.query(query, ('tuple','of','values'))# doctest: +SKIP
 
     """
 
