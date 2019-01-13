@@ -22,7 +22,7 @@ def mock_system_api_server_fx():
     """
     # pylint: disable=line-too-long
 
-    with HTTPServer() as httpserver:
+    with HTTPServer('127.0.0.1', '4000') as httpserver:
         # System Data
         # - Fuelum
         httpserver.expect_request("/api/systems", query_string=b"filter%5Bname:eq%5D=FUELUM").respond_with_data(

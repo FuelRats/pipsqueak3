@@ -12,6 +12,9 @@ This module is built on top of the Pydle system.
 
 """
 import re
+import humanfriendly
+import datetime
+from datetime import timedelta
 from enum import Enum
 from math import isclose, sqrt
 from uuid import UUID
@@ -166,6 +169,23 @@ def try_parse_uuid(suspect: str) -> UUID:
 
     else:
         return result
+
+
+# duration functions
+def duration(time: datetime.timedelta) -> str:
+    """
+    Converts a timedelta into a more friendly human readable string, such as
+    '5m 3w 4d ago'
+    Args:
+        time: (timedelta) time.
+
+    Returns: (str) Easier-to-read time.
+
+    """
+    if not isinstance(time, datetime.timedelta):
+        raise TypeError("ratlib.duration method requires a datetime or timedelta.")
+
+    return humanfriendly.format_timespan(time, detailed=False, max_units=2)
 
 
 # color functions
