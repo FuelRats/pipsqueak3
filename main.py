@@ -14,16 +14,16 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
-from asyncio import AbstractEventLoop
 from uuid import uuid4
 
-from pydle import Client
+from pydle import Client, featurize
 
 # noinspection PyUnresolvedReferences
 import commands
-from Modules.fact_manager import FactManager
 from Modules import graceful_errors, rat_command
+from Modules.commands._feature import CommandSupport
 from Modules.context import Context
+from Modules.fact_manager import FactManager
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
 from config import config
@@ -32,7 +32,7 @@ from utils.ratlib import sanitize
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class MechaClient(Client):
+class MechaClient(featurize(Client, CommandSupport)):
     """
     MechaSqueak v3
     """
@@ -83,27 +83,14 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
-
+        await super().on_message(channel, user, message)
         if user == config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             log.debug(f"Ignored {message} (anti-loop)")
             return None
-        else:  # await command execution
-            # sanitize input string headed to command executor
-            sanitized_message = sanitize(message)
-            log.debug(f"Sanitized {sanitized_message}, Original: {message}")
-            try:
-                ctx = await Context.from_message(self, channel, user, sanitized_message)
-                await rat_command.trigger(ctx)
 
-            except Exception as ex:
-                ex_uuid = uuid4()
-                log.exception(ex_uuid)
-                error_message = graceful_errors.make_graceful(ex, ex_uuid)
-                # and report it to the user
-                await self.message(channel, error_message)
-
+        # something goes here
     @property
     def rat_cache(self) -> object:
         """
@@ -165,7 +152,10 @@ async def start():
     """
     Initializes and connects the client, then passes it to rat_command.
     """
-    client_args = {"nickname": config["irc"]["nickname"]}
+    client_args = {
+        "nickname": config["irc"]["nickname"],
+        "prefix":config['commands']['prefix'],
+    }
 
     auth_method = config["authentication"]["method"]
     if auth_method == "PLAIN":
@@ -188,6 +178,7 @@ async def start():
                          )
 
     log.info("Connected to IRC.")
+
 
 # entry point
 if __name__ == "__main__":
