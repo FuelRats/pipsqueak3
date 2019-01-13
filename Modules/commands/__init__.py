@@ -57,20 +57,15 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-
 from ._command import ENABLED
+from ._feature import CommandSupport, RuleSupport, command_registry
 from ._hooks import hook, HookImplementation
-from ._registry import Registry
-
-# this isn't a constant, pylint false positive
-command_registry = Registry()  # pylint: disable=invalid-name
-"""
-Commands registry
-"""
 
 __all__ = [
     'command_registry',
     'hook',
     'HookImplementation',
     'ENABLED',
+    'CommandSupport',
+    'RuleSupport'
 ]

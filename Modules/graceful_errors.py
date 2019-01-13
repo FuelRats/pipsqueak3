@@ -17,7 +17,6 @@ from uuid import UUID
 
 from Modules.rat_board import IndexNotFreeError, RescueBoardException, RescueNotChangedException, \
     RescueNotFoundException
-from Modules.rat_command import InvalidCommandException, NameCollisionException
 
 BY_ERROR: Dict[type(Exception), str] = {
     AttributeError: "Overripe",
@@ -26,8 +25,6 @@ BY_ERROR: Dict[type(Exception), str] = {
     ValueError: "Moldy",
     RuntimeError: "Abominable",
     IndexNotFreeError: "Low-grade",
-    InvalidCommandException: "Vile",
-    NameCollisionException: "Expired",
     RescueBoardException: "Unsavory",
     RescueNotChangedException: "Malodorous",
     RescueNotFoundException: "Repulsive",

@@ -21,7 +21,13 @@ from Modules import graceful_errors
 from Modules.context import Context
 from Modules.rules import get_rule
 from utils.ratlib import sanitize
-from . import command_registry
+from ._registry import Registry
+
+# this isn't a constant, pylint false positive
+command_registry = Registry()  # pylint: disable=invalid-name
+"""
+Commands registry
+"""
 
 LOG = getLogger(f"mecha.{__name__}")
 
@@ -106,7 +112,7 @@ class RuleSupport(Client):
             return await command_fun(context=context, *extra_args)
         LOG.debug(f"Could not find command or rule for {self.prefix}{context.words[0]}.")
 
-    async def on_message(self,  channel: str, user: str, message: str):
+    async def on_message(self, channel: str, user: str, message: str):
         context = await Context.from_message(self, channel, user, sanitize(message))
         command_fun, extra_args = get_rule(context.words, context.words_eol, prefixless=True)
         if command_fun:
@@ -115,8 +121,3 @@ class RuleSupport(Client):
 
             return await command_fun(context=context, *extra_args)
         LOG.debug(f"Could not find command or rule for {self.prefix}{context.words[0]}.")
-
-
-@command_registry.register("ping")
-async def cmd_ping(context: Context):
-    await context.reply("Pong!")

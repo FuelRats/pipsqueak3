@@ -14,20 +14,14 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
-from uuid import uuid4
 
 from pydle import Client, featurize
 
 # noinspection PyUnresolvedReferences
 import commands
-from Modules import graceful_errors, rat_command
-from Modules.commands._feature import CommandSupport, RuleSupport
-from Modules.context import Context
+from Modules.commands import CommandSupport, RuleSupport
 from Modules.fact_manager import FactManager
-from Modules.permissions import require_permission, RAT
-from Modules.rat_command import command
 from config import config
-from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
 
@@ -91,6 +85,7 @@ class MechaClient(featurize(Client, CommandSupport, RuleSupport)):
             return None
 
         # something goes here
+
     @property
     def rat_cache(self) -> object:
         """
@@ -136,25 +131,13 @@ class MechaClient(featurize(Client, CommandSupport, RuleSupport)):
         return self._api_handler
 
 
-@require_permission(RAT)
-@command("ping")
-async def cmd_ping(context: Context):
-    """
-    Pongs a ping. lets see if the bots alive (command decorator testing)
-    :param context: `Context` object for the command call.
-    """
-    log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
-                f"'{context.user.nickname}'")
-    await context.reply(f"{context.user.nickname} pong!")
-
-
 async def start():
     """
     Initializes and connects the client, then passes it to rat_command.
     """
     client_args = {
         "nickname": config["irc"]["nickname"],
-        "prefix":config['commands']['prefix'],
+        "prefix": config['commands']['prefix'],
     }
 
     auth_method = config["authentication"]["method"]
