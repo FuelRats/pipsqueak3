@@ -8,6 +8,8 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["debug"]
+__all__ = []
 
-from commands import *
+if __debug__:
+    from . import debug
+    __all__.append('debug')
