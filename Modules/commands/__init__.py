@@ -72,5 +72,5 @@ __all__ = [
     'command_registry',
     'hook',
     'HookImplementation',
-    'ENABLED'
+    'ENABLED',
 ]

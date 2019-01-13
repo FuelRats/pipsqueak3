@@ -35,7 +35,7 @@ sys.argv = ["test",
             ]
 
 # This import statement is where the config gets read
-from config import setup_logging
+from config import setup_logging, config
 
 setup_logging("logs/unit_tests.log")
 
@@ -131,7 +131,7 @@ def rat_board_fx() -> RatBoard:
 
 @pytest.fixture
 def bot_fx(event_loop):
-    return MockBot(nickname="mock_mecha3[BOT]", eventloop=event_loop)
+    return MockBot(nickname="mock_mecha3[BOT]", eventloop=event_loop, prefix=config['commands']['prefix'])
 
 
 @pytest.fixture

@@ -16,7 +16,7 @@ from typing import Callable, Dict, Iterator
 
 from ._command import Command
 
-_registry_type: Dict[str, Command] = {}
+_command_registry_type: Dict[str, Command] = {}
 LOG = logging.getLogger(f"mecha.{__name__}")
 
 
@@ -49,14 +49,14 @@ class Registry(abc.Mapping):
         self._commands: Dict[str, Command] = {}
 
     @property
-    def commands(self) -> _registry_type:
+    def commands(self) -> _command_registry_type:
         """
         Registered commands.
         """
         return self._commands
 
     @commands.setter
-    def commands(self, value: _registry_type):
+    def commands(self, value: _command_registry_type):
         if not isinstance(value, dict):
             raise TypeError(f"value must be a dict, got {type(value)}")
         self._commands = value
