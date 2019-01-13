@@ -12,9 +12,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import random
+from contextlib import asynccontextmanager
+from logging import getLogger
 from typing import Dict
-from uuid import UUID
+from uuid import UUID, uuid4
 
+from Modules.context import Context
 from Modules.rat_board import IndexNotFreeError, RescueBoardException, RescueNotChangedException, \
     RescueNotFoundException
 
@@ -32,6 +35,19 @@ BY_ERROR: Dict[type(Exception), str] = {
 }
 
 CHEESES = ['Cheddar', 'Gouda', "Mozzerella", "Asiago", "Monterey Jack", "Brie", "Roquefort", "Edam"]
+LOG = getLogger(f"mecha.{__name__}")
+
+
+@asynccontextmanager
+async def graceful(context: Context):
+    try:
+        yield
+    except Exception as exc:
+        ex_uuid = uuid4()
+        LOG.exception(ex_uuid)
+        error_message = make_graceful(exc, ex_uuid)
+        # and report it to the user
+        await context.bot.message(context.channel, error_message)
 
 
 def make_graceful(ex: Exception, ex_uuid: UUID) -> str:

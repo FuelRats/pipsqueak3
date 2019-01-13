@@ -13,12 +13,11 @@ See LICENSE.md
 
 from logging import getLogger
 from typing import NoReturn
-from uuid import uuid4
 
 from pydle import Client
 
-from Modules import graceful_errors
 from Modules.context import Context
+from Modules.graceful_errors import graceful
 from Modules.rules import get_rule
 from utils.ratlib import sanitize
 from ._registry import Registry
@@ -67,8 +66,9 @@ class CommandSupport(Client):
 
         ctx = await Context.from_message(self, channel, user, sanitized_message)
 
-        if ctx.prefixed:
-            await self.on_prefixed_message(ctx)
+        async with graceful(ctx):
+            if ctx.prefixed:
+                await self.on_prefixed_message(ctx)
 
     async def on_prefixed_message(self, context: Context) -> NoReturn:
         """
@@ -85,15 +85,8 @@ class CommandSupport(Client):
             LOG.debug(f"command {cmd} does not exist / is not known.")
             return
 
-        try:
-            LOG.info(f"invoking command {cmd}")
-            await command_registry[cmd](context)
-        except Exception as ex:
-            ex_uuid = uuid4()
-            LOG.exception(ex_uuid)
-            error_message = graceful_errors.make_graceful(ex, ex_uuid)
-            # and report it to the user
-            await self.message(context.channel, error_message)
+        LOG.info(f"invoking command {cmd}")
+        await command_registry[cmd](context)
 
 
 class RuleSupport(Client):
@@ -118,6 +111,6 @@ class RuleSupport(Client):
         if command_fun:
             LOG.debug(
                 f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} found.")
-
-            return await command_fun(context=context, *extra_args)
+            async with graceful(context):
+                return await command_fun(context=context, *extra_args)
         LOG.debug(f"Could not find command or rule for {self.prefix}{context.words[0]}.")

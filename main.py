@@ -62,7 +62,7 @@ class MechaClient(featurize(Client, CommandSupport, RuleSupport)):
 
         log.debug("joined channels.")
         # call the super
-        super().on_connect()
+        await super().on_connect()
 
     #
     # def on_join(self, channel, user):
