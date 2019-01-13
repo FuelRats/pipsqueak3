@@ -21,7 +21,7 @@ from pydle import Client, featurize
 # noinspection PyUnresolvedReferences
 import commands
 from Modules import graceful_errors, rat_command
-from Modules.commands._feature import CommandSupport
+from Modules.commands._feature import CommandSupport, RuleSupport
 from Modules.context import Context
 from Modules.fact_manager import FactManager
 from Modules.permissions import require_permission, RAT
@@ -32,7 +32,7 @@ from utils.ratlib import sanitize
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class MechaClient(featurize(Client, CommandSupport)):
+class MechaClient(featurize(Client, CommandSupport, RuleSupport)):
     """
     MechaSqueak v3
     """

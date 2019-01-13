@@ -19,6 +19,7 @@ from pydle import Client
 
 from Modules import graceful_errors
 from Modules.context import Context
+from Modules.rules import get_rule
 from utils.ratlib import sanitize
 from . import command_registry
 
@@ -61,16 +62,16 @@ class CommandSupport(Client):
         ctx = await Context.from_message(self, channel, user, sanitized_message)
 
         if ctx.prefixed:
-            await self.on_prefixed(ctx)
+            await self.on_prefixed_message(ctx)
 
-    async def on_prefixed(self, context: Context) -> NoReturn:
+    async def on_prefixed_message(self, context: Context) -> NoReturn:
         """
         an incoming message has our commands prefix
 
         Args:
             context (Context): execution context
         """
-        LOG.debug(f"in on_prefixed! context={context}")
+        LOG.debug(f"in on_prefixed_message! context={context}")
 
         cmd = context.words[0].casefold()
 
@@ -87,6 +88,33 @@ class CommandSupport(Client):
             error_message = graceful_errors.make_graceful(ex, ex_uuid)
             # and report it to the user
             await self.message(context.channel, error_message)
+
+
+class RuleSupport(Client):
+    """
+    Enables rule-bound  command support.
+    """
+
+    async def on_prefixed_message(self, context: Context):
+        print(f"in RuleSupport.on_prefixed_message!")
+
+        command_fun, extra_args = get_rule(context.words, context.words_eol, prefixless=False)
+        if command_fun:
+            LOG.debug(
+                f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} found.")
+
+            return await command_fun(context=context, *extra_args)
+        LOG.debug(f"Could not find command or rule for {self.prefix}{context.words[0]}.")
+
+    async def on_message(self,  channel: str, user: str, message: str):
+        context = await Context.from_message(self, channel, user, sanitize(message))
+        command_fun, extra_args = get_rule(context.words, context.words_eol, prefixless=True)
+        if command_fun:
+            LOG.debug(
+                f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} found.")
+
+            return await command_fun(context=context, *extra_args)
+        LOG.debug(f"Could not find command or rule for {self.prefix}{context.words[0]}.")
 
 
 @command_registry.register("ping")
