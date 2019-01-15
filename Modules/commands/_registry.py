@@ -20,6 +20,12 @@ _command_registry_type: Dict[str, Command] = {}
 LOG = logging.getLogger(f"mecha.{__name__}")
 
 
+class NameCollision(Exception):
+    """
+    Alias is already registered.
+    """
+
+
 class Registry(abc.Mapping):
     """
 
@@ -97,6 +103,8 @@ class Registry(abc.Mapping):
             >>> registry['doc_alias_foo'].underlying
             <function doc_cmd_foo at ...>
 
+            Please note that command aliases are casefolded, for ease in comparisons.
+
         Kwargs:
             This function will pass keyword arguments to :class:`Command`'s constructor to enable
             pre-execution and post-execution hooks. see that class for more details
@@ -112,12 +120,17 @@ class Registry(abc.Mapping):
         """
 
         def real_decorator(func: Callable):
+
+            if not callable(func):
+                raise TypeError("decorated must be callable.")
             cmd = Command(*aliases, underlying=func, **kwargs)
             for alias in aliases:
-                assert alias not in self, f"command with alias '{alias}' already exists!"
-                LOG.debug(f"registering '{alias}' for underlying {func}...")
+                if alias.casefold() in self:
+                    raise NameCollision(f"command with alias '{alias}' already exists!")
+
+                LOG.debug(f"registering '{alias.casefold()}' for underlying {func}...")
                 # register each alias
-                self.commands[alias] = cmd
+                self.commands[alias.casefold()] = cmd
             return func
 
         return real_decorator

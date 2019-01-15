@@ -52,6 +52,7 @@ from Modules.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
 from database import DatabaseManager
 from Modules.commands._registry import Registry
+from Modules.commands import _feature
 from Modules.fact import Fact
 
 
@@ -130,7 +131,8 @@ def rat_board_fx() -> RatBoard:
 
 
 @pytest.fixture
-def bot_fx(event_loop):
+def bot_fx(event_loop, monkeypatch, command_registry_fx):
+    monkeypatch.setattr(_feature, "command_registry", command_registry_fx)
     return MockBot(nickname="mock_mecha3[BOT]", eventloop=event_loop, prefix=config['commands']['prefix'])
 
 

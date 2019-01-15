@@ -70,6 +70,8 @@ class CommandSupport(Client):
             if ctx.prefixed:
                 await self.on_prefixed_message(ctx)
 
+        await super().on_message(channel, user, message)
+
     async def on_prefixed_message(self, context: Context) -> NoReturn:
         """
         an incoming message has our commands prefix
@@ -83,7 +85,9 @@ class CommandSupport(Client):
 
         if cmd not in command_registry:
             LOG.debug(f"command {cmd} does not exist / is not known.")
-            return
+
+            # emit the event to the superclass
+            return await super().on_prefixed_message(context=context)
 
         LOG.info(f"invoking command {cmd}")
         await command_registry[cmd](context)
@@ -107,6 +111,9 @@ class RuleSupport(Client):
 
     async def on_message(self, channel: str, user: str, message: str):
         context = await Context.from_message(self, channel, user, sanitize(message))
+        if context.prefixed:
+            return  # discard message, as we are not listening for prefixed rules here.
+
         command_fun, extra_args = get_rule(context.words, context.words_eol, prefixless=True)
         if command_fun:
             LOG.debug(

@@ -2,8 +2,7 @@ from typing import Match
 
 import pytest
 
-from Modules.context import Context, _split_message
-from Modules.rat_command import trigger
+from Modules.context import Context
 from Modules.rules import rule, clear_rules, RuleNotPresentException, DuplicateRuleException, \
     get_rule
 from tests.mock_callables import AsyncCallableMock, InstanceOf, CallableMock
@@ -30,9 +29,8 @@ async def test_rule_matching(async_callable_fx: AsyncCallableMock,
     """Verifies that the rule decorator works as expected."""
     rule(regex, case_sensitive=case_sensitive,
          full_message=full_message)(async_callable_fx)
-    ctx = await Context.from_message(bot_fx, "#mordor", "unit_test", message)
-    await trigger(ctx)
-    # await trigger(message, "unit_test", "#mordor")
+    await bot_fx.on_message("#mordor", "unit_test", message)
+    # await bot_fx.on_message()(message, "unit_test", "#mordor")
     assert async_callable_fx.was_called_once
 
 
@@ -48,9 +46,8 @@ async def test_rule_not_matching(async_callable_fx: AsyncCallableMock, regex: st
     """verifies that the rule decorator works as expected."""
     rule(regex, case_sensitive=case_sensitive,
          full_message=full_message)(async_callable_fx)
-    # await trigger(message, "unit_test", "theOneWithTheHills")
-    ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", message)
-    await trigger(ctx)
+    # await bot_fx.on_message()(message, "unit_test", "theOneWithTheHills")
+    await bot_fx.on_message("#unit_test", "unit_test", message)
     assert not async_callable_fx.was_called
 
 
@@ -60,13 +57,12 @@ async def test_rule_passes_match(async_callable_fx: AsyncCallableMock, bot_fx):
     Verifies that the rules get passed the match object correctly.
     """
     rule("her(lo)", pass_match=True)(async_callable_fx)
-    ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", "!herlo")
 
-    await trigger(ctx)
+    await bot_fx.on_message("#unit_test", "unit_test", "!herlo")
 
     assert async_callable_fx.was_called_once
-    assert async_callable_fx.was_called_with(InstanceOf(Context), InstanceOf(Match))
-    assert async_callable_fx.calls[0].args[1].groups() == ("lo",)
+    assert async_callable_fx.was_called_with(InstanceOf(Match), context=InstanceOf(Context))
+    assert async_callable_fx.calls[0].args[0].groups() == ("lo",)
 
 
 @pytest.mark.asyncio
@@ -75,11 +71,10 @@ async def test_prefixless_rule_called(async_callable_fx: AsyncCallableMock, bot_
     Verifies that prefixless rules are considered when the prefix is not present.
     """
     rule("da_da(_da)?", prefixless=True)(async_callable_fx)
-    ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", "da_da")
-    await trigger(ctx)
+    await bot_fx.on_message("#unit_test", "unit_test", "da_da")
 
     assert async_callable_fx.was_called_once
-    assert async_callable_fx.was_called_with(InstanceOf(Context))
+    assert async_callable_fx.was_called_with(context=InstanceOf(Context))
 
 
 @pytest.mark.asyncio
@@ -94,8 +89,7 @@ async def test_prefixless_rule_not_called(regex: str, message: str,
     """
     rule(regex, prefixless=True)(async_callable_fx)
 
-    ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", message)
-    await trigger(ctx)
+    await bot_fx.on_message("#unit_test", "unit_test", message)
 
     assert not async_callable_fx.was_called
 
@@ -158,9 +152,7 @@ async def test_rule_after(bot_fx):
     rule1 = rule("gaah")(async_callable_1)
     rule2 = rule("(g|b)aah", after=rule1)(async_callable_2)
 
-    ctx = await Context.from_message(bot_fx, "#channel", "unit_test", "!gaah")
-
-    await trigger(ctx)
+    await bot_fx.on_message("#channel", "unit_test", "!gaah")
 
     assert async_callable_1.was_called_once
     assert not async_callable_2.was_called

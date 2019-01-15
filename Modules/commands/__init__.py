@@ -60,6 +60,7 @@ See LICENSE.md
 from ._command import ENABLED
 from ._feature import CommandSupport, RuleSupport, command_registry
 from ._hooks import hook, HookImplementation
+from ._registry import NameCollision
 
 __all__ = [
     'command_registry',
@@ -67,5 +68,6 @@ __all__ = [
     'HookImplementation',
     'ENABLED',
     'CommandSupport',
-    'RuleSupport'
+    'RuleSupport',
+    'NameCollision'
 ]
