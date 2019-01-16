@@ -12,7 +12,7 @@ See LICENSE.md
 
 from html import escape
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import aiohttp
 
@@ -26,6 +26,38 @@ class Galaxy:
     Worker class to interface with the Fuel Rats Systems API.
     """
 
+    LANDMARK_SYSTEMS = {
+        'beagle point': StarSystem(
+            name='BEAGLE POINT',
+            position=Vector(-1111.5625, -134.21875, 65269.75),
+            spectral_class='K'
+        ),
+        'colonia': StarSystem(
+            name='COLONIA',
+            position=Vector(-9530.5, -910.28125, 19808.125),
+            spectral_class='F'
+        ),
+        'fuelum': StarSystem(
+            name='FUELUM',
+            position=Vector(52, -52.65625, 49.8125),
+            spectral_class='K'
+        ),
+        'rodentia': StarSystem(
+            name='RODENTIA',
+            position=Vector(-9530.53125, -907.25, 19787.375),
+            spectral_class='M'
+        ),
+        'sagittarius a*': StarSystem(
+            name='SAGITTARIUS A*',
+            position=Vector(25.21875, -20.90625, 25899.96875),
+            spectral_class=None
+        ),
+        'sol': StarSystem(
+            name='SOL',
+            position=Vector.zero(),
+            spectral_class='G'
+        )
+    }
     MAX_PLOT_DISTANCE = 20000
 
     def __init__(self, url: str = None):
@@ -42,6 +74,9 @@ class Galaxy:
             A ``StarSystem`` object representing the found system, or ``None`` if none was found.
         """
 
+        if name.casefold() in self.LANDMARK_SYSTEMS:
+            return self.LANDMARK_SYSTEMS[name.casefold()]
+
         data = await self._call("api/systems", {"filter[name:eq]": name.upper()})
         result_count = data['meta']['results']['available']
         if result_count > 0:
@@ -54,6 +89,36 @@ class Galaxy:
             return StarSystem(position=Vector(**sys['coords']),
                               name=sys['name'],
                               spectral_class=sys.get('spectral_class'))
+
+    async def find_nearest_landmark(self, system: StarSystem) -> Tuple[StarSystem, float]:
+        """
+        Find the nearest "landmark" system to the one provided. A list of landmark systems
+        can be found in Galaxy.LANDMARK_SYSTEMS.
+
+        Args:
+            system (StarSystem): The system to center the search around.
+
+        Returns:
+            A tuple containing the landmark StarSystem closest to the one provided, and a float
+            value indicating the distance between the two.
+        """
+
+        if system.name.casefold() in self.LANDMARK_SYSTEMS:
+            return (system, 0)
+
+        closest_system = None
+        closest_distance = -1
+        for _, landmark in self.LANDMARK_SYSTEMS.items():
+            distance = system.distance(landmark)
+            if closest_distance == -1 or distance < closest_distance:
+                closest_distance = round(distance, 2)
+                closest_system = landmark
+
+        if closest_system is None:
+            # Something's gone terribly wrong, likely the LANDMARK_SYSTEMS dict is empty.
+            raise RuntimeError(f"Could not find a closest landmark match for '{system.name}'!")
+
+        return (closest_system, closest_distance)
 
     async def search_systems_by_name(self, name: str) -> Optional[List[str]]:
         """

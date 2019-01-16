@@ -19,12 +19,12 @@ async def test_find_system_by_name(galaxy_fx):
     """
     Test that we can find a system by name and get the proper information.
     """
-    system = await galaxy_fx.find_system_by_name("Fuelum")
-    assert system.position.x == 52.0
-    assert system.position.y == -52.65625
-    assert system.position.z == 49.8125
-    assert system.name == "FUELUM"
-    assert system.spectral_class == "K"
+    system = await galaxy_fx.find_system_by_name("Angrbonii")
+    assert system.position.x == 61.65625
+    assert system.position.y == -42.4375
+    assert system.position.z == 53.59375
+    assert system.name == "ANGRBONII"
+    assert system.spectral_class == "L"
 
 
 @pytest.mark.asyncio
@@ -34,6 +34,40 @@ async def test_find_system_by_invalid_name(galaxy_fx):
     """
     invalid = await galaxy_fx.find_system_by_name("Fualun")
     assert invalid is None
+
+
+@pytest.mark.asyncio
+async def test_find_nearest_landmark(galaxy_fx):
+    """
+    Test that we can find the nearest landmark from a provided system.
+    """
+    system = await galaxy_fx.find_system_by_name('Angrbonii')
+    nearest = await galaxy_fx.find_nearest_landmark(system)
+    assert nearest[0].name == 'FUELUM'
+    assert nearest[1] == 14.56
+
+
+@pytest.mark.asyncio
+async def test_find_nearest_landmark_self(galaxy_fx):
+    """
+    Test that a trying to find the nearest landmark from a landmark system returns itself.
+    """
+    system = await galaxy_fx.find_system_by_name('Fuelum')
+    nearest = await galaxy_fx.find_nearest_landmark(system)
+    assert nearest[0].name == 'FUELUM'
+    assert nearest[1] == 0
+
+
+@pytest.mark.asyncio
+async def test_find_nearest_landmark_invalid(galaxy_fx, monkeypatch):
+    """
+    Test that find_nearest_landmark will raise in the unlikely event it can't find
+    a landmark.
+    """
+    system = await galaxy_fx.find_system_by_name('Angrbonii')
+    monkeypatch.setattr(galaxy_fx, 'LANDMARK_SYSTEMS', {})
+    with pytest.raises(RuntimeError):
+        await galaxy_fx.find_nearest_landmark(system)
 
 
 @pytest.mark.asyncio
