@@ -21,8 +21,7 @@ import logging
 log = logging.getLogger(f"mecha.{__name__}")
 board: Modules.rat_board.RatBoard = Modules.rat_board.RatBoard()
 
-ratmama_regex = re.compile(r"""
-    (?x)
+ratmama_regex = re.compile(r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
@@ -60,8 +59,8 @@ ratmama_regex = re.compile(r"""
 
 @rule("^\s*Incoming Client:", case_sensitive=False, full_message=True, prefixless=True,
       pass_match=False)
-def handle_ratmama_announcement(ctx: Context):
-    if ctx.user.nickname not in ('RatMama',):
+async def handle_ratmama_announcement(ctx: Context):
+    if ctx.user.nickname not in ('RatMama[BOT]',):
         return
     message: str = ctx.words_eol[0]
     result = re.fullmatch(ratmama_regex, message)
@@ -70,13 +69,13 @@ def handle_ratmama_announcement(ctx: Context):
     platform_name: str = result.group("platform")
     o2_status: bool = result.group("o2") == "OK"
     lang_code: str = result.group("language_code")
-    nickname: Optional[str] = result.group("nickname")
+    nickname: Optional[str] = result.group("nick")
 
     exist_rescue: Rescue = board.find_by_name(client_name)
 
     if exist_rescue:
         # we got a case already!
-        ctx.reply(f"{client_name} has reconnected! #{exist_rescue.board_index}")
+        await ctx.reply(f"{client_name} has reconnected! #{exist_rescue.board_index}")
         # now let's make it more visible if stuff changed
         diff_response: str = ""
         if system_name.casefold() != exist_rescue.system:
@@ -89,7 +88,8 @@ def handle_ratmama_announcement(ctx: Context):
             diff_response += "O2 Status changed" if o2_status else\
                 "O2 Status changed, it is now CODE RED"
 
-        ctx.reply(diff_response)
+        if not diff_response == "":
+            await ctx.reply(diff_response)
 
     else:
         # no case for that name, we have to make our own
@@ -105,10 +105,18 @@ def handle_ratmama_announcement(ctx: Context):
             log.warning(f"Got unknown platform: {platform_name}")
 
         board.append(rescue, overwrite=False)
+        index = board.find_by_name(client=client_name).board_index
+        ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
+                  f"Reported System: {system_name} (distance to be implemented) - "
+                  f"Platform: {platform_name} - "
+                  f"O2: " + ("OK" if o2_status else "NOT OK") + f" - "
+                  f"Language: Polish ({result.group('full_language')})"
+                  f" (Case #{index}) ({platform_name.upper()}_SIGNAL) "
+                  )
 
 
 @rule("ratsignal", case_sensitive=False, full_message=False, pass_match=False, prefixless=True)
-def handle_selfissued_ratsignal(ctx: Context):
+async def handle_selfissued_ratsignal(ctx: Context):
     message: str = ctx.words_eol[0]
     message = message.replace("ratsignal", "")  # the ratsignal is nothing we are interested in anymore
     platform: Platforms
@@ -137,7 +145,7 @@ def handle_selfissued_ratsignal(ctx: Context):
             cr = part != "O2"
 
         else:
-             system = part
+            system = part
 
         parts.remove(part)  # remove it since it does not generate any more value
     rescue = Rescue(
@@ -148,6 +156,10 @@ def handle_selfissued_ratsignal(ctx: Context):
     )
     rescue.platform = platform
     board.append(rescue)
+    await ctx.reply(f"Case created for {ctx.user.nickname} on {str(platform)} in {system}. "
+                    + "O2 status is okay" if not cr else
+                    "This is a CR!")
+
 
 
 
