@@ -188,6 +188,41 @@ def duration(time: datetime.timedelta) -> str:
     return humanfriendly.format_timespan(time, detailed=False, max_units=2)
 
 
+def correct_system_name(system: str) -> str:
+    """
+    Take a system name and attempt to correct common mistakes to get the true system name.
+
+    Args:
+        system (str): The system name to check for corrections.
+
+    Returns:
+        The system name with any corrections applied, uppercased.
+    """
+    system = system.upper()
+    match_regex = re.compile(r"(.*)\b([A-Z01258]{2}-[A-Z01258])\s+"
+                             r"([A-Z01258])\s*([0-9OIZSB]+(-[0-9OIZSB]+)?)\b")
+    letter_replacements = dict(zip('01258', 'OIZSB'))
+    number_replacements = dict((v, k) for k, v in letter_replacements.items())
+
+    # Check to see if the provided system name follows the procedural format.
+    matched = match_regex.match(system)
+    if matched:
+        sector = matched.group(1).strip()
+        letters = f"{matched.group(2)} {matched.group(3)}"
+        numbers = matched.group(4)
+
+        for letter, number in letter_replacements.items():
+            letters = letters.replace(letter, number)
+        for number, letter in number_replacements.items():
+            numbers = numbers.replace(number, letter)
+
+        # Re-format the string to ensure no extraneous spaces are included.
+        return f"{sector} {letters}{numbers}"
+
+    # Don't try and correct a system that isn't procedurally named.
+    return system
+
+
 # color functions
 def color(text: str, text_color: Colors, bg_color: Optional[Colors] = None) -> str:
     """

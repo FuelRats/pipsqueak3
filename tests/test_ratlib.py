@@ -105,6 +105,22 @@ def test_singleton_indirect_inheritance():
     assert Snafu._instance is foo
 
 
+@pytest.mark.parametrize("system_name, expected_name", [
+    ("Fuelum", "FUELUM"),
+    ("COL 285 SECTOR   AB-C   D  5", "COL 285 SECTOR AB-C D5"),
+    ("COL 285 SECTOR AB-C D 5-6", "COL 285 SECTOR AB-C D5-6"),
+    ("COL 285 SECTOR AB-0 85-6", "COL 285 SECTOR AB-O B5-6"),
+    ("COL 285 SECTOR AB-O B5-6", "COL 285 SECTOR AB-O B5-6"),
+    ("PRAEA EUQ BN-D B 12-3", "PRAEA EUQ BN-D B12-3"),
+    ("SCORPUI SECTOR FB-X A 1-1", "SCORPUI SECTOR FB-X A1-1")
+])
+def test_correct_system_name(system_name, expected_name):
+    """
+    Test that this function correctly autocorrects system names.
+    """
+    assert utils.ratlib.correct_system_name(system_name) == expected_name
+
+
 @pytest.mark.parametrize("expected_color", (Colors.RED, Colors.BLUE, Colors.BLACK, Colors.GREEN))
 def test_color_single_color(expected_color, random_string_fx):
     test_string = random_string_fx
