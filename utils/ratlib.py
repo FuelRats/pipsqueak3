@@ -196,7 +196,7 @@ def correct_system_name(system: str) -> str:
         system (str): The system name to check for corrections.
 
     Returns:
-        The system name with any corrections applied, uppercased.
+        str: The system name with any corrections applied, uppercased.
     """
     system = system.upper()
     match_regex = re.compile(r"(.*)\b([A-Z01258]{2}-[A-Z01258])\s+"
