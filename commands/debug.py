@@ -13,32 +13,31 @@ See LICENSE.md
 """
 import logging
 
+from Modules.commands import command_registry as command, ENABLED
+from Modules.context import Context
+from Modules.permissions import TECHRAT
+
 log = logging.getLogger(f"mecha.{__name__}")
 
-if __debug__:
-    from Modules.context import Context
-    from Modules.permissions import TECHRAT
-    from Modules.commands import command_registry as command, ENABLED
+
+@command.register("debug-whois", require_permission=TECHRAT, require_channel=ENABLED)
+async def cmd_debug_whois(context):
+    """A debug command for running a WHOIS command.
+
+    Returns
+        str: string repreentation
+    """
+    data = await context.bot.whois(context.words[1])
+    log.debug(data)
+    await context.reply(f"{data}")
 
 
-    @command.register("debug-whois", require_permission=TECHRAT, require_channel=ENABLED)
-    async def cmd_debug_whois(context):
-        """A debug command for running a WHOIS command.
-
-        Returns
-            str: string repreentation
-        """
-        data = await context.bot.whois(context.words[1])
-        log.debug(data)
-        await context.reply(f"{data}")
+@command.register("debug-userinfo", require_permission=TECHRAT, require_channel=ENABLED)
+async def cmd_debug_userinfo(context: Context):
+    await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
+    await context.reply(f"user identifed?: {context.user.identified}")
 
 
-    @command.register("debug-userinfo", require_permission=TECHRAT, require_channel=ENABLED)
-    async def cmd_debug_userinfo(context: Context):
-        await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
-        await context.reply(f"user identifed?: {context.user.identified}")
-
-
-    @command.register("superPing!", require_channel=ENABLED, require_permission=TECHRAT)
-    async def cmd_superping(context: Context):
-        await context.reply("pong!")
+@command.register("superPing!", require_channel=ENABLED, require_permission=TECHRAT)
+async def cmd_superping(context: Context):
+    await context.reply("pong!")

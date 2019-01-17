@@ -101,13 +101,13 @@ class RuleSupport(Client):
     async def on_prefixed_message(self, context: Context):
         print(f"in RuleSupport.on_prefixed_message!")
 
-        command_fun, extra_args = get_rule(context.words, context.words_eol, prefixless=False)
-        if command_fun:
+        rule, extra_args = get_rule(context.words, context.words_eol, prefixless=False)
+        if rule:
             LOG.debug(
-                f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} found.")
+                f"Rule {getattr(rule, '__name__', '')} matching {context.words[0]} found.")
 
-            return await command_fun(context=context, *extra_args)
-        LOG.debug(f"Could not find command or rule for {self.prefix}{context.words[0]}.")
+            return await rule(context=context, *extra_args)
+        LOG.debug(f"Could not find prefixed rule for {self.prefix}{context.words[0]}.")
 
     async def on_message(self, channel: str, user: str, message: str):
         context = await Context.from_message(self, channel, user, sanitize(message))
@@ -120,4 +120,4 @@ class RuleSupport(Client):
                 f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} found.")
             async with graceful(context):
                 return await command_fun(context=context, *extra_args)
-        LOG.debug(f"Could not find command or rule for {self.prefix}{context.words[0]}.")
+        LOG.debug(f"Could not find prefixless rule for {self.prefix}{context.words[0]}.")
