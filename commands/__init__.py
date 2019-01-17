@@ -9,12 +9,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 from Modules.commands import command_registry
-from Modules.permissions import RAT
 from Modules.context import Context
+from Modules.permissions import RAT
 
 __all__ = []
 
-if __debug__:
+if __debug__:  # if the debug flag is set (not running optimized) import the debugging module
     from . import debug
 
     __all__.append('debug')

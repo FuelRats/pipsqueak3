@@ -1,9 +1,9 @@
 """
 __init__.py - Commands registry
 
-This package contains the various tools required to define a command.
+This package contains the various tools required to define and execute a command.
 
-All you really need to define a command is to use the `@command` decorator, the system will handle
+All you really need to define a command is to use the `@register` decorator, the system will handle
 the rest.
 
 Implements:

@@ -99,8 +99,7 @@ class RuleSupport(Client):
     """
 
     async def on_prefixed_message(self, context: Context):
-        print(f"in RuleSupport.on_prefixed_message!")
-
+        LOG.debug("in RuleSupport.on_prefixed_message.")
         rule, extra_args = get_rule(context.words, context.words_eol, prefixless=False)
         if rule:
             LOG.debug(
