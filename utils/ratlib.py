@@ -201,8 +201,7 @@ def correct_system_name(system: str) -> str:
     system = system.upper()
     match_regex = re.compile(r"(.*)\b([A-Z01258]{2}-[A-Z01258])\s+"
                              r"([A-Z01258])\s*([0-9OIZSB]+(-[0-9OIZSB]+)?)\b")
-    letter_replacements = {k: v for k, v in zip('01258', 'OIZSB')}
-    number_replacements = {v: k for k, v in letter_replacements.items()}
+    replacements = {k: v for k, v in zip('01258', 'OIZSB')}
 
     # Check to see if the provided system name follows the procedural format.
     matched = match_regex.match(system)
@@ -211,9 +210,8 @@ def correct_system_name(system: str) -> str:
         letters = f"{matched.group(2)} {matched.group(3)}"
         numbers = matched.group(4)
 
-        for letter, number in letter_replacements.items():
+        for letter, number in replacements.items():
             letters = letters.replace(letter, number)
-        for number, letter in number_replacements.items():
             numbers = numbers.replace(number, letter)
 
         # Re-format the string to ensure no extraneous spaces are included.
