@@ -82,7 +82,7 @@ async def handle_ratmama_announcement(ctx: Context):
         if system_name.casefold() != exist_rescue.system.casefold():
             diff_response += f"System changed! Was {exist_rescue.system}"
 
-        if platform_name.casefold() != str(exist_rescue.platform).replace('Platforms.','').casefold():
+        if platform_name.casefold() != str(exist_rescue.platform).replace('Platforms.', '').casefold():
             diff_response += "Platform changed! "
 
         if o2_status != exist_rescue.code_red:
@@ -173,18 +173,6 @@ async def handle_selfissued_ratsignal(ctx: Context):
     )
     rescue.platform = platform
     board.append(rescue)
-    await ctx.reply(f"Case created for {ctx.user.nickname} on {str(platform).replace('Platforms.','')} in {system}. "
+    await ctx.reply(f"Case created for {ctx.user.nickname}"
+                    f" on {str(platform).replace('Platforms.','')} in {system}. "
                     f"{'O2 status is okay' if not cr else 'This is a CR!'}")
-
-
-
-
-
-
-
-
-
-        
-
-
-
