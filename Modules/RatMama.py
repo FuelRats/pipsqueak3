@@ -25,8 +25,8 @@ ratmama_regex = re.compile(r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
-    Incoming\s+Client:\s*   # Match "Incoming Client" prefix
-    # Wrap the entirety of rest of the pattern in a group to make it easier to echo the entire thing
+    Incoming\s+Client:\s*                # Match "Incoming Client" prefix
+                                         # Wrap the entirety of rest of the pattern in a group to make it easier to echo the entire thing
     (?P<all>
     (?P<cmdr>[^\s].*?)                   # Match CDMR name.
     \s+-\s+                              #  -
@@ -57,11 +57,12 @@ ratmama_regex = re.compile(r"""(?x)
 """)
 
 
-@rule("^\s*Incoming Client:", case_sensitive=False, full_message=True, prefixless=True,
+@rule(r"^\s*Incoming Client:", case_sensitive=False, full_message=True, prefixless=True,
       pass_match=False)
 async def handle_ratmama_announcement(ctx: Context):
-    if ctx.user.nickname not in ('RatMama[BOT]',):
+    if ctx.user.nickname.casefold() not in ('ratmama[bot]',):
         return
+
     message: str = ctx.words_eol[0]
     result = re.fullmatch(ratmama_regex, message)
     client_name: str = result.group("cmdr")
@@ -78,10 +79,10 @@ async def handle_ratmama_announcement(ctx: Context):
         await ctx.reply(f"{client_name} has reconnected! #{exist_rescue.board_index}")
         # now let's make it more visible if stuff changed
         diff_response: str = ""
-        if system_name.casefold() != exist_rescue.system:
-            diff_response += "System changed! "
+        if system_name.casefold() != exist_rescue.system.casefold():
+            diff_response += f"System changed! Was {exist_rescue.system}"
 
-        if platform_name.casefold() != str(exist_rescue.platform).casefold():
+        if platform_name.casefold() != str(exist_rescue.platform).replace('Platforms.','').casefold():
             diff_response += "Platform changed! "
 
         if o2_status != exist_rescue.code_red:
@@ -95,24 +96,32 @@ async def handle_ratmama_announcement(ctx: Context):
         # no case for that name, we have to make our own
         rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,
                                 code_red=o2_status, lang_id=lang_code)
-        if platform_name.casefold() == "PC":
+        if platform_name.casefold() == "pc":
             rescue.platform = Platforms.PC
-        elif platform_name.casefold() == "PS":
+        elif platform_name.casefold() == "pc":
             rescue.platform = Platforms.PS
-        elif platform_name.casefold() == "XB":
+        elif platform_name.casefold() == "xb":
             rescue.platform = Platforms.XB
         else:
             log.warning(f"Got unknown platform: {platform_name}")
 
         board.append(rescue, overwrite=False)
         index = board.find_by_name(client=client_name).board_index
-        ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
-                  f"Reported System: {system_name} (distance to be implemented) - "
-                  f"Platform: {platform_name} - "
-                  f"O2: " + ("OK" if o2_status else "NOT OK") + f" - "
-                  f"Language: Polish ({result.group('full_language')})"
-                  f" (Case #{index}) ({platform_name.upper()}_SIGNAL) "
-                  )
+        await ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
+                        f"Reported System: {system_name} (distance to be implemented) - "
+                        f"Platform: {platform_name} - "
+                        f"O2: {'OK' if o2_status else 'NOT OK'} - "
+                        f"Language: {result.group('full_language')}"
+                        f" (Case #{index}) ({platform_name.upper()}_SIGNAL) "
+                        )
+
+        print(f"RATSIGNAL - CMDR {client_name} - "
+              f"Reported System: {system_name} (distance to be implemented) - "
+              f"Platform: {platform_name} - "
+              f"O2: {'OK' if o2_status else 'NOT OK'} - "
+              f"Language: {result.group('full_language')}"
+              f" (Case #{index}) ({platform_name.upper()}_SIGNAL) "
+              )
 
 
 @rule("ratsignal", case_sensitive=False, full_message=False, pass_match=False, prefixless=True)
@@ -123,6 +132,11 @@ async def handle_selfissued_ratsignal(ctx: Context):
     cr: bool
     system: str = ""
 
+    for rescu in board.rescues.values():
+        if rescu.irc_nickname.casefold() == ctx.user.nickname.casefold():
+            ctx.reply("You already sent a signal, please be patient while a dispatch is underway")
+            return
+
     sep: chr
     if ',' in message:
         sep = ','
@@ -132,22 +146,25 @@ async def handle_selfissued_ratsignal(ctx: Context):
         sep = '|'
 
     parts: List[str] = message.split(sep)
+    system: str
+    cr: bool
+    platform: Platforms
     for part in parts:
-        part = part.strip(' ').casefold()
-        if part == 'PC':
+        part = part.strip()
+        if part.casefold() == "pc":
             platform = Platforms.PC
-        elif part == 'PS':
+        elif part.casefold() == "ps":
             platform = Platforms.PS
-        elif part == 'XB':
+        elif part.casefold() == "xb":
             platform = Platforms.XB
 
-        elif "O2".casefold() in part:
-            cr = part != "O2"
+        elif "o2" in part.casefold():
+            cr = (part.casefold() != "o2 ok")
 
         else:
             system = part
 
-        parts.remove(part)  # remove it since it does not generate any more value
+        # parts.remove(part)  # remove it since it does not generate any more value
     rescue = Rescue(
         client=ctx.user.nickname,
         system=system,
@@ -156,9 +173,8 @@ async def handle_selfissued_ratsignal(ctx: Context):
     )
     rescue.platform = platform
     board.append(rescue)
-    await ctx.reply(f"Case created for {ctx.user.nickname} on {str(platform)} in {system}. "
-                    + "O2 status is okay" if not cr else
-                    "This is a CR!")
+    await ctx.reply(f"Case created for {ctx.user.nickname} on {str(platform).replace('Platforms.','')} in {system}. "
+                    f"{'O2 status is okay' if not cr else 'This is a CR!'}")
 
 
 
