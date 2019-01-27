@@ -32,6 +32,13 @@ LOG = getLogger(f"mecha.{__name__}")
 
 
 class CommandSupport(Client):
+    """
+    Command support pydle feature.
+
+    This feature implements an on_prefixed_message callback which will be called when an incoming
+    IRC message ( as exposed via Pydle.Client.on_message ) contains our commands prefix.
+    """
+
     def __init__(self, prefix: str, *args, **kwargs):
         """
         Command Support initializer
@@ -66,7 +73,8 @@ class CommandSupport(Client):
 
         ctx = await Context.from_message(self, channel, user, sanitized_message)
 
-        async with graceful(ctx):
+        # pylint seems not to recognize @asynccontextmanager, suppressing the false positive
+        async with graceful(ctx):  # pylint: disable=not-async-context-manager
             if ctx.prefixed:
                 await self.on_prefixed_message(ctx)
 
@@ -98,7 +106,13 @@ class RuleSupport(Client):
     Enables rule-bound  command support.
     """
 
-    async def on_prefixed_message(self, context: Context):
+    async def on_prefixed_message(self, context: Context) -> NoReturn:
+        """
+        on_prefixed_message hook for processing prefixed rules
+
+        Args:
+            context (Context): invocation context
+        """
         LOG.debug("in RuleSupport.on_prefixed_message.")
         rule, extra_args = get_rule(context.words, context.words_eol, prefixless=False)
         if rule:
@@ -108,7 +122,15 @@ class RuleSupport(Client):
             return await rule(context=context, *extra_args)
         LOG.debug(f"Could not find prefixed rule for {self.prefix}{context.words[0]}.")
 
-    async def on_message(self, channel: str, user: str, message: str):
+    async def on_message(self, channel: str, user: str, message: str) -> NoReturn:
+        """
+        on_message pydle callback for handling raw messages that might be non-prefixed rules
+
+        Args:
+            channel (str): invocation channel
+            user (str): invocation user
+            message (str): invocation message
+        """
         context = await Context.from_message(self, channel, user, sanitize(message))
         if context.prefixed:
             return  # discard message, as we are not listening for prefixed rules here.
@@ -117,6 +139,7 @@ class RuleSupport(Client):
         if command_fun:
             LOG.debug(
                 f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} found.")
-            async with graceful(context):
+            # pylint seems not to recognize @asynccontextmanager, suppressing the false positive
+            async with graceful(context):  # pylint: disable=not-async-context-manager
                 return await command_fun(context=context, *extra_args)
         LOG.debug(f"Could not find prefixless rule for {self.prefix}{context.words[0]}.")

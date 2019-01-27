@@ -11,7 +11,6 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 from collections import abc
-from contextlib import suppress
 from logging import getLogger
 from typing import List, Callable
 
@@ -40,7 +39,7 @@ class Command(abc.Container):
         True
 
         Instances of this class are callable,
-        >>> run(cmd(None))
+        >>> run(cmd(...))
         foo called!
     """
     __slots__ = [
@@ -125,8 +124,7 @@ class Command(abc.Container):
         also discarded.
 
         Args:
-            *args: Positional arguments to pass to hooks and underlying
-            **kwargs (): Keyword arguments to pass to hooks and underlying
+            context(Context): invocation context
         """
 
         LOG.debug(f"command {self.aliases[0]} invoked...")
