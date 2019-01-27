@@ -38,7 +38,7 @@ class HookImplementation:
     Notes:
         objects derived this base cannot be dynamically assigned to, this is by design.
     """
-    __slots__ = ['__weakref__']  # disallow dynamic attribute creation (__dict__)
+    __slots__ = []  # disallow dynamic attribute creation (__dict__)
 
     def __repr__(self):
         return f"HookImplementation()"
@@ -78,6 +78,8 @@ class HookImplementation:
         yield self.pre_execute(context)
         # call our teardown routine
         yield self.post_execute(context)
+        # the second yield is necessary to prevent an undesirable exception from being raised (
+        #   that causes the post_execute hook not to be awaited )
 
 
 # module attribute
