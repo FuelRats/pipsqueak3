@@ -61,17 +61,11 @@ class Registry(abc.Mapping):
         """
         return self._commands
 
-    @commands.setter
-    def commands(self, value: _command_registry_type):
-        if not isinstance(value, dict):
-            raise TypeError(f"value must be a dict, got {type(value)}")
-        self._commands = value
-
     def __getitem__(self, key: str) -> Command:
         return self.commands[key]
 
     def __len__(self) -> int:
-        return len(self.items())
+        return len(self.commands)
 
     def __iter__(self) -> Iterator[str]:
         return iter(self.commands)

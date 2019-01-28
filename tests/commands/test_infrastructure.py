@@ -127,3 +127,16 @@ async def test_require_permission_ge(async_callable_fx,
 
     assert async_callable_fx.was_called
     assert async_callable_fx.was_called_once
+
+
+def test_registry_iterable(command_registry_fx, async_callable_fx):
+    """
+    Verifies the command registry is iterable, and has a valid length.
+    """
+    @command_registry_fx.register('guarded', require_permission=permissions.OVERSEER)
+    async def guarded(*args, **kwargs):
+        await async_callable_fx(*args, **kwargs)
+
+    for key in command_registry_fx:
+        assert key == 'guarded'
+    assert len(command_registry_fx) == 1
