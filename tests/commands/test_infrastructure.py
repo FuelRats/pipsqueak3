@@ -1,7 +1,7 @@
 """
-test_infrastructure.py - {summery}
+test_infrastructure.py - Command Infrastructure tests
 
-{long description}
+tests for the Commands infrastructure.
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.

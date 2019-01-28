@@ -1,7 +1,10 @@
 """
-_feature.py - {summery}
+_feature.py - Pydle Features
 
-{long description}
+Defines the CommandSupport and the RuleSupport pydle features, which enable the execution of
+Commands and rules respectively.
+
+These classes are intended to be `pydle.featurize()`'ed into the MechaClient
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.

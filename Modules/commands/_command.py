@@ -1,7 +1,9 @@
 """
-_command.py - {summery}
+_command.py - Defines the Command structure and runtime behavior
 
-{long description}
+Provides the `Command` class, which defines the behavior of a hookable executable.
+
+This module defines the underlying command execution mechanism.
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
