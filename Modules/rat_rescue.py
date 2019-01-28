@@ -51,8 +51,6 @@ class Rescue(object):
         creates a unique rescue
 
         Args:
-
-            platform ():
             code_red (bool): is the client on emergency oxygen
             status (Status): status attribute for the rescue
             board (RatBoard): RatBoard instance this rescue is attached to, if any.
