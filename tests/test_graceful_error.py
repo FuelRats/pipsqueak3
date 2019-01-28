@@ -16,7 +16,7 @@ from Modules import graceful_errors
 
 
 @pytest.mark.graceful_error
-class TestGracefulErrors(object):
+class TestGracefulErrors:
     """
     Tests for the graceful_errors module
     """
@@ -31,3 +31,10 @@ class TestGracefulErrors(object):
         my_ex = TypeError()  # "Stinky"
         output = graceful_errors.make_graceful(my_ex, ex_id)
         assert expected == output
+
+    @pytest.mark.asyncio
+    async def test_with_graceful(self, bot_fx, context_fx):
+        async with graceful_errors.graceful(context_fx):
+            raise ZeroDivisionError("i like pizza.")
+
+        assert bot_fx.sent_messages  # assert it sent a message
