@@ -108,7 +108,7 @@ class Galaxy:
 
         closest_system = None
         closest_distance = -1
-        for _, landmark in self.LANDMARK_SYSTEMS.items():
+        for landmark in self.LANDMARK_SYSTEMS.values():
             distance = system.distance(landmark)
             if closest_distance == -1 or distance < closest_distance:
                 closest_distance = round(distance, 2)
