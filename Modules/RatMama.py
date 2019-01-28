@@ -26,7 +26,12 @@ ratmama_regex = re.compile(r"""(?x)
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
     Incoming\s+Client:\s*                # Match "Incoming Client" prefix
+<<<<<<< HEAD
     (?P<all>                             # Wrap the entirety of rest of the pattern in a group to make it easier to echo the entire thing
+=======
+                                         # Wrap the entirety of rest of the pattern in a group to make it easier to echo the entire thing
+    (?P<all>
+>>>>>>> f905304230ecb6be6e324af9ea07bb10c5d3ac12
     (?P<cmdr>[^\s].*?)                   # Match CDMR name.
     \s+-\s+                              #  -
     System:\s*(?P<system>.*?)            # Match system name
@@ -95,8 +100,10 @@ async def handle_ratmama_announcement(ctx: Context):
         # no case for that name, we have to make our own
         rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,
                                 code_red=o2_status, lang_id=lang_code)
+								
         if platform_name.casefold() in ("pc", "ps", "xb"):
             rescue.platform = Platforms[platform_name.casefold()]
+
         else:
             LOG.warning(f"Got unknown platform from RatMama: {platform_name}")
 

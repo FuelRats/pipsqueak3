@@ -1,6 +1,6 @@
 """
 
-TEST will be added laters
+# TODO: 
 """
 
 import pytest
@@ -57,7 +57,6 @@ async def test_ratmama_announcement(rat_board_fx: RatBoard, async_callable_fx: A
     assert async_callable_fx.was_called_with(
         "System changed! Platform changed! "
     )
-
     async_callable_fx.reset()
     monkeypatch.setattr(context_channel_fx._user, '_nickname', "MasterLoon")
     await RatMama.handle_ratmama_announcement(context_channel_fx)
