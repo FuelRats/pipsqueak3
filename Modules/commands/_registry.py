@@ -1,7 +1,7 @@
 """
-_database.py - {summery}
+_registry.py - Defines a registry object for holding commands
 
-{long description}
+Defines a :class:`Registry` class that facilitates
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.
@@ -122,7 +122,7 @@ class Registry(abc.Mapping):
         def real_decorator(func: Callable):
 
             if not callable(func):
-                raise TypeError("decorated must be callable.")
+                raise TypeError(f"decorated object must be callable. {func} is not callable.")
             cmd = Command(*aliases, underlying=func, **kwargs)
             for alias in aliases:
                 if alias.casefold() in self:

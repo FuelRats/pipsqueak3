@@ -10,15 +10,15 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+import logging
 from collections import abc
-from logging import getLogger
 from typing import List, Callable
 
 from Modules.commands._hooks import CancelExecution
 from Modules.context import Context
 from . import _hooks
 
-LOG = getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 ENABLED = object()
 

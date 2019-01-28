@@ -82,7 +82,7 @@ class CommandSupport(Client):
 
     async def on_prefixed_message(self, context: Context) -> NoReturn:
         """
-        an incoming message has our commands prefix
+        Invoked when an incoming message has our commands prefix
 
         Args:
             context (Context): execution context
@@ -116,8 +116,7 @@ class RuleSupport(Client):
         LOG.debug("in RuleSupport.on_prefixed_message.")
         rule, extra_args = get_rule(context.words, context.words_eol, prefixless=False)
         if rule:
-            LOG.debug(
-                f"Rule {getattr(rule, '__name__', '')} matching {context.words[0]} found.")
+            LOG.debug(f"Rule {getattr(rule, '__name__', '')} matching {context.words[0]} found.")
 
             return await rule(context=context, *extra_args)
         LOG.debug(f"Could not find prefixed rule for {self.prefix}{context.words[0]}.")
@@ -137,8 +136,8 @@ class RuleSupport(Client):
 
         command_fun, extra_args = get_rule(context.words, context.words_eol, prefixless=True)
         if command_fun:
-            LOG.debug(
-                f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} found.")
+            LOG.debug(f"Rule {getattr(command_fun, '__name__', '')} matching {context.words[0]} "
+                      f"found.")
             # pylint seems not to recognize @asynccontextmanager, suppressing the false positive
             async with graceful(context):  # pylint: disable=not-async-context-manager
                 return await command_fun(context=context, *extra_args)
