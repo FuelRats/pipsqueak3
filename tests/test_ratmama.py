@@ -76,13 +76,13 @@ async def test_manual_rsig_handler(rat_board_fx: RatBoard, async_callable_fx: As
     monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
     await RatMama.handle_selfissued_ratsignal(context_channel_fx)
     case = rat_board_fx.find_by_name("Absolver")
-    assert (
-        case is not None and
-        case.platform == Platforms.XB and
-        case.system.casefold() == "h" and
-        case.irc_nickname.casefold() == "absolver" and
-        not case.code_red
-    )
+
+    assert case is not None
+    assert case.platform == Platforms.XB
+    assert case.system.casefold() == "h"
+    assert case.irc_nickname.casefold() == "absolver"
+    assert not case.code_red
+
     rat_board_fx.clear_board()
 
     monkeypatch.setattr(context_channel_fx, '_words_eol',
@@ -102,16 +102,15 @@ async def test_manual_rsig_handler(rat_board_fx: RatBoard, async_callable_fx: As
     rat_board_fx.clear_board()
 
     monkeypatch.setattr(context_channel_fx, '_words_eol',
-                        ["ratsignalCol 285| PS| O2 NOT OK"
+                        ["ratsignalCol 285| Ps| O2 NOT OK"
                          ]
                         )
     monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
     await RatMama.handle_selfissued_ratsignal(context_channel_fx)
     case = rat_board_fx.find_by_name("Absolver")
-    assert (
-            case is not None and
-            case.platform == Platforms.PS and
-            case.system.casefold() == "col 285" and
-            case.irc_nickname.casefold() == "absolver" and
-            case.code_red
-    )
+
+    assert case is not None
+    assert case.platform == Platforms.PS
+    assert case.system.casefold() == "col 285"
+    assert case.irc_nickname.casefold() == "absolver"
+    assert case.code_red
