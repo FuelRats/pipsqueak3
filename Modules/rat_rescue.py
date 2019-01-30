@@ -70,7 +70,7 @@ class Rescue(object):
                 (WILL BE CAST TO UPPER CASE)
             created_at (datetime): time the case was first created
                 **( READONLY )**
-            updated_at (datetime): last tme the case was modified
+            updated_at (datetime): last time the case was modified
             unidentified_rats (list): list of unidentified rats responding to
                 rescue **(nicknames)**
             active (bool): marks whether the case is active or not
@@ -79,13 +79,13 @@ class Rescue(object):
             title (str): name of operation, if applicable
             first_limpet (UUID): Id of the rat that got the first limpet
             board_index (int): index position on the board, if any.
-            mark_for_deletion (dict): the markForDeltion object for the API,
+            mark_for_deletion (dict): the markForDeletion object for the API,
                 if any.
                 - will default to open and not MD'ed
             lang_id (str): language ID of the client, defaults to english.
             irc_nickname (str): clients IRC nickname, may deffer from their
                 commander name.
-            rats (list): identified (Rat)s assigned to rescue.
+            rats (list): identified Rat(s) assigned to rescue.
             platform(Platforms): Platform for rescue
         """
         self._platform: Platforms = platform
@@ -114,7 +114,7 @@ class Rescue(object):
 
     def __eq__(self, other) -> bool:
         """
-        Verify `other` is equal to the elf.
+        Verify `other` is equal to the self.
 
         Args:
             other (Rescue): Rescue to compare against
@@ -449,7 +449,7 @@ class Rescue(object):
     def active(self) -> bool:
         """
         marker indicating whether a case is active or not. this has no direct
-         effect on bot functionality,rather its primary function is case
+         effect on bot functionality, rather its primary function is case
          management.
 
         Returns:
