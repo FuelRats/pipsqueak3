@@ -16,6 +16,7 @@ from Modules.rules import rule
 from typing import Optional, List
 import Modules.rat_board
 from Modules.rat_rescue import Rescue, Platforms
+from Modules.galaxy.galaxy import Galaxy
 import logging
 
 LOG = logging.getLogger(f"mecha.{__name__}")
