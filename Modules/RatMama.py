@@ -119,8 +119,8 @@ async def handle_ratmama_announcement(ctx: Context):
 @rule("ratsignal", case_sensitive=False, full_message=False, pass_match=False, prefixless=True)
 async def handle_selfissued_ratsignal(ctx: Context):
     message: str = ctx.words_eol[0]
-    message = message.replace("ratsignal", "")  # the ratsignal is nothing
-                                                # we are interested in anymore
+    # the ratsignal is nothing we are interested anymore
+    message = message.replace("ratsignal", "")
 
     for rescue in board.rescues.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
