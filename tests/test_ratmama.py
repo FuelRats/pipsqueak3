@@ -25,7 +25,9 @@ class test_ratsignal:
                                                  context_channel_fx: Context,
                                                  monkeypatch
                                                  ):
-
+        """
+        Tests the RSignal announcement as well as the reconnect message.
+        """
         monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
         RatMama.board = rat_board_fx
 
@@ -53,12 +55,15 @@ class test_ratsignal:
             f"Ajdacho has reconnected! Case #{index}"
         )
 
-    # @pytest.mark.asyncio
     async def test_reconnect_with_changes(self, rat_board_fx: RatBoard,
                                           async_callable_fx: AsyncCallableMock,
                                           context_channel_fx: Context,
                                           monkeypatch
                                           ):
+        """
+        Tests the recognition of changes and the emission of the associated message.
+        Tests a single case only
+        """
         monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
         RatMama.board = rat_board_fx
 
@@ -92,10 +97,12 @@ class test_ratsignal:
         await RatMama.handle_ratmama_announcement(context_channel_fx)
         assert not async_callable_fx.was_called
 
-    # @pytest.mark.asyncio
     async def test_no_action_on_wrong_nick(self, async_callable_fx: AsyncCallableMock,
                                            context_channel_fx: Context,
                                            monkeypatch):
+        """
+        Tests, that a wrong nickname has no associated action when handed to the RatMama handler.
+        """
         async_callable_fx.reset()
         monkeypatch.setattr(context_channel_fx, '_words_eol',
                             ["Incoming Client: Ajdacho - System: H - Platform: XB - "
@@ -107,18 +114,22 @@ class test_ratsignal:
         await RatMama.handle_ratmama_announcement(context_channel_fx)
         assert not async_callable_fx.was_called
 
-
-    # @pytest.mark.asyncio
     async def test_manual_rsig_handler(self, rat_board_fx: RatBoard,
                                        async_callable_fx: AsyncCallableMock,
                                        context_channel_fx: Context,
                                        monkeypatch):
+        """
+        Tests with multiple cases, that the parser recognized the case details
+        and creates an appropriate rescue
+        """
 
         monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
         RatMama.board = rat_board_fx
+
         monkeypatch.setattr(context_channel_fx, '_words_eol',
                             ["ratsignal H, XB, O2 OK"]
                             )
+
         monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         case = rat_board_fx.find_by_name("Absolver")
@@ -134,6 +145,7 @@ class test_ratsignal:
         monkeypatch.setattr(context_channel_fx, '_words_eol',
                             ["ratsignal H; XB; O2 OK"]
                             )
+
         monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         case = rat_board_fx.find_by_name("Absolver")
@@ -149,6 +161,7 @@ class test_ratsignal:
         monkeypatch.setattr(context_channel_fx, '_words_eol',
                             ["ratsignalCol 285| Ps| O2 NOT OK"]
                             )
+
         monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         case = rat_board_fx.find_by_name("Absolver")
