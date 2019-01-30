@@ -142,10 +142,13 @@ class TestRSignal(object):
         # make sure it tasted awful
         assert not async_callable_fx.was_called
 
+    @pytest.mark.parametrize("sep", [',', ';', '|', '-'])
     async def test_manual_rsig_handler(self, rat_board_fx: RatBoard,
                                        async_callable_fx: AsyncCallableMock,
                                        context_channel_fx: Context,
-                                       monkeypatch):
+                                       monkeypatch,
+                                       sep: chr
+                                       ):
         """
         Tests with multiple cases, that the parser recognized the case details
         and creates an appropriate rescue
@@ -157,7 +160,7 @@ class TestRSignal(object):
 
         # give us a message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            ["ratsignal H, XB, O2 OK"]
+                            [f"ratsignal H{sep} XB{sep} O2 OK"]
                             )
 
         # and a nickname
@@ -174,33 +177,13 @@ class TestRSignal(object):
         assert case.irc_nickname.casefold() == "absolver"
         assert not case.code_red
 
-        # preparation for another round of testing, cleanse the board
-        rat_board_fx.clear_board()
-
-        # same message as above with a different seperator
-        monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            ["Ratsignal H; XB; O2 OK"]
-                            )
-
-        # ensure we still have the expect nickname
-        monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
-        # handle it all
-        await RatMama.handle_selfissued_ratsignal(context_channel_fx)
-        # remember the result
-        case = rat_board_fx.find_by_name("Absolver")
-
-        assert case is not None
-        assert case.platform == Platforms.XB
-        assert case.system.casefold() == "h"
-        assert case.irc_nickname.casefold() == "absolver"
-        assert not case.code_red
-
         # who needs flash when they can have cleanse?
         rat_board_fx.clear_board()
 
         # now lets get a bit more mean with the message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            ["ratsIGnalCol 285| Ps| O2 NOT OK"]
+                            [f"Ratsignal RaTsIgNaL{sep} RATSIGNAL ratsIGnalCol 285{sep} Ps{sep} "
+                             f"o2 Not Ok please help!"]
                             )
 
         # ensure who is the case summoner
