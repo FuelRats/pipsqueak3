@@ -124,7 +124,7 @@ class TestRSignal(object):
         # but is from the same commander
         monkeypatch.setattr(context_channel_fx, '_words_eol',
                             ["Incoming Client: Ajdacho - System: H - Platform: XB - "
-                             "O2: OK - Language: Polish (pl-PL)"
+                             "O2: NOT OK - Language: Polish (pl-PL)"
                              ]
                             )
 
@@ -137,7 +137,7 @@ class TestRSignal(object):
 
         # as well as the fact some stuff changes
         assert async_callable_fx.was_called_with(
-            "System changed! Platform changed! "
+            "System changed! Platform changed! O2 Status changed, it is now CODE RED!"
         )
 
     async def test_no_action_on_wrong_nick(self, async_callable_fx: AsyncCallableMock,
@@ -161,11 +161,21 @@ class TestRSignal(object):
         assert not async_callable_fx.was_called
 
     @pytest.mark.parametrize("sep", [',', ';', '|', '-'])
+    @pytest.mark.parametrize("platform_str, platform",
+                             [("pc", Platforms.PC), ("ps", Platforms.PS), ("ps4", Platforms.PS),
+                              ("playstation", Platforms.PS), ("playstation4", Platforms.PS),
+                              ("Playstation 4", Platforms.PS), ("xb", Platforms.XB),
+                              ("xb1", Platforms.XB), ("xbox", Platforms.XB),
+                              ("xbox one", Platforms.XB)
+                              ]
+                             )
     async def test_manual_rsig_handler(self, rat_board_fx: RatBoard,
                                        async_callable_fx: AsyncCallableMock,
                                        context_channel_fx: Context,
                                        monkeypatch,
-                                       sep: chr
+                                       sep: chr,
+                                       platform_str: str,
+                                       platform: Platforms
                                        ):
         """
         Tests with multiple cases, that the parser recognized the case details
@@ -178,7 +188,7 @@ class TestRSignal(object):
 
         # give us a message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            [f"ratsignal H{sep} XB{sep} O2 OK"]
+                            [f"ratsignal H{sep} {platform_str}{sep} O2 OK"]
                             )
 
         # and a nickname
@@ -190,7 +200,7 @@ class TestRSignal(object):
 
         # assert all details are as expected
         assert case is not None
-        assert case.platform == Platforms.XB
+        assert case.platform == platform
         assert case.system.casefold() == "h"
         assert case.irc_nickname.casefold() == "absolver"
         assert not case.code_red
@@ -200,8 +210,8 @@ class TestRSignal(object):
 
         # now lets get a bit more mean with the message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            [f"Ratsignal RaTsIgNaL{sep} RATSIGNAL ratsIGnalCol 285{sep} Ps{sep} "
-                             f"o2 Not Ok please help!"]
+                            [f"Ratsignal RaTsIgNaL{sep} RATSIGNAL ratsIGnalCol 285{sep} "
+                             f"{platform_str}ratsignal{sep} o2 Not Ok please help! Ratsignal!"]
                             )
 
         # ensure who is the case summoner
@@ -213,7 +223,7 @@ class TestRSignal(object):
 
         # make sure we threw the right person into the abyss earlier
         assert case is not None
-        assert case.platform == Platforms.PS
+        assert case.platform == platform
         assert case.system.casefold() == "col 285"
         assert case.irc_nickname.casefold() == "absolver"
         assert case.code_red

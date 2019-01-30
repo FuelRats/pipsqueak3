@@ -151,7 +151,7 @@ async def handle_selfissued_ratsignal(ctx: Context):
         if part.casefold() in ("pc",):
             platform = Platforms["PC"]
 
-        elif part.casefold() in ("ps", "ps4", "playstation", "playstation4"):
+        elif part.casefold() in ("ps", "ps4", "playstation", "playstation4", "playstation 4"):
             platform = Platforms["PS"]
 
         elif part.casefold() in ("xb", "xb1", "xbox", "xboxone", "xbox one"):
