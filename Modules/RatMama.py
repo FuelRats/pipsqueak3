@@ -106,7 +106,7 @@ async def handle_ratmama_announcement(ctx: Context):
                                 code_red=not o2_status, lang_id=lang_code, platform=platform)
 
         board.append(rescue, overwrite=False)
-        index = board.find_by_name(client=client_name).board_index
+        index = rescue.board_index
         await ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
                         f"Reported System: {system_name} (distance to be implemented) - "
                         f"Platform: {platform_name} - "
@@ -138,8 +138,9 @@ async def handle_selfissued_ratsignal(ctx: Context):
         sep = '-'
 
     if not sep:
-        board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
-        index = board.find_by_name(ctx.user.nickname)
+        rescue = Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname)
+        board.append(rescue)
+        index = rescue.board_index
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
     parts: List[str] = message.split(sep)
@@ -171,6 +172,6 @@ async def handle_selfissued_ratsignal(ctx: Context):
         platform=platform
     )
     board.append(rescue)
-    await ctx.reply(f"Case created for {ctx.user.nickname}"
+    await ctx.reply(f"Case #{rescue.board_index} created for {ctx.user.nickname}"
                     f" on {platform.name} in {system}. "
                     f"{'O2 status is okay' if not cr else 'This is a CR!'}")
