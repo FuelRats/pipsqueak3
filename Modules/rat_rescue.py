@@ -97,7 +97,7 @@ class Rescue(object):
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else []
-        self._system: str = system.upper()
+        self._system: str = system.upper() if system else ""
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
         self._epic: List[Epic] = epic if epic is not None else []
