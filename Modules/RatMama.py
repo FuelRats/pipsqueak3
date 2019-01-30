@@ -27,7 +27,8 @@ ratmama_regex = re.compile(r"""(?x)
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
     Incoming\s+Client:\s*                # Match "Incoming Client" prefix
-    (?P<all>                             # Wrap the entirety of rest of the pattern in a group to make it easier to echo the entire thing
+    (?P<all>                             # Wrap the entirety of rest of the pattern 
+                                         # in a group to make it easier to echo the entire thing
     (?P<cmdr>[^\s].*?)                   # Match CDMR name.
     \s+-\s+                              #  -
     System:\s*(?P<system>.*?)            # Match system name
@@ -118,7 +119,8 @@ async def handle_ratmama_announcement(ctx: Context):
 @rule("ratsignal", case_sensitive=False, full_message=False, pass_match=False, prefixless=True)
 async def handle_selfissued_ratsignal(ctx: Context):
     message: str = ctx.words_eol[0]
-    message = message.replace("ratsignal", "")  # the ratsignal is nothing we are interested in anymore
+    message = message.replace("ratsignal", "")  # the ratsignal is nothing
+                                                # we are interested in anymore
 
     for rescue in board.rescues.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
