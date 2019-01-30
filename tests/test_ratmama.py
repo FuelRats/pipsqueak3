@@ -22,11 +22,8 @@ from Modules.rat_rescue import Rescue
 pytestmark = [pytest.mark.ratmama, pytest.mark.asyncio]
 
 
-class test_ratsignal:
+class TestRSignal(object):
     rat_board: RatBoard
-
-    def __init__(self, rat_board_fx):
-        self.rat_board = rat_board_fx
 
     async def test_ratmama_arrival_and_rearrival(self, rat_board_fx: RatBoard,
                                                  async_callable_fx: AsyncCallableMock,
@@ -69,7 +66,7 @@ class test_ratsignal:
         assert rescue.system.casefold() == "alrai"
         assert rescue.platform == Platforms.PC
         assert not rescue.code_red
-        assert rescue.lang_id.casefold() == "pl-pl"
+        assert rescue.lang_id.casefold() == "pl"
 
         # fire it again
         await RatMama.handle_ratmama_announcement(context_channel_fx)

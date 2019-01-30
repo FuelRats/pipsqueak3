@@ -69,7 +69,7 @@ async def handle_ratmama_announcement(ctx: Context):
     client_name: str = result.group("cmdr")
     system_name: str = result.group("system")
     platform_name: str = result.group("platform")
-    o2_status: bool = result.group("o2") == "OK"
+    o2_status: bool = result.group("o2") == "OK"  # false is CR
     lang_code: str = result.group("language_code")
     nickname: Optional[str] = result.group("nick")
 
@@ -86,9 +86,9 @@ async def handle_ratmama_announcement(ctx: Context):
         if platform_name.casefold() != exist_rescue.platform.name.casefold():
             diff_response += "Platform changed! "
 
-        if o2_status != exist_rescue.code_red:
-            diff_response += "O2 Status changed" if o2_status else\
-                "O2 Status changed, it is now CODE RED"
+        if not o2_status != exist_rescue.code_red:
+            diff_response += "O2 Status changed!" if o2_status else\
+                "O2 Status changed, it is now CODE RED!"
 
         if not diff_response == "":
             await ctx.reply(diff_response)
@@ -103,7 +103,7 @@ async def handle_ratmama_announcement(ctx: Context):
 
         # no case for that name, we have to make our own
         rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,
-                                code_red=o2_status, lang_id=lang_code, platform=platform)
+                                code_red=not o2_status, lang_id=lang_code, platform=platform)
 
         board.append(rescue, overwrite=False)
         index = board.find_by_name(client=client_name).board_index
