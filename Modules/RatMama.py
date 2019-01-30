@@ -27,7 +27,7 @@ ratmama_regex = re.compile(r"""(?x)
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
     Incoming\s+Client:\s*                # Match "Incoming Client" prefix
-    (?P<all>                             # Wrap the entirety of rest of the pattern 
+    (?P<all>                             # Wrap the entirety of rest of the pattern
                                          # in a group to make it easier to echo the entire thing
     (?P<cmdr>[^\s].*?)                   # Match CDMR name.
     \s+-\s+                              #  -
@@ -134,6 +134,8 @@ async def handle_selfissued_ratsignal(ctx: Context):
         sep = ';'
     elif '|' in message:
         sep = '|'
+    elif '-' in message:
+        sep = '-'
 
     if not sep:
         board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
@@ -146,8 +148,14 @@ async def handle_selfissued_ratsignal(ctx: Context):
     platform: Platforms
     for part in parts:
         part = part.strip()
-        if part.casefold() in ("pc", "ps", "xb"):
-            platform = Platforms[part.upper()]
+        if part.casefold() in ("pc",):
+            platform = Platforms["PC"]
+
+        elif part.casefold() in ("ps", "ps4", "playstation", "playstation4"):
+            platform = Platforms["PS"]
+
+        elif part.casefold() in ("xb", "xb1", "xbox", "xboxone", "xbox one"):
+            platform = Platforms["XB"]
 
         elif "o2" in part.casefold():
             cr = (part.casefold() != "o2 ok")

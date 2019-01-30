@@ -105,7 +105,8 @@ class test_ratsignal:
         # remember the index (is important later!)
         index = rat_board_fx.find_by_name("Ajdacho").board_index
 
-        # prepare second announcement, this one has different details, but is from the same commander
+        # prepare second announcement, this one has different details,
+        # but is from the same commander
         monkeypatch.setattr(context_channel_fx, '_words_eol',
                             ["Incoming Client: Ajdacho - System: H - Platform: XB - "
                              "O2: OK - Language: Polish (pl-PL)"
