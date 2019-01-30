@@ -186,7 +186,7 @@ class TestRSignal(object):
         monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
         # handle it all
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
-        # remeber the result
+        # remember the result
         case = rat_board_fx.find_by_name("Absolver")
 
         assert case is not None
@@ -216,3 +216,16 @@ class TestRSignal(object):
         assert case.system.casefold() == "col 285"
         assert case.irc_nickname.casefold() == "absolver"
         assert case.code_red
+
+    @pytest.mark.xfail(reason="Rescue constructor is broken, making this break too")
+    async def test_you_already_sent(self, async_callable_fx: AsyncCallableMock,
+                                       context_channel_fx: Context,
+                                       monkeypatch
+                                    ):
+        monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
+        monkeypatch.setattr(context_channel_fx, '_words_eol', ["ratsignal"])
+        await RatMama.handle_selfissued_ratsignal(context_channel_fx)
+        await RatMama.handle_selfissued_ratsignal(context_channel_fx)
+        assert async_callable_fx.was_called_with(
+            "You already sent a signal, please be patient while a dispatch is underway."
+        )
