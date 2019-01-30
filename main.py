@@ -14,6 +14,7 @@ This module is built on top of the Pydle system.
 """
 import asyncio
 import logging
+import signal
 from asyncio import AbstractEventLoop
 from uuid import uuid4
 
@@ -30,6 +31,9 @@ from config import config
 from utils.ratlib import sanitize
 
 log = logging.getLogger(f"mecha.{__name__}")
+
+# Workaround to re-enable proper SIGINT
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 class MechaClient(Client):
@@ -194,3 +198,4 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start())
     loop.run_forever()
+
