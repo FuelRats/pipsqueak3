@@ -179,7 +179,7 @@ class TestRSignal(object):
 
         # same message as above with a different seperator
         monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            ["ratsignal H; XB; O2 OK"]
+                            ["Ratsignal H; XB; O2 OK"]
                             )
 
         # ensure we still have the expect nickname
@@ -200,7 +200,7 @@ class TestRSignal(object):
 
         # now lets get a bit more mean with the message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            ["ratsignalCol 285| Ps| O2 NOT OK"]
+                            ["ratsIGnalCol 285| Ps| O2 NOT OK"]
                             )
 
         # ensure who is the case summoner

@@ -120,7 +120,7 @@ async def handle_ratmama_announcement(ctx: Context):
 async def handle_selfissued_ratsignal(ctx: Context):
     message: str = ctx.words_eol[0]
     # the ratsignal is nothing we are interested anymore
-    message = message.replace("ratsignal", "")
+    message = re.sub("ratsignal", "", message, flags=re.I)
 
     for rescue in board.rescues.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
