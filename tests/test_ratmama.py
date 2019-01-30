@@ -25,6 +25,24 @@ pytestmark = [pytest.mark.ratmama, pytest.mark.asyncio]
 class TestRSignal(object):
     rat_board: RatBoard
 
+    async def test_ratmama_wrong_platform(self, context_channel_fx: Context,
+                                                 monkeypatch
+                                          ):
+        """
+        Tests, that the parser does not implode upon being given a wrong platform by RatMama
+        """
+        monkeypatch.setattr(context_channel_fx, '_words_eol',
+                            ["Incoming Client: Ajdacho - System: Alrai - "
+                             "Platform: Switch - O2: OK - Language: Polish (pl-PL)"
+                             ]
+                            )
+
+        # now we just set the nickname to the allowed on
+        monkeypatch.setattr(context_channel_fx._user, '_nickname', "RatMama[BOT]")
+        # and fire away!
+        await RatMama.handle_ratmama_announcement(context_channel_fx)
+
+
     async def test_ratmama_arrival_and_rearrival(self, rat_board_fx: RatBoard,
                                                  async_callable_fx: AsyncCallableMock,
                                                  context_channel_fx: Context,
@@ -205,6 +223,10 @@ class TestRSignal(object):
                                        context_channel_fx: Context,
                                        monkeypatch
                                     ):
+        """
+        Tests, that upon sending a ratsignal, the client will be nicely told that they already
+        sent a signal
+        """
         monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
         monkeypatch.setattr(context_channel_fx, '_words_eol', ["ratsignal"])
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
