@@ -11,19 +11,17 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+from logging import getLogger
 
-import logging
 from uuid import uuid4
-
 from pydle import Client
-
 from Modules import rat_command, graceful_errors
 from Modules.context import Context
 from Modules.fact_manager import FactManager
 from config import config
 from utils.ratlib import sanitize
 
-log = logging.getLogger(f"mecha.{__name__}")
+log = getLogger(f"mecha.{__name__}")
 
 
 class MechaClient(Client):
