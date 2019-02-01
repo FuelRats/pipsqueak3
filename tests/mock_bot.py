@@ -1,4 +1,4 @@
-from main import MechaClient
+from mechaclient import MechaClient
 
 
 class MockBot(MechaClient):
