@@ -16,7 +16,7 @@ from Modules.user import User
 from config import config
 
 if TYPE_CHECKING:
-    from main import MechaClient
+    from mechaclient import MechaClient
 
 prefix = config['commands']['prefix']
 
@@ -38,7 +38,7 @@ class Context(object):
 
         Args:
             user (User): invoking IRC user
-            bot (MechaClient): Mechaclient instance
+            bot (Modules.mechaclient.MechaClient): Mechaclient instance
             target(str): channel of invoking channel
             words ([str]): list of words from command invocation
             words_eol ([str]): list of words from command invocation to EOL
