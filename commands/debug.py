@@ -14,10 +14,22 @@ See LICENSE.md
 import logging
 
 from Modules.context import Context
-from Modules.permissions import require_permission, TECHRAT, require_channel
+from Modules.permissions import require_permission, TECHRAT, RAT, require_channel
 from Modules.rat_command import command
 
 log = logging.getLogger(f"mecha.{__name__}")
+
+
+@require_permission(RAT)
+@command("ping")
+async def cmd_ping(context: Context):
+    """
+    Pongs a ping. lets see if the bots alive (command decorator testing)
+    :param context: `Context` object for the command call.
+    """
+    log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
+                f"'{context.user.nickname}'")
+    await context.reply(f"{context.user.nickname} pong!")
 
 
 @command("debug-whois")

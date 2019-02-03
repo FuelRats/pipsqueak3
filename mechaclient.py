@@ -12,9 +12,10 @@ This module is built on top of the Pydle system.
 
 """
 from logging import getLogger
-
 from uuid import uuid4
+
 from pydle import Client
+
 from Modules import rat_command, graceful_errors
 from Modules.context import Context
 from Modules.fact_manager import FactManager
@@ -55,16 +56,12 @@ class MechaClient(Client):
         log.debug(f"Connecting to channels...")
         # join a channel
         for channel in config["irc"]["channels"]:
-            log.debug(f"Configured channel {channel}")
             await self.join(channel)
+            log.debug(f"Configured channel {channel}")
 
-        log.debug("joined channels.")
+        log.info("Joined configured channels.")
         # call the super
-        super().on_connect()
-
-    #
-    # def on_join(self, channel, user):
-    #     super().on_join(channel, user)
+        await super().on_connect()
 
     async def on_message(self, channel, user, message: str):
         """
@@ -95,6 +92,10 @@ class MechaClient(Client):
                 error_message = graceful_errors.make_graceful(ex, ex_uuid)
                 # and report it to the user
                 await self.message(channel, error_message)
+
+    # Handler for displayed vhost on connect.
+    async def on_raw_396(self, message):
+            log.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
 
     @property
     def rat_cache(self) -> object:

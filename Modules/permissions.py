@@ -221,8 +221,9 @@ def require_permission(permission: Permission,
     """
 
     def real_decorator(func):
-        log.debug("Inside the real_decorator")
-        log.debug(f"Wrapping a command with permission {permission}")
+        # Do these debug values need to be here at this point?
+        # log.debug("Inside the real_decorator")
+        # log.debug(f"Wrapping a command with permission {permission}")
 
         @wraps(func)
         async def guarded(context: Context, *args):

@@ -17,25 +17,10 @@ import logging
 
 # noinspection PyUnresolvedReferences
 import commands
-from Modules.context import Context
-from mechaclient import MechaClient
-from Modules.permissions import require_permission, RAT
-from Modules.rat_command import command
 from config import config
+from mechaclient import MechaClient
 
 log = logging.getLogger(f"mecha.{__name__}")
-
-
-@require_permission(RAT)
-@command("ping")
-async def cmd_ping(context: Context):
-    """
-    Pongs a ping. lets see if the bots alive (command decorator testing)
-    :param context: `Context` object for the command call.
-    """
-    log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
-                f"'{context.user.nickname}'")
-    await context.reply(f"{context.user.nickname} pong!")
 
 
 async def start():
@@ -65,6 +50,7 @@ async def start():
                          )
 
     log.info("Connected to IRC.")
+
 
 # entry point
 if __name__ == "__main__":

@@ -151,10 +151,10 @@ def command(*aliases):
         Returns:
             Callable: *func*, unmodified.
         """
-        log.debug(f"Registering command aliases: {aliases}...")
         if not _register(func, aliases):
             raise InvalidCommandException("unable to register commands.")
-        log.debug(f"Registration of {aliases} completed.")
+        # log.debug(f"Registration of {aliases} completed.")
+        log.debug(f"Registering command: {aliases}")
 
         return func
 
