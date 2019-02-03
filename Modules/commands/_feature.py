@@ -52,17 +52,14 @@ class CommandSupport(Client):
         self.prefix = prefix
         super().__init__(*args, **kwargs)
 
-    async def on_message(self, channel: str, user: str, message: str):
+    async def on_message(self, channel: str, user: str, message: str) -> NoReturn:
         """
         Commands on_message handler
 
         Args:
-            channel ():
-            user ():
-            message ():
-
-        Returns:
-
+            channel (str): channel the message was muttered in
+            user (str): irc nickname of muttering user
+            message (str): the message mutter
         """
         LOG.debug(f"{channel}: <{user}> {message}")
 

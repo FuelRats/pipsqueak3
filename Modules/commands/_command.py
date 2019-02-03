@@ -119,7 +119,7 @@ class Command(abc.Container):
 
         First thing this function does is call the setup hooks, allowing for pre-command execution
         behavior.
-        If any of the setup hooks return :obj:`_hooks.STOP_EXECUTION` then execution will be
+        If any of the setup hooks raise :obj:`_hooks.STOP_EXECUTION` then execution will be
         canceled.
 
         Any uncalled setup hooks are discarded, and the underlying / teardown hooks are
