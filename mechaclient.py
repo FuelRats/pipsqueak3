@@ -13,15 +13,17 @@ This module is built on top of the Pydle system.
 """
 from logging import getLogger
 
+import pydle
 from pydle import Client
 
+from Modules.commands import CommandSupport, RuleSupport
 from Modules.fact_manager import FactManager
 from config import config
 
 log = getLogger(f"mecha.{__name__}")
 
 
-class MechaClient(Client):
+class MechaClientBase(Client):
     """
     MechaSqueak v3
     """
@@ -72,13 +74,14 @@ class MechaClient(Client):
         :return:
         """
         log.debug(f"{channel}: <{user}> {message}")
+        await super(MechaClientBase, self).on_message(channel, user, message)
 
         if user == config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             log.debug(f"Ignored {message} (anti-loop)")
             return None
-        ...  # do something
+        # do something
 
     @property
     def rat_cache(self) -> object:
@@ -123,3 +126,6 @@ class MechaClient(Client):
         Mecha's API connection
         """
         return self._api_handler
+
+
+MechaClient = pydle.featurize(MechaClientBase, CommandSupport, RuleSupport)
