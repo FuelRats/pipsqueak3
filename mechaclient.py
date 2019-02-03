@@ -60,7 +60,7 @@ class MechaClient(Client):
 
         log.debug("joined channels.")
         # call the super
-        super().on_connect()
+        await super().on_connect()
 
     #
     # def on_join(self, channel, user):
@@ -95,6 +95,10 @@ class MechaClient(Client):
                 error_message = graceful_errors.make_graceful(ex, ex_uuid)
                 # and report it to the user
                 await self.message(channel, error_message)
+
+    #Vhost Handler
+    async def on_raw_396(self, message):
+        log.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
 
     @property
     def rat_cache(self) -> object:
