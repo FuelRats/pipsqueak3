@@ -36,7 +36,8 @@ class Rescue(object):
     A unique rescue
     """
 
-    def __init__(self, uuid: UUID = None,
+    def __init__(self,
+                 uuid: UUID = None,
                  client: Optional[str] = None,
                  system: Optional[str] = None,
                  irc_nickname: Optional[str] = None,
@@ -54,12 +55,12 @@ class Rescue(object):
                  lang_id: str = "EN",
                  rats: List[Rat] = None,
                  status: Status = Status.OPEN,
-                 code_red=False):
+                 code_red=False,
+                 platform: Platforms = None):
         """
-        creates a unique rescue
+        creates a rescue
 
         Args:
-
             code_red (bool): is the client on emergency oxygen
             status (Status): status attribute for the rescue
             board (RatBoard): RatBoard instance this rescue is attached to, if any.
@@ -85,8 +86,9 @@ class Rescue(object):
             irc_nickname (str): clients IRC nickname, may deffer from their
                 commander name.
             rats (list): identified (Rat)s assigned to rescue.
+            platform(Platforms): Platform for rescue
         """
-        self._platform: Platforms = None
+        self._platform: Platforms = platform
         self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else []
         self._createdAt: datetime = created_at if created_at else datetime.utcnow()
@@ -95,7 +97,7 @@ class Rescue(object):
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else []
-        self._system: str = system.upper()
+        self._system: str = system.upper() if system else None
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
         self._epic: List[Epic] = epic if epic is not None else []
