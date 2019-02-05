@@ -1,7 +1,5 @@
 """
-__init__.py.py - {summery}
-
-{long description}
+__init__.py.py -  Tests for the Commands infrastructure
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.

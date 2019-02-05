@@ -17,16 +17,12 @@ import string
 import sys
 from uuid import uuid4, UUID
 
-import psycopg2
 import psycopg2.pool
 import pytest
 
 from Modules.rat_cache import RatCache
 
-# from psycopg2.pool import SimpleConnectionPool
-
 # Set argv to keep cli arguments meant for pytest from polluting our things
-
 sys.argv = ["test",
             "--config-file", "testing.json",
             "--clean-log",
