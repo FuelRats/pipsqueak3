@@ -42,7 +42,6 @@ class TestRSignal(object):
         # and fire away!
         await RatMama.handle_ratmama_announcement(context_channel_fx)
 
-
     async def test_ratmama_arrival_and_rearrival(self, rat_board_fx: RatBoard,
                                                  async_callable_fx: AsyncCallableMock,
                                                  context_channel_fx: Context,
@@ -228,7 +227,7 @@ class TestRSignal(object):
         assert case.irc_nickname.casefold() == "absolver"
         assert case.code_red
 
-    @pytest.mark.xfail(reason="Rescue constructor is broken, making this break too")
+    # @pytest.mark.xfail(reason="Rescue constructor is broken, making this break too")
     async def test_you_already_sent(self, async_callable_fx: AsyncCallableMock,
                                        context_channel_fx: Context,
                                        monkeypatch
