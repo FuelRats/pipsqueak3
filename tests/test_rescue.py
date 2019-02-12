@@ -24,6 +24,13 @@ from utils.ratlib import Status
 pytestmark = pytest.mark.rescue
 
 
+def test_rescue_defaults():
+    """
+    Verifies a Rescue can be initialized with all defaults
+    """
+
+    Rescue()
+
 @pytest.mark.parametrize("expected_client", ['DeadBeef', 'Commander_Test', '11Alpha1',
                                              'Xxx22K1ng2xxX'])
 def test_verify_rescue_client(rescue_plain_fx, expected_client):
