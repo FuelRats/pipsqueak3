@@ -16,6 +16,7 @@ from logging import getLogger
 from uuid import uuid4
 from pydle import Client
 from Modules import rat_command, graceful_errors
+from Modules.rat_board import RatBoard
 from Modules.context import Context
 from Modules.fact_manager import FactManager
 from config import config
@@ -45,6 +46,7 @@ class MechaClient(Client):
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._fact_manager = None  # Instantiate Global Fact Manager
         self._rat_cache = None  # TODO: replace with ratcache once it exists
+        self._rat_board = None  # Instantiate Rat Board
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -139,3 +141,32 @@ class MechaClient(Client):
         Mecha's API connection
         """
         return self._api_handler
+
+    @property
+    def board(self) -> RatBoard:
+        """
+        Mecha's RatBoard Object
+
+        """
+        if not self._rat_board:
+            self._rat_board = RatBoard()  # Create Rat Board Object
+        return self._rat_board
+
+    @board.setter
+    def board(self, value):
+        """
+        Mecha's RatBoard Setter
+        """
+        if not isinstance(value, RatBoard):
+            raise TypeError("board property must be of type RatBoard.")
+
+        log.warning("Board Setter invoked!")
+        self._rat_board = value
+
+    @board.deleter
+    def board(self):
+        """
+        Mecha's Ratboard Deleter
+        """
+        log.warning("Board Deleted!")
+        del self._rat_board
