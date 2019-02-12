@@ -141,7 +141,8 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
 
     for rescue in board.rescues.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
-            await ctx.reply("You already sent a signal, please be patient while a dispatch is underway.")
+            await ctx.reply(
+                "You already sent a signal, please be patient while a dispatch is underway.")
             return
 
     sep: chr = None
