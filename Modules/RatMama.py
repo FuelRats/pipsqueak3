@@ -60,7 +60,15 @@ ratmama_regex = re.compile(r"""(?x)
 
 @rule(r"^\s*Incoming Client:", case_sensitive=False, full_message=True, prefixless=True,
       pass_match=False)
-async def handle_ratmama_announcement(ctx: Context):
+async def handle_ratmama_announcement(ctx: Context) -> None:
+    """
+    Handles the Announcement made by RatMama.
+    Details are extracted, wrapped in a Rescue object and appended to the Rescue board.
+    An apporpriate answer will be sent to IRC
+
+    :param ctx: Context of the announcement
+    :return: None
+    """
     if ctx.user.nickname.casefold() not in ('ratmama[bot]',):
         return
 
@@ -106,7 +114,7 @@ async def handle_ratmama_announcement(ctx: Context):
                                 code_red=not o2_status, lang_id=lang_code, platform=platform)
 
         board.append(rescue, overwrite=False)
-        index = rescue.board_index
+        index = board.find_by_name(client=client_name).board_index
         await ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
                         f"Reported System: {system_name} (distance to be implemented) - "
                         f"Platform: {platform_name} - "
@@ -117,7 +125,16 @@ async def handle_ratmama_announcement(ctx: Context):
 
 
 @rule("ratsignal", case_sensitive=False, full_message=False, pass_match=False, prefixless=True)
-async def handle_selfissued_ratsignal(ctx: Context):
+async def handle_selfissued_ratsignal(ctx: Context) -> None:
+    """
+    Tries to extract as much details as possible from a self-issued ratsignal and appends
+      these details to the rescue board.
+    Should it be unable to extract the details, it will open a case and ask for the details
+      to be set and will only set the name and nick fields of the rescue
+
+    :param ctx: Context of the self-issued ratsignal
+    :return: None
+    """
     message: str = ctx.words_eol[0]
     # the ratsignal is nothing we are interested anymore
     message = re.sub("ratsignal", "", message, flags=re.I)
@@ -138,9 +155,8 @@ async def handle_selfissued_ratsignal(ctx: Context):
         sep = '-'
 
     if not sep:
-        rescue = Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname)
-        board.append(rescue)
-        index = rescue.board_index
+        board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
+        index = board.find_by_name(ctx.user.nickname)
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
     parts: List[str] = message.split(sep)
@@ -152,7 +168,7 @@ async def handle_selfissued_ratsignal(ctx: Context):
         if part.casefold() in ("pc",):
             platform = Platforms["PC"]
 
-        elif part.casefold() in ("ps", "ps4", "playstation", "playstation4", "playstation 4"):
+        elif part.casefold() in ("ps", "ps4", "playstation", "playstation4"):
             platform = Platforms["PS"]
 
         elif part.casefold() in ("xb", "xb1", "xbox", "xboxone", "xbox one"):
@@ -172,6 +188,6 @@ async def handle_selfissued_ratsignal(ctx: Context):
         platform=platform
     )
     board.append(rescue)
-    await ctx.reply(f"Case #{rescue.board_index} created for {ctx.user.nickname}"
+    await ctx.reply(f"Case created for {ctx.user.nickname}"
                     f" on {platform.name} in {system}. "
-                    f"{'O2 status is okay' if not cr else 'This is a CR!'}")
+                    f"{'O2 status is okay' if not cr else 'This is a CR!'} - {platform.name.upper()}_SIGNAL")
