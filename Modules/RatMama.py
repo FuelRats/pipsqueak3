@@ -190,4 +190,5 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
     board.append(rescue)
     await ctx.reply(f"Case created for {ctx.user.nickname}"
                     f" on {platform.name} in {system}. "
-                    f"{'O2 status is okay' if not cr else 'This is a CR!'} - {platform.name.upper()}_SIGNAL")
+                    f"{'O2 status is okay' if not cr else 'This is a CR!'} "
+                    f"- {platform.name.upper()}_SIGNAL")
