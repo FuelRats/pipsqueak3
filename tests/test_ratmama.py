@@ -238,6 +238,7 @@ class TestRSignal(object):
         """
         monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
         monkeypatch.setattr(context_channel_fx, '_words_eol', ["ratsignal"])
+        monkeypatch.setattr(context_channel_fx.user, '_nickname', "po-ta-to")
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         assert async_callable_fx.was_called_with(

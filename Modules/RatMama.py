@@ -141,7 +141,7 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
 
     for rescue in board.rescues.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
-            ctx.reply("You already sent a signal, please be patient while a dispatch is underway.")
+            await ctx.reply("You already sent a signal, please be patient while a dispatch is underway.")
             return
 
     sep: chr = None
@@ -162,13 +162,13 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
     parts: List[str] = message.split(sep)
     system: str = "unknown"
     cr: bool = False
-    platform: Platforms
+    platform: Platforms = None
     for part in parts:
         part = part.strip()
         if part.casefold() in ("pc",):
             platform = Platforms["PC"]
 
-        elif part.casefold() in ("ps", "ps4", "playstation", "playstation4"):
+        elif part.casefold() in ("ps", "ps4", "playstation", "playstation4", "playstation 4"):
             platform = Platforms["PS"]
 
         elif part.casefold() in ("xb", "xb1", "xbox", "xboxone", "xbox one"):
