@@ -101,14 +101,14 @@ class MechaClient(Client):
     @property
     def rat_cache(self) -> object:
         """
-        Mecha's rat cache
+        Rat Cache
         """
         return self._rat_cache
 
     @property
     def fact_manager(self) -> FactManager:
         """
-        Mecha's fact manager (property)
+        Fact Manager
 
         This is initialized in a lazy way to increase overall startup speed.
         """
@@ -119,7 +119,7 @@ class MechaClient(Client):
     @fact_manager.setter
     def fact_manager(self, manager: FactManager):
         """
-        Mecha's fact manager setter.
+        Fact Manager Setter.
         """
         if not isinstance(manager, FactManager):
             raise TypeError("fact_manager requires a FactManager.")
@@ -130,22 +130,23 @@ class MechaClient(Client):
     @fact_manager.deleter
     def fact_manager(self):
         """
-        Mecha's fact manager (deleter)
+        Fact Manager Deleter
         """
         log.warning("Fact Manager deleter invoked!")
         del self._fact_manager
+        self._fact_manager = None
 
     @property
     def api_handler(self) -> object:
         """
-        Mecha's API connection
+        API Handler property
         """
         return self._api_handler
 
     @property
     def board(self) -> RatBoard:
         """
-        Mecha's RatBoard Object
+        Rat Board property
 
         """
         if not self._rat_board:
@@ -155,7 +156,7 @@ class MechaClient(Client):
     @board.setter
     def board(self, value):
         """
-        Mecha's RatBoard Setter
+        Rat Board Setter
         """
         if not isinstance(value, RatBoard):
             raise TypeError("board property must be of type RatBoard.")
@@ -166,7 +167,8 @@ class MechaClient(Client):
     @board.deleter
     def board(self):
         """
-        Mecha's Ratboard Deleter
+        Rat Board Deleter
         """
         log.warning("Board Deleted!")
         del self._rat_board
+        self._rat_board = None
