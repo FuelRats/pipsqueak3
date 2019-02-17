@@ -16,6 +16,7 @@ from logging import getLogger
 from uuid import uuid4
 from pydle import Client
 from Modules import rat_command, graceful_errors
+from Modules.rat_board import RatBoard
 from Modules.context import Context
 from Modules.fact_manager import FactManager
 from config import config
@@ -45,6 +46,7 @@ class MechaClient(Client):
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._fact_manager = None  # Instantiate Global Fact Manager
         self._rat_cache = None  # TODO: replace with ratcache once it exists
+        self._rat_board = None  # Instantiate Rat Board
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -60,7 +62,7 @@ class MechaClient(Client):
 
         log.debug("joined channels.")
         # call the super
-        super().on_connect()
+        await super().on_connect()
 
     #
     # def on_join(self, channel, user):
@@ -96,17 +98,21 @@ class MechaClient(Client):
                 # and report it to the user
                 await self.message(channel, error_message)
 
+    #Vhost Handler
+    async def on_raw_396(self, message):
+        log.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
+
     @property
     def rat_cache(self) -> object:
         """
-        Mecha's rat cache
+        Rat Cache
         """
         return self._rat_cache
 
     @property
     def fact_manager(self) -> FactManager:
         """
-        Mecha's fact manager (property)
+        Fact Manager
 
         This is initialized in a lazy way to increase overall startup speed.
         """
@@ -117,7 +123,7 @@ class MechaClient(Client):
     @fact_manager.setter
     def fact_manager(self, manager: FactManager):
         """
-        Mecha's fact manager setter.
+        Fact Manager Setter.
         """
         if not isinstance(manager, FactManager):
             raise TypeError("fact_manager requires a FactManager.")
@@ -128,14 +134,45 @@ class MechaClient(Client):
     @fact_manager.deleter
     def fact_manager(self):
         """
-        Mecha's fact manager (deleter)
+        Fact Manager Deleter
         """
         log.warning("Fact Manager deleter invoked!")
         del self._fact_manager
+        self._fact_manager = None
 
     @property
     def api_handler(self) -> object:
         """
-        Mecha's API connection
+        API Handler property
         """
         return self._api_handler
+
+    @property
+    def board(self) -> RatBoard:
+        """
+        Rat Board property
+
+        """
+        if not self._rat_board:
+            self._rat_board = RatBoard()  # Create Rat Board Object
+        return self._rat_board
+
+    @board.setter
+    def board(self, value):
+        """
+        Rat Board Setter
+        """
+        if not isinstance(value, RatBoard):
+            raise TypeError("board property must be of type RatBoard.")
+
+        log.warning("Board Setter invoked!")
+        self._rat_board = value
+
+    @board.deleter
+    def board(self):
+        """
+        Rat Board Deleter
+        """
+        log.warning("Board Deleted!")
+        del self._rat_board
+        self._rat_board = None
