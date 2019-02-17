@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 aiohttp = "*"
-pydle = ">=0.8.5"
+pydle = ">=0.9.1"
 pure-sasl = "*"
 coloredlogs = "*"
 psycopg2 = "*"

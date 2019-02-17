@@ -58,6 +58,10 @@ def mock_system_api_server_fx():
         httpserver.expect_request("/api/stars", query_string=b"filter%5BsystemId64:eq%5D=5031721931482&filter%5BisMainStar:eq%5D=1").respond_with_data(
             """{"data":[{"id":"3206960","attributes":{"id64":36033828740895450,"name":"Fuelum","subType":"K (Yellow-Orange) Star","isMainStar":true}}],"meta":{"results":{"available":1}}}"""
         )
+        # - Angrbonii
+        httpserver.expect_request("/api/stars", query_string=b"filter%5BsystemId64:eq%5D=40557912804216&filter%5BisMainStar:eq%5D=1").respond_with_data(
+            """{"data":[{"id":"377822","attributes":{"id64":72098151950732160,"name":"Angrbonii A","subType":"L (Brown dwarf) Star","isMainStar":true}}],"meta":{"results":{"available":1}}}"""
+        )
         # - Fallthrough for failed searches
         httpserver.expect_request("/api/stars").respond_with_data(
             """{"data":[],"included":[],"meta":{"results":{"available":0}}}"""
