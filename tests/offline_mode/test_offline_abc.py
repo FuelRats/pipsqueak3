@@ -74,3 +74,38 @@ def test_cleanup():
 
     # assert the weak reference got culled as it died.
     assert 1 == len(OfflineAwareABC._storage), "Instance weak reference never got culled"
+
+
+@pytest.mark.asyncio
+async def test_online_invocation(offline_aware_fx, async_callable_fx):
+    """
+    Verifies going online propogates to offline-aware class instances
+    """
+    OfflineAwareABC.online = False  # reset from other tests side effects
+    await OfflineAwareABC.go_online()
+
+    assert async_callable_fx.was_called, "child class never got its on_online event called!"
+
+    assert async_callable_fx.was_called_once, "event got called multiple times!"
+
+    assert async_callable_fx.was_called_with("online"), "wrong event called! (check on_online," \
+                                                        " on_offline)"
+
+
+@pytest.mark.asyncio
+async def test_online_idempotent(offline_aware_fx, async_callable_fx):
+    """
+    Verifies `go_online` is idempotent
+    """
+    OfflineAwareABC.online = False  # reset from other tests side effects
+    await OfflineAwareABC.go_online()
+    # call it a second time
+    await OfflineAwareABC.go_online()
+
+    assert async_callable_fx.was_called, "child class never got its on_online event called!"
+
+    # assert we only got called once, asserting idempotency
+    assert async_callable_fx.was_called_once, "event got called multiple times!"
+
+    assert async_callable_fx.was_called_with("online"), "wrong event called! (check on_online," \
+                                                        " on_offline)"
