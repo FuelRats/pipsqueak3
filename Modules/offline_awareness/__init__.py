@@ -13,7 +13,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from ._impl import OfflineAwareABC
+from ._offline_aware_abc import OfflineAwareABC
 
 online = OfflineAwareABC.go_online
 offline = OfflineAwareABC.go_offline

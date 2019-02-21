@@ -22,7 +22,7 @@ class OfflineAwareABC(ABC):
     Interface for offline-aware classes
     """
     __slots__ = []
-    __storage: List[weakref.finalize] = []
+    _storage: List[weakref.finalize] = []
     """
     Private weak reference storage
     """
@@ -31,6 +31,17 @@ class OfflineAwareABC(ABC):
     """
     Are we in online mode?
     """
+
+    def __init__(self):
+        """
+        registers the subclass obj instance weakly. used for event propagation
+        Args:
+            obj ():
+        """
+
+        # create a finalizer-based weak reference, tie the callback to our GC method
+        # then append it to our storage object
+        self._storage.append(weakref.finalize(self, self.__gc))
 
     @abstractmethod
     async def on_online(self) -> NoReturn:
@@ -52,14 +63,13 @@ class OfflineAwareABC(ABC):
         Moves the system to "online" mode
 
         Notes
-            This function is Idempotent. If the system is already in Online mode no action
-            will be taken
+            This function is Idempotent.
         """
         if cls.online:
             return  # already online, bail out.
 
         cls.online = True
-        for reference in cls.__storage:
+        for reference in cls._storage:
             # check if its still alive (possible to expire during iteration)
             if reference.alive:
                 # resolve the reference
@@ -71,18 +81,17 @@ class OfflineAwareABC(ABC):
     @classmethod
     async def go_offline(cls):
         """
-        Moves the system to Offline mode.
+        Moves the system to "Offline" mode.
 
         Notes:
-            This function is Idempotent. If the system is already in Offline mode no action
-            will be taken
+            This function is Idempotent.
         """
         if not cls.online:
             return  # already offline, bail out.
 
         cls.online = False
 
-        for reference in cls.__storage:
+        for reference in cls._storage:
             # check if its still alive (possible to expire during iteration)
             if reference.alive:
                 # resolve the reference
@@ -90,20 +99,6 @@ class OfflineAwareABC(ABC):
 
                 # and invoke its callback
                 await strong_reference.on_offline()
-
-    @classmethod
-    def _register(cls, obj: 'OfflineAwareABC') -> NoReturn:
-        """
-        register the subclass instance weakly. used for event propagation
-
-        Args:
-            obj (OfflineAwareABC): Subclass instance of OfflineAware
-        """
-
-        if not isinstance(obj, cls):
-            raise ValueError(f"{obj} must be a subclass of {cls}")
-
-        cls.__storage.append(weakref.finalize(obj, cls.__gc))
 
     @classmethod
     def __gc(cls) -> int:
@@ -115,10 +110,13 @@ class OfflineAwareABC(ABC):
         """
         LOG.debug(f"garbage collection invoked...")
 
-        to_delete = {reference for reference in cls.__storage if not reference.alive}
+        # calculate which references are dead
+        to_delete = {reference for reference in cls._storage if not reference.alive}
+
         culled = len(to_delete)
+        # and cull them
         for reference in to_delete:
-            cls.__storage.remove(reference)
+            cls._storage.remove(reference)
 
         LOG.debug(f"garbage collection complete. {culled} dead references culled")
         return culled
