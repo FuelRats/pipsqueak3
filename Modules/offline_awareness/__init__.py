@@ -15,8 +15,19 @@ See LICENSE.md
 
 from ._offline_aware_abc import OfflineAwareABC
 
+# convenience aliases
 online = OfflineAwareABC.go_online
+"""
+Move the system to online mode, alias to :class:`OfflineAwareABC`.go_online
+
+This function is Idempotent
+"""
 offline = OfflineAwareABC.go_offline
+"""
+Move the system to offline mode, alias to :class:`OfflineAwareABC`.go_offline
+
+This function is Idempotent
+"""
 
 __name__ = [
     "OfflineAwareABC",
