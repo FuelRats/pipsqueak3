@@ -16,13 +16,20 @@ See LICENSE.md
 from ._offline_aware_abc import OfflineAwareABC
 
 # convenience aliases
-online = OfflineAwareABC.go_online
+
+
+# ####
+# note: pylint is technically correct in that these names are constants,
+# HOWEVER since they point to non-static non-constant functions it just doesn't make sense
+# thus I tell pylint to shut up :P
+# ##
+online = OfflineAwareABC.go_online  # pylint: disable=invalid-name
 """
 Move the system to online mode, alias to :class:`OfflineAwareABC`.go_online
 
 This function is Idempotent
 """
-offline = OfflineAwareABC.go_offline
+offline = OfflineAwareABC.go_offline  # pylint: disable=invalid-name
 """
 Move the system to offline mode, alias to :class:`OfflineAwareABC`.go_offline
 
