@@ -77,35 +77,44 @@ def test_cleanup():
 
 
 @pytest.mark.asyncio
-async def test_online_invocation(offline_aware_fx, async_callable_fx):
+@pytest.mark.parametrize("mode", ['online', 'offline'])
+async def test_invocation(offline_aware_fx, async_callable_fx, mode: str):
     """
-    Verifies going online propogates to offline-aware class instances
+    Verifies going online propagates to offline-aware class instances
     """
-    OfflineAwareABC.online = False  # reset from other tests side effects
-    await OfflineAwareABC.go_online()
+
+    # ensure correct state for test
+    OfflineAwareABC.online = mode == "offline"
+
+    action = getattr(OfflineAwareABC, f"go_{mode}")
+    await action()
 
     assert async_callable_fx.was_called, "child class never got its on_online event called!"
 
     assert async_callable_fx.was_called_once, "event got called multiple times!"
 
-    assert async_callable_fx.was_called_with("online"), "wrong event called! (check on_online," \
-                                                        " on_offline)"
+    assert async_callable_fx.was_called_with(mode), "wrong event called! (check on_online," \
+                                                    " on_offline)"
 
 
 @pytest.mark.asyncio
-async def test_online_idempotent(offline_aware_fx, async_callable_fx):
+@pytest.mark.parametrize("mode", ['online', 'offline'])
+async def test_idempotency(offline_aware_fx, async_callable_fx, mode: str):
     """
     Verifies `go_online` is idempotent
     """
-    OfflineAwareABC.online = False  # reset from other tests side effects
-    await OfflineAwareABC.go_online()
+    # ensure correct state for test
+    OfflineAwareABC.online = mode == "offline"
+
+    action = getattr(OfflineAwareABC, f"go_{mode}")
+    await action()
     # call it a second time
-    await OfflineAwareABC.go_online()
+    await action()
 
     assert async_callable_fx.was_called, "child class never got its on_online event called!"
 
     # assert we only got called once, asserting idempotency
     assert async_callable_fx.was_called_once, "event got called multiple times!"
 
-    assert async_callable_fx.was_called_with("online"), "wrong event called! (check on_online," \
-                                                        " on_offline)"
+    assert async_callable_fx.was_called_with(mode), "wrong event called! (check on_online," \
+                                                    " on_offline)"

@@ -35,8 +35,6 @@ class OfflineAwareABC(ABC):
     def __init__(self):
         """
         registers the subclass obj instance weakly. used for event propagation
-        Args:
-            obj ():
         """
 
         # create a finalizer-based weak reference, tie the callback to our GC method
@@ -48,14 +46,12 @@ class OfflineAwareABC(ABC):
         """
         on_online event callback, invoked  when the system moves to "online" mode
         """
-        ...
 
     @abstractmethod
     async def on_offline(self) -> NoReturn:
         """
         on_offline event callback, invoked when the system moves to "offline" mode
         """
-        ...
 
     @classmethod
     async def go_online(cls) -> NoReturn:
@@ -103,7 +99,7 @@ class OfflineAwareABC(ABC):
     @classmethod
     def __gc(cls) -> int:
         """
-        Garbage collect dead references
+        Garbage collect dead references. called when a weak reference dies.
 
         Returns:
             number of references collected
