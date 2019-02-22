@@ -36,7 +36,7 @@ Move the system to offline mode, alias to :class:`OfflineAwareABC`.go_offline
 This function is Idempotent
 """
 
-__name__ = [
+__all__ = [
     "OfflineAwareABC",
     "online",
     "offline"
