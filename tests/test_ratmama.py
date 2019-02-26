@@ -19,7 +19,7 @@ import Modules.RatMama as RatMama
 from Modules.rat_rescue import Platforms
 from Modules.rat_rescue import Rescue
 
-pytestmark = [pytest.mark.ratmama, pytest.mark.asyncio]
+pytestmark = [pytest.mark.ratsignal_parse, pytest.mark.asyncio]
 
 
 class TestRSignal(object):
@@ -42,7 +42,7 @@ class TestRSignal(object):
         # and fire away!
         await RatMama.handle_ratmama_announcement(context_channel_fx)
 
-    async def test_ratmama_arrival_and_rearrival(self, rat_board_fx: RatBoard,
+    async def test_ratmama_arrival_and_rearrival(self,
                                                  async_callable_fx: AsyncCallableMock,
                                                  context_channel_fx: Context,
                                                  monkeypatch
@@ -53,7 +53,7 @@ class TestRSignal(object):
         # use our own function for reply so we can track it's calls
         monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
         # and give it our own board, again, for tracking purposes
-        RatMama.board = rat_board_fx
+        rat_board = context_channel_fx.bot.board
 
         # set the message to a valid announcement
         monkeypatch.setattr(context_channel_fx, '_words_eol',
@@ -67,7 +67,7 @@ class TestRSignal(object):
         # and fire away!
         await RatMama.handle_ratmama_announcement(context_channel_fx)
         # lets grab the result!
-        rescue: Rescue = rat_board_fx.find_by_name("Ajdacho")
+        rescue: Rescue = rat_board.find_by_name("Ajdacho")
         # remember the index
         index = rescue.board_index
         # and assert, the right announcement was to be send
@@ -92,7 +92,7 @@ class TestRSignal(object):
             f"Ajdacho has reconnected! Case #{index}"
         )
 
-    async def test_reconnect_with_changes(self, rat_board_fx: RatBoard,
+    async def test_reconnect_with_changes(self,
                                           async_callable_fx: AsyncCallableMock,
                                           context_channel_fx: Context,
                                           monkeypatch
@@ -103,7 +103,7 @@ class TestRSignal(object):
         """
         # set up all our tracking
         monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
-        RatMama.board = rat_board_fx
+        rat_board = context_channel_fx.bot.board
 
         # set our first message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
@@ -117,7 +117,7 @@ class TestRSignal(object):
         # and have it processed
         await RatMama.handle_ratmama_announcement(context_channel_fx)
         # remember the index (is important later!)
-        index = rat_board_fx.find_by_name("Ajdacho").board_index
+        index = rat_board.find_by_name("Ajdacho").board_index
 
         # prepare second announcement, this one has different details,
         # but is from the same commander
@@ -168,7 +168,7 @@ class TestRSignal(object):
                               ("xbox one", Platforms.XB)
                               ]
                              )
-    async def test_manual_rsig_handler(self, rat_board_fx: RatBoard,
+    async def test_manual_rsig_handler(self,
                                        async_callable_fx: AsyncCallableMock,
                                        context_channel_fx: Context,
                                        monkeypatch,
@@ -183,7 +183,7 @@ class TestRSignal(object):
 
         # again, tracking stuff needs to be set up
         monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
-        RatMama.board = rat_board_fx
+        rat_board = context_channel_fx.bot.board
 
         # give us a message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
@@ -195,7 +195,7 @@ class TestRSignal(object):
         # throw it into the magic black box
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         # and remember the result
-        case = rat_board_fx.find_by_name("Absolver")
+        case = rat_board.find_by_name("Absolver")
 
         # assert all details are as expected
         assert case is not None
@@ -205,7 +205,7 @@ class TestRSignal(object):
         assert not case.code_red
 
         # who needs flash when they can have cleanse?
-        rat_board_fx.clear_board()
+        rat_board.clear_board()
 
         # now lets get a bit more mean with the message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
@@ -218,7 +218,7 @@ class TestRSignal(object):
         # throw it into the abyss
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         # catch the soul
-        case = rat_board_fx.find_by_name("Absolver")
+        case = rat_board.find_by_name("Absolver")
 
         # make sure we threw the right person into the abyss earlier
         assert case is not None
@@ -229,18 +229,15 @@ class TestRSignal(object):
 
     # @pytest.mark.xfail(reason="Rescue constructor is broken, making this break too")
     async def test_you_already_sent(self, async_callable_fx: AsyncCallableMock,
-                                       context_channel_fx: Context,
-                                       monkeypatch
+                                       bot_fx
                                     ):
         """
         Tests, that upon sending a ratsignal, the client will be nicely told that they already
         sent a signal
         """
-        monkeypatch.setattr(context_channel_fx, 'reply', async_callable_fx)
-        monkeypatch.setattr(context_channel_fx, '_words_eol', ["ratsignal"])
-        monkeypatch.setattr(context_channel_fx.user, '_nickname', "po-ta-to")
-        await RatMama.handle_selfissued_ratsignal(context_channel_fx)
-        await RatMama.handle_selfissued_ratsignal(context_channel_fx)
+        context = await Context.from_message(bot_fx, "#snickers", "unit_test", "ratsignal")
+        await RatMama.handle_selfissued_ratsignal(context)
+        await RatMama.handle_selfissued_ratsignal(context)
         assert async_callable_fx.was_called_with(
             "You already sent a signal, please be patient while a dispatch is underway."
         )

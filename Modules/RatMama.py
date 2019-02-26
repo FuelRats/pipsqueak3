@@ -20,7 +20,6 @@ from Modules.galaxy.galaxy import Galaxy
 import logging
 
 LOG = logging.getLogger(f"mecha.{__name__}")
-board: Modules.rat_board.RatBoard = Modules.rat_board.RatBoard()
 
 ratmama_regex = re.compile(r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.
@@ -58,17 +57,23 @@ ratmama_regex = re.compile(r"""(?x)
 """)
 
 
-@rule(r"^\s*Incoming Client:", case_sensitive=False, full_message=True, prefixless=True,
+@rule(r"^\s*Incoming Client:", case_sensitive=False, full_message=False, prefixless=True,
       pass_match=False)
 async def handle_ratmama_announcement(ctx: Context) -> None:
+
     """
     Handles the Announcement made by RatMama.
     Details are extracted, wrapped in a Rescue object and appended to the Rescue board.
-    An apporpriate answer will be sent to IRC
+    An appropriate answer will be sent to IRC.
 
-    :param ctx: Context of the announcement
-    :return: None
+    Args:
+        ctx: Context of the announcement
+
+    Returns: None
+
     """
+
+    board = ctx.bot.board
     if ctx.user.nickname.casefold() not in ('ratmama[bot]',):
         return
 
@@ -124,17 +129,22 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
                         )
 
 
-@rule("ratsignal", case_sensitive=False, full_message=False, pass_match=False, prefixless=True)
+@rule(r"\bratsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
 async def handle_selfissued_ratsignal(ctx: Context) -> None:
     """
-    Tries to extract as much details as possible from a self-issued ratsignal and appends
+     Tries to extract as much details as possible from a self-issued ratsignal and appends
       these details to the rescue board.
     Should it be unable to extract the details, it will open a case and ask for the details
-      to be set and will only set the name and nick fields of the rescue
+      to be set and will only set the name and nick fields of the rescue.
 
-    :param ctx: Context of the self-issued ratsignal
-    :return: None
+    Args:
+        ctx: Context of the self-issued ratsignal
+
+    Returns: None
+
     """
+
+    board = ctx.bot.board
     message: str = ctx.words_eol[0]
     # the ratsignal is nothing we are interested anymore
     message = re.sub("ratsignal", "", message, flags=re.I)
@@ -145,7 +155,7 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
                 "You already sent a signal, please be patient while a dispatch is underway.")
             return
 
-    sep: chr = None
+    sep: str = None
     if ',' in message:
         sep = ','
     elif ';' in message:
@@ -161,7 +171,7 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
     parts: List[str] = message.split(sep)
-    system: str = "unknown"
+    system: str = None
     cr: bool = False
     platform: Platforms = None
     for part in parts:
