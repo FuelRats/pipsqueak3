@@ -236,6 +236,7 @@ class TestRSignal(object):
         sent a signal
         """
         context = await Context.from_message(bot_fx, "#snickers", "unit_test", "ratsignal")
+        context.reply = async_callable_fx
         await RatMama.handle_selfissued_ratsignal(context)
         await RatMama.handle_selfissued_ratsignal(context)
         assert async_callable_fx.was_called_with(

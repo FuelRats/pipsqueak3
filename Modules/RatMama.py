@@ -73,7 +73,6 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     """
 
-    board = ctx.bot.board
     if ctx.user.nickname.casefold() not in ('ratmama[bot]',):
         return
 
@@ -86,7 +85,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     lang_code: str = result.group("language_code")
     nickname: Optional[str] = result.group("nick")
 
-    exist_rescue: Rescue = board.find_by_name(client_name)
+    exist_rescue: Rescue = ctx.bot.board.find_by_name(client_name)
 
     if exist_rescue:
         # we got a case already!
@@ -118,8 +117,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,
                                 code_red=not o2_status, lang_id=lang_code, platform=platform)
 
-        board.append(rescue, overwrite=False)
-        index = board.find_by_name(client=client_name).board_index
+        ctx.bot.board.append(rescue, overwrite=False)
+        index = ctx.bot.board.find_by_name(client=client_name).board_index
         await ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
                         f"Reported System: {system_name} (distance to be implemented) - "
                         f"Platform: {platform_name} - "
@@ -144,12 +143,11 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
 
     """
 
-    board = ctx.bot.board
     message: str = ctx.words_eol[0]
     # the ratsignal is nothing we are interested anymore
     message = re.sub("ratsignal", "", message, flags=re.I)
 
-    for rescue in board.rescues.values():
+    for rescue in ctx.bot.board.rescues.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
             await ctx.reply(
                 "You already sent a signal, please be patient while a dispatch is underway.")
@@ -166,8 +164,8 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
         sep = '-'
 
     if not sep:
-        board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
-        index = board.find_by_name(ctx.user.nickname)
+        ctx.bot.board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
+        index = ctx.bot.board.find_by_name(ctx.user.nickname)
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
     parts: List[str] = message.split(sep)
@@ -198,7 +196,7 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
         code_red=cr,
         platform=platform
     )
-    board.append(rescue)
+    ctx.bot.board.append(rescue)
     await ctx.reply(f"Case created for {ctx.user.nickname}"
                     f" on {platform.name} in {system}. "
                     f"{'O2 status is okay' if not cr else 'This is a CR!'} "
