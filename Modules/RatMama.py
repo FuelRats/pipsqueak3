@@ -88,13 +88,13 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     lang_code: str = result.group("language_code")
     nickname: Optional[str] = result.group("nick")
 
-    exist_rescue: Rescue = ctx.bot.board.find_by_name(client_name)
+    exist_rescue: Optional[Rescue] = ctx.bot.board.find_by_name(client_name)
 
     if exist_rescue:
         # we got a case already!
         await ctx.reply(f"{client_name} has reconnected! Case #{exist_rescue.board_index}")
         # now let's make it more visible if stuff changed
-        diff_response: str = ""
+        diff_response = ""
         if system_name.casefold() != exist_rescue.system.casefold():
             diff_response += f"System changed! "
 
