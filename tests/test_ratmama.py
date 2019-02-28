@@ -18,6 +18,7 @@ from Modules.context import Context
 import Modules.RatMama as RatMama
 from Modules.rat_rescue import Platforms
 from Modules.rat_rescue import Rescue
+import config
 
 pytestmark = [pytest.mark.ratsignal_parse, pytest.mark.asyncio]
 
@@ -25,8 +26,10 @@ pytestmark = [pytest.mark.ratsignal_parse, pytest.mark.asyncio]
 class TestRSignal(object):
     rat_board: RatBoard
 
+    @pytest.mark.parametrize("nick", config.config["ratsignal_parser"]["announcer_nicks"])
     async def test_ratmama_wrong_platform(self, context_channel_fx: Context,
-                                                 monkeypatch
+                                                 monkeypatch,
+                                                 nick
                                           ):
         """
         Tests, that the parser does not implode upon being given a wrong platform by RatMama
@@ -38,14 +41,16 @@ class TestRSignal(object):
                             )
 
         # now we just set the nickname to the allowed on
-        monkeypatch.setattr(context_channel_fx._user, '_nickname', "RatMama[BOT]")
+        monkeypatch.setattr(context_channel_fx._user, '_nickname', f"{nick}")
         # and fire away!
         await RatMama.handle_ratmama_announcement(context_channel_fx)
 
+    @pytest.mark.parametrize("nick", config.config["ratsignal_parser"]["announcer_nicks"])
     async def test_ratmama_arrival_and_rearrival(self,
                                                  async_callable_fx: AsyncCallableMock,
                                                  context_channel_fx: Context,
-                                                 monkeypatch
+                                                 monkeypatch,
+                                                 nick
                                                  ):
         """
         Tests the RSignal announcement as well as the reconnect message.
@@ -63,7 +68,7 @@ class TestRSignal(object):
                             )
 
         # now we just set the nickname to the allowed on
-        monkeypatch.setattr(context_channel_fx._user, '_nickname', "RatMama[BOT]")
+        monkeypatch.setattr(context_channel_fx._user, '_nickname', f"{nick}")
         # and fire away!
         await RatMama.handle_ratmama_announcement(context_channel_fx)
         # lets grab the result!
@@ -168,13 +173,20 @@ class TestRSignal(object):
                               ("xbox one", Platforms.XB)
                               ]
                              )
+    @pytest.mark.parametrize("system", ["H", "Col 285 Sector HQ", "Fuelum", "colonia"])
+    @pytest.mark.parametrize("nick", ["Absolver", "unknown", "Numerlor"])
+    @pytest.mark.parametrize("cr_string, cr_expected", [("OK", False), ("NOT OK", True)])
     async def test_manual_rsig_handler(self,
                                        async_callable_fx: AsyncCallableMock,
                                        context_channel_fx: Context,
                                        monkeypatch,
                                        sep: chr,
                                        platform_str: str,
-                                       platform: Platforms
+                                       platform: Platforms,
+                                       system: str,
+                                       nick: str,
+                                       cr_string: str,
+                                       cr_expected: bool
                                        ):
         """
         Tests with multiple cases, that the parser recognized the case details
@@ -187,47 +199,46 @@ class TestRSignal(object):
 
         # give us a message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            [f"ratsignal H{sep} {platform_str}{sep} O2 OK"]
+                            [f"ratsignal {system}{sep}{platform_str}{sep}O2 {cr_string} "]
                             )
 
         # and a nickname
-        monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
+        monkeypatch.setattr(context_channel_fx._user, '_nickname', nick)
         # throw it into the magic black box
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         # and remember the result
-        case = rat_board.find_by_name("Absolver")
+        case = rat_board.find_by_name(nick)
 
         # assert all details are as expected
         assert case is not None
         assert case.platform == platform
-        assert case.system.casefold() == "h"
-        assert case.irc_nickname.casefold() == "absolver"
-        assert not case.code_red
+        assert case.system.casefold() == system.casefold()
+        assert case.irc_nickname.casefold() == nick.casefold()
+        assert case.code_red == cr_expected
 
         # who needs flash when they can have cleanse?
         rat_board.clear_board()
 
         # now lets get a bit more mean with the message
         monkeypatch.setattr(context_channel_fx, '_words_eol',
-                            [f"Ratsignal RaTsIgNaL{sep} RATSIGNAL ratsIGnalCol 285{sep} "
-                             f"{platform_str}ratsignal{sep} o2 Not Ok please help! Ratsignal!"]
+                            [f"Ratsignal RaTsIgNaL{sep} RATSIGNAL ratsIGnal{system}{sep} "
+                             f"{platform_str}ratsignal{sep} o2 {cr_string} please help! Ratsignal!"]
                             )
 
         # ensure who is the case summoner
-        monkeypatch.setattr(context_channel_fx._user, '_nickname', "Absolver")
+        monkeypatch.setattr(context_channel_fx._user, '_nickname', nick)
         # throw it into the abyss
         await RatMama.handle_selfissued_ratsignal(context_channel_fx)
         # catch the soul
-        case = rat_board.find_by_name("Absolver")
+        case = rat_board.find_by_name(nick)
 
         # make sure we threw the right person into the abyss earlier
         assert case is not None
         assert case.platform == platform
-        assert case.system.casefold() == "col 285"
-        assert case.irc_nickname.casefold() == "absolver"
-        assert case.code_red
+        assert case.system.casefold() == system.casefold()
+        assert case.irc_nickname.casefold() == nick.casefold()
+        assert case.code_red == cr_expected
 
-    # @pytest.mark.xfail(reason="Rescue constructor is broken, making this break too")
     async def test_you_already_sent(self, async_callable_fx: AsyncCallableMock,
                                        bot_fx
                                     ):

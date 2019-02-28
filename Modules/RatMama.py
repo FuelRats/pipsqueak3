@@ -17,6 +17,7 @@ from typing import Optional, List
 import Modules.rat_board
 from Modules.rat_rescue import Rescue, Platforms
 from Modules.galaxy.galaxy import Galaxy
+import config
 import logging
 
 LOG = logging.getLogger(f"mecha.{__name__}")
@@ -73,7 +74,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     """
 
-    if ctx.user.nickname.casefold() not in ('ratmama[bot]',):
+    if ctx.user.nickname.casefold() not in (k.casefold() for k in config.config["ratsignal_parser"]["announcer_nicks"]):
         return
 
     message: str = ctx.words_eol[0]
@@ -102,7 +103,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             diff_response += "O2 Status changed!" if o2_status else\
                 "O2 Status changed, it is now CODE RED!"
 
-        if not diff_response == "":
+        if diff_response:
             await ctx.reply(diff_response)
 
     else:
@@ -111,7 +112,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         if platform_name.casefold() in ("pc", "ps", "xb"):
             platform = Platforms[platform_name.upper()]
         else:
-            LOG.warning(f"Got unknown platform from RatMama: {platform_name}")
+            LOG.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
 
         # no case for that name, we have to make our own
         rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,
@@ -184,7 +185,7 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
             platform = Platforms["XB"]
 
         elif "o2" in part.casefold():
-            cr = (part.casefold() != "o2 ok")
+            cr = "o2 ok" not in part.casefold()
 
         else:
             system = part

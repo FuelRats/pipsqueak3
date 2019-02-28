@@ -72,5 +72,10 @@
       ],
       "level":4
     }
+  },
+  "ratsignal_parser": {
+    "announcer_nicks" : [
+      "RatMama[Bot]"
+    ]
   }
 }
