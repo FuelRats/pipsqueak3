@@ -65,6 +65,7 @@ class OfflineAwareABC(ABC):
             This function is Idempotent.
         """
         if cls.online:
+            LOG.debug("already in online mode, ignoring call to go_online ...")
             return  # already online, bail out.
 
         LOG.info("Moving to online mode...")

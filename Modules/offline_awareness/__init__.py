@@ -15,9 +15,6 @@ See LICENSE.md
 
 from ._offline_aware_abc import OfflineAwareABC
 
-# convenience aliases
-
-
 # ####
 # note: pylint is technically correct in that these names are constants,
 # HOWEVER since they point to non-static non-constant functions it just doesn't make sense
