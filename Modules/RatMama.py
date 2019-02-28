@@ -74,7 +74,9 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     """
 
-    if ctx.user.nickname.casefold() not in (k.casefold() for k in config.config["ratsignal_parser"]["announcer_nicks"]):
+    if ctx.user.nickname.casefold() not in (
+            k.casefold() for k in config.config["ratsignal_parser"]["announcer_nicks"]
+    ):
         return
 
     message: str = ctx.words_eol[0]
