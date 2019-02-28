@@ -20,6 +20,9 @@ LOG = logging.getLogger(f"mecha.{__name__}")
 class OfflineAwareABC(ABC):
     """
     Interface for offline-aware classes
+
+    Subclasses of this ABC will be notified when the system moves between online and offline modes
+
     """
     __slots__ = []
     _storage: List[weakref.finalize] = []
@@ -64,6 +67,7 @@ class OfflineAwareABC(ABC):
         if cls.online:
             return  # already online, bail out.
 
+        LOG.info("Moving to online mode...")
         cls.online = True
         for reference in cls._storage:
             # check if its still alive (possible to expire during iteration)
@@ -83,8 +87,9 @@ class OfflineAwareABC(ABC):
             This function is Idempotent.
         """
         if not cls.online:
+            LOG.debug("already in offline mode, ignoring call to go_offline ...")
             return  # already offline, bail out.
-
+        LOG.info("Moving to offline mode")
         cls.online = False
 
         for reference in cls._storage:
