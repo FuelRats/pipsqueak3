@@ -205,7 +205,7 @@ class TestRSignal(object):
         # and a nickname
         monkeypatch.setattr(context_channel_fx._user, '_nickname', nick)
         # throw it into the magic black box
-        await RatMama.handle_selfissued_ratsignal(context_channel_fx)
+        await RatMama.handle_ratsignal(context_channel_fx)
         # and remember the result
         case = rat_board.find_by_name(nick)
 
@@ -228,7 +228,7 @@ class TestRSignal(object):
         # ensure who is the case summoner
         monkeypatch.setattr(context_channel_fx._user, '_nickname', nick)
         # throw it into the abyss
-        await RatMama.handle_selfissued_ratsignal(context_channel_fx)
+        await RatMama.handle_ratsignal(context_channel_fx)
         # catch the soul
         case = rat_board.find_by_name(nick)
 
@@ -248,8 +248,8 @@ class TestRSignal(object):
         """
         context = await Context.from_message(bot_fx, "#snickers", "unit_test", "ratsignal")
         context.reply = async_callable_fx
-        await RatMama.handle_selfissued_ratsignal(context)
-        await RatMama.handle_selfissued_ratsignal(context)
+        await RatMama.handle_ratsignal(context)
+        await RatMama.handle_ratsignal(context)
         assert async_callable_fx.was_called_with(
             "You already sent a signal, please be patient while a dispatch is underway."
         )

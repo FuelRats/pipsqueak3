@@ -132,7 +132,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
 
 @rule(r"\bratsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
-async def handle_selfissued_ratsignal(ctx: Context) -> None:
+async def handle_ratsignal(ctx: Context) -> None:
     """
      Tries to extract as much details as possible from a self-issued ratsignal and appends
       these details to the rescue board.
@@ -156,7 +156,7 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
                 "You already sent a signal, please be patient while a dispatch is underway.")
             return
 
-    sep: str = None
+    sep: Optional[str] = None
     if ',' in message:
         sep = ','
     elif ';' in message:
@@ -171,11 +171,10 @@ async def handle_selfissued_ratsignal(ctx: Context) -> None:
         index = ctx.bot.board.find_by_name(ctx.user.nickname)
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
-    parts: List[str] = message.split(sep)
     system: str = None
     cr: bool = False
     platform: Platforms = None
-    for part in parts:
+    for part in message.split(sep):
         part = part.strip()
         if part.casefold() in ("pc",):
             platform = Platforms["PC"]
