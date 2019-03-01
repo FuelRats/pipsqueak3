@@ -1,0 +1,92 @@
+#
+#docker-compose.yml - build script for the mechasqueak3 irc bot
+#   creates the runtime environment for the IRC bot and, by default, runs both the tests and the
+#    client.
+#
+#    USAGE:
+#       test runner:    docker-compose up tests
+#       Mechasqueak:    docker-compose up mechasqueak
+#       Drillsqueak:    docker-compose up drillsqueak
+#       development:    docker-compose up mecha3-dev
+#
+#     please note that these builds require a configuration file external to git, a template
+#       configuration file is provided.
+#Copyright (c) 2018 The Fuel Rats Mischief,
+#All rights reserved.
+#
+#Licensed under the BSD 3-Clause License.
+#
+#See LICENSE.md
+#
+
+version: '3.2'
+services:
+  tests:
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+
+    build: .
+    image: mecha3
+    command: "pipenv run pytest"
+
+  mecha3-dev:
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+    build: .
+    image: mecha3
+    command: ["pipenv","run","python","main.py","--config", "develop.json"]
+
+  drillsqueak:
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+
+    build: .
+    image: mecha3
+    command: ["pipenv","run","python","main.py","--config", "drill.json"]
+
+  mechasqueak:
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+    build: .
+    image: mecha3
+    command: ["pipenv","run","python","main.py","--config", "live.json"]

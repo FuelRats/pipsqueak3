@@ -1,18 +1,23 @@
-class MockBot(object):
-    """Emulates some of the bots functions for testing purposes."""
-    def __init__(self):
-        self.sent_messages = []
+from mechaclient import MechaClient
 
+
+class MockBot(MechaClient):
+    """Emulates some of the bots functions for testing purposes."""
+
+    def __init__(self, *args, **kwargs):
+        # lets ensure the super gets called first, before we start overriding things
+        super().__init__(*args, **kwargs)
+        self.sent_messages = []
         self.users = {
-            "unit_test[BOT]": {
-                "nickname": "unit_test[BOT]",
-                "username": "unit_test",
-                "hostname": "i.see.none",
-                "away": True,
-                "away_message": "Go away",
-                "account": None,
-                "identified": True
-            },
+            "unit_test[bot]": {
+                'away': True,
+                'away_message': 'Go away',
+                'username': 'unit_test',
+                'hostname': 'i.see.none',
+                'realname': 'you know',
+                'identified': True,
+                'account': None,
+                'nickname': 'unit_test[BOT]'},
             "unit_test": {
                 "nickname": "unit_test",
                 "username": "unit_test",
@@ -20,7 +25,10 @@ class MockBot(object):
                 "away": False,
                 "away_message": None,
                 "account": None,
-                "identified": False
+                "identified": False,
+
+                "realname": "tree hugger",
+
             },
             "some_recruit": {
                 "nickname": "some_recruit",
@@ -29,7 +37,10 @@ class MockBot(object):
                 "away": False,
                 "away_message": None,
                 "account": None,
-                "identified": True
+                "identified": True,
+
+                "realname": "some pun-ter",
+
             },
             "some_ov": {
                 "nickname": "some_ov",
@@ -38,7 +49,10 @@ class MockBot(object):
                 "away": False,
                 "away_message": None,
                 "account": None,
-                "identified": True
+                "identified": True,
+
+                "realname": "Stop sign",
+
             },
             "some_admin": {
                 "nickname": "some_admin",
@@ -47,7 +61,10 @@ class MockBot(object):
                 "away": False,
                 "away_message": None,
                 "account": None,
-                "identified": True
+                "identified": True,
+
+                "realname": "SirRaymond",
+
             },
             "authorized_but_not_identified": {
                 "nickname": "authorized_but_not_identified",
@@ -56,7 +73,10 @@ class MockBot(object):
                 "away": False,
                 "away_message": None,
                 "account": None,
-                "identified": False
+                "identified": False,
+
+                "realname": "White Sheets",
+
             }
         }
 
@@ -66,6 +86,14 @@ class MockBot(object):
             "message": message
         })
 
+    async def whois(self, name: str) -> dict:
+        if name in self.users:
+            return self.users[name]
+
     @classmethod
     def is_channel(cls, channel: str):
         return channel[0] in ("#", "&")
+
+    async def connect(self):
+        """Pydle connect override to prevent the mock accidently connecting to a server"""
+        raise RuntimeWarning("Connection to a server disallowed in instances of the mock bot.")

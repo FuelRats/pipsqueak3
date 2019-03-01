@@ -3,7 +3,7 @@ test_rat_command.py
 
 Tests for the rat_command module
 
-Copyright (c) 2018 The Fuel Rats Mischief,
+Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
@@ -14,172 +14,132 @@ This module is built on top of the Pydle system.
 
 """
 
-import unittest
-from unittest import mock
-
 import pydle
-from aiounittest import async_test
+import pytest
 
-from Modules.rat_command import Commands, CommandNotFoundException, NameCollisionException, InvalidCommandException, \
-    CommandException
-from tests.mock_bot import MockBot
+import Modules.rat_command as Commands
+from Modules.context import Context
+from Modules.rat_command import NameCollisionException
 
 
-class RatCommandTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # set the bot to something silly, at least its not None. (this won't cut it for proper commands but works here.)
-        # as we are not creating commands that do stuff with bot. duh. these are tests after all.
-        Commands.bot = MockBot()
-        super().setUpClass()
+@pytest.fixture
+def Setup_fx(bot_fx):
+    """Sets up the test environment"""
+    Commands._flush()
+    Commands.bot = bot_fx
 
-    def setUp(self):
-        # this way command registration between individual tests don't interfere and cause false positives/negatives.
-        Commands._flush()
-        super().setUp()
 
-    def test_get_unknown_command(self):
+@pytest.mark.commands
+@pytest.mark.usefixtures("Setup_fx")
+class TestRatCommand(object):
+    @pytest.mark.asyncio
+    async def test_invalid_command(self):
         """
-        Verifies that Commands.get_command() returns None if a command is not found
+        Ensures that nothing happens and `trigger` exits quietly when no command can be found.
+        """
+        await Commands.trigger(Context(None, None, "#unit_test", ['!unknowncommandsad hi!'],
+                                       ['!unknowncommandsad hi!', "hi!"]))
+
+    @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
+    def test_double_command_registration(self, alias):
+        """
+        test verifying it is not possible to register a command twice.
+        this prevents oddities where commands are bound but the bind is
+        overwritten....
+        """
+
+        # lets define them initially.
+
+        @Commands.command(alias)
+        async def foo():
+            pass
+
+        # now prove we can't double assign it
+        with pytest.raises(NameCollisionException):
+            @Commands.command(alias)
+            async def foo():
+                pass
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
+    async def test_call_command(self, alias, bot_fx):
+        """
+        Verifiy that found commands can be invoked via Commands.Trigger()
+        """
+        Commands._flush()
+
+        trigger_alias = f"{Commands.prefix}{alias}"
+
+        @Commands.command(alias)
+        async def potato(context: Context):
+            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+            return context.bot, context.channel, context.user.nickname
+
+        ctx = await Context.from_message(bot_fx, "#unittest", "unit_test", trigger_alias)
+        retn = await Commands.trigger(ctx)
+        out_bot, out_channel, out_sender = retn
+
+        assert 'unit_test' == out_sender
+        assert "#unittest" == out_channel
+
+    @pytest.mark.parametrize("garbage", [12, None, "str"])
+    def test_register_non_callable(self, garbage):
+        """
+        Verifies the correct exception is raised when someone tries to register
+         something that is not callable.
+        not sure how they would do this outside of calling the private directly
+         or why...
         :return:
         """
-        unknown_names = ["foo", "bar", "meatbag", "limpet"]
+        assert Commands._register(garbage, ['foo']) is False
 
-        @Commands.command("fuel")
-        async def potato(*args):
-            return True
-
-        for name in unknown_names:
-            with self.subTest(name=name):
-                self.assertIsNone(Commands.get_command(name))
-        with self.subTest(name="fuel"):
-            self.assertIsNotNone(Commands.get_command("fuel"))
-
-    @async_test
-    async def test_command_decorator_single(self):
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', "fireball"])
+    async def test_command_decorator_single(self, alias: str):
         """
-        Tests if the `Commands.command` decorator can handle string registrations
+        Verify`Commands.command` decorator can handle string registrations
         """
+        Commands._flush()
+
         # bunch of commands to test
-        alias = ['potato', 'cannon', 'Fodder', "fireball"]
-        commands = [f"{Commands.prefix}{name}" for name in alias]
 
-        for command in commands:
-            with self.subTest(command=command):
-                @Commands.command(command.strip(Commands.prefix))
-                async def potato(bot: pydle.Client, channel: str, sender: str):
-                    # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
-                    return bot, channel, sender
-            self.assertIsNotNone(Commands.get_command(command.strip(Commands.prefix)))
+        @Commands.command(alias)
+        async def potato(bot: pydle.Client, channel: str, sender: str):
+            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
+            return bot, channel, sender
 
-    def test_command_decorator_list(self):
-        aliases = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}" for name in aliases]
+        assert alias.lower() in Commands._registered_commands.keys()
+
+    @pytest.mark.asyncio
+    async def test_command_decorator_list(self):
+        aliases = ['napalm', 'Ball', 'orange', 'TAngerine']
 
         # register the command
         @Commands.command(*aliases)
         async def potato(bot: pydle.Client, channel: str, sender: str):
             return bot, channel, sender
 
-        for name in trigger_alias:
-            with self.subTest(name=name):
-                self.assertIsNotNone(Commands.get_command(name))
+        for name in aliases:
+            assert name.lower() in Commands._registered_commands.keys()
 
-    @async_test
-    async def test_invalid_command(self):
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("name", ("unit_test[BOT]", "some_recruit", "some_ov"))
+    @pytest.mark.parametrize("trigger_message", ["salad Baton", "Crunchy Cheddar", "POTATOES!",
+                                                 "carrots"])
+    async def test_command_preserves_arguments(self, trigger_message: str, name: str, bot_fx):
         """
-        Ensures the proper exception is raised when a command is not found.
-        :return:
+        Verifies commands do not mutate argument words
+            - because someone had the bright idea of casting ALL words to lower...
+            (that would break things)
         """
-        with self.assertRaises(CommandNotFoundException):
-            await Commands.trigger(message="!nope", sender="unit_test", channel="foo")
+        Commands._flush()
+        ftrigger = f"!{name} {trigger_message}"
+        words = [name] + trigger_message.split(" ")
 
-    def test_double_command_registration(self):
-        """
-        test verifying it is not possible to register a command twice.
-        this prevents odities where commands are bound but the bind is overwritten....
-        which leaves the original bound command not called during a trigger event.
-        :return:
-        """
-        alias = ['potato', 'cannon', 'Fodder', 'fireball']  # TODO: move these common lists to setup_class
-        # lets define them initially.
-        for name in alias:
-            @Commands.command(name)
-            async def foo():
-                pass
+        @Commands.command(name)
+        async def the_command(context: Context):
+            """asserts its arguments equal the outer scope"""
+            assert words == context.words
 
-            with self.subTest(name=name):
-                with self.assertRaises(NameCollisionException):
-                    @Commands.command(name)
-                    async def bar():
-                        pass
-
-    @async_test
-    async def test_call_command(self):
-        """
-        Verifiy that found commands can be invoked via Commands.Trigger()
-        :return:
-        """
-        aliases = ['potato', 'cannon', 'Fodder', 'fireball']
-        trigger_alias = [f"{Commands.prefix}{name}" for name in aliases]
-        input_sender = "unit_test[BOT]"
-        input_channel = "#unit_testing"
-
-        @Commands.command(*aliases)
-        async def potato(bot, trigger):
-            # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
-            return bot, trigger.channel, trigger.nickname
-
-        for command in trigger_alias:
-            with self.subTest(command=command):
-                out_bot, out_channel, out_sender = await Commands.trigger(message=command, sender=input_sender,
-                                                                          channel=input_channel)
-                self.assertEqual(input_sender, out_sender)
-                self.assertEqual(input_channel, out_channel)
-                self.assertIsNotNone(out_bot)
-
-    @async_test
-    async def test_ignored_message(self):
-        """
-        Tests if Commands.trigger correctly ignores messages not containing the prefix.
-        :return:
-        """
-        words = ['potato', 'cannon', 'Fodder', 'fireball', "what is going on here!", ".!potato"]
-        for word in words:
-            with self.subTest(word=word):
-                self.assertIsNone(await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests"))
-
-    @async_test
-    async def test_null_message(self):
-        """
-        Verifies the correct exception is raised when a null message is sent
-        :return:
-        """
-        words = ["", None, '']
-        for word in words:
-            with self.subTest(word=word):
-                with self.assertRaises(InvalidCommandException):
-                    await Commands.trigger(message=word, sender="unit_test[BOT]", channel="unit_tests")
-
-    @mock.patch("Modules.rat_command.Commands.bot")
-    @async_test
-    async def test_null_bot(self, mock_bot):
-        """
-        Verifies the correct exception is raised when someone forgets to set Commands.bot <.<
-        Overkill?
-        :return:
-        """
-        # this is the default value, which should be overwritten during MechaClient init...
-        with self.assertRaises(CommandException):
-            await Commands.trigger(message="!message", sender="unit_test[BOT]", channel="unit_tests")
-
-    def test_register_non_callable(self):
-        """
-        Verifies the correct exception is raised when someone tries to register something that is not callable.
-        not sure how they would do this outside of calling the private directly or why...
-        :return:
-        """
-        foo = [12, None, "str"]
-        for item in foo:
-            with self.subTest(item=item):
-                self.assertFalse(Commands._register(item, ['foo']))
+        ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", ftrigger)
+        await Commands.trigger(ctx)
