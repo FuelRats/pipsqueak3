@@ -14,12 +14,10 @@ import pytest
 from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4, UUID
-from Modules.epic import Epic
-from Modules.mark_for_deletion import MarkForDeletion
-from Modules.rat import Rat
-from Modules.rat_rescue import Rescue
-from Modules.rat_cache import RatCache, Platforms
-from utils.ratlib import Status
+from src.packages.rescue.mark_for_deletion import MarkForDeletion
+from src.packages.rat.rat import Rat
+from src.packages.rescue.rat_rescue import Rescue
+from src.packages.utils import Status
 
 pytestmark = pytest.mark.rescue
 

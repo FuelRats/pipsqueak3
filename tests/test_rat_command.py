@@ -17,9 +17,9 @@ This module is built on top of the Pydle system.
 import pydle
 import pytest
 
-import Modules.rat_command as Commands
-from Modules.context import Context
-from Modules.rat_command import NameCollisionException
+import src.packages.rat_command.rat_command as Commands
+from src.packages.context.context import Context
+from src.packages.rat_command.rat_command import NameCollisionException
 
 
 @pytest.fixture

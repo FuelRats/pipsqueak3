@@ -4,10 +4,10 @@ PyTest module for Context-specific regressions
 
 from pytest import mark
 
-from Modules import rat_command
-from Modules.context import Context
-from Modules.rat_command import command, prefix
-from Modules.user import User
+from src.packages.rat_command import rat_command
+from src.packages.context.context import Context
+from src.packages.rat_command.rat_command import command, prefix
+from src.packages.user.user import User
 
 
 @mark.asyncio

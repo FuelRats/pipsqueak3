@@ -15,7 +15,7 @@ from uuid import uuid4
 
 import pytest
 
-from Modules.mark_for_deletion import MarkForDeletion
+from src.packages.rescue.mark_for_deletion import MarkForDeletion
 
 pytestmark = pytest.mark.mark_for_deletion
 

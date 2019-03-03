@@ -11,7 +11,7 @@ See LICENSE
 
 import pytest
 
-from utils.autocorrect import correct_system_name
+from src.packages.utils.autocorrect import correct_system_name
 
 pytestmark = pytest.mark.autocorrect
 

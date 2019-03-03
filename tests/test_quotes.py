@@ -14,7 +14,7 @@ import datetime
 
 import pytest
 
-from Modules.rat_quotation import Quotation
+from src.packages.rescue.quotation import Quotation
 
 @pytest.mark.quotation
 class TestQuotes(object):
