@@ -11,7 +11,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import re
-from Modules.context import Context
+from src.packages.context.context import Context
 from Modules.rules import rule
 from typing import Optional
 from Modules.rat_rescue import Rescue, Platforms

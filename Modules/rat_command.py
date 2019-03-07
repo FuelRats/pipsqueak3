@@ -15,9 +15,7 @@ This module is built on top of the Pydle system.
 import logging
 from typing import Callable, Any
 
-from pydle import BasicClient
-
-from Modules.context import Context
+from src.packages.context.context import Context
 from Modules.rules import get_rule, clear_rules
 from config import config
 

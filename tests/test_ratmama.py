@@ -14,7 +14,7 @@ See LICENSE.md
 import pytest
 from Modules.rat_board import RatBoard
 from tests.mock_callables import AsyncCallableMock
-from Modules.context import Context
+from src.packages.context.context import Context
 import Modules.RatMama as RatMama
 from Modules.rat_rescue import Platforms
 from Modules.rat_rescue import Rescue

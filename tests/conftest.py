@@ -43,7 +43,7 @@ from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rat import Rat
 from src.packages.utils import Platforms
-from Modules.context import Context
+from src.packages.context.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion

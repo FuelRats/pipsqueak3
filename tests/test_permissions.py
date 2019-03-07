@@ -20,7 +20,7 @@ import pytest
 
 import Modules.rat_command as Commands
 from Modules import permissions
-from Modules.context import Context
+from src.packages.context.context import Context
 from Modules.permissions import require_permission, require_channel, require_dm, Permission
 
 

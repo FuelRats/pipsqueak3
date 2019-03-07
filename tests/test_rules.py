@@ -2,7 +2,7 @@ from typing import Match
 
 import pytest
 
-from Modules.context import Context, _split_message
+from src.packages.context.context import Context
 from Modules.rat_command import trigger
 from Modules.rules import rule, clear_rules, RuleNotPresentException, DuplicateRuleException, \
     get_rule

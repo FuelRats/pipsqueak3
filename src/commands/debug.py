@@ -13,7 +13,7 @@ See LICENSE.md
 """
 import logging
 
-from Modules.context import Context
+from src.packages.context.context import Context
 from Modules.permissions import require_permission, TECHRAT, require_channel
 from Modules.rat_command import command
 

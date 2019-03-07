@@ -5,7 +5,7 @@ PyTest module for Context-specific regressions
 from pytest import mark
 
 from Modules import rat_command
-from Modules.context import Context
+from src.packages.context.context import Context
 from Modules.rat_command import command, prefix
 from Modules.user import User
 
