@@ -18,7 +18,7 @@ import logging
 # noinspection PyUnresolvedReferences
 import commands
 from Modules.context import Context
-from mechaclient import MechaClient
+from src.mechaclient import MechaClient
 from Modules.permissions import require_permission, RAT
 from Modules.rat_command import command
 from config import config

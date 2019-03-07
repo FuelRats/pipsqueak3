@@ -16,7 +16,7 @@ from Modules.user import User
 from config import config
 
 if TYPE_CHECKING:
-    from mechaclient import MechaClient
+    from src.mechaclient import MechaClient
 
 prefix = config['commands']['prefix']
 
