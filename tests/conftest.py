@@ -49,7 +49,7 @@ from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
 from src.packages.database import DatabaseManager
-from Modules.fact import Fact
+from src.packages.fact_manager.fact import Fact
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),

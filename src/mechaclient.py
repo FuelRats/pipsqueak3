@@ -18,7 +18,7 @@ from pydle import Client
 from Modules import rat_command, graceful_errors
 from Modules.rat_board import RatBoard
 from src.packages.context.context import Context
-from Modules.fact_manager import FactManager
+from src.packages.fact_manager.fact_manager import FactManager
 from config import config
 from src.packages.utils import sanitize
 
