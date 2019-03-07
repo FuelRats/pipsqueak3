@@ -1,7 +1,7 @@
 
 [run]
 branch = False
-source = Modules,database,utils
+source = src
 
 [report]
 exclude_lines =
