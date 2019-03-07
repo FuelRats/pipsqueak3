@@ -15,7 +15,7 @@ import pytest
 from Modules.rat_board import RatBoard
 from tests.mock_callables import AsyncCallableMock
 from src.packages.context.context import Context
-import Modules.RatMama as RatMama
+import src.packages.ratmama.RatMama as RatMama
 from Modules.rat_rescue import Platforms
 from Modules.rat_rescue import Rescue
 import config

@@ -12,7 +12,7 @@ from uuid import UUID
 
 import pytest
 
-from Modules import graceful_errors
+from src.packages.graceful_errors import graceful_errors
 
 
 @pytest.mark.graceful_error
