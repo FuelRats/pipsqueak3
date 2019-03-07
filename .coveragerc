@@ -11,5 +11,7 @@ exclude_lines =
     if __name__ == .__main__.:
 ignore_errors = True
 omit =
+    src/__main__.py
+    docs/*
     tests/*
     tools/*
