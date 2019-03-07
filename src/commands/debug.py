@@ -14,7 +14,7 @@ See LICENSE.md
 import logging
 
 from src.packages.context.context import Context
-from Modules.permissions import require_permission, TECHRAT, require_channel
+from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
 from Modules.rat_command import command
 
 log = logging.getLogger(f"mecha.{__name__}")

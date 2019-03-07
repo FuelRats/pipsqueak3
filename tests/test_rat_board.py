@@ -7,8 +7,8 @@ from uuid import uuid4, UUID
 
 import pytest
 
-from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
-from Modules.rat_rescue import Rescue
+from src.packages.board.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
+from src.packages.rescue.rat_rescue import Rescue
 from src.packages.utils import Platforms
 
 pytestmark = pytest.mark.ratboard

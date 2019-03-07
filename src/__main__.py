@@ -19,7 +19,7 @@ import logging
 from src import commands
 from src.packages.context.context import Context
 from src.mechaclient import MechaClient
-from Modules.permissions import require_permission, RAT
+from src.packages.permissions.permissions import require_permission, RAT
 from Modules.rat_command import command
 from config import config
 

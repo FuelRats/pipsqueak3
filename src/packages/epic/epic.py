@@ -16,7 +16,7 @@ from operator import xor
 from typing import Optional
 from uuid import UUID
 
-from Modules.rat import Rat
+from src.packages.rat.rat import Rat
 
 
 class Epic(object):

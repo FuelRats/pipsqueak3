@@ -15,7 +15,7 @@ import random
 from typing import Dict
 from uuid import UUID
 
-from Modules.rat_board import IndexNotFreeError, RescueBoardException, RescueNotChangedException, \
+from src.packages.board.rat_board import IndexNotFreeError, RescueBoardException, RescueNotChangedException, \
     RescueNotFoundException
 from Modules.rat_command import InvalidCommandException, NameCollisionException
 

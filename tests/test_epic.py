@@ -15,7 +15,7 @@ from uuid import UUID, uuid4
 import pytest
 
 from src.packages.epic.epic import Epic
-from Modules.rat import Rat
+from src.packages.rat.rat import Rat
 
 pytestmark = pytest.mark.epic
 

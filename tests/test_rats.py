@@ -2,7 +2,7 @@ from uuid import uuid4, UUID
 
 import pytest
 
-from Modules.rat import Rat
+from src.packages.rat.rat import Rat
 from src.packages.utils import Platforms
 
 

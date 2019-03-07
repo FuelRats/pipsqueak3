@@ -19,14 +19,14 @@ from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID
 
 from src.packages.epic.epic import Epic
-from Modules.mark_for_deletion import MarkForDeletion
-from Modules.rat import Rat
+from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
+from src.packages.rat.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
 from src.packages.utils import Platforms, Status
 
 if TYPE_CHECKING:
-    from Modules.rat_board import RatBoard
+    from src.packages.board.rat_board import RatBoard
 
 log = logging.getLogger(f"mecha.{__name__}")
 

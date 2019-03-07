@@ -12,7 +12,7 @@ from uuid import uuid4
 
 import pytest
 
-from Modules.rat import Rat
+from src.packages.rat.rat import Rat
 from Modules.rat_cache import RatCache
 from src.packages.utils import Platforms
 

@@ -17,7 +17,7 @@ from uuid import UUID
 from src.packages.utils import Platforms, Singleton
 
 if TYPE_CHECKING:
-    from Modules.rat import Rat
+    from src.packages.rat.rat import Rat
 
 
 class RatCache(Singleton):

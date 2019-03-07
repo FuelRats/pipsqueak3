@@ -14,9 +14,9 @@ import pytest
 from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4, UUID
-from Modules.mark_for_deletion import MarkForDeletion
-from Modules.rat import Rat
-from Modules.rat_rescue import Rescue
+from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
+from src.packages.rat.rat import Rat
+from src.packages.rescue.rat_rescue import Rescue
 from src.packages.utils import Status
 
 pytestmark = pytest.mark.rescue

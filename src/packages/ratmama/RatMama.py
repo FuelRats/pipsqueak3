@@ -14,7 +14,7 @@ import re
 from src.packages.context.context import Context
 from Modules.rules import rule
 from typing import Optional
-from Modules.rat_rescue import Rescue, Platforms
+from src.packages.rescue.rat_rescue import Rescue, Platforms
 import config
 import logging
 

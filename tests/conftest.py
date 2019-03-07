@@ -37,16 +37,16 @@ from config import setup_logging
 
 setup_logging("logs/unit_tests.log")
 
-from Modules.permissions import Permission
+from src.packages.permissions.permissions import Permission
 from tests.mock_bot import MockBot
-from Modules.rat_board import RatBoard
-from Modules.rat_rescue import Rescue
-from Modules.rat import Rat
+from src.packages.board.rat_board import RatBoard
+from src.packages.rescue.rat_rescue import Rescue
+from src.packages.rat.rat import Rat
 from src.packages.utils import Platforms
 from src.packages.context.context import Context
 from src.packages.epic.epic import Epic
 from Modules.user import User
-from Modules.mark_for_deletion import MarkForDeletion
+from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
 from src.packages.database import DatabaseManager
 from src.packages.fact_manager.fact import Fact
