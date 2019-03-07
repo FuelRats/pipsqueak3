@@ -18,7 +18,7 @@ from operator import xor
 from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID
 
-from Modules.epic import Epic
+from src.packages.epic.epic import Epic
 from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat import Rat
 from Modules.rat_cache import RatCache

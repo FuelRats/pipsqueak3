@@ -44,7 +44,7 @@ from Modules.rat_rescue import Rescue
 from Modules.rat import Rat
 from src.packages.utils import Platforms
 from src.packages.context.context import Context
-from Modules.epic import Epic
+from src.packages.epic.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
