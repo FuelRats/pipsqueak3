@@ -45,7 +45,7 @@ from src.packages.rat.rat import Rat
 from src.packages.utils import Platforms
 from src.packages.context.context import Context
 from src.packages.epic.epic import Epic
-from Modules.user import User
+from src.packages.user.user import User
 from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
 from src.packages.database import DatabaseManager

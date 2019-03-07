@@ -7,7 +7,7 @@ from pytest import mark
 from src.commands import rat_command
 from src.packages.context.context import Context
 from src.commands.rat_command import command, prefix
-from Modules.user import User
+from src.packages.user.user import User
 
 
 @mark.asyncio

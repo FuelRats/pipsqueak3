@@ -12,7 +12,7 @@ See LICENSE.md
 """
 from typing import Optional, Tuple, List, TYPE_CHECKING
 
-from Modules.user import User
+from src.packages.user.user import User
 from config import config
 
 if TYPE_CHECKING:

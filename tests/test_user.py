@@ -10,7 +10,7 @@ See LICENSE.md
 """
 import pytest
 
-from Modules.user import User
+from src.packages.user.user import User
 
 pytestmark = pytest.mark.user
 
