@@ -47,4 +47,3 @@ async def cmd_debug_userinfo(context: Context):
 @require_permission(TECHRAT)
 async def cmd_superping(context: Context):
     await context.reply("pong!")
-

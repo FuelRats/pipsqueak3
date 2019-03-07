@@ -15,8 +15,8 @@ import random
 from typing import Dict
 from uuid import UUID
 
-from src.packages.board.rat_board import IndexNotFreeError, RescueBoardException, RescueNotChangedException, \
-    RescueNotFoundException
+from src.packages.board.rat_board import IndexNotFreeError, \
+    RescueBoardException, RescueNotChangedException, RescueNotFoundException
 from src.commands.rat_command import InvalidCommandException, NameCollisionException
 
 BY_ERROR: Dict[type(Exception), str] = {

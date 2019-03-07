@@ -99,7 +99,7 @@ class MechaClient(Client):
                 # and report it to the user
                 await self.message(channel, error_message)
 
-    #Vhost Handler
+    # Vhost Handler
     async def on_raw_396(self, message):
         log.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
 
