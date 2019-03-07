@@ -16,7 +16,7 @@ import asyncio
 import logging
 
 # noinspection PyUnresolvedReferences
-import commands
+from src import commands
 from Modules.context import Context
 from src.mechaclient import MechaClient
 from Modules.permissions import require_permission, RAT

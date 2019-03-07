@@ -10,4 +10,4 @@ See LICENSE.md
 """
 __all__ = ["debug"]
 
-from commands import *
+from src.commands import *

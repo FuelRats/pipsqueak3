@@ -13,10 +13,8 @@ See LICENSE.md
 import re
 from Modules.context import Context
 from Modules.rules import rule
-from typing import Optional, List
-import Modules.rat_board
+from typing import Optional
 from Modules.rat_rescue import Rescue, Platforms
-from Modules.galaxy.galaxy import Galaxy
 import config
 import logging
 
