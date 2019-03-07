@@ -26,7 +26,7 @@ class TestGracefulErrors(object):
         expected = 'Oh noes! Stinky special_cheese encountered! please contact a tech! Reference code faffaec4'
 
         # hack CHEESES to only have one item to make test deterministic
-        monkeypatch.setattr("Modules.graceful_errors.CHEESES", ["special_cheese"])
+        monkeypatch.setattr("src.packages.graceful_errors.graceful_errors.CHEESES", ["special_cheese"])
         # spawn an instance of a type error
         my_ex = TypeError()  # "Stinky"
         output = graceful_errors.make_graceful(my_ex, ex_id)

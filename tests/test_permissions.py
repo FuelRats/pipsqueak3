@@ -231,7 +231,7 @@ class TestPermissions(object):
         """Verifies a created Permission registers its vhosts"""
 
         # ensure _by_vhost is clean prior to running test
-        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+        monkeypatch.setattr("src.packages.permissions.permissions._by_vhost", {})
 
         permission = Permission(1, vhost)
         assert vhost == (set(permissions._by_vhost.keys()))
@@ -248,7 +248,7 @@ class TestPermissions(object):
                                       vhost_beta: Set[str]):
         """Verifies the functionality of changing a Permission's vhosts property"""
         # ensure _by_vhost is clean prior to running test
-        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+        monkeypatch.setattr("src.packages.permissions.permissions._by_vhost", {})
 
         alpha = Permission(1, {"snafu.com"})
         beta = Permission(2, {"FUBAR.com"})
@@ -273,7 +273,7 @@ class TestPermissions(object):
 
     def test_permission_denied_message(self, monkeypatch):
         # ensure _by_vhost is clean prior to running test
-        monkeypatch.setattr("Modules.permissions._by_vhost", {})
+        monkeypatch.setattr("src.packages.permissions.permissions._by_vhost", {})
         permission = Permission(0, {"test.fuelrats.com"}, "heck no.")
         assert permission.denied_message == "heck no."
 

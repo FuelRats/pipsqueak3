@@ -253,7 +253,7 @@ def permission_fx(monkeypatch) -> Permission:
 
     """
     # ensure _by_vhost is clean prior to running test
-    monkeypatch.setattr("Modules.permissions._by_vhost", {})
+    monkeypatch.setattr("src.packages.permissions.permissions._by_vhost", {})
     permission = Permission(0, {"testing.fuelrats.com", "cheddar.fuelrats.com"})
     return permission
 
