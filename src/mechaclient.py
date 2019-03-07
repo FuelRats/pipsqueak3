@@ -20,7 +20,7 @@ from Modules.rat_board import RatBoard
 from Modules.context import Context
 from Modules.fact_manager import FactManager
 from config import config
-from utils.ratlib import sanitize
+from src.packages.utils import sanitize
 
 log = getLogger(f"mecha.{__name__}")
 

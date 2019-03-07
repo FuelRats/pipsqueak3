@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Tuple
 import aiohttp
 
 from config import config
-from utils.ratlib import Vector
+from src.packages.utils import Vector
 from .star_system import StarSystem
 
 

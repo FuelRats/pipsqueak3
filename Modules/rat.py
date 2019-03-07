@@ -20,7 +20,7 @@ from typing import Optional
 from uuid import UUID
 
 from Modules.rat_cache import RatCache
-from utils.ratlib import Platforms
+from src.packages.utils import Platforms
 
 log = logging.getLogger(f"mecha.{__name__}")
 

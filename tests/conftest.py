@@ -17,7 +17,6 @@ import string
 import sys
 from uuid import uuid4, UUID
 
-import psycopg2
 import psycopg2.pool
 import pytest
 
@@ -43,13 +42,13 @@ from tests.mock_bot import MockBot
 from Modules.rat_board import RatBoard
 from Modules.rat_rescue import Rescue
 from Modules.rat import Rat
-from utils.ratlib import Platforms
+from src.packages.utils import Platforms
 from Modules.context import Context
 from Modules.epic import Epic
 from Modules.user import User
 from Modules.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
-from database import DatabaseManager
+from src.packages.database import DatabaseManager
 from Modules.fact import Fact
 
 

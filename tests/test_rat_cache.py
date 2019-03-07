@@ -14,7 +14,7 @@ import pytest
 
 from Modules.rat import Rat
 from Modules.rat_cache import RatCache
-from utils.ratlib import Platforms
+from src.packages.utils import Platforms
 
 pytestmark = pytest.mark.asyncio
 

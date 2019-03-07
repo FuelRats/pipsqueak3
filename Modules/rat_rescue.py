@@ -23,7 +23,7 @@ from Modules.mark_for_deletion import MarkForDeletion
 from Modules.rat import Rat
 from Modules.rat_cache import RatCache
 from Modules.rat_quotation import Quotation
-from utils.ratlib import Platforms, Status
+from src.packages.utils import Platforms, Status
 
 if TYPE_CHECKING:
     from Modules.rat_board import RatBoard

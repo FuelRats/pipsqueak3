@@ -3,7 +3,7 @@ from uuid import uuid4, UUID
 import pytest
 
 from Modules.rat import Rat
-from utils.ratlib import Platforms
+from src.packages.utils import Platforms
 
 
 @pytest.mark.rat

@@ -9,7 +9,7 @@ import pytest
 
 from Modules.rat_board import RatBoard, IndexNotFreeError, RescueNotChangedException
 from Modules.rat_rescue import Rescue
-from utils.ratlib import Platforms
+from src.packages.utils import Platforms
 
 pytestmark = pytest.mark.ratboard
 

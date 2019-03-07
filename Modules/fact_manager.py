@@ -18,7 +18,7 @@ import psycopg2
 from psycopg2 import sql
 
 from Modules.fact import Fact
-from database import DatabaseManager
+from src.packages.database import DatabaseManager
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 

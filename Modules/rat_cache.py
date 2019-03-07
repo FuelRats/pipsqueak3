@@ -14,7 +14,7 @@ See LICENSE.md
 from typing import Dict, Optional, TYPE_CHECKING
 from uuid import UUID
 
-from utils.ratlib import Platforms, Singleton
+from src.packages.utils import Platforms, Singleton
 
 if TYPE_CHECKING:
     from Modules.rat import Rat

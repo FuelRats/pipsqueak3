@@ -11,7 +11,7 @@ See LICENSE.md
 
 from dataclasses import dataclass
 
-from utils.ratlib import Vector
+from src.packages.utils import Vector
 
 
 @dataclass(eq=True, frozen=True)
