@@ -21,8 +21,8 @@ from uuid import UUID
 from src.packages.epic.epic import Epic
 from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from src.packages.rat.rat import Rat
-from Modules.rat_cache import RatCache
-from Modules.rat_quotation import Quotation
+from src.packages.cache.rat_cache import RatCache
+from src.packages.quotation.rat_quotation import Quotation
 from src.packages.utils import Platforms, Status
 
 if TYPE_CHECKING:

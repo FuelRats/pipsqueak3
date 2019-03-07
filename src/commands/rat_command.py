@@ -16,7 +16,7 @@ import logging
 from typing import Callable, Any
 
 from src.packages.context.context import Context
-from Modules.rules import get_rule, clear_rules
+from src.packages.rules.rules import get_rule, clear_rules
 from config import config
 
 # set the logger for rat_command

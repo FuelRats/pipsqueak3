@@ -19,7 +19,7 @@ from operator import xor
 from typing import Optional
 from uuid import UUID
 
-from Modules.rat_cache import RatCache
+from src.packages.cache.rat_cache import RatCache
 from src.packages.utils import Platforms
 
 log = logging.getLogger(f"mecha.{__name__}")

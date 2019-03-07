@@ -15,7 +15,7 @@ from logging import getLogger
 
 from uuid import uuid4
 from pydle import Client
-from Modules import rat_command
+from src.commands import rat_command
 from src.packages.graceful_errors import graceful_errors
 from src.packages.board.rat_board import RatBoard
 from src.packages.context.context import Context

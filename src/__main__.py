@@ -20,7 +20,7 @@ from src import commands
 from src.packages.context.context import Context
 from src.mechaclient import MechaClient
 from src.packages.permissions.permissions import require_permission, RAT
-from Modules.rat_command import command
+from src.commands.rat_command import command
 from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")

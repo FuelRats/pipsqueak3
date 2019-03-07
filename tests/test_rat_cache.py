@@ -13,7 +13,7 @@ from uuid import uuid4
 import pytest
 
 from src.packages.rat.rat import Rat
-from Modules.rat_cache import RatCache
+from src.packages.cache.rat_cache import RatCache
 from src.packages.utils import Platforms
 
 pytestmark = pytest.mark.asyncio

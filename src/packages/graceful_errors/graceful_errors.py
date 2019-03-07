@@ -17,7 +17,7 @@ from uuid import UUID
 
 from src.packages.board.rat_board import IndexNotFreeError, RescueBoardException, RescueNotChangedException, \
     RescueNotFoundException
-from Modules.rat_command import InvalidCommandException, NameCollisionException
+from src.commands.rat_command import InvalidCommandException, NameCollisionException
 
 BY_ERROR: Dict[type(Exception), str] = {
     AttributeError: "Overripe",

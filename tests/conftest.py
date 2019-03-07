@@ -22,7 +22,7 @@ import pytest
 
 # from psycopg2.pool import SimpleConnectionPool
 
-from Modules.rat_cache import RatCache
+from src.packages.cache.rat_cache import RatCache
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
 

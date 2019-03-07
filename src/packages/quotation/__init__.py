@@ -8,7 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["debug", "rat_command"]
+__all__ = ["rat_quotation"]
 
-from .debug import *
-from .rat_command import *
+from .rat_quotation import *

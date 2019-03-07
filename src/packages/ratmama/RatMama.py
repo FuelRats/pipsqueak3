@@ -12,7 +12,7 @@ See LICENSE.md
 """
 import re
 from src.packages.context.context import Context
-from Modules.rules import rule
+from src.packages.rules.rules import rule
 from typing import Optional
 from src.packages.rescue.rat_rescue import Rescue, Platforms
 import config
