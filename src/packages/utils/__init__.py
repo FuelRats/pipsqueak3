@@ -8,8 +8,10 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["autocorrect", "ratlib", "Vector", "Singleton", "Formatting", "Colors", "color", "bold",
-           "underline", "italic", "reverse"]
 
 from .autocorrect import *
 from .ratlib import *
+
+
+__all__ = ["autocorrect", "ratlib", "Vector", "Singleton", "Formatting", "Colors", "color", "bold",
+           "underline", "italic", "reverse", "sanitize"]

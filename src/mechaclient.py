@@ -12,15 +12,16 @@ This module is built on top of the Pydle system.
 
 """
 from logging import getLogger
-
 from uuid import uuid4
+
 from pydle import Client
-from src.commands import rat_command
-from src.packages.graceful_errors import graceful_errors
+
+from config import config
 from src.packages.board.rat_board import RatBoard
+from src.packages.commands import trigger
 from src.packages.context.context import Context
 from src.packages.fact_manager.fact_manager import FactManager
-from config import config
+from src.packages.graceful_errors import graceful_errors
 from src.packages.utils import sanitize
 
 log = getLogger(f"mecha.{__name__}")
@@ -90,7 +91,7 @@ class MechaClient(Client):
             log.debug(f"Sanitized {sanitized_message}, Original: {message}")
             try:
                 ctx = await Context.from_message(self, channel, user, sanitized_message)
-                await rat_command.trigger(ctx)
+                await trigger(ctx)
 
             except Exception as ex:
                 ex_uuid = uuid4()

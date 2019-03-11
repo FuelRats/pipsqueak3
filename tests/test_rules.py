@@ -3,7 +3,7 @@ from typing import Match
 import pytest
 
 from src.packages.context.context import Context
-from src.commands.rat_command import trigger
+from src.packages.commands import trigger
 from src.packages.rules.rules import rule, clear_rules, RuleNotPresentException, DuplicateRuleException, \
     get_rule
 from tests.mock_callables import AsyncCallableMock, InstanceOf, CallableMock
