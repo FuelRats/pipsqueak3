@@ -1,6 +1,7 @@
 """
-$file.fileName - 
+commands.__init__.py  - commands package
 
+provides command registration and handling code.
 
 Copyright (c) $DateTime.year The Fuel Rats Mischief,
 All rights reserved.
