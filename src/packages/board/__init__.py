@@ -8,6 +8,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["rat_board"]
 
-from .rat_board import *
+from .rat_board import RatBoard
+
+__all__ = ["RatBoard"]

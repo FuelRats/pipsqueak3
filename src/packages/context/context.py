@@ -12,8 +12,8 @@ See LICENSE.md
 """
 from typing import Optional, Tuple, List, TYPE_CHECKING
 
-from src.packages.user.user import User
 from config import config
+from src.packages.user.user import User
 
 if TYPE_CHECKING:
     from src.mechaclient import MechaClient

@@ -8,6 +8,11 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["permissions"]
+__all__ = [
+    "Permission",
+    "require_dm",
+    "require_channel",
+    "require_permission"
+]
 
-from .permissions import *
+from .permissions import Permission, require_permission, require_channel, require_dm

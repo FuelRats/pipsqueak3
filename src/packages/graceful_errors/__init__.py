@@ -8,6 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["graceful_errors"]
+__all__ = ["make_graceful"]
 
-from .graceful_errors import *
+from .graceful_errors import make_graceful

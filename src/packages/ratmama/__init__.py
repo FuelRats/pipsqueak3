@@ -8,6 +8,8 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["RatMama"]
+__all__ = [
+    "handle_ratmama_announcement",
+    "handle_ratsignal"]
 
-from .RatMama import *
+from .ratmamma_parser import handle_ratmama_announcement, handle_ratsignal
