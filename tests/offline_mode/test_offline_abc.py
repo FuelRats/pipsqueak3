@@ -12,7 +12,7 @@ from typing import NoReturn
 
 import pytest
 
-from Modules.offline_awareness import OfflineAwareABC
+from src.packages.offline_awareness import OfflineAwareABC
 
 pytestmark = pytest.mark.offline
 

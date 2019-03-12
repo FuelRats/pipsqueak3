@@ -1,10 +1,11 @@
 import pytest
 from datetime import datetime, timedelta
 
-import utils.ratlib
-from utils.ratlib import Singleton
-from utils.ratlib import Colors, Formatting, color, bold, underline, italic, reverse
-from utils.ratlib import Vector
+from src.packages.utils import Singleton
+from src.packages.utils import Colors, Formatting, color, bold, underline, italic, reverse
+from src.packages.utils import Vector
+
+from src.packages.utils import ratlib as ratlib
 
 pytestmark = pytest.mark.ratlib
 
@@ -57,7 +58,7 @@ def test_strip_name(nickname, expected):
     """
     Verifies nicknames are properly stripped.  Rewrite into pytest from unit test.
     """
-    assert utils.ratlib.strip_name(nickname) == expected
+    assert ratlib.strip_name(nickname) == expected
 
 
 @pytest.mark.parametrize("input_message, expected_message", SANITIZE_TEST_LIST)
@@ -65,7 +66,7 @@ def test_sanitize(input_message, expected_message):
     """
     Verifies sanitize routine is properly removing string elements.
     """
-    assert utils.ratlib.sanitize(input_message) == expected_message
+    assert ratlib.sanitize(input_message) == expected_message
 
 
 def test_singleton_direct_inheritance():
@@ -157,7 +158,7 @@ def test_vector_init(x, y, z):
     """
     Test that the Vector object initializes its properties properly.
     """
-    vector = utils.ratlib.Vector(x, y, z)
+    vector = ratlib.Vector(x, y, z)
     assert vector.x == x
     assert vector.y == y
     assert vector.z == z
@@ -253,7 +254,7 @@ def test_duration_type_error():
     Pass a non-timedelta to ratlib.duration and ensure it raises a TypeError.
     """
     with pytest.raises(TypeError):
-        result = utils.ratlib.duration('This is not a timedelta')
+        result = ratlib.duration('This is not a timedelta')
 
 
 def test_duration_output():
@@ -263,6 +264,6 @@ def test_duration_output():
     time = datetime.utcnow()
     test_time_delta = timedelta(hours=time.hour, minutes=time.minute, seconds=time.second)
 
-    result = utils.ratlib.duration(test_time_delta)
+    result = ratlib.duration(test_time_delta)
 
     assert isinstance(result, str)

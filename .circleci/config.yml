@@ -167,10 +167,10 @@ jobs:
       - run:
           name: Run pylint over project
           # run pylint, pass it through pylint-exit so Circle doesn't throw a fit
-          command: pipenv run pylint --rcfile pylint.ini Modules database utils || pipenv run python pylint-exit $?
+          command: pipenv run pylint --rcfile pylint.ini src || pipenv run python pylint-exit $?
       - run:
           name: run pycodestyle over project
-          command: pipenv run pycodestyle Modules database utils
+          command: pipenv run pycodestyle src
 
 workflows:
   version: 2
