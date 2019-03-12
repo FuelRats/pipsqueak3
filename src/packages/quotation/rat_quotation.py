@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from src.packages.context.context import Context
+from ..context import Context
 
 log = logging.getLogger(f"mecha.{__name__}")
 

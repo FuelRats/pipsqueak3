@@ -25,5 +25,6 @@ __all__ = [
     "reverse",
     "sanitize",
     "Platforms",
-    "Formatting"
+    "Formatting",
+    "Status"
 ]

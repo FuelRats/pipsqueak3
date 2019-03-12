@@ -17,7 +17,7 @@ from typing import Union, Optional
 from pydle import BasicClient
 
 
-class User(object):
+class User:
     """
     Represents an IRC user
     """

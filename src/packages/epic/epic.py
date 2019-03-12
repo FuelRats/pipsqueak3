@@ -16,10 +16,10 @@ from operator import xor
 from typing import Optional
 from uuid import UUID
 
-from src.packages.rat.rat import Rat
+from ..rat import Rat
 
 
-class Epic(object):
+class Epic:
     """
     Epic rescue data
     """

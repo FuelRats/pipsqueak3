@@ -15,7 +15,7 @@ import logging
 from functools import wraps
 from typing import Any, Union, Callable, List, Dict, Set
 
-from src.packages.context import Context
+from ..context import Context
 from config import config
 
 log = logging.getLogger(f"mecha.{__name__}")

@@ -10,13 +10,15 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-import re
-from src.packages.context.context import Context
-from src.packages.rules.rules import rule
-from typing import Optional
-from src.packages.rescue.rat_rescue import Rescue, Platforms
-import config
 import logging
+import re
+from typing import Optional
+
+import config
+from ..context import Context
+from ..rescue import Rescue
+from ..rules import rule
+from ..utils import Platforms
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 

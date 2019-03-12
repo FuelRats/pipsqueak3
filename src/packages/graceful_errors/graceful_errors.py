@@ -15,9 +15,9 @@ import random
 from typing import Dict
 from uuid import UUID
 
-from src.packages.board.rat_board import IndexNotFreeError, \
+from ..board import IndexNotFreeError, \
     RescueBoardException, RescueNotChangedException, RescueNotFoundException
-from src.packages.commands.rat_command import InvalidCommandException, NameCollisionException
+from ..commands.rat_command import InvalidCommandException, NameCollisionException
 
 BY_ERROR: Dict[type(Exception), str] = {
     AttributeError: "Overripe",
