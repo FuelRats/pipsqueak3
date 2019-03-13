@@ -12,7 +12,12 @@ __all__ = [
     "Permission",
     "require_dm",
     "require_channel",
-    "require_permission"
+    "require_permission",
+    "RAT",
+    "TECHRAT",
+    "RECRUIT",
+    "OVERSEER",
+    "ADMIN",
 ]
 
-from .permissions import Permission, require_permission, require_channel, require_dm
+from .permissions import *

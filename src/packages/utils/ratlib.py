@@ -11,15 +11,15 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-import re
-import humanfriendly
 import datetime
-from datetime import timedelta
+import re
+from dataclasses import dataclass
 from enum import Enum
 from math import isclose, sqrt
-from uuid import UUID
 from typing import Optional
-from dataclasses import dataclass
+from uuid import UUID
+
+import humanfriendly
 
 STRIPPED_CHARS = '\t'
 
@@ -103,7 +103,6 @@ class Singleton(object):
         return cls._instance
 
     def __init_subclass__(cls, **kwargs):
-
         # implements ._instance in all children
         cls._instance = None
         # and ensure the super gets called
@@ -205,7 +204,7 @@ def color(text: str, text_color: Colors, bg_color: Optional[Colors] = None) -> s
         raise TypeError("Expected a Colors enum, got {type(text_color)}")
     if isinstance(bg_color, Colors):
         return f'{Formatting.FORMAT_COLOR.value}{text_color},{bg_color}{text}' \
-               f'{Formatting.FORMAT_COLOR.value}'
+            f'{Formatting.FORMAT_COLOR.value}'
     else:
         return f'{Formatting.FORMAT_COLOR.value}{text_color}{text}{Formatting.FORMAT_COLOR.value}'
 
