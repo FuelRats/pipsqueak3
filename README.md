@@ -55,7 +55,7 @@ docker-compose run mechasqueak
     - For development, please use `pipenv install -d` to install our development dependencies.
 3. once installed, activate the venv `pipenv shell`
 4. Build your configuration file.  Please see the [Configuration](#Configuration) section.
-5. Execute Mecha with ``python main.py --config <your configuration file>``  (You may need to use the python3 alias)
+5. Execute Mecha with ``python -m src --config <your configuration file>``  (You may need to use the python3 alias)
 
 |    Flag         |    Description                     |
 | :--------------:|------------------------------------|
