@@ -12,7 +12,7 @@ See LICENSE.md
 """
 import pytest
 
-from Modules.context import Context
+from src.packages.context.context import Context
 
 pytestmark = pytest.mark.context
 

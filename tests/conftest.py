@@ -17,13 +17,12 @@ import string
 import sys
 from uuid import uuid4, UUID
 
-import psycopg2
 import psycopg2.pool
 import pytest
 
 # from psycopg2.pool import SimpleConnectionPool
 
-from Modules.rat_cache import RatCache
+from src.packages.cache.rat_cache import RatCache
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
 
@@ -38,19 +37,19 @@ from config import setup_logging
 
 setup_logging("logs/unit_tests.log")
 
-from Modules.permissions import Permission
+from src.packages.permissions.permissions import Permission
 from tests.mock_bot import MockBot
-from Modules.rat_board import RatBoard
-from Modules.rat_rescue import Rescue
-from Modules.rat import Rat
-from utils.ratlib import Platforms
-from Modules.context import Context
-from Modules.epic import Epic
-from Modules.user import User
-from Modules.mark_for_deletion import MarkForDeletion
+from src.packages.board.rat_board import RatBoard
+from src.packages.rescue.rat_rescue import Rescue
+from src.packages.rat.rat import Rat
+from src.packages.utils import Platforms
+from src.packages.context.context import Context
+from src.packages.epic.epic import Epic
+from src.packages.user.user import User
+from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from tests.mock_callables import CallableMock, AsyncCallableMock
-from database import DatabaseManager
-from Modules.fact import Fact
+from src.packages.database import DatabaseManager
+from src.packages.fact_manager.fact import Fact
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -254,7 +253,7 @@ def permission_fx(monkeypatch) -> Permission:
 
     """
     # ensure _by_vhost is clean prior to running test
-    monkeypatch.setattr("Modules.permissions._by_vhost", {})
+    monkeypatch.setattr("src.packages.permissions.permissions._by_vhost", {})
     permission = Permission(0, {"testing.fuelrats.com", "cheddar.fuelrats.com"})
     return permission
 

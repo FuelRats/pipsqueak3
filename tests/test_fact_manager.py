@@ -17,7 +17,7 @@ import psycopg2
 import pytest
 from psycopg2 import sql
 
-from Modules.fact_manager import FactManager, Fact
+from src.packages.fact_manager.fact_manager import FactManager, Fact
 
 pytestmark = pytest.mark.fact_manager
 

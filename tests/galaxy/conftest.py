@@ -12,7 +12,7 @@ See LICENSE.
 import pytest
 from pytest_httpserver import HTTPServer
 
-from Modules.galaxy import Galaxy
+from src.packages.galaxy import Galaxy
 
 
 @pytest.fixture(scope="session")

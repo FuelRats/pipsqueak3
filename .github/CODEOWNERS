@@ -8,22 +8,21 @@
 /docs/ @shatteredbeam
 
 # database module
-/database/ @shatteredbeam
+/src/packages/database/ @shatteredbeam
 
 # facts module
-/Modules/fact_manager.py @shatteredbeam
+/src/packages/fact_manager/ @shatteredbeam
 
 # commands module
-/commands/ @theunkn0wn1
+/src/commands/ @theunkn0wn1
 
 # galaxy module
-/Modules/galaxy/ @Eearslya
+/src/packages/galaxy/ @Eearslya
 
 # rules module
-/Modules/rules.py @MHajoha
+/src/packages/rules/ @MHajoha
 
-# #####
-various CI configuration files.
+# various CI configuration files.
 *.yml @theunkn0wn1
 *.ini @theunkn0wn1
 *.cfg @theunkn0wn1

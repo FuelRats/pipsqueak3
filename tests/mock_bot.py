@@ -1,4 +1,4 @@
-from mechaclient import MechaClient
+from src.mechaclient import MechaClient
 
 
 class MockBot(MechaClient):

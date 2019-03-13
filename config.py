@@ -19,7 +19,7 @@ import os
 import coloredlogs
 from typing import Union
 
-from Modules import cli_manager  # For CLI config-file argument
+from src.packages.cli_manager import cli_manager
 
 config: Union[None, dict] = None
 
