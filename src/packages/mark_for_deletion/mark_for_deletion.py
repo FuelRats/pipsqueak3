@@ -15,7 +15,7 @@ from operator import xor
 from typing import Optional
 
 
-class MarkForDeletion(object):
+class MarkForDeletion:
     """
     Data object representing a MD structurefrom the API
     """

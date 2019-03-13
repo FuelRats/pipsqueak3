@@ -15,7 +15,7 @@ import pytest
 from src.packages.board.rat_board import RatBoard
 from tests.mock_callables import AsyncCallableMock
 from src.packages.context.context import Context
-import src.packages.ratmama.RatMama as RatMama
+import src.packages.ratmama as ratmama
 from src.packages.rescue.rat_rescue import Platforms
 from src.packages.rescue.rat_rescue import Rescue
 import config
@@ -32,7 +32,7 @@ class TestRSignal(object):
                                                  nick
                                           ):
         """
-        Tests, that the parser does not implode upon being given a wrong platform by RatMama
+        Tests, that the parser does not implode upon being given a wrong platform by ratmama
         """
         monkeypatch.setattr(context_channel_fx, '_words_eol',
                             ["Incoming Client: Ajdacho - System: Alrai - "
@@ -43,7 +43,7 @@ class TestRSignal(object):
         # now we just set the nickname to the allowed on
         monkeypatch.setattr(context_channel_fx._user, '_nickname', f"{nick}")
         # and fire away!
-        await RatMama.handle_ratmama_announcement(context_channel_fx)
+        await ratmama.handle_ratmama_announcement(context_channel_fx)
 
     @pytest.mark.parametrize("nick", config.config["ratsignal_parser"]["announcer_nicks"])
     async def test_ratmama_arrival_and_rearrival(self,
@@ -70,7 +70,7 @@ class TestRSignal(object):
         # now we just set the nickname to the allowed on
         monkeypatch.setattr(context_channel_fx._user, '_nickname', f"{nick}")
         # and fire away!
-        await RatMama.handle_ratmama_announcement(context_channel_fx)
+        await ratmama.handle_ratmama_announcement(context_channel_fx)
         # lets grab the result!
         rescue: Rescue = rat_board.find_by_name("Ajdacho")
         # remember the index
@@ -91,7 +91,7 @@ class TestRSignal(object):
         assert rescue.lang_id.casefold() == "pl"
 
         # fire it again
-        await RatMama.handle_ratmama_announcement(context_channel_fx)
+        await ratmama.handle_ratmama_announcement(context_channel_fx)
         # and assure it recognized it as a reconnect
         assert async_callable_fx.was_called_with(
             f"Ajdacho has reconnected! Case #{index}"
@@ -118,9 +118,9 @@ class TestRSignal(object):
                             )
 
         # set the nickname of the announcer
-        monkeypatch.setattr(context_channel_fx._user, '_nickname', "RatMama[BOT]")
+        monkeypatch.setattr(context_channel_fx._user, '_nickname', "ratmama[BOT]")
         # and have it processed
-        await RatMama.handle_ratmama_announcement(context_channel_fx)
+        await ratmama.handle_ratmama_announcement(context_channel_fx)
         # remember the index (is important later!)
         index = rat_board.find_by_name("Ajdacho").board_index
 
@@ -133,7 +133,7 @@ class TestRSignal(object):
                             )
 
         # and handle it
-        await RatMama.handle_ratmama_announcement(context_channel_fx)
+        await ratmama.handle_ratmama_announcement(context_channel_fx)
         # make sure it recognized it as a reconnect
         assert async_callable_fx.was_called_with(
             f"Ajdacho has reconnected! Case #{index}"
@@ -148,7 +148,7 @@ class TestRSignal(object):
                                            context_channel_fx: Context,
                                            monkeypatch):
         """
-        Tests, that a wrong nickname has no associated action when handed to the RatMama handler.
+        Tests, that a wrong nickname has no associated action when handed to the ratmama handler.
         """
         # use a valid announcement
         monkeypatch.setattr(context_channel_fx, '_words_eol',
@@ -160,7 +160,7 @@ class TestRSignal(object):
         # with an invalid nickname
         monkeypatch.setattr(context_channel_fx._user, '_nickname', "MasterLoon")
         # have it licked by the handler
-        await RatMama.handle_ratmama_announcement(context_channel_fx)
+        await ratmama.handle_ratmama_announcement(context_channel_fx)
         # make sure it tasted awful
         assert not async_callable_fx.was_called
 
@@ -205,7 +205,7 @@ class TestRSignal(object):
         # and a nickname
         monkeypatch.setattr(context_channel_fx._user, '_nickname', nick)
         # throw it into the magic black box
-        await RatMama.handle_ratsignal(context_channel_fx)
+        await ratmama.handle_ratsignal(context_channel_fx)
         # and remember the result
         case = rat_board.find_by_name(nick)
 
@@ -228,7 +228,7 @@ class TestRSignal(object):
         # ensure who is the case summoner
         monkeypatch.setattr(context_channel_fx._user, '_nickname', nick)
         # throw it into the abyss
-        await RatMama.handle_ratsignal(context_channel_fx)
+        await ratmama.handle_ratsignal(context_channel_fx)
         # catch the soul
         case = rat_board.find_by_name(nick)
 
@@ -248,8 +248,8 @@ class TestRSignal(object):
         """
         context = await Context.from_message(bot_fx, "#snickers", "unit_test", "ratsignal")
         context.reply = async_callable_fx
-        await RatMama.handle_ratsignal(context)
-        await RatMama.handle_ratsignal(context)
+        await ratmama.handle_ratsignal(context)
+        await ratmama.handle_ratsignal(context)
         assert async_callable_fx.was_called_with(
             "You already sent a signal, please be patient while a dispatch is underway."
         )

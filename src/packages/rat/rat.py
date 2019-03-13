@@ -19,13 +19,13 @@ from operator import xor
 from typing import Optional
 from uuid import UUID
 
-from src.packages.cache.rat_cache import RatCache
-from src.packages.utils import Platforms
+from ..cache.rat_cache import RatCache
+from ..utils import Platforms
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class Rat(object):
+class Rat:
     """
     This class keeps track of known rats as they are used and stores them in a
     class cache.

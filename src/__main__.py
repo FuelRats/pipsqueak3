@@ -15,15 +15,15 @@ This module is built on top of the Pydle system.
 import asyncio
 import logging
 
+from config import config
 # noinspection PyUnresolvedReferences
 from src import commands
-from src.packages.context.context import Context
 from src.mechaclient import MechaClient
-from src.packages.permissions.permissions import require_permission, RAT
 from src.packages.commands import command
-from config import config
+from src.packages.context import Context
+from src.packages.permissions import require_permission, RAT
 
-log = logging.getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 @require_permission(RAT)
@@ -33,7 +33,7 @@ async def cmd_ping(context: Context):
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param context: `Context` object for the command call.
     """
-    log.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
+    LOG.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
                 f"'{context.user.nickname}'")
     await context.reply(f"{context.user.nickname} pong!")
 
@@ -49,12 +49,12 @@ async def start():
         client_args["sasl_username"] = config['authentication']['plain']['username']
         client_args["sasl_password"] = config['authentication']['plain']['password']
         client_args["sasl_identity"] = config['authentication']['plain']['identity']
-        log.info("Authenticating via SASL PLAIN.")
+        LOG.info("Authenticating via SASL PLAIN.")
     elif auth_method == "EXTERNAL":
         client_args["sasl_mechanism"] = "EXTERNAL"
         cert = config['authentication']['external']['tls_client_cert']
         client_args["tls_client_cert"] = f"certs/{cert}"
-        log.info(f"Authenticating using client certificate at {cert}.")
+        LOG.info(f"Authenticating using client certificate at {cert}.")
     else:
         raise ValueError(f"unknown authentication mechanism {auth_method}")
 
@@ -64,7 +64,7 @@ async def start():
                          tls=config['irc']['tls'],
                          )
 
-    log.info("Connected to IRC.")
+    LOG.info("Connected to IRC.")
 
 # entry point
 if __name__ == "__main__":

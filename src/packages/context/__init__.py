@@ -8,6 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["context"]
+from .context import Context
 
-from .context import *
+__all__ = ["Context"]

@@ -17,7 +17,7 @@ from config import config
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class DatabaseManager(object):
+class DatabaseManager:
     """
     Database Manager class intended to be inherited by a parent class that requires database
     connectivity.  Currently, only PostgreSQL 9.5+ is supported.

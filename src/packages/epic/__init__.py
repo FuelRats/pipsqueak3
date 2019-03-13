@@ -8,6 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["epic"]
+__all__ = ["Epic"]
 
-from .epic import *
+from .epic import Epic

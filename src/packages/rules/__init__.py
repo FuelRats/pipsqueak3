@@ -8,6 +8,10 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["rules"]
 
-from .rules import *
+from .rules import rule, clear_rules
+
+__all__ = [
+    "rule",
+    "clear_rules"
+]

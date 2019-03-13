@@ -18,20 +18,20 @@ from operator import xor
 from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID
 
-from src.packages.epic.epic import Epic
-from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
-from src.packages.rat.rat import Rat
-from src.packages.cache.rat_cache import RatCache
-from src.packages.quotation.rat_quotation import Quotation
-from src.packages.utils import Platforms, Status
+from ..epic import Epic
+from ..mark_for_deletion import MarkForDeletion
+from ..rat import Rat
+from ..cache import RatCache
+from ..quotation import Quotation
+from ..utils import Platforms, Status
 
 if TYPE_CHECKING:
-    from src.packages.board.rat_board import RatBoard
+    from ..board import RatBoard
 
 log = logging.getLogger(f"mecha.{__name__}")
 
 
-class Rescue(object):
+class Rescue:
     """
     A unique rescue
     """

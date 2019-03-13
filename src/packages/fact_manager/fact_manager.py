@@ -17,8 +17,8 @@ import logging
 import psycopg2
 from psycopg2 import sql
 
-from src.packages.fact_manager.fact import Fact
-from src.packages.database import DatabaseManager
+from .fact import Fact
+from ..database import DatabaseManager
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
