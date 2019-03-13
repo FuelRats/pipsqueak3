@@ -22,8 +22,7 @@
 # rules module
 /src/packages/rules/ @MHajoha
 
-# #####
-various CI configuration files.
+# various CI configuration files.
 *.yml @theunkn0wn1
 *.ini @theunkn0wn1
 *.cfg @theunkn0wn1
