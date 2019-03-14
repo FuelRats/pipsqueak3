@@ -17,7 +17,7 @@ from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
 
-log = logging.getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 @command("debug-whois")
@@ -30,7 +30,7 @@ async def cmd_debug_whois(context):
         str: string repreentation
     """
     data = await context.bot.whois(context.words[1])
-    log.debug(data)
+    LOG.debug(data)
     await context.reply(f"{data}")
 
 
@@ -38,6 +38,10 @@ async def cmd_debug_whois(context):
 @require_permission(TECHRAT)
 @require_channel
 async def cmd_debug_userinfo(context: Context):
+    """
+    A debug command for getting information about a user.
+    """
+
     await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
     await context.reply(f"user identifed?: {context.user.identified}")
 
@@ -46,4 +50,8 @@ async def cmd_debug_userinfo(context: Context):
 @require_channel
 @require_permission(TECHRAT)
 async def cmd_superping(context: Context):
+    """
+    A debug command to coerce mecha to respond.
+    """
+
     await context.reply("pong!")

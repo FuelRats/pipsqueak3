@@ -68,7 +68,7 @@ class TestRatCommand(object):
         """
         Commands._flush()
 
-        trigger_alias = f"{Commands.prefix}{alias}"
+        trigger_alias = f"{Commands.PREFIX}{alias}"
 
         @Commands.command(alias)
         async def potato(context: Context):
@@ -108,7 +108,7 @@ class TestRatCommand(object):
             # print(f"bot={bot}\tchannel={channel}\tsender={sender}")
             return bot, channel, sender
 
-        assert alias.lower() in Commands._registered_commands.keys()
+        assert alias.lower() in Commands._REGISTERED_COMMANDS.keys()
 
     @pytest.mark.asyncio
     async def test_command_decorator_list(self):
@@ -120,7 +120,7 @@ class TestRatCommand(object):
             return bot, channel, sender
 
         for name in aliases:
-            assert name.lower() in Commands._registered_commands.keys()
+            assert name.lower() in Commands._REGISTERED_COMMANDS.keys()
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("name", ("unit_test[BOT]", "some_recruit", "some_ov"))

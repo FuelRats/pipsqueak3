@@ -15,6 +15,10 @@ import datetime
 
 
 class Fact:
+    """
+    Represents a single Fact object.
+    """
+
     def __init__(self, name, message,
                  aliases, author, edited,
                  editedby, mfd=False, lang='en'):
@@ -250,5 +254,5 @@ class Fact:
         Returns: bool True/False
         """
 
-        return True if self.name and self.lang and self.author \
-                       and self.message and self.editedby else False
+        return bool(self.name and self.lang and self.author
+                    and self.message and self.editedby)

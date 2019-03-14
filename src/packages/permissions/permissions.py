@@ -19,7 +19,7 @@ from typing import Any, Union, Callable, Dict, Set
 from config import config
 from ..context import Context
 
-log = logging.getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 __all__ = [
     "Permission",
@@ -48,7 +48,7 @@ class Permission:
                 required
         """
 
-        log.debug(f"Created new Permission object with permission {level}")
+        LOG.debug(f"Created new Permission object with permission {level}")
         self._level = level
         self._vhosts = vhosts
         self._denied_message = deny_message
@@ -196,21 +196,21 @@ class Permission:
 # mapping between vhosts and permissions
 _by_vhost: Dict[str, Permission] = {}
 
-_permissions_dict = config['permissions']
+_PERMISSIONS_DICT = config['permissions']
 # the uninitiated
-RECRUIT = Permission.from_dict(_permissions_dict['recruit'])
+RECRUIT = Permission.from_dict(_PERMISSIONS_DICT['recruit'])
 
 # the run of the mill
-RAT = Permission(1, _permissions_dict['rat'])
+RAT = Permission(1, _PERMISSIONS_DICT['rat'])
 
 # the overseers of the mad house
-OVERSEER = Permission.from_dict(_permissions_dict['overseer'])
+OVERSEER = Permission.from_dict(_PERMISSIONS_DICT['overseer'])
 
 # The rats that provide all the shiny toys
-TECHRAT = Permission.from_dict(_permissions_dict['techrat'])
+TECHRAT = Permission.from_dict(_PERMISSIONS_DICT['techrat'])
 
 # The Administrator.
-ADMIN = Permission.from_dict(_permissions_dict['administrator'])
+ADMIN = Permission.from_dict(_PERMISSIONS_DICT['administrator'])
 
 
 def require_permission(permission: Permission,
@@ -231,17 +231,16 @@ def require_permission(permission: Permission,
     """
 
     def real_decorator(func):
-        log.debug("Inside the real_decorator")
-        log.debug(f"Wrapping a command with permission {permission}")
+        LOG.debug("Inside the real_decorator")
+        LOG.debug(f"Wrapping a command with permission {permission}")
 
         @wraps(func)
         async def guarded(context: Context, *args):
-            if context.user.hostname in _by_vhost.keys() \
-                    and _by_vhost[context.user.hostname] >= permission:
+            if context.user.hostname in _by_vhost.keys()\
+               and _by_vhost[context.user.hostname] >= permission:
                 return await func(context, *args)
-            else:
-                await context.reply(override_message if override_message
-                                    else permission.denied_message)
+
+            await context.reply(override_message if override_message else permission.denied_message)
 
         return guarded
 
@@ -305,9 +304,9 @@ def require_channel(func: Union[str, Callable] = None,
             """
             if context.channel is not None:
                 return await wrapped(context, *args)
-            else:
-                log.debug(f"channel was None, enforcing channel requirement...")
-                await context.reply(message)
+
+            LOG.debug(f"channel was None, enforcing channel requirement...")
+            await context.reply(message)
 
         return guarded
 
@@ -376,9 +375,9 @@ def require_dm(func: Union[str, Callable] = None,
             """
             if context.channel is None:
                 return await wrapped(context, *args)
-            else:
-                log.debug(f"channel was None, enforcing channel requirement...")
-                await context.reply(message)
+
+            LOG.debug(f"channel was None, enforcing channel requirement...")
+            await context.reply(message)
 
         return guarded
 

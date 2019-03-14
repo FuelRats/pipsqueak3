@@ -14,7 +14,7 @@ from psycopg2 import sql
 
 from config import config
 
-log = logging.getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class DatabaseManager:
@@ -91,7 +91,7 @@ class DatabaseManager:
                                                               password=self._dbpass)
 
         except psycopg2.DatabaseError as error:
-            log.exception("Unable to connect to database!")
+            LOG.exception("Unable to connect to database!")
             raise error
 
     async def query(self, query: sql.SQL, values: Union[Tuple, Dict]) -> List:

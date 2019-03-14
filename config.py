@@ -26,20 +26,20 @@ config: Union[None, dict] = None
 
 def setup_logging(logfile: str):
     # check for CLI verbosity flag
-    if cli_manager.args.verbose:
+    if cli_manager.ARGS.verbose:
         loglevel = logging.DEBUG
     else:
         loglevel = logging.INFO
 
     # check for nocolor flag
-    if cli_manager.args.nocolors:
+    if cli_manager.ARGS.nocolors:
         logcolors = False
     else:
         logcolors = True
 
     # check for new-log flag, overwriting existing log,
     # otherwise, append to the file per normal.
-    if cli_manager.args.clean_log:
+    if cli_manager.ARGS.clean_log:
         log_filemode = 'w'
     else:
         log_filemode = 'a'
@@ -123,6 +123,6 @@ def setup(filename: str) -> None:
 
 
 # fetch the CLI argument
-_path = cli_manager.args.config_file
+_path = cli_manager.ARGS.config_file
 # and initialize
 setup(_path)
