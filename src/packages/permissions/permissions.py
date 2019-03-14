@@ -11,14 +11,24 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+
 import logging
 from functools import wraps
-from typing import Any, Union, Callable, List, Dict, Set
+from typing import Any, Union, Callable, Dict, Set
 
 from config import config
 from ..context import Context
 
 log = logging.getLogger(f"mecha.{__name__}")
+
+__all__ = [
+    "Permission",
+    "RECRUIT",
+    "RAT",
+    "OVERSEER",
+    "TECHRAT",
+    "ADMIN"
+]
 
 
 class Permission:
@@ -76,13 +86,13 @@ class Permission:
         - Items that are not in `vhosts` already are added to `_by_vhost`
 
         Args:
-            value (List[str]): list of vhosts
+            value (Set[str]): set of vhosts
 
         Returns:
             None
         """
         if not isinstance(value, set):
-            raise TypeError(f"expected list got {type(value)}")
+            raise TypeError(f"expected set got {type(value)}")
 
         # determine which items have been removed
         removed = self.vhosts - value
