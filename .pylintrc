@@ -28,7 +28,7 @@ limit-inference-results=100
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=
+load-plugins=pylint_quotes
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -562,3 +562,11 @@ known-third-party=enchant
 # Exceptions that will emit a warning when being caught. Defaults to
 # "Exception".
 overgeneral-exceptions=Exception
+
+
+[QUOTES]
+
+# Settings for pylint-quotes to enforce the usage of double quotes for strings.
+string-quote=double
+triple-quote=double
+docstring-quote=double
