@@ -24,7 +24,7 @@ class StarSystem:
     position: Vector
     spectral_class: str = None
 
-    def distance(self, other: 'StarSystem') -> float:
+    def distance(self, other: "StarSystem") -> float:
         """
         Finds the distance between this star system and another, in light years.
 

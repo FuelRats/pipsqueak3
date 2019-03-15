@@ -35,7 +35,7 @@ class MarkForDeletion:
         self._reason = reason
         self._hash = None
 
-    def __eq__(self, other: 'MarkForDeletion') -> bool:
+    def __eq__(self, other: "MarkForDeletion") -> bool:
         if not isinstance(other, MarkForDeletion):
             return NotImplemented
 

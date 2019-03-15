@@ -131,17 +131,17 @@ class Permission:
             Permission: initialized permission object
 
         Examples:
-            >>> permission = Permission.from_dict({'vhosts': ['recruits.fuelrats.com'], 'level': 0})
+            >>> permission = Permission.from_dict({"vhosts": ["recruits.fuelrats.com"], "level": 0})
             >>> permission.vhosts
-            {'recruits.fuelrats.com'}
+            {"recruits.fuelrats.com"}
             >>> permission.level
             0
         """
         if not isinstance(data, dict):
             raise TypeError(f"expected dict got {type(data)}")
 
-        vhosts = set(data['vhosts'])
-        level = data['level']
+        vhosts = set(data["vhosts"])
+        level = data["level"]
 
         return cls(level=level, vhosts=vhosts)
 
@@ -171,22 +171,22 @@ class Permission:
 
         self._denied_message = value
 
-    def __eq__(self, other: 'Permission') -> bool:
+    def __eq__(self, other: "Permission") -> bool:
         return self.level == other.level
 
-    def __ne__(self, other: 'Permission') -> bool:
+    def __ne__(self, other: "Permission") -> bool:
         return self.level != other.level
 
-    def __le__(self, other: 'Permission') -> bool:
+    def __le__(self, other: "Permission") -> bool:
         return self.level <= other.level
 
-    def __lt__(self, other: 'Permission') -> bool:
+    def __lt__(self, other: "Permission") -> bool:
         return self.level < other.level
 
-    def __ge__(self, other: 'Permission') -> bool:
+    def __ge__(self, other: "Permission") -> bool:
         return self.level >= other.level
 
-    def __gt__(self, other: 'Permission') -> bool:
+    def __gt__(self, other: "Permission") -> bool:
         return self.level > other.level
 
     def __hash__(self):
@@ -196,21 +196,21 @@ class Permission:
 # mapping between vhosts and permissions
 _by_vhost: Dict[str, Permission] = {}
 
-_PERMISSIONS_DICT = config['permissions']
+_PERMISSIONS_DICT = config["permissions"]
 # the uninitiated
-RECRUIT = Permission.from_dict(_PERMISSIONS_DICT['recruit'])
+RECRUIT = Permission.from_dict(_PERMISSIONS_DICT["recruit"])
 
 # the run of the mill
-RAT = Permission(1, _PERMISSIONS_DICT['rat'])
+RAT = Permission(1, _PERMISSIONS_DICT["rat"])
 
 # the overseers of the mad house
-OVERSEER = Permission.from_dict(_PERMISSIONS_DICT['overseer'])
+OVERSEER = Permission.from_dict(_PERMISSIONS_DICT["overseer"])
 
 # The rats that provide all the shiny toys
-TECHRAT = Permission.from_dict(_PERMISSIONS_DICT['techrat'])
+TECHRAT = Permission.from_dict(_PERMISSIONS_DICT["techrat"])
 
 # The Administrator.
-ADMIN = Permission.from_dict(_PERMISSIONS_DICT['administrator'])
+ADMIN = Permission.from_dict(_PERMISSIONS_DICT["administrator"])
 
 
 def require_permission(permission: Permission,

@@ -27,7 +27,7 @@ class Epic:
     def __init__(self,
                  uuid: UUID,
                  notes: str,
-                 rescue: Optional['Rescue'] = None,
+                 rescue: Optional["Rescue"] = None,
                  rat: Optional[Rat] = None):
         """
         Creates a new Epic object.
@@ -43,7 +43,7 @@ class Epic:
         self._hash: Optional[int] = None
         self._uuid: uuid = uuid
         self._notes: str = notes
-        self._rescue: 'Rescue' = rescue
+        self._rescue: "Rescue" = rescue
         self._rat: Rat = rat
 
     @property
@@ -67,7 +67,7 @@ class Epic:
         return self._notes
 
     @property
-    def rescue(self) -> 'Rescue':
+    def rescue(self) -> "Rescue":
         """
         Associated epic rescue
 
@@ -86,7 +86,7 @@ class Epic:
         """
         return self._rat
 
-    def __eq__(self, other: 'Epic') -> bool:
+    def __eq__(self, other: "Epic") -> bool:
         # type and null check
         if not isinstance(other, Epic):
             return NotImplemented

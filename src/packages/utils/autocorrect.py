@@ -28,7 +28,7 @@ def correct_system_name(system: str) -> str:
     system = system.upper()
     match_regex = re.compile(r"(.*)\b([A-Z01258]{2}-[A-Z01258])\s+"
                              r"([A-Z01258])\s*([0-9OIZSB]+(-[0-9OIZSB]+)?)\b")
-    replacements = {k: v for k, v in zip('01258', 'OIZSB')}
+    replacements = {k: v for k, v in zip("01258", "OIZSB")}
 
     # Check to see if the provided system name follows the procedural format.
     matched = match_regex.match(system)

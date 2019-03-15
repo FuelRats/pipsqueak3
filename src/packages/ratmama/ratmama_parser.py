@@ -157,14 +157,14 @@ async def handle_ratsignal(ctx: Context) -> None:
             return
 
     sep: Optional[str] = None
-    if ',' in message:
-        sep = ','
-    elif ';' in message:
-        sep = ';'
-    elif '|' in message:
-        sep = '|'
-    elif '-' in message:
-        sep = '-'
+    if "," in message:
+        sep = ","
+    elif ";" in message:
+        sep = ";"
+    elif "|" in message:
+        sep = "|"
+    elif "-" in message:
+        sep = "-"
 
     if not sep:
         ctx.bot.board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))

@@ -27,41 +27,41 @@ class Galaxy:
     """
 
     LANDMARK_SYSTEMS = {
-        'beagle point': StarSystem(
-            name='BEAGLE POINT',
+        "beagle point": StarSystem(
+            name="BEAGLE POINT",
             position=Vector(-1111.5625, -134.21875, 65269.75),
-            spectral_class='K'
+            spectral_class="K"
         ),
-        'colonia': StarSystem(
-            name='COLONIA',
+        "colonia": StarSystem(
+            name="COLONIA",
             position=Vector(-9530.5, -910.28125, 19808.125),
-            spectral_class='F'
+            spectral_class="F"
         ),
-        'fuelum': StarSystem(
-            name='FUELUM',
+        "fuelum": StarSystem(
+            name="FUELUM",
             position=Vector(52, -52.65625, 49.8125),
-            spectral_class='K'
+            spectral_class="K"
         ),
-        'rodentia': StarSystem(
-            name='RODENTIA',
+        "rodentia": StarSystem(
+            name="RODENTIA",
             position=Vector(-9530.53125, -907.25, 19787.375),
-            spectral_class='M'
+            spectral_class="M"
         ),
-        'sagittarius a*': StarSystem(
-            name='SAGITTARIUS A*',
+        "sagittarius a*": StarSystem(
+            name="SAGITTARIUS A*",
             position=Vector(25.21875, -20.90625, 25899.96875),
             spectral_class=None
         ),
-        'sol': StarSystem(
-            name='SOL',
+        "sol": StarSystem(
+            name="SOL",
             position=Vector.zero(),
-            spectral_class='G'
+            spectral_class="G"
         )
     }
     MAX_PLOT_DISTANCE = 20000
 
     def __init__(self, url: str = None):
-        self.url = url or config['api']['url']
+        self.url = url or config["api"]["url"]
 
     async def find_system_by_name(self, name: str) -> Optional[StarSystem]:
         """
@@ -78,17 +78,17 @@ class Galaxy:
             return self.LANDMARK_SYSTEMS[name.casefold()]
 
         data = await self._call("api/systems", {"filter[name:eq]": name.upper()})
-        result_count = data['meta']['results']['available']
+        result_count = data["meta"]["results"]["available"]
         if result_count > 0:
-            sys = data['data'][0]['attributes']
+            sys = data["data"][0]["attributes"]
             main_star = await self._call("api/stars",
-                                         {"filter[systemId64:eq]": sys['id64'],
+                                         {"filter[systemId64:eq]": sys["id64"],
                                           "filter[isMainStar:eq]": 1})
-            if main_star['meta']['results']['available'] > 0:
-                sys['spectral_class'] = main_star['data'][0]['attributes']['subType'][0]
-            return StarSystem(position=Vector(**sys['coords']),
-                              name=sys['name'],
-                              spectral_class=sys.get('spectral_class'))
+            if main_star["meta"]["results"]["available"] > 0:
+                sys["spectral_class"] = main_star["data"][0]["attributes"]["subType"][0]
+            return StarSystem(position=Vector(**sys["coords"]),
+                              name=sys["name"],
+                              spectral_class=sys.get("spectral_class"))
 
     async def find_nearest_landmark(self, system: StarSystem) -> Tuple[StarSystem, float]:
         """
@@ -138,8 +138,8 @@ class Galaxy:
                                     "type": "dmeta",
                                     "limit": "5"})
         # Check to ensure the data set is not missing or empty.
-        if matches['data']:
-            return [match['name'] for match in matches['data']]
+        if matches["data"]:
+            return [match["name"] for match in matches["data"]]
 
     async def plot_waypoint_route(self,
                                   start: str,
@@ -249,8 +249,8 @@ class Galaxy:
                                     "aggressive": "1",
                                     "limit": limit,
                                     "cubesize": cubesize})
-        if nearest['data']:
-            return [neighbor['name'] for neighbor in nearest['data']]
+        if nearest["data"]:
+            return [neighbor["name"] for neighbor in nearest["data"]]
 
     async def _call(self, endpoint: str, params: Dict[str, str]) -> object:
         """
@@ -267,7 +267,7 @@ class Galaxy:
         base_url = self.url
         param_string = ""
         if params:
-            param_string = '&'.join(
+            param_string = "&".join(
                 [f"{key}={escape(str(value))}" for key, value in params.items()]
             )
         url = f"{base_url}{endpoint}?{param_string}"

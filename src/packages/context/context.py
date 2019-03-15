@@ -18,7 +18,7 @@ from ..user import User
 if TYPE_CHECKING:
     from src.mechaclient import MechaClient
 
-PREFIX = config['commands']['prefix']
+PREFIX = config["commands"]["prefix"]
 
 
 class Context:
@@ -26,7 +26,7 @@ class Context:
     Command context, stores the context of a command's invocation
     """
 
-    def __init__(self, bot: 'MechaClient',
+    def __init__(self, bot: "MechaClient",
                  user: User,
                  target: str,
                  words: [str],
@@ -45,7 +45,7 @@ class Context:
             prefixed (bool): marker if the message is prefixed
         """
         self._user: User = user
-        self._bot: 'MechaClient' = bot
+        self._bot: "MechaClient" = bot
         self._target: str = target
         self._words: [str] = words
         self._words_eol: [str] = words_eol
@@ -71,7 +71,7 @@ class Context:
         return self._user
 
     @property
-    def bot(self) -> 'MechaClient':
+    def bot(self) -> "MechaClient":
         """
         MechaClient instance
 
@@ -118,7 +118,7 @@ class Context:
         return self.target if self.bot.is_channel(self.target) else None
 
     @classmethod
-    async def from_message(cls, bot: 'MechaClient', channel: str, sender: str, message: str):
+    async def from_message(cls, bot: "MechaClient", channel: str, sender: str, message: str):
         """
         Creates a context from a IRC message
 
@@ -174,7 +174,7 @@ def _split_message(string: str) -> Tuple[List[str], List[str]]:
 
     Example:
         >>> _split_message("pink fluffy unicorns")
-        (['pink', 'fluffy', 'unicorns'], ['pink fluffy unicorns', 'fluffy unicorns', 'unicorns'])
+        (["pink", "fluffy", "unicorns"], ["pink fluffy unicorns", "fluffy unicorns", "unicorns"])
     """
     words = []
     words_eol = []

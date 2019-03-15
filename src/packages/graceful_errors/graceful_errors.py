@@ -34,7 +34,7 @@ BY_ERROR: Dict[type(Exception), str] = {
 
 }
 
-CHEESES = ['Cheddar', 'Gouda', "Mozzerella", "Asiago", "Monterey Jack", "Brie", "Roquefort", "Edam"]
+CHEESES = ["Cheddar", "Gouda", "Mozzerella", "Asiago", "Monterey Jack", "Brie", "Roquefort", "Edam"]
 
 
 def make_graceful(ex: Exception, ex_uuid: UUID) -> str:

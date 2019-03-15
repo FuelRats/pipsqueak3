@@ -167,7 +167,7 @@ class FactManager(DatabaseManager):
             LOG.exception(f"Editing fact '{name}-{lang}' failed.")
             raise error
         else:
-            await self.add_transaction(fact_name=name, fact_lang=lang, author=editor, msg='Edited',
+            await self.add_transaction(fact_name=name, fact_lang=lang, author=editor, msg="Edited",
                                        new_field=new_message, old_field=current_fact.message)
 
     async def exists(self, name: str, lang: str) -> bool:

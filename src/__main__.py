@@ -45,22 +45,22 @@ async def start():
 
     auth_method = config["authentication"]["method"]
     if auth_method == "PLAIN":
-        client_args["sasl_username"] = config['authentication']['plain']['username']
-        client_args["sasl_password"] = config['authentication']['plain']['password']
-        client_args["sasl_identity"] = config['authentication']['plain']['identity']
+        client_args["sasl_username"] = config["authentication"]["plain"]["username"]
+        client_args["sasl_password"] = config["authentication"]["plain"]["password"]
+        client_args["sasl_identity"] = config["authentication"]["plain"]["identity"]
         LOG.info("Authenticating via SASL PLAIN.")
     elif auth_method == "EXTERNAL":
         client_args["sasl_mechanism"] = "EXTERNAL"
-        cert = config['authentication']['external']['tls_client_cert']
+        cert = config["authentication"]["external"]["tls_client_cert"]
         client_args["tls_client_cert"] = f"certs/{cert}"
         LOG.info(f"Authenticating using client certificate at {cert}.")
     else:
         raise ValueError(f"unknown authentication mechanism {auth_method}")
 
     client = MechaClient(**client_args)
-    await client.connect(hostname=config['irc']['server'],
-                         port=config['irc']['port'],
-                         tls=config['irc']['tls'],
+    await client.connect(hostname=config["irc"]["server"],
+                         port=config["irc"]["port"],
+                         tls=config["irc"]["tls"],
                          )
 
     LOG.info("Connected to IRC.")

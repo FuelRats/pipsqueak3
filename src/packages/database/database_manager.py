@@ -25,11 +25,11 @@ class DatabaseManager:
     ODBC drivers are not required on Windows.
 
         Usage:
-        >>> DatabaseManager(dbhost='DatabaseServer.org',
+        >>> DatabaseManager(dbhost="DatabaseServer.org",
         ...                 dbport=5432,
-        ...                 dbname='DatabaseName',
-        ...                 dbuser='DatabaseUserName',
-        ...                 dbpassword='UserPassword') # doctest: +SKIP
+        ...                 dbname="DatabaseName",
+        ...                 dbuser="DatabaseUserName",
+        ...                 dbpassword="UserPassword") # doctest: +SKIP
 
         All arguments are optional.  If omitted, config values will be pulled from config file.
 
@@ -49,7 +49,7 @@ class DatabaseManager:
         >>> query = sql.SQL(
         ... "SELECT FROM public.table WHERE table.name=%s AND table.lang=%s AND table.something=%s")
 
-        >>> dbm.query(query, ('tuple','of','values'))# doctest: +SKIP
+        >>> dbm.query(query, ("tuple","of","values"))# doctest: +SKIP
 
     """
 
@@ -66,20 +66,20 @@ class DatabaseManager:
 
             # Utilize function arguments if they are provided,
             # otherwise retrieve from config file and use those values.
-            self._dbhost = dbhost if dbhost is not None else config['database'].get('host')
+            self._dbhost = dbhost if dbhost is not None else config["database"].get("host")
             assert self._dbhost
 
-            self._dbport = dbport if dbhost is not None else config['database'].get('port')
+            self._dbport = dbport if dbhost is not None else config["database"].get("port")
             assert self._dbport
 
-            self._dbname = dbname if dbname is not None else config['database'].get('dbname')
+            self._dbname = dbname if dbname is not None else config["database"].get("dbname")
             assert self._dbname
 
-            self._dbuser = dbuser if dbuser is not None else config['database'].get('username')
+            self._dbuser = dbuser if dbuser is not None else config["database"].get("username")
             assert self._dbuser
 
             self._dbpass = dbpassword if dbpassword is not None else \
-                config['database'].get('password')
+                config["database"].get("password")
             assert self._dbpass
 
         # Create Database Connections Pool
@@ -119,7 +119,7 @@ class DatabaseManager:
             # If we could set these at connection time, we would,
             # but they must be set outside the pool.
             connection.autocommit = True
-            connection.set_client_encoding('utf-8')
+            connection.set_client_encoding("utf-8")
             # Create cursor, and execute the query.
             with connection.cursor() as cursor:
                 cursor.execute(query, values)

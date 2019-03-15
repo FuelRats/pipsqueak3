@@ -41,7 +41,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
                  client: Optional[str] = None,
                  system: Optional[str] = None,
                  irc_nickname: Optional[str] = None,
-                 board: 'RatBoard' = None,
+                 board: "RatBoard" = None,
                  created_at: Optional[datetime] = None,
                  updated_at: Optional[datetime] = None,
                  unidentified_rats: Optional[List[str]] = None,
@@ -89,7 +89,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             platform(Platforms): Platform for rescue
         """
         self._platform: Platforms = platform
-        self.rat_board: 'RatBoard' = board
+        self.rat_board: "RatBoard" = board
         self._rats = rats if rats else []
         self._created_at: datetime = created_at if created_at else datetime.utcnow()
         self._updated_at: datetime = updated_at if updated_at else datetime.utcnow()

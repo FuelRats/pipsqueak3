@@ -31,8 +31,8 @@ class RatCache(Singleton):
         """
         if not hasattr(self, "_initalized"):
             self._initalized = True
-            self._cache_by_id: Dict[UUID, 'Rat'] = {}
-            self._cache_by_name: Dict[str, 'Rat'] = {}
+            self._cache_by_id: Dict[UUID, "Rat"] = {}
+            self._cache_by_name: Dict[str, "Rat"] = {}
             self._api_handler = api_handler
 
     @property
@@ -48,7 +48,7 @@ class RatCache(Singleton):
         # FIXME: add type check once the API gets merged in
 
     @property
-    def by_uuid(self) -> Dict[UUID, 'Rat']:
+    def by_uuid(self) -> Dict[UUID, "Rat"]:
         """
         Cache indexed by rat's UUID
 
@@ -58,7 +58,7 @@ class RatCache(Singleton):
         return self._cache_by_id
 
     @by_uuid.setter
-    def by_uuid(self, value: Dict[UUID, 'Rat']) -> None:
+    def by_uuid(self, value: Dict[UUID, "Rat"]) -> None:
         """
         Sets the ratcache's by_uuid property
 
@@ -76,7 +76,7 @@ class RatCache(Singleton):
         self._cache_by_id = value
 
     @property
-    def by_name(self) -> Dict[str, 'Rat']:
+    def by_name(self) -> Dict[str, "Rat"]:
         """
         Rats cache indexed by rat names
 
@@ -86,14 +86,14 @@ class RatCache(Singleton):
         return self._cache_by_name
 
     @by_name.setter
-    def by_name(self, value: Dict[str, 'Rat']) -> None:
+    def by_name(self, value: Dict[str, "Rat"]) -> None:
         if not isinstance(value, Dict):
             raise TypeError(f"expected a dict, got {type(value)}")
         self._cache_by_name = value
 
     async def get_rat_by_name(self, name: str,
                               platform: Optional[Platforms] = None,
-                              ) -> 'Rat' or None:
+                              ) -> "Rat" or None:
         """
         Finds a rat by name and optionally by platform
 
@@ -127,7 +127,7 @@ class RatCache(Singleton):
             # we found a rat
             return found if (found.platform == platform or platform is None) else None
 
-    async def get_rat_by_uuid(self, uuid: UUID) -> Optional['Rat']:
+    async def get_rat_by_uuid(self, uuid: UUID) -> Optional["Rat"]:
         """
         Finds a rat by their UUID.
 

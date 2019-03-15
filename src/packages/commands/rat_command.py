@@ -43,7 +43,7 @@ class NameCollisionException(CommandException):
 _registered_commands = {}  # pylint: disable=invalid-name
 
 # character/s that must prefix a message for it to be parsed as a command.
-PREFIX = config['commands']['prefix']
+PREFIX = config["commands"]["prefix"]
 
 
 async def trigger(ctx) -> Any:

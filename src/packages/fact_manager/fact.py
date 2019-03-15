@@ -21,7 +21,7 @@ class Fact:
 
     def __init__(self, name, message,
                  aliases, author, edited,
-                 editedby, mfd=False, lang='en'):
+                 editedby, mfd=False, lang="en"):
         self._name = name
         self._lang = lang
         self._message = message

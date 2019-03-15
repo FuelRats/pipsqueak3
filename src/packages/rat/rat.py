@@ -59,7 +59,7 @@ class Rat:
             # don't register duplicates
             RatCache().by_uuid[uuid] = self
 
-    def __eq__(self, other: 'Rat') -> bool:
+    def __eq__(self, other: "Rat") -> bool:
         """
         Compare two Rats objects for equality
 
