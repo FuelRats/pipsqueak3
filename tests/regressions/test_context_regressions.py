@@ -27,7 +27,7 @@ async def test_on_command_double_prefix(bot_fx, monkeypatch, context_fx, async_c
 
                                      f"{PREFIX}{PREFIX}boom")
 
-    monkeypatch.setattr(rat_command, "_REGISTERED_COMMANDS", dict())
+    monkeypatch.setattr(rat_command, "_registered_commands", dict())
 
     @command(f"{PREFIX}boom")
     async def cmd_boom(context: Context):

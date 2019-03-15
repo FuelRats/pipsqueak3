@@ -40,7 +40,7 @@ class NameCollisionException(CommandException):
     """
 
 
-_REGISTERED_COMMANDS = {}
+_registered_commands = {}  # pylint: disable=invalid-name
 
 # character/s that must prefix a message for it to be parsed as a command.
 PREFIX = config['commands']['prefix']
@@ -60,9 +60,9 @@ async def trigger(ctx) -> Any:
         return  # empty message, bail out
 
     if ctx.prefixed:
-        if ctx.words[0].casefold() in _REGISTERED_COMMANDS:
+        if ctx.words[0].casefold() in _registered_commands:
             # A regular command
-            command_fun = _REGISTERED_COMMANDS[ctx.words[0].casefold()]
+            command_fun = _registered_commands[ctx.words[0].casefold()]
             extra_args = ()
             LOG.debug(f"Regular command {ctx.words[0]} invoked.")
         else:
@@ -105,12 +105,12 @@ def _register(func, names: list or str) -> bool:
         return False
 
     for alias in names:
-        if alias in _REGISTERED_COMMANDS:
+        if alias in _registered_commands:
             # command already registered
             raise NameCollisionException(f"attempted to re-register command(s) {alias}")
         else:
             formed_dict = {alias: func}
-            _REGISTERED_COMMANDS.update(formed_dict)
+            _registered_commands.update(formed_dict)
 
     return True
 
@@ -122,8 +122,7 @@ def _flush() -> None:
     """
 
     # again this feels ugly but they are module-level now...
-    global _REGISTERED_COMMANDS  # pylint: disable=global-statement
-    _REGISTERED_COMMANDS = {}
+    _registered_commands.clear()
     clear_rules()
 
 
