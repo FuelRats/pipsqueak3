@@ -22,7 +22,7 @@ from ..utils import Platforms
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
-ratmama_regex = re.compile(r"""(?x)
+RATMAMA_REGEX = re.compile(r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
@@ -80,7 +80,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         return
 
     message: str = ctx.words_eol[0]
-    result = re.fullmatch(ratmama_regex, message)
+    result = re.fullmatch(RATMAMA_REGEX, message)
     client_name: str = result.group("cmdr")
     system_name: str = result.group("system")
     platform_name: str = result.group("platform")
@@ -172,7 +172,7 @@ async def handle_ratsignal(ctx: Context) -> None:
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
     system: str = None
-    cr: bool = False
+    code_red: bool = False
     platform: Platforms = None
     for part in message.split(sep):
         part = part.strip()
@@ -186,7 +186,7 @@ async def handle_ratsignal(ctx: Context) -> None:
             platform = Platforms["XB"]
 
         elif "o2" in part.casefold():
-            cr = "o2 ok" not in part.casefold()
+            code_red = "o2 ok" not in part.casefold()
 
         else:
             system = part
@@ -195,11 +195,11 @@ async def handle_ratsignal(ctx: Context) -> None:
         client=ctx.user.nickname,
         system=system,
         irc_nickname=ctx.user.nickname,
-        code_red=cr,
+        code_red=code_red,
         platform=platform
     )
     ctx.bot.board.append(rescue)
     await ctx.reply(f"Case created for {ctx.user.nickname}"
                     f" on {platform.name} in {system}. "
-                    f"{'O2 status is okay' if not cr else 'This is a CR!'} "
+                    f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
                     f"- {platform.name.upper()}_SIGNAL")

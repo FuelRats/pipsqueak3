@@ -28,15 +28,15 @@ from ..utils import Platforms, Status
 if TYPE_CHECKING:
     from ..board import RatBoard
 
-log = logging.getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
-class Rescue:
+class Rescue:  # pylint: disable=too-many-public-methods
     """
     A unique rescue
     """
 
-    def __init__(self,
+    def __init__(self,  # pylint: disable=too-many-locals
                  uuid: UUID = None,
                  client: Optional[str] = None,
                  system: Optional[str] = None,
@@ -91,8 +91,8 @@ class Rescue:
         self._platform: Platforms = platform
         self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else []
-        self._createdAt: datetime = created_at if created_at else datetime.utcnow()
-        self._updatedAt: datetime = updated_at if updated_at else datetime.utcnow()
+        self._created_at: datetime = created_at if created_at else datetime.utcnow()
+        self._updated_at: datetime = updated_at if updated_at else datetime.utcnow()
         self._api_id: UUID = uuid
         self._client: str = client
         self._irc_nick: str = irc_nickname
@@ -101,10 +101,10 @@ class Rescue:
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
         self._epic: List[Epic] = epic if epic is not None else []
-        self._codeRed: bool = code_red
+        self._code_red: bool = code_red
         self._outcome: None = None
         self._title: Union[str, None] = title
-        self._firstLimpet: UUID = first_limpet
+        self._first_limpet: UUID = first_limpet
         self._board_index = board_index
         self._mark_for_deletion = mark_for_deletion
         self._board_index = board_index
@@ -125,32 +125,31 @@ class Rescue:
         if not isinstance(other, Rescue):
             # instance type check
             return NotImplemented
-        else:
-            # check equality
 
-            conditions = [
-                self.uuid == other.uuid,
-                self.board_index == other.board_index,
-                self.client == other.client,
-                self.rats == other.rats,
-                self.platform == other.platform,
-                self.first_limpet == other.first_limpet,
-                self.created_at == other.created_at,
-                self.updated_at == other.updated_at,
-                self.system == other.system,
-                self.unidentified_rats == other.unidentified_rats,
-                self.active == other.active,
-                self.code_red == other.code_red,
-                self.outcome == other.outcome,
-                self.title == other.title,
-                self.first_limpet == other.first_limpet,
-                self.marked_for_deletion == other.marked_for_deletion,
-                self.lang_id == other.lang_id,
-                self.rats == other.rats,
-                self.irc_nickname == other.irc_nickname,
-            ]
+        # check equality
+        conditions = [
+            self.uuid == other.uuid,
+            self.board_index == other.board_index,
+            self.client == other.client,
+            self.rats == other.rats,
+            self.platform == other.platform,
+            self.first_limpet == other.first_limpet,
+            self.created_at == other.created_at,
+            self.updated_at == other.updated_at,
+            self.system == other.system,
+            self.unidentified_rats == other.unidentified_rats,
+            self.active == other.active,
+            self.code_red == other.code_red,
+            self.outcome == other.outcome,
+            self.title == other.title,
+            self.first_limpet == other.first_limpet,
+            self.marked_for_deletion == other.marked_for_deletion,
+            self.lang_id == other.lang_id,
+            self.rats == other.rats,
+            self.irc_nickname == other.irc_nickname,
+        ]
 
-            return all(conditions)
+        return all(conditions)
 
     def __hash__(self):
 
@@ -276,7 +275,7 @@ class Rescue:
         Returns:
             str : ratid
         """
-        return self._firstLimpet
+        return self._first_limpet
 
     @first_limpet.setter
     def first_limpet(self, value: UUID) -> None:
@@ -295,7 +294,7 @@ class Rescue:
             ValueError: The value was not a UUID and could not be parsed into a valid one.
         """
         if isinstance(value, UUID):
-            self._firstLimpet = value
+            self._first_limpet = value
         else:
             # the value wasn't a uuid, but lets try and coerce it into one.
             try:
@@ -306,7 +305,7 @@ class Rescue:
                 raise TypeError(f"expected UUID, got type {type(value)}")
             else:
                 # the attempt succeeded, lets assign it.
-                self._firstLimpet = guid
+                self._first_limpet = guid
 
     @property
     def board_index(self) -> int or None:
@@ -406,7 +405,7 @@ class Rescue:
         Returns:
             datetime: creation date
         """
-        return self._createdAt
+        return self._created_at
 
     @property
     def system(self) -> Optional[str]:
@@ -455,7 +454,7 @@ class Rescue:
         Returns:
             bool: Active state
         """
-        return False if self.status == Status.INACTIVE else True
+        return self.status != Status.INACTIVE
 
     @active.setter
     def active(self, value: bool) -> None:
@@ -537,7 +536,7 @@ class Rescue:
             datetime
         """
 
-        return self._updatedAt
+        return self._updated_at
 
     @updated_at.setter
     def updated_at(self, value):
@@ -559,7 +558,7 @@ class Rescue:
         elif value < self.created_at:
             raise ValueError(f"{value} is older than the cases creation date!")
         else:
-            self._updatedAt = value
+            self._updated_at = value
 
     @property
     def unidentified_rats(self) -> List[str]:
@@ -648,12 +647,12 @@ class Rescue:
         Returns:
             bool
         """
-        return self._codeRed
+        return self._code_red
 
     @code_red.setter
     def code_red(self, value: bool):
         if isinstance(value, bool):
-            self._codeRed = value
+            self._code_red = value
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
@@ -803,7 +802,7 @@ class Rescue:
             elif found[1]:
                 # a generic match (not platform specific) was found
                 # TODO throw a warning so the invoking method can handle this condition
-                log.warning("A match was found, but it was not the right platform!")
+                LOG.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
                 assigned_rat = found[1]
 
@@ -852,7 +851,7 @@ class Rescue:
             raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
                             f"{type(reason)}")
 
-        log.debug(f"marking rescue @{self.uuid} for deletion. reporter is {reporter} and "
+        LOG.debug(f"marking rescue @{self.uuid} for deletion. reporter is {reporter} and "
                   f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")

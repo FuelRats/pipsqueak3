@@ -17,7 +17,6 @@ import logging
 
 from config import config
 # noinspection PyUnresolvedReferences
-from src import commands
 from src.mechaclient import MechaClient
 from src.packages.commands import command
 from src.packages.context import Context
@@ -68,6 +67,6 @@ async def start():
 
 # entry point
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(start())
-    loop.run_forever()
+    LOOP = asyncio.get_event_loop()
+    LOOP.run_until_complete(start())
+    LOOP.run_forever()

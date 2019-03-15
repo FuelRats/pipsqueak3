@@ -1,12 +1,25 @@
+"""
+rat_quotation.py - Rat Quotations
+
+Copyright (c) 2018 The Fuel Rat Mischief,
+All rights reserved.
+
+Licensed under the BSD 3-Clause License.
+
+See LICENSE.md
+
+This module is built on top of the Pydle system.
+"""
+
 import logging
 from datetime import datetime
 
 from ..context import Context
 
-log = logging.getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
-class Quotation(object):
+class Quotation:
     """
     A quotes object, element of Rescue
     """

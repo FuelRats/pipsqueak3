@@ -10,6 +10,7 @@ See LICENSE.md
 """
 __all__ = [
     "handle_ratmama_announcement",
-    "handle_ratsignal"]
+    "handle_ratsignal"
+]
 
-from .ratmamma_parser import handle_ratmama_announcement, handle_ratsignal
+from .ratmama_parser import handle_ratmama_announcement, handle_ratsignal

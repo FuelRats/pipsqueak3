@@ -24,7 +24,7 @@ from src.packages.fact_manager.fact_manager import FactManager
 from src.packages.graceful_errors import graceful_errors
 from src.packages.utils import sanitize
 
-log = getLogger(f"mecha.{__name__}")
+LOG = getLogger(f"mecha.{__name__}")
 
 
 class MechaClient(Client):
@@ -56,13 +56,13 @@ class MechaClient(Client):
         Called upon connection to the IRC server
         :return:
         """
-        log.debug(f"Connecting to channels...")
+        LOG.debug(f"Connecting to channels...")
         # join a channel
         for channel in config["irc"]["channels"]:
-            log.debug(f"Configured channel {channel}")
+            LOG.debug(f"Configured channel {channel}")
             await self.join(channel)
 
-        log.debug("joined channels.")
+        LOG.debug("joined channels.")
         # call the super
         await super().on_connect()
 
@@ -78,31 +78,36 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        log.debug(f"{channel}: <{user}> {message}")
+        LOG.debug(f"{channel}: <{user}> {message}")
 
         if user == config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
-            log.debug(f"Ignored {message} (anti-loop)")
+            LOG.debug(f"Ignored {message} (anti-loop)")
             return None
-        else:  # await command execution
-            # sanitize input string headed to command executor
-            sanitized_message = sanitize(message)
-            log.debug(f"Sanitized {sanitized_message}, Original: {message}")
-            try:
-                ctx = await Context.from_message(self, channel, user, sanitized_message)
-                await trigger(ctx)
+        # await command execution
+        # sanitize input string headed to command executor
+        sanitized_message = sanitize(message)
+        LOG.debug(f"Sanitized {sanitized_message}, Original: {message}")
+        try:
+            ctx = await Context.from_message(self, channel, user, sanitized_message)
+            await trigger(ctx)
 
-            except Exception as ex:
-                ex_uuid = uuid4()
-                log.exception(ex_uuid)
-                error_message = graceful_errors.make_graceful(ex, ex_uuid)
-                # and report it to the user
-                await self.message(channel, error_message)
+        # Disable pylint's complaint here, as a broad catch is exactly what we want.
+        except Exception as ex:  # pylint: disable=broad-except
+            ex_uuid = uuid4()
+            LOG.exception(ex_uuid)
+            error_message = graceful_errors.make_graceful(ex, ex_uuid)
+            # and report it to the user
+            await self.message(channel, error_message)
 
     # Vhost Handler
     async def on_raw_396(self, message):
-        log.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
+        """
+        Handle an IRC 396 message. This message is sent upon successful application of a host mask
+        via usermode +x.
+        """
+        LOG.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
 
     @property
     def rat_cache(self) -> object:
@@ -130,7 +135,7 @@ class MechaClient(Client):
         if not isinstance(manager, FactManager):
             raise TypeError("fact_manager requires a FactManager.")
 
-        log.warning("Fact manager setter invoked!")
+        LOG.warning("Fact manager setter invoked!")
         self._fact_manager = manager
 
     @fact_manager.deleter
@@ -138,7 +143,7 @@ class MechaClient(Client):
         """
         Fact Manager Deleter
         """
-        log.warning("Fact Manager deleter invoked!")
+        LOG.warning("Fact Manager deleter invoked!")
         del self._fact_manager
         self._fact_manager = None
 
@@ -167,7 +172,7 @@ class MechaClient(Client):
         if not isinstance(value, RatBoard):
             raise TypeError("board property must be of type RatBoard.")
 
-        log.warning("Board Setter invoked!")
+        LOG.warning("Board Setter invoked!")
         self._rat_board = value
 
     @board.deleter
@@ -175,6 +180,6 @@ class MechaClient(Client):
         """
         Rat Board Deleter
         """
-        log.warning("Board Deleted!")
+        LOG.warning("Board Deleted!")
         del self._rat_board
         self._rat_board = None

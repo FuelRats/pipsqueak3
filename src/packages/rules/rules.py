@@ -1,14 +1,31 @@
+"""
+rules.py
+Describes and manages rules that define how IRC commands are triggered.
+
+Copyright (c) 2018 The Fuel Rat Mischief,
+All rights reserved.
+
+Licensed under the BSD 3-Clause License.
+
+See LICENSE.md
+"""
+
 import logging
 import re
 from typing import Callable, NamedTuple, Pattern, List, Tuple, Optional
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 _rules: List["Rule"] = []
 _prefixless_rules: List["Rule"] = []
 
 
 class Rule(NamedTuple):
+    """
+    Describes a single Rule, which defines a pattern to match to trigger
+    an IRC command.
+    """
+
     pattern: Pattern
     underlying: Callable
     full_message: bool
@@ -17,20 +34,29 @@ class Rule(NamedTuple):
     def __eq__(self, other):
         if isinstance(other, Rule):
             return self.pattern == other.pattern and self.full_message == other.full_message
-        else:
-            return NotImplemented
+        return NotImplemented
 
     def __call__(self, *args, **kwargs):
         return self.underlying(*args, **kwargs)
 
 
 class RuleNotPresentException(Exception):
+    """
+    Exception raised when attempting to insert a rule specifically after another rule
+    that does not exist.
+    """
+
     def __init__(self, rule_: Rule):
         super().__init__(f"rule matching {rule_.pattern.pattern} does not exist")
         self.rule = rule_
 
 
 class DuplicateRuleException(Exception):
+    """
+    Exception raised when attempting to create a rule with the same parameters as
+    another already-existing rule.
+    """
+
     def __init__(self, rule_: Rule):
         super().__init__(f"rule matching {rule_.pattern.pattern} is already registered")
         self.rule = rule_
@@ -92,7 +118,7 @@ def rule(regex: str, *, case_sensitive: bool = False, full_message: bool = False
             except ValueError:
                 raise RuleNotPresentException(after)
 
-        log.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
+        LOG.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
                  f" created.")
         return tuple_
 
@@ -114,7 +140,7 @@ def get_rule(words: List[str], words_eol: List[str],
             2-tuple of the command function and the extra args that it should
             be called with.
     """
-    for rule in (_prefixless_rules if prefixless else _rules):
+    for rule in _prefixless_rules if prefixless else _rules:
         if rule.full_message:
             match = rule.pattern.match(words_eol[0])
         else:
@@ -123,12 +149,16 @@ def get_rule(words: List[str], words_eol: List[str],
         if match is not None:
             if rule.pass_match:
                 return rule.underlying, (match,)
-            else:
-                return rule.underlying, ()
-    else:
-        return None, ()
+
+            return rule.underlying, ()
+
+    return None, ()
 
 
 def clear_rules():
+    """
+    Removes all previously registered rules.
+    """
+
     _prefixless_rules.clear()
     _rules.clear()
