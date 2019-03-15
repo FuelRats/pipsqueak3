@@ -10,7 +10,6 @@ pure-sasl = "*"
 coloredlogs = "*"
 psycopg2 = "*"
 humanfriendly = "*"
-pylint-quotes = "*"
 
 [dev-packages]
 pytest = "*"
