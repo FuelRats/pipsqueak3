@@ -92,19 +92,21 @@ You may be asked to rename your Pull Request before peer review can begin if the
 
 ### Peer Review Tagging System
 During a peer review, reviewers will add a tag to the comment to help the author understand what type of action is required to receive an approving review.
-|Comment Tag|Explanation|
-|---|---|
-|[Blocking]|This issue must be fixed before approval.|
-|[Consensus]|Discussion is required.  Blocked until consensus has been reached by the author and reviewer.|
-|[Discussion]| Discussion is required, but this is not blocking an approval.|
-|[Incomplete]| Incomplete code and/or Pull Request.|
-|[Kudos]| The reviewer liked this, specifically. Go you.|
-|[Nitpick]| Same as suggestion.  Not blocking, and at authors discretion to change.|
-|[Style]| Breaking style guidelines, or other issue specifically with code style.|
-|[Scope]| Out of scope for your Pull Request.|
-|[Suggestion]| Suggested change.  Not blocking, and at authors discretion to change.|
-|[Testing]| Reviewer requests a usage case, or testing to validate. Not blocking.|
-|[Testing Needed]| Testing or usage case needed before approval. Blocking.|
+
+| Tag | Explanation |
+| --- | --- |
+[Blocking]|This issue must be fixed before approval.
+[Consensus]|Discussion is required.  Blocked until consensus has been reached by the author and reviewer.
+[Discussion]|Discussion is required, but this is not blocking an approval.
+[Incomplete]|Incomplete code and/or Pull Request.
+[Kudos]|The reviewer liked this, specifically. Go you.
+[Nitpick]|Same as suggestion.  Not blocking, and at authors discretion to change.
+[Style]|Breaking style guidelines, or other issue specifically with code style.
+[Scope]|Out of scope for your Pull Request.
+[Suggestion]|Suggested change.  Not blocking, and at authors discretion to change.
+[Testing]|Reviewer requests a usage case, or testing to validate. Not blocking.
+[Testing Needed]|Testing or usage case needed before approval. Blocking.
+
 
 Adding multiple tags to a comment is fine.  Do not combine tags.
 Good: ``[Suggestion][Kudos] This is great, but...``
