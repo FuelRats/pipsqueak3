@@ -2,13 +2,13 @@
 
 >Welcome!  Contributors are welcome, under the following guidelines.  You don't have to be a member of our GitHub Org to contribute!
 
-This project is a complete rewrite and replacement for mechas2's codebase, written in Python 3.6.5.  This project is open source, released under [BSD-3](LICENSE).
+This project is a complete rewrite and replacement for mechas2's codebase, written in Python 3.7.  This project is open source, released under [BSD-3](LICENSE).
 
-Please note, that while some organization members have direct write access, all code additions are REQUIRED to be peer reviewed.  No one contributor may review their own code for the purposes of PR approval.
+Please note, that while some organization members have direct write access, all code additions are REQUIRED to be peer reviewed.
 
 ## Getting Started
 
-1. Fork the [pipsqueak3](https://github.com/fuelrats/pipsqueak3) repo.
+1. Fork the [pipsqueak3](https://github.com/fuelrats/pipsqueak3) repository.
 2. Checkout `develop` branch
 3. Create a feature branch (See 'Feature Branches')
 4. Develop your feature/doc/fix/insanity.
@@ -18,22 +18,20 @@ Please note, that while some organization members have direct write access, all 
 8. Make requested changes, if any.
 9. Obtain cold beverage and celebrate when your PR is merged.
 
-(If you are working off of a registered issue, please include the issue number in your PR title:
-`Spark 99 / Update to Documentation`)
-
 ## Feature Branches
 
 Make a feature branch off of master using `git checkout -b feature/my-awesome-feature`.
-For other types of PRs please use one of the following:
+For other types of pull requests please use one of the following:
 
 * doc - Documentation, or Documentation Update
 * feature - New Features/Functionality
 * fix - Bug fixes
+* testing - New or updated tests.
 
 ## PR Requirements
 * **ALL** Pull Requests must undergo a peer review phase before being committed.
-* PRs for new features without **meaningful** testing will _**NOT**_ be accepted.
-* PRs that are out of scope or modify unnecessary files will _**NOT**_ be accepted.
+* Pull Requests for new features without **meaningful** testing will _**NOT**_ be accepted.
+* Pull Requests that are out of scope or modify unnecessary files will _**NOT**_ be accepted.
 
 Use docstrings and comments to document how your features function and why. Docstrings should be formatted to the flavour of [Google](https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments).
 
@@ -45,11 +43,11 @@ def example_function(param1: int, param2: str) -> bool:
     it may not break the 100 characters per line PEP8 standard.  It is a
     good standard to include expected types, explain what your function
     attempts to accomplish, and what result is returned, if any.
-    
+
     Args:
         param1 (int): First Parameter.
         param2 (str): Second Parameter.
-    
+
     Returns:
         bool: True if successful, False otherwise.
     """
@@ -67,20 +65,50 @@ All pull requests must pass standard checks:
     * Circleci unit test run (Pytest)
 * Circleci deployment testing (if applicable)
 
-Everything should be runnable in your dev environment, all necessary configuration files are provided
-in VCS. for pylint you may need to manually point it at `pylint.ini`
+Everything should be executable in your development environment, all necessary configuration files are provided
+in VCS. for pylint you may need to manually point at `pylint.ini`
 ## Hygiene
 
 **Please do not squash your commits prior to your PR.**  If this is necessary, it will be brought up during the review process.
 
-Your PR should have sensible commits and messages.
+Your PR should have sensible commits and messages.  Please see the **Pull Requests Naming & Commenting** section below.
 
-All new features are required to contain tests sufficient for newly added code to be evaluated without reducing coverage.
+New features are required to contain tests sufficient for newly added code to be evaluated without reducing coverage.
 
 After branching, you should immediately use `git push -u origin feature/my-awesome-feature` to make that the default upstream ref.
 
 Before opening a PR, rebase onto develop so your PR can be merged fast-forward only, without merge commits.
-The easiest way to do that is to make the main repo a remote using `git remote add upstream git@github.com:fuelrats/pipsqueak` and then running `git pull --rebase upstream develop`.
+The easiest way to do that is to make the main repository a remote using `git remote add upstream git@github.com:fuelrats/pipsqueak` and then running `git pull --rebase upstream develop`.
+
+## Naming & Commenting Standards
+### Pull Requests Naming
+If working from a registered issue, Include the issue name enclosed in brackets in the title of your Pull Request, ie `[SPARK-99] Update to CONTRIBUTING.md`
+
+Otherwise, use the type of request.
+``[Doc] Update TOS to revoke snickers delivery``
+``[Fix] Mechaclient.py should return None after valid on_message event``
+
+You may be asked to rename your Pull Request before peer review can begin if the name is not specific enough or not within standard.
+
+### Peer Review Tagging System
+During a peer review, reviewers will add a tag to the comment to help the author understand what type of action is required to receive an approving review.
+|Comment Tag|Explanation  |
+|--|--|
+|[Blocking]|This issue must be fixed before approval.  |
+|[Consensus]|Discussion is required.  Blocked until consensus has been reached by the author and reviewer.
+|[Discussion]| Discussion is required, but this is not blocking an approval.
+|[Incomplete]| Incomplete code and/or Pull Request.
+|[Kudos]| The reviewer liked this, specifically. Go you.
+|[Nitpick]| Same as suggestion.  Not blocking, and at authors discretion to change.
+|[Style]| Breaking style guidelines, or other issue specifically with code style.
+|[Scope]| Out of scope for your Pull Request.
+|[Suggestion]| Suggested change.  Not blocking, and at authors discretion to change.
+|[Testing]| Reviewer requests a usage case, or testing to validate. Not blocking.
+|[Testing Needed]| Testing or usage case needed before approval. Blocking.
+
+Adding multiple tags to a comment is fine.  Do not combine tags.
+Good: ``[Suggestion][Kudos] This is great, but...``
+Bad:  ``[Suggestion|Kudos] This is great, but...``
 
 ## Testing
 
@@ -93,4 +121,3 @@ Please see our [Testing](./TESTING.md) file for in-depth requirements on this to
 ## Reporting Issues
 
 Please refrain from using GitHub to report Issues, as we have since moved our main Issue Tracking to JIRA. Feel free to report any issues [there](http://t.fuelr.at/help).
-
