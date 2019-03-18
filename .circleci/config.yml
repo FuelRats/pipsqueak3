@@ -184,7 +184,6 @@ workflows:
       - tests:
           #          don't bother running tests if linting catches any errors
           requires:
-            - linting
             - setup_workspace
 
 notify:
