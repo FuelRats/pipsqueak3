@@ -10,7 +10,6 @@ See LICENSE
 """
 import pytest
 
-from src.mechaclient import MechaClient
 from src.packages.fact_manager import FactManager
 from src.packages.board.rat_board import RatBoard
 from src.packages.cache.rat_cache import RatCache
@@ -19,14 +18,6 @@ from src.packages.commands import command
 from src.packages.context.context import Context
 
 pytestmark = pytest.mark.mechaclient
-
-
-def test_verify_version(bot_fx):
-    """
-    Asserts the version is set, and returning string.
-    """
-    assert bot_fx.__version__
-    assert isinstance(bot_fx.__version__, str)
 
 
 def test_verify_api_handler_private(bot_fx):
@@ -59,7 +50,7 @@ def test_verify_rat_board_private(bot_fx):
 
 def test_verify_api_handler(bot_fx):
     """
-    Asserts the api_handler property returns an object, and cannot be set (no setter)
+    Asserts the API handler raises an Attribute error if setting is attempted.
     """
     # Helper Class
     class FakeAPIHandler:
