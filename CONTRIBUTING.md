@@ -65,27 +65,58 @@ All pull requests must pass standard checks:
     * Circleci unit test run (Pytest)
 * Circleci deployment testing (if applicable)
 
-Everything should be executable in your development environment, all necessary configuration files are provided
-in VCS. for pylint you may need to manually point at `pylint.ini`
+> It is good practice to ensure that all tests are passing in your feature branch before submitting your pull request. If the test suite fails to pass, your request WILL be blocked from merging until testing is resolved.
 ## Hygiene
 
 **Please do not squash your commits prior to your PR.**  If this is necessary, it will be brought up during the review process.
 
-Your PR should have sensible commits and messages.  Please see the **Pull Requests Naming & Commenting** section below.
+Your PR should have sensible commits and messages.  Please see the **Naming & Commenting Standards** section below.
 
 New features are required to contain tests sufficient for newly added code to be evaluated without reducing coverage.
 
 After branching, you should immediately use `git push -u origin feature/my-awesome-feature` to make that the default upstream ref.
 
 Before opening a PR, rebase onto develop so your PR can be merged fast-forward only, without merge commits.
-The easiest way to do that is to make the main repository a remote using `git remote add upstream git@github.com:fuelrats/pipsqueak` and then running `git pull --rebase upstream develop`.
+The easiest way to do that is to make the main repository a remote using `git remote add upstream git@github.com:fuelrats/pipsqueak3` and then running `git pull --rebase upstream develop`.
 
 ## Naming & Commenting Standards
+
+### Commit Messages
+Prefix all commit messages with the SPARK issue number.  If addressing multiple tickets, create a commit for each change and do not combine them.
+
+#### Example Commit message (Single Issue)
+This is most commonly used.  The issue number should match the pull request issue.
+
+Pull Request Title: ``[SPARK-4021] Add color support to MechaClient``
+
+```
+Commit Messages:
+[SPARK-4021] Add method for color override
+[SPARK-4021] Change property to global
+[SPARK-4021] Create new base class for colors, added to stdlib
+```
+
+#### Example Commit message - Multiple Issues
+
+In the event your pull request covers multiple issues (such as a sprint or JIRA Story), prefix each commit with the issue it covers.
+
+``[SPARK-4024]`` in this case would be a Story.
+
+Pull Request Title: ``[SPARK-4024] Prepare for Major Release``
+
+```
+Commit Messages:
+[SPARK-4030] Increment Version number
+[SPARK-4032] Pipfile update for dependencies, pre-release
+[SPARK-4038] Adjust Sphinx configuration toc-tree depth
+```
+
 ### Pull Requests Naming
 If working from a registered issue, Include the issue name enclosed in brackets in the title of your Pull Request, ie `[SPARK-99] Update to CONTRIBUTING.md`
 
 Otherwise, use the type of request.
 ``[Doc] Update TOS to revoke snickers delivery``
+
 ``[Fix] Mechaclient.py should return None after valid on_message event``
 
 You may be asked to rename your Pull Request before peer review can begin if the name is not specific enough or not within standard.
@@ -98,18 +129,21 @@ During a peer review, reviewers will add a tag to the comment to help the author
 [Blocking]|This issue must be fixed before approval.
 [Consensus]|Discussion is required.  Blocked until consensus has been reached by the author and reviewer.
 [Discussion]|Discussion is required, but this is not blocking an approval.
+[Error]|Incorrect Methodology or Implementation.  Blocking.
 [Incomplete]|Incomplete code and/or Pull Request.
 [Kudos]|The reviewer liked this, specifically. Go you.
-[Nitpick]|Same as suggestion.  Not blocking, and at authors discretion to change.
+[Nitpick]|Same as suggestion.  Not blocking, and at author's discretion to change.
 [Style]|Breaking style guidelines, or other issue specifically with code style.
 [Scope]|Out of scope for your Pull Request.
-[Suggestion]|Suggested change.  Not blocking, and at authors discretion to change.
+[Suggestion]|Suggested change.  Not blocking, and at author's discretion to change.
 [Testing]|Reviewer requests a usage case, or testing to validate. Not blocking.
 [Testing Needed]|Testing or usage case needed before approval. Blocking.
 
 
 Adding multiple tags to a comment is fine.  Do not combine tags.
+
 Good: ``[Suggestion][Kudos] This is great, but...``
+
 Bad:  ``[Suggestion|Kudos] This is great, but...``
 
 ## Testing
