@@ -114,7 +114,8 @@ Commit Messages:
 ### Pull Requests Naming
 If working from a registered issue, Include the issue name enclosed in brackets in the title of your Pull Request, ie `[SPARK-99] Update to CONTRIBUTING.md`
 
-Otherwise, use the type of request.
+Otherwise, use the type of request:
+
 ``[Doc] Update TOS to revoke snickers delivery``
 
 ``[Fix] Mechaclient.py should return None after valid on_message event``
