@@ -79,7 +79,7 @@ class Formatting(Enum):
     FORMAT_RESET = '\x0F'
 
 
-class Singleton(object):
+class Singleton:
     """
     Provides a singleton base class.
 
@@ -159,13 +159,21 @@ def strip_name(nickname: str) -> str:
 
 
 def try_parse_uuid(suspect: str) -> UUID:
+    """
+    Attempt to parse a UUID from a string.
+
+    Args:
+        suspect: (str) The string to parse.
+
+    Returns:
+        A UUID object representing the parsed UUID, or None if parsing fails.
+    """
     result = None
 
     try:
         result = UUID(suspect, version=4)
     except ValueError:
         return None
-
     else:
         return result
 
@@ -205,8 +213,8 @@ def color(text: str, text_color: Colors, bg_color: Optional[Colors] = None) -> s
     if isinstance(bg_color, Colors):
         return f'{Formatting.FORMAT_COLOR.value}{text_color},{bg_color}{text}' \
             f'{Formatting.FORMAT_COLOR.value}'
-    else:
-        return f'{Formatting.FORMAT_COLOR.value}{text_color}{text}{Formatting.FORMAT_COLOR.value}'
+
+    return f'{Formatting.FORMAT_COLOR.value}{text_color}{text}{Formatting.FORMAT_COLOR.value}'
 
 
 def bold(text: str) -> str:

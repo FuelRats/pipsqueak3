@@ -43,8 +43,8 @@ class FactManager(DatabaseManager):
         if not isinstance(fact_log, str):
             raise TypeError("fact log must be a string.")
 
-        self._FACT_TABLE = fact_table
-        self._FACT_LOG = fact_log
+        self._fact_table = fact_table
+        self._fact_log = fact_log
 
         # Proclaim loudly into the void that we are loaded.
         super().__init__()
@@ -71,7 +71,7 @@ class FactManager(DatabaseManager):
             psycopg2.IntegrityError: Primary Key violation on table.
         """
         # I said don't judge my SQL :(
-        add_query = sql.SQL(f"INSERT INTO {self._FACT_TABLE} "
+        add_query = sql.SQL(f"INSERT INTO {self._fact_table} "
                             f"(name, lang, message, aliases, author, edited, editedby, mfd) "
                             f"VALUES ( %s, %s, %s, %s, %s, %s, %s, %s )")
 
@@ -102,7 +102,7 @@ class FactManager(DatabaseManager):
 
         Returns: Nothing.
         """
-        del_query = sql.SQL(f"DELETE FROM {self._FACT_TABLE} WHERE name=%s AND lang=%s")
+        del_query = sql.SQL(f"DELETE FROM {self._fact_table} WHERE name=%s AND lang=%s")
 
         await self.query(del_query, (name, lang))
 
@@ -154,7 +154,7 @@ class FactManager(DatabaseManager):
         try:
             current_fact = await self.find(name, lang)
 
-            edit_query = sql.SQL(f"UPDATE {self._FACT_TABLE} SET message=%(message)s, "
+            edit_query = sql.SQL(f"UPDATE {self._fact_table} SET message=%(message)s, "
                                  f"edited=%(edit_time)s WHERE name=%(name)s AND lang=%(lang)s")
 
             query_values = {"edit_time": datetime.datetime.now(datetime.timezone.utc),
@@ -181,7 +181,7 @@ class FactManager(DatabaseManager):
         Returns: True/False, if already exists.
         """
         query = sql.SQL(f"SELECT COUNT(*) message FROM "
-                        f"{self._FACT_TABLE} WHERE name=%s AND lang=%s")
+                        f"{self._fact_table} WHERE name=%s AND lang=%s")
 
         try:
             result = await self.query(query, (name, lang))
@@ -205,7 +205,7 @@ class FactManager(DatabaseManager):
         Returns: tuple of transaction log items, for fact.
         """
         query = sql.SQL(f"SELECT name, lang, author, message, ts, old, new "
-                        f"FROM {self._FACT_LOG} WHERE name=%s AND lang=%s "
+                        f"FROM {self._fact_log} WHERE name=%s AND lang=%s "
                         f"ORDER BY ts DESC LIMIT 5")
 
         query_data = (fact_name, fact_lang)
@@ -233,7 +233,7 @@ class FactManager(DatabaseManager):
         """
         # Build SQL Object for our query
         query = sql.SQL(f"SELECT name, lang, message, aliases, author, edited, editedby, mfd from "
-                        f"{self._FACT_TABLE} where name=%s AND lang=%s")
+                        f"{self._fact_table} where name=%s AND lang=%s")
 
         # await our raw result from query
         try:
@@ -278,7 +278,7 @@ class FactManager(DatabaseManager):
 
         Returns: Nothing.
         """
-        log_query = sql.SQL(f"INSERT INTO {self._FACT_LOG} "
+        log_query = sql.SQL(f"INSERT INTO {self._fact_log} "
                             f"(name, lang, author, message, old, new, ts) "
                             f"VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
@@ -305,9 +305,9 @@ class FactManager(DatabaseManager):
         """
 
         query = sql.SQL(f"SELECT mfd FROM "
-                        f"{self._FACT_TABLE} WHERE name=%s AND lang=%s")
+                        f"{self._fact_table} WHERE name=%s AND lang=%s")
 
-        mfd_query = sql.SQL(f"UPDATE {self._FACT_TABLE} "
+        mfd_query = sql.SQL(f"UPDATE {self._fact_table} "
                             f"SET mfd=%s WHERE name=%s AND lang=%s")
 
         try:
@@ -335,7 +335,7 @@ class FactManager(DatabaseManager):
             list: facts marked for deletion.
         """
         query = sql.SQL(f"SELECT name, lang FROM "
-                        f"{self._FACT_TABLE} WHERE mfd=%s "
+                        f"{self._fact_table} WHERE mfd=%s "
                         f"ORDER BY edited DESC LIMIT {num_results}")
 
         try:

@@ -115,7 +115,7 @@ def test_module_prop_table(test_fm_fx):
 
     test_fm = FactManager(table_name, log_table_name)
 
-    assert test_fm._FACT_TABLE == table_name
+    assert test_fm._fact_table == table_name
 
 
 def test_module_prop_log(test_fm_fx):
@@ -127,7 +127,7 @@ def test_module_prop_log(test_fm_fx):
 
     test_fm = FactManager(table_name, log_table_name)
 
-    assert test_fm._FACT_LOG == log_table_name
+    assert test_fm._fact_log == log_table_name
 
 
 @pytest.mark.asyncio

@@ -221,7 +221,7 @@ class Galaxy:
         if nearest:
             return await self.find_system_by_name(nearest[0])
 
-    async def _find_nearest_systems(self,
+    async def _find_nearest_systems(self,     # pylint: disable=invalid-name
                                     x: float,
                                     y: float,
                                     z: float,

@@ -18,10 +18,10 @@ from ..user import User
 if TYPE_CHECKING:
     from src.mechaclient import MechaClient
 
-prefix = config['commands']['prefix']
+PREFIX = config['commands']['prefix']
 
 
-class Context(object):
+class Context:
     """
     Command context, stores the context of a command's invocation
     """
@@ -132,11 +132,11 @@ class Context(object):
             Context
         """
         # check if the message has our prefix
-        prefixed = message.startswith(prefix)
+        prefixed = message.startswith(PREFIX)
 
         if prefixed:
             # before removing it from the message
-            message = message[len(prefix):]
+            message = message[len(PREFIX):]
 
         # build the words and words_eol lists
         words, words_eol = _split_message(message)

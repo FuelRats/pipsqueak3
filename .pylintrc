@@ -64,7 +64,6 @@ disable=print-statement,
         parameter-unpacking,
         unpacking-in-except,
         old-raise-syntax,
-        backtick,
         long-suffix,
         old-ne-operator,
         old-octal-literal,
@@ -139,7 +138,9 @@ disable=print-statement,
         deprecated-sys-function,
         exception-escape,
         comprehension-escape,
-        logging-fstring-interpolation
+        logging-fstring-interpolation,
+        too-many-arguments,
+        too-many-instance-attributes
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -253,7 +254,7 @@ good-names=i,
 include-naming-hint=no
 
 # Naming style matching correct inline iteration names.
-inlinevar-naming-style=any
+inlinevar-naming-style=snake_case
 
 # Regular expression matching correct inline iteration names. Overrides
 # inlinevar-naming-style.
@@ -335,7 +336,7 @@ single-line-if-stmt=no
 
 # Format style used to check logging format string. `old` means using %
 # formatting, while `new` is for `{}` formatting.
-logging-format-style=old
+logging-format-style=new
 
 # Logging modules to check that the string format arguments are in logging
 # function parameter format.
@@ -449,7 +450,8 @@ allow-global-unused-variables=yes
 # List of strings which can identify a callback function by name. A callback
 # name must start or end with one of those strings.
 callbacks=cb_,
-          _cb
+          _cb,
+          _callback
 
 # A regular expression matching the name of dummy variables (i.e. expected to
 # not be used).
@@ -513,13 +515,13 @@ max-parents=7
 max-public-methods=20
 
 # Maximum number of return / yield for function / method body.
-max-returns=6
+max-returns=4
 
 # Maximum number of statements in function / method body.
 max-statements=50
 
 # Minimum number of public methods for a class (see R0903).
-min-public-methods=2
+min-public-methods=1
 
 
 [IMPORTS]
@@ -549,7 +551,7 @@ int-import-graph=
 
 # Force import order to recognize a module as part of the standard
 # compatibility libraries.
-known-standard-library=
+known-standard-library=dataclasses
 
 # Force import order to recognize a module as part of a third party library.
 known-third-party=enchant

@@ -22,7 +22,7 @@ from uuid import UUID
 from ..cache.rat_cache import RatCache
 from ..utils import Platforms
 
-log = logging.getLogger(f"mecha.{__name__}")
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class Rat:
@@ -111,9 +111,9 @@ class Rat:
             None
         """
         if isinstance(value, str):
-            log.debug(f"Value was a string with data '{value}'")
+            LOG.debug(f"Value was a string with data '{value}'")
             uuid = UUID(value)
-            log.debug("Parsed value into a valid UUID.")
+            LOG.debug("Parsed value into a valid UUID.")
             self._uuid = uuid
         elif isinstance(value, UUID):
             self._uuid = value

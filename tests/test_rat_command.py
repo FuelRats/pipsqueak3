@@ -68,7 +68,7 @@ class TestRatCommand(object):
         """
         Commands._flush()
 
-        trigger_alias = f"{Commands.prefix}{alias}"
+        trigger_alias = f"{Commands.PREFIX}{alias}"
 
         @Commands.command(alias)
         async def potato(context: Context):
