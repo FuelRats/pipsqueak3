@@ -39,7 +39,7 @@ Authentication settings for SASL plain (username + password)
 |--------|-------------|
 | username | nickserv username |
 | password | nickserv password|
-| identiy  | nickserv account|
+| identity  | nickserv account|
 
 ## external
 Authentication settings for SASL external (client certificate)
