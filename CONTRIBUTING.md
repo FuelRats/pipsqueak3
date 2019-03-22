@@ -64,7 +64,7 @@ All pull requests must pass standard checks:
     * Codecov diff-coverage (85% required)
     * Codecov total-coverage (>90% required)
     * pycodestyle pep8 standards
-    * pylint pass with no error level items.
+    * pylint pass with no error levels or higher
     * Circleci unit test run (Pytest)
 * Circleci deployment testing (if applicable)
 
