@@ -4,7 +4,7 @@
 
 This project is a complete rewrite and replacement for mechas2's codebase, written in Python 3.7.  This project is open source, released under [BSD-3](LICENSE).
 
-Please note, that while some organization members have direct write access, all code additions are REQUIRED to be peer reviewed.
+Please note that while some organization members have direct write access, all code additions are **REQUIRED** to be peer reviewed.
 
 ## Getting Started
 
@@ -15,8 +15,10 @@ Please note, that while some organization members have direct write access, all 
 5. Ensure your local develop branch is up to date with upstream develop.
 6. Submit PR.
 7. Undergo peer review.
-8. Make requested changes, if any.
+8. Make requested changes, if any.  If after your peer review changes are requested, your work cannot be merged until changed.
 9. Obtain cold beverage and celebrate when your PR is merged.
+
+**Blocked Pull Request?** If any reviewer adds a blocking tag to a comment during the review,  changes are *required* and a merge cannot proceed without a change.  All additions undergo this process, and it is used to ensure that only high quality, professional code is merged with the code base without incurring any technical debt.  Please see the section on tagging below for more details.
 
 ## Feature Branches
 
@@ -62,6 +64,7 @@ All pull requests must pass standard checks:
     * Codecov diff-coverage (85% required)
     * Codecov total-coverage (>90% required)
     * pycodestyle pep8 standards
+    * pylint pass with no error level items.
     * Circleci unit test run (Pytest)
 * Circleci deployment testing (if applicable)
 
@@ -125,20 +128,26 @@ You may be asked to rename your Pull Request before peer review can begin if the
 ### Peer Review Tagging System
 During a peer review, reviewers will add a tag to the comment to help the author understand what type of action is required to receive an approving review.
 
+#### Blocking Tags
+
 | Tag | Explanation |
 | --- | --- |
-[Blocking]|This issue must be fixed before approval.
-[Consensus]|Discussion is required.  Blocked until consensus has been reached by the author and reviewer.
-[Discussion]|Discussion is required, but this is not blocking an approval.
-[Error]|Incorrect Methodology or Implementation.  Blocking.
+[Consensus]|Team Decision required.  This issue will be hammered out until an agreement is made.
+[Discussion]|Discussion is required between the author and the reviewer.
+[Error]|Incorrect Methodology or Implementation.
 [Incomplete]|Incomplete code and/or Pull Request.
-[Kudos]|The reviewer liked this, specifically. Go you.
-[Nitpick]|Same as suggestion.  Not blocking, and at author's discretion to change.
-[Style]|Breaking style guidelines, or other issue specifically with code style.
 [Scope]|Out of scope for your Pull Request.
-[Suggestion]|Suggested change.  Not blocking, and at author's discretion to change.
-[Testing]|Reviewer requests a usage case, or testing to validate. Not blocking.
-[Testing Needed]|Testing or usage case needed before approval. Blocking.
+[Style]|Breaking style guidelines, or other issue specifically with code style.
+[Testing]|Reviewer requests a usage case, or testing is missing from the pull request.
+
+#### Non-Blocking Tags
+
+| Tag | Explanation |
+| --- | --- |
+[Not Blocking]|Not to be used alone.  Negates a blocking issue.
+[Kudos]|The reviewer liked this, specifically. Go you.
+[Suggestion]| An optional, alternative approach.
+
 
 
 Adding multiple tags to a comment is fine.  Do not combine tags.
