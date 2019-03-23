@@ -148,6 +148,23 @@ During a peer review, reviewers will add a tag to the comment to help the author
 [Kudos]|The reviewer liked this, specifically. Go you.
 [Suggestion]| An optional, alternative approach.
 
+## Pull request labels
+Labels may be applied to your pull requests, for the purposes of organization and / or overall 
+status.
+
+| label | Explanation |
+| --- | --- |
+Awaiting changes    | this pull request is on hold until requested changes have been effected
+Feature             | this pull request adds a new feature
+Bug Fix             | this pull request fixes some bug
+Refactor            | this pull request refactors something
+Documentation       | this pull request only effects documentation
+Linting             | this pull request adjusts our linting configurations
+CI change           | This pull request reconfigures the CI environment
+Dependency change   | this pull request modifies our dependencies
+Policy              | this pull request modifies our contributing policies
+Consensus required  | this pull request requires the consensus of all core contributors
+
 
 
 Adding multiple tags to a comment is fine.  Do not combine tags.
