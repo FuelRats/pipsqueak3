@@ -148,6 +148,13 @@ During a peer review, reviewers will add a tag to the comment to help the author
 [Kudos]|The reviewer liked this, specifically. Go you.
 [Suggestion]| An optional, alternative approach.
 
+Adding multiple tags to a comment is fine.  Do not combine tags.
+
+Good: ``[Suggestion][Kudos] This is great, but...``
+
+Bad:  ``[Suggestion|Kudos] This is great, but...``
+
+
 ## Pull request labels
 Labels may be applied to your pull requests, for the purposes of organization and / or overall 
 status.
@@ -164,14 +171,6 @@ CI change           | This pull request reconfigures the CI environment
 Dependency change   | this pull request modifies our dependencies
 Policy              | this pull request modifies our contributing policies
 Consensus required  | this pull request requires the consensus of all core contributors
-
-
-
-Adding multiple tags to a comment is fine.  Do not combine tags.
-
-Good: ``[Suggestion][Kudos] This is great, but...``
-
-Bad:  ``[Suggestion|Kudos] This is great, but...``
 
 ## Testing
 
