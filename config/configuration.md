@@ -19,7 +19,7 @@ irc client, such as username, server, and channels to connect to.
 | server|  the irc server to connect to|
 | nickname| the bots username|
 | port| irc port to connect to. `6667` for plain, `6697` for ssl|
-| tls| set to true to connect to tls, a false setting disables SASL|
+| tls| set to true to connect to tls, a false setting disables SASL EXTERNAL|
 |channels| list of channels to connect to|
 
 # Authentication
