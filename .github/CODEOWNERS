@@ -1,4 +1,4 @@
-#https://help.github.com/articles/about-code-owners/
+# https://help.github.com/articles/about-code-owners/
 
 
 # global rule
@@ -21,6 +21,9 @@
 
 # rules module
 /src/packages/rules/ @MHajoha
+
+# RatSig related module
+/src/packages/ratmama @beepbeat
 
 # various CI configuration files.
 *.yml @theunkn0wn1
