@@ -159,7 +159,7 @@ Bad:  ``[Suggestion|Kudos] This is great, but...``
 Labels may be applied to your pull requests, for the purposes of organization and / or overall 
 status.
 
-| label | Explanation |
+|       label       |                         Explanation                          |
 | ----------------- | ------------------------------------------------------------ |
 Awaiting changes    | is on hold until requested changes have been effected
 Bug Fix             | fixes some bug
