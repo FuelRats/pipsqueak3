@@ -14,14 +14,17 @@ import logging
 import re
 from typing import Optional
 
-from ..context import Context
-from ..rules import rule
-from ..rat_rescue import Rescue, Platforms
-from ..galaxy.galaxy import Galaxy
 import config
+from ..context import Context
+from ..rat_rescue import Rescue
+from ..rules import rule
+from ..utils import Platforms
+from ..galaxy.galaxy import Galaxy
+
 
 
 LOG = logging.getLogger(f"mecha.{__name__}")
+Galaxy = Galaxy()
 
 RATMAMA_REGEX = re.compile(r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.

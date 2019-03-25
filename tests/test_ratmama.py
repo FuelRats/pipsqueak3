@@ -12,10 +12,10 @@ See LICENSE.md
 """
 
 import pytest
-from src.packages.rat_board import RatBoard
+from src.packages.board.rat_board import RatBoard
 from tests.mock_callables import AsyncCallableMock
 from src.packages.context.context import Context
-import src.packages.RatMama as RatMama
+import src.packages.ratmama.ratmama_parser as RatMama
 from src.packages.rescue.rat_rescue import Platforms
 from src.packages.rescue.rat_rescue import Rescue
 import config
