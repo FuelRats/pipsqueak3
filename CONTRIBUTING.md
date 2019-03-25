@@ -148,13 +148,29 @@ During a peer review, reviewers will add a tag to the comment to help the author
 [Kudos]|The reviewer liked this, specifically. Go you.
 [Suggestion]| An optional, alternative approach.
 
-
-
 Adding multiple tags to a comment is fine.  Do not combine tags.
 
 Good: ``[Suggestion][Kudos] This is great, but...``
 
 Bad:  ``[Suggestion|Kudos] This is great, but...``
+
+
+## Pull Request Labels
+Labels may be applied to your pull requests, for the purposes of organization and / or overall 
+status.
+
+|       Label       |                         Explanation                          |
+| ----------------- | ------------------------------------------------------------ |
+Awaiting changes    | On hold until requested changes have been applied
+Bug Fix             | Fixes a bug
+CI change           | Modifies the configuration of Continuous Integration (CI)
+Dependency change   | Changes the project's dependencies
+Documentation       | Modifies project documentation
+Feature             | Adds a new feature
+Refactor            | Refactors an existing system
+Linting             | Adjusts the linting rules
+Policy change       | Modifies contributing or development policies
+Team decision       | Requires the consensus of all core contributors
 
 ## Testing
 
