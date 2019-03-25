@@ -21,15 +21,6 @@ from ..context import Context
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
-__all__ = [
-    "Permission",
-    "RECRUIT",
-    "RAT",
-    "OVERSEER",
-    "TECHRAT",
-    "ADMIN"
-]
-
 
 class Permission:
     """
@@ -236,8 +227,8 @@ def require_permission(permission: Permission,
 
         @wraps(func)
         async def guarded(context: Context, *args):
-            if context.user.hostname in _by_vhost.keys()\
-               and _by_vhost[context.user.hostname] >= permission:
+            if context.user.hostname in _by_vhost.keys() \
+                    and _by_vhost[context.user.hostname] >= permission:
                 return await func(context, *args)
 
             await context.reply(override_message if override_message else permission.denied_message)
