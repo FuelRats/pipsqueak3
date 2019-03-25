@@ -20,4 +20,5 @@ __all__ = [
     "ADMIN",
 ]
 
-from .permissions import *
+from .permissions import Permission, require_permission, require_dm, require_channel, RAT, \
+    TECHRAT, RECRUIT, OVERSEER, ADMIN
