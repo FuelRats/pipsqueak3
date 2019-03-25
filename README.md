@@ -1,6 +1,6 @@
 <img src="https://github.com/FuelRats/pipsqueak3/blob/develop/assets/m3spark.png?raw=true" width="50%" />
 
-[![Build Status](https://travis-ci.org/FuelRats/pipsqueak3.svg?branch=develop)](https://travis-ci.org/FuelRats/pipsqueak3) [![Maintainability](https://api.codeclimate.com/v1/badges/83b536889d48ddfe2557/maintainability)](https://codeclimate.com/github/FuelRats/pipsqueak3/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/83b536889d48ddfe2557/test_coverage)](https://codeclimate.com/github/FuelRats/pipsqueak3/test_coverage)
+[![Build Status](https://circleci.com/gh/FuelRats/pipsqueak3/tree/develop.svg?style=svg)](https://circleci.com/gh/FuelRats/pipsqueak3/tree/develop) [![codecov](https://codecov.io/gh/FuelRats/pipsqueak3/branch/develop/graph/badge.svg)](https://codecov.io/gh/FuelRats/pipsqueak3)
 
 SPARK is the all-in-one wonderbot written and utilized by *The Fuel Rats* for rescue management.
 This project is under active development.  As such, features may be added or removed without notice.
@@ -10,9 +10,9 @@ This project is under active development.  As such, features may be added or rem
 SPARK is currently **incomplete**.
 
 ## Requirements
-* Python 3.6.5
+* Python 3.7
 * PostgreSQL
-* [Pydle, asyncio branch](https://github.com/Shizmob/pydle/tree/asyncio) ``git://github.com/Shizmob/pydle.git@asyncio#egg=pydle``
+* Pydle >= 0.9.1
 
 ## Installation
 This script can be run as a Docker image or run locally.
@@ -45,7 +45,7 @@ docker-compose run mechasqueak
 
 ## Run Locally
 > ## NOTE:
-> ontop of pip you must have installed `pipenv`, this guide assumes this fact.
+> on top of pip you must have installed `pipenv`, this guide assumes this fact.
 
 > If you are not using pipenv, please see [Pipfile](Pipfile) for the list of required libraries. 
  You will need to install these libraries manually.
@@ -55,7 +55,7 @@ docker-compose run mechasqueak
     - For development, please use `pipenv install -d` to install our development dependencies.
 3. once installed, activate the venv `pipenv shell`
 4. Build your configuration file.  Please see the [Configuration](#Configuration) section.
-5. Execute Mecha with ``python main.py --config <your configuration file>``  (You may need to use the python3 alias)
+5. Execute Mecha with ``python -m src --config <your configuration file>``  (You may need to use the python3 alias)
 
 |    Flag         |    Description                     |
 | :--------------:|------------------------------------|

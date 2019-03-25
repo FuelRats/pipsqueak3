@@ -5,7 +5,7 @@ Config files files go in this directory, and are shared with Docker
     `mechasqueak/config`
 
 The template configuration, `config.template.json` has all the necessary
-    keys to run mechasqueak, however is justa stub.
+    keys to run mechasqueak, however it's just a stub.
 
 The sections
 ------------
@@ -18,9 +18,9 @@ irc client, such as username, server, and channels to connect to.
 |--------|-------------|
 | server|  the irc server to connect to|
 | nickname| the bots username|
-| port| irc port to connect to. `3367` for plain, `3397` for ssl|
-| tls| set to true to connect to tls, a false setting disables SASL|
-|channels| list of channels to connec to|
+| port| irc port to connect to. `6667` for plain, `6697` for ssl|
+| tls| set to true to connect to tls, a false setting disables SASL EXTERNAL|
+|channels| list of channels to connect to|
 
 # Authentication
 This section contains details relavent to authenticating against the
@@ -39,7 +39,7 @@ Authentication settings for SASL plain (username + password)
 |--------|-------------|
 | username | nickserv username |
 | password | nickserv password|
-| identiy  | nickserv account|
+| identity  | nickserv account|
 
 ## external
 Authentication settings for SASL external (client certificate)
