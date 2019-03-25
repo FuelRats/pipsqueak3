@@ -160,17 +160,17 @@ Labels may be applied to your pull requests, for the purposes of organization an
 status.
 
 | label | Explanation |
-| --- | --- |
-Awaiting changes    | this pull request is on hold until requested changes have been effected
-Feature             | this pull request adds a new feature
-Bug Fix             | this pull request fixes some bug
-Refactor            | this pull request refactors something
-Documentation       | this pull request only effects documentation
-Linting             | this pull request adjusts our linting configurations
-CI change           | This pull request reconfigures the CI environment
-Dependency change   | this pull request modifies our dependencies
-Policy              | this pull request modifies our contributing policies
-Consensus required  | this pull request requires the consensus of all core contributors
+| ----------------- | ------------------------------------------------------------ |
+Awaiting changes    | is on hold until requested changes have been effected
+Feature             | adds a new feature
+Bug Fix             | fixes some bug
+Refactor            | refactors something
+Documentation       | only effects documentation
+Linting             | adjusts the linting configurations
+CI change           | reconfigures the CI environment
+Dependency change   | modifies the dependencies
+Policy change       | modifies the contributing policies
+Consensus required  | requires the consensus of all core contributors
 
 ## Testing
 
