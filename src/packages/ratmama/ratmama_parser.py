@@ -21,8 +21,6 @@ from ..rules import rule
 from ..utils import Platforms
 from ..galaxy.galaxy import Galaxy
 
-
-
 LOG = logging.getLogger(f"mecha.{__name__}")
 Galaxy = Galaxy()
 
@@ -174,7 +172,8 @@ async def handle_ratsignal(ctx: Context) -> None:
         sep = '-'
 
     if not sep:
-        ctx.bot.board.append(Rescue(irc_nickname=ctx.user.nickname.split("[")[0], client=ctx.user.nickname))
+        ctx.bot.board.append(Rescue(irc_nickname=ctx.user.nickname.split("[")[0],
+                                    client=ctx.user.nickname))
         index = ctx.bot.board.find_by_name(ctx.user.nickname)
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
