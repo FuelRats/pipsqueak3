@@ -10,19 +10,20 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-import re
-from Modules.context import Context
-from Modules.rules import rule
-from typing import Optional
-from Modules.rat_rescue import Rescue, Platforms
-from Modules.galaxy.galaxy import Galaxy
-import config
 import logging
+import re
+from typing import Optional
+
+from ..context import Context
+from ..rules import rule
+from ..rat_rescue import Rescue, Platforms
+from ..galaxy.galaxy import Galaxy
+import config
+
 
 LOG = logging.getLogger(f"mecha.{__name__}")
-Galaxy = Galaxy()
 
-ratmama_regex = re.compile(r"""(?x)
+RATMAMA_REGEX = re.compile(r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
@@ -80,7 +81,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         return
 
     message: str = ctx.words_eol[0]
-    result = re.fullmatch(ratmama_regex, message)
+    result = re.fullmatch(RATMAMA_REGEX, message)
     client_name: str = result.group("cmdr")
     system_name: str = result.group("system")
     platform_name: str = result.group("platform")

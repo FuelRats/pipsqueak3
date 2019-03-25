@@ -12,12 +12,12 @@ See LICENSE.md
 """
 
 import pytest
-from Modules.rat_board import RatBoard
+from src.packages.rat_board import RatBoard
 from tests.mock_callables import AsyncCallableMock
-from Modules.context import Context
-import Modules.RatMama as RatMama
-from Modules.rat_rescue import Platforms
-from Modules.rat_rescue import Rescue
+from src.packages.context.context import Context
+import src.packages.RatMama as RatMama
+from src.packages.rescue.rat_rescue import Platforms
+from src.packages.rescue.rat_rescue import Rescue
 import config
 
 pytestmark = [pytest.mark.ratsignal_parse, pytest.mark.asyncio]
