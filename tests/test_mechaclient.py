@@ -78,11 +78,30 @@ def test_verify_fact_manager(bot_fx, fact_manager_bad_types):
     assert isinstance(bot_fx._fact_manager, FakeFactManager)
     assert bot_fx.fact_manager is bot_fx._fact_manager
 
-    del bot_fx.fact_manager
-    assert bot_fx._fact_manager is None
-
     with pytest.raises(TypeError):
         bot_fx.fact_manager = fact_manager_bad_types
+
+
+def test_verify_fact_manager_deleter(bot_fx):
+    """
+    Asserts no error is thrown upon deletion of the fact_manager property.
+    """
+    # Helper Class
+    class FakeFactManager(FactManager):
+        # Overriding the parent class init to prevent it from creating a DB connection.
+        def __init__(self):
+            ...
+
+    bot_fx.fact_manager = FakeFactManager()
+    del bot_fx.fact_manager
+
+
+def test_verify_rat_board_deleter(bot_fx):
+    """
+    Asserts no error is thrown upon deletion of the rat_board property.
+    """
+    bot_fx.board = RatBoard()
+    del bot_fx.board
 
 
 @pytest.mark.parametrize("rat_board_bad_types", ["Something that isn't a Rat Board", (1, 3), 3.14])
@@ -94,9 +113,6 @@ def test_verify_rat_board(bot_fx, rat_board_bad_types):
 
     assert isinstance(bot_fx._rat_board, RatBoard)
     assert bot_fx.board is bot_fx._rat_board
-
-    del bot_fx.board
-    assert bot_fx._rat_board is None
 
     with pytest.raises(TypeError):
         bot_fx.board = rat_board_bad_types

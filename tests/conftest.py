@@ -37,7 +37,6 @@ from config import setup_logging
 
 setup_logging("logs/unit_tests.log")
 
-from src.mechaclient import MechaClient
 from src.packages.permissions.permissions import Permission
 from tests.mock_bot import MockBot
 from src.packages.board.rat_board import RatBoard
