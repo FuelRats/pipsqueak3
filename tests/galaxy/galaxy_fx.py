@@ -1,5 +1,5 @@
 """
-galaxy/conftest.py - Testing fixtures for the Galaxy module.
+galaxy_fx.py - Testing fixtures for the Galaxy module.
 
 Copyright (c) 2018 The Fuel Rats Mischief,
 All rights reserved.

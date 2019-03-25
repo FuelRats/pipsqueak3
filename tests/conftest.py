@@ -35,6 +35,9 @@ sys.argv = ["test",
 # This import statement is where the config gets read
 from config import setup_logging
 
+# Include other conftest files
+pytest_plugins = ["tests.galaxy.galaxy_fx"]
+
 setup_logging("logs/unit_tests.log")
 
 from src.packages.permissions.permissions import Permission
