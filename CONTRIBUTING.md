@@ -162,15 +162,15 @@ status.
 | label | Explanation |
 | ----------------- | ------------------------------------------------------------ |
 Awaiting changes    | is on hold until requested changes have been effected
-Feature             | adds a new feature
 Bug Fix             | fixes some bug
-Refactor            | refactors something
-Documentation       | only effects documentation
-Linting             | adjusts the linting configurations
 CI change           | reconfigures the CI environment
-Dependency change   | modifies the dependencies
-Policy change       | modifies the contributing policies
 Consensus required  | requires the consensus of all core contributors
+Dependency change   | modifies the dependencies
+Documentation       | only effects documentation
+Feature             | adds a new feature
+Refactor            | refactors something
+Linting             | adjusts the linting configurations
+Policy change       | modifies the contributing policies
 
 ## Testing
 
