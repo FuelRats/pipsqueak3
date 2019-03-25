@@ -159,17 +159,17 @@ Bad:  ``[Suggestion|Kudos] This is great, but...``
 Labels may be applied to your pull requests, for the purposes of organization and / or overall 
 status.
 
-|       label       |                         Explanation                          |
+|       Label       |                         Explanation                          |
 | ----------------- | ------------------------------------------------------------ |
-Awaiting changes    | On hold until requested changes have been effected
+Awaiting changes    | On hold until requested changes have been applied
 Bug Fix             | Fixes a bug
-CI change           | Modifies the configuration of Continuous Integration
-Dependency change   | Modifies the dependencies
-Documentation       | Only effects documentation
+CI change           | Modifies the configuration of Continuous Integration (CI)
+Dependency change   | Changes the project's dependencies
+Documentation       | Modifies project documentation
 Feature             | Adds a new feature
-Refactor            | Refactors something
-Linting             | Adjusts the linting configurations
-Policy change       | Modifies the contributing policies
+Refactor            | Refactors an existing system
+Linting             | Adjusts the linting rules
+Policy change       | Modifies contributing or development policies
 Team decision       | Requires the consensus of all core contributors
 
 ## Testing
