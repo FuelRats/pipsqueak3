@@ -8,8 +8,8 @@ aiohttp = "*"
 pydle = ">=0.9.1"
 pure-sasl = "*"
 coloredlogs = "*"
-psycopg2 = "*"
 humanfriendly = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 pytest = "*"
