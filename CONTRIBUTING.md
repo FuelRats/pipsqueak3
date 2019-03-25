@@ -155,22 +155,22 @@ Good: ``[Suggestion][Kudos] This is great, but...``
 Bad:  ``[Suggestion|Kudos] This is great, but...``
 
 
-## Pull request labels
+## Pull Request Labels
 Labels may be applied to your pull requests, for the purposes of organization and / or overall 
 status.
 
 |       label       |                         Explanation                          |
 | ----------------- | ------------------------------------------------------------ |
-Awaiting changes    | is on hold until requested changes have been effected
-Bug Fix             | fixes some bug
-CI change           | reconfigures the CI environment
-Consensus required  | requires the consensus of all core contributors
-Dependency change   | modifies the dependencies
-Documentation       | only effects documentation
-Feature             | adds a new feature
-Refactor            | refactors something
-Linting             | adjusts the linting configurations
-Policy change       | modifies the contributing policies
+Awaiting changes    | On hold until requested changes have been effected
+Bug Fix             | Fixes a bug
+CI change           | Modifies the configuration of Continuous Integration
+Dependency change   | Modifies the dependencies
+Documentation       | Only effects documentation
+Feature             | Adds a new feature
+Refactor            | Refactors something
+Linting             | Adjusts the linting configurations
+Policy change       | Modifies the contributing policies
+Team decision       | Requires the consensus of all core contributors
 
 ## Testing
 
