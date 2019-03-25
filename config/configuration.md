@@ -75,3 +75,8 @@ API configuration elements
 |online_mode|should mecha start up in online mode?|
 |url|base url for the API|
 |tokenfile|name of the API token file, relative to `certs/`|
+
+# ratsignal_parser
+| Element| description|
+|--------|------------|
+|announcer_nicks| list of case-insensitive nicks, that are allowed to announce incoming clients|
