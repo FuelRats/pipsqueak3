@@ -16,7 +16,7 @@ from typing import Optional
 
 import config
 from ..context import Context
-from ..rat_rescue import Rescue
+from ..rescue import Rescue
 from ..rules import rule
 from ..utils import Platforms
 from ..galaxy.galaxy import Galaxy
