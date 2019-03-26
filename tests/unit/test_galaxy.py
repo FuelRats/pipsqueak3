@@ -11,6 +11,8 @@ See LICENSE
 
 import pytest
 
+from aiohttp import ClientError
+
 pytestmark = [pytest.mark.unit, pytest.mark.galaxy]
 
 
@@ -120,3 +122,21 @@ async def test_plot_waypoint_route_invalid(galaxy_fx):
     """
     with pytest.raises(ValueError):
         await galaxy_fx.plot_waypoint_route("Fuelum", "Fualun")
+
+@pytest.mark.asyncio
+async def test_http_retry_eventually(galaxy_fx):
+    """
+    Test that Galaxy will retry a failed request a number of times before failing.
+    Ensures that an eventually-good endpoint will return data.
+    """
+    data = await galaxy_fx._call("badendpoint")
+    assert data['success']
+
+@pytest.mark.asyncio
+async def test_http_retry_permanent(galaxy_fx):
+    """
+    Test that Galaxy has a limit to number of retries before it will outright
+    fail.
+    """
+    with pytest.raises(ClientError):
+        await galaxy_fx._call("reallybadendpoint")

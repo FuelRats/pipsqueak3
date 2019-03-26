@@ -14,7 +14,7 @@ from html import escape
 import json
 from typing import Dict, List, Optional, Tuple
 
-import aiohttp
+from aiohttp import ClientError, ClientSession, ClientTimeout
 
 from config import config
 from ..utils import Vector
@@ -59,6 +59,8 @@ class Galaxy:
         )
     }
     MAX_PLOT_DISTANCE = 20000
+    MAX_RETRIES = 3
+    TIMEOUT = ClientTimeout(total=10)
 
     def __init__(self, url: str = None):
         self.url = url or config['api']['url']
@@ -271,7 +273,7 @@ class Galaxy:
         if nearest['data']:
             return [neighbor['name'] for neighbor in nearest['data']]
 
-    async def _call(self, endpoint: str, params: Dict[str, str]) -> object:
+    async def _call(self, endpoint: str, params: Dict[str, str] = None) -> object:
         """
         Perform an API call on the Fuel Rats Systems API.
 
@@ -290,6 +292,14 @@ class Galaxy:
                 [f"{key}={escape(str(value))}" for key, value in params.items()]
             )
         url = f"{base_url}{endpoint}?{param_string}"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                return json.loads(await response.text())
+        retry_count = 0
+        while True:
+            try:
+                async with ClientSession(raise_for_status=True,
+                                         timeout=self.TIMEOUT) as session:
+                    async with session.get(url) as response:
+                        return json.loads(await response.text())
+            except ClientError:
+                retry_count += 1
+                if retry_count > self.MAX_RETRIES:
+                    raise
