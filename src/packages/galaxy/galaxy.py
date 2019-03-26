@@ -80,15 +80,34 @@ class Galaxy:
         data = await self._call("api/systems", {"filter[name:eq]": name.upper()})
         result_count = data['meta']['results']['available']
         if result_count > 0:
+            system_id = data['data'][0]['id']
             sys = data['data'][0]['attributes']
-            main_star = await self._call("api/stars",
-                                         {"filter[systemId64:eq]": sys['id64'],
-                                          "filter[isMainStar:eq]": 1})
-            if main_star['meta']['results']['available'] > 0:
-                sys['spectral_class'] = main_star['data'][0]['attributes']['subType'][0]
+            main_star = await self._find_main_star(system_id)
+            sys['spectral_class'] = main_star['spectral_class'] if main_star is not None else None
             return StarSystem(position=Vector(**sys['coords']),
                               name=sys['name'],
-                              spectral_class=sys.get('spectral_class'))
+                              spectral_class=sys['spectral_class'])
+
+    async def _find_main_star(self, system_id: int) -> Optional[Dict]:
+        """
+        Find the main star of a system given its system ID.
+
+        Args:
+            system_id (int): The ID of the system, given from the Systems API.
+
+        Returns:
+            If found, returns a dict containing the information about the main star, matching the
+            structure of the data returned from the /api/stars endpoint.
+            If the system given cannot be found, returns None.
+        """
+
+        stars = await self._call("api/stars", {"filter[systemId:eq]": system_id})
+        for star in stars['data']:
+            if star['attributes']['isMainStar']:
+                result = star['attributes']
+                result['id'] = star['id']
+                result['spectral_class'] = star['attributes']['subType'][0]
+                return result
 
     async def find_nearest_landmark(self, system: StarSystem) -> Tuple[StarSystem, float]:
         """
