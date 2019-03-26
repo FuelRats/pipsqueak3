@@ -22,6 +22,9 @@
 # rules module
 /src/packages/rules/ @MHajoha
 
+# signal parser module
+/src/packages/ratmama @beepbeat
+
 # various CI configuration files.
 *.yml @theunkn0wn1
 *.ini @theunkn0wn1
