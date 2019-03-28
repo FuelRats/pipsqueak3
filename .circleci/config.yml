@@ -26,6 +26,14 @@ jobs:
           #          DB_DATABASE: mecha
           POSTGRES_PASSWORD: mecha
 
+      # Unreal container
+      - image: eearslya/mecha3-unreal:latest
+        name: irc
+
+      # Anope container
+      - image: eearslya/mecha3-anope:latest
+        name: services
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -80,6 +88,13 @@ jobs:
           command: |
             pipenv run pytest -m "unit or regressions" -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
             pipenv run codecov
+
+      # Run full smoke test
+      - run:
+          name: smoke test
+          command: |
+            timeout 10 pipenv run python -m src --config circle.json || :
+            grep -i "Connected to IRC" logs/unit_tests.log
 
       - store_artifacts:
           path: logs/unit_tests.log

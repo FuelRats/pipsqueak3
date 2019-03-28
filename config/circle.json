@@ -1,0 +1,81 @@
+{
+  "irc": {
+    "nickname": "Mechasqueak3-tests[BOT]",
+    "server": "irc",
+    "port": 6697,
+    "tls": true,
+    "channels": [
+      "#unkn0wndev"
+    ]
+  },
+  "authentication": {
+    "method": "PLAIN",
+    "plain": {
+      "username": "",
+      "password": "",
+      "identity": ""
+    },
+    "external": {
+      "tls_client_cert": "file"
+    }
+  },
+  "logging": {
+    "base_logger": "testmecha",
+    "log_file": "logs/unit_tests.log"
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "dbname": "circle_test",
+    "username": "root",
+    "password": "mecha"
+  },
+  "commands": {
+    "prefix": "!"
+  },
+  "api": {
+    "online_mode": false,
+    "url": "http://localhost/",
+    "tokenfile": null
+  },
+  "permissions": {
+    "recruit": {
+      "vhosts": [
+        "recruit.fuelrats.com"
+      ],
+      "level": 0
+    },
+    "rat": {
+      "vhosts": [
+        "rat.fuelrats.com"
+      ],
+      "level": 1
+    },
+    "overseer":{
+      "vhosts": [
+        "overseer.fuelrats.com"
+      ],
+      "level":2
+    },
+    "techrat":{
+      "vhosts":[
+        "techrat.fuelrats.com"
+      ],
+      "level":3
+    },
+    "administrator":{
+      "vhosts":[
+        "op.fuelrats.com",
+        "netadmin.fuelrats.com",
+        "admin.fuelrats.com",
+        "i.see.all"
+      ],
+      "level":4
+    }
+  },
+  "ratsignal_parser": {
+    "announcer_nicks" : [
+      "RatMama[Bot]"
+    ]
+  }
+}
