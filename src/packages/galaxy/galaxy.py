@@ -292,14 +292,13 @@ class Galaxy:
                 [f"{key}={escape(str(value))}" for key, value in params.items()]
             )
         url = f"{base_url}{endpoint}?{param_string}"
-        retry_count = 0
-        while True:
+        for retry in range(self.MAX_RETRIES):
             try:
                 async with ClientSession(raise_for_status=True,
                                          timeout=self.TIMEOUT) as session:
                     async with session.get(url) as response:
                         return json.loads(await response.text())
             except ClientError:
-                retry_count += 1
-                if retry_count > self.MAX_RETRIES:
+                # If we've used our last retry, re-raise the offending exception.
+                if retry == (self.MAX_RETRIES - 1):
                     raise
