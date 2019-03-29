@@ -110,4 +110,7 @@ def galaxy_fx(mock_system_api_server_fx) -> Galaxy: # pylint: disable=redefined-
     Test fixture for Galaxy. Includes a mock API server with pre-made calls.
     """
 
-    return Galaxy(mock_system_api_server_fx.url_for("/"))
+    fixture = Galaxy(mock_system_api_server_fx.url_for("/"))
+    # Remove the sleep timer for retries for the purposes of testing.
+    fixture.RETRY_SLEEP = 0
+    return fixture
