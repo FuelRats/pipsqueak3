@@ -1,0 +1,51 @@
+[irc]
+nickname = "Mechasqueak3[BOT]"
+port = 6697
+tls = true
+channels = [ "#unkn0wndev",]
+
+[logging]
+base_logger = "mecha"
+log_file = "logs/mechasqueak.log"
+
+[database]
+
+[commands]
+prefix = "!"
+
+[api]
+online_mode = false
+
+[ratsignal_parser]
+announcer_nicks = [ "ratmama[bot]",]
+
+[authentication]
+method = "PLAIN"
+
+[authentication.plain]
+username = ""
+password = ""
+identity = ""
+
+[authentication.external]
+tls_client_cert = "file"
+
+[permissions.recruit]
+vhosts = [ "recruit.fuelrats.com",]
+level = 0
+
+[permissions.rat]
+vhosts = [ "rat.fuelrats.com",]
+level = 1
+
+[permissions.overseer]
+vhosts = [ "overseer.fuelrats.com",]
+level = 2
+
+[permissions.techrat]
+vhosts = [ "techrat.fuelrats.com",]
+level = 3
+
+[permissions.administrator]
+vhosts = [ "op.fuelrats.com", "netadmin.fuelrats.com", "admin.fuelrats.com", "i.see.all",]
+level = 4
