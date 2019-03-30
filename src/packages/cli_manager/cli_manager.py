@@ -28,7 +28,7 @@ _PARSER.add_argument("--clean-log",
 # register optional argument for the config file
 _PARSER.add_argument("--config-file", "--config", "-c",
                      help="Specify the configuration file to load, relative to config/",
-                     default="configuration.json")
+                     default="configuration.toml")
 
 # register optional flag for verbose logging
 _PARSER.add_argument("--verbose", "-v",

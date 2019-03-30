@@ -27,7 +27,7 @@ from src.packages.cache.rat_cache import RatCache
 # Set argv to keep cli arguments meant for pytest from polluting our things
 
 sys.argv = ["test",
-            "--config-file", "testing.json",
+            "--config-file", "testing.toml",
             "--clean-log",
             "--verbose",
             ]
