@@ -267,6 +267,8 @@ workflows:
       - integration_tests:
           requires:
             - setup_workspace
+            - linting
+            - tests
 
 notify:
   branches:
