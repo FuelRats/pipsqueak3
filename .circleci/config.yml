@@ -26,14 +26,6 @@ jobs:
           #          DB_DATABASE: mecha
           POSTGRES_PASSWORD: mecha
 
-      # Unreal container
-      - image: eearslya/mecha3-unreal:latest
-        name: irc
-
-      # Anope container
-      - image: eearslya/mecha3-anope:latest
-        name: services
-
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -89,13 +81,6 @@ jobs:
             pipenv run pytest -m "unit or regressions" -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
             pipenv run codecov
 
-      # Run full smoke test
-      - run:
-          name: smoke test
-          command: |
-            timeout 10 pipenv run python -m src --config circle.json || :
-            grep -i "Connected to IRC" logs/unit_tests.log
-
       - store_artifacts:
           path: logs/unit_tests.log
 
@@ -105,6 +90,85 @@ jobs:
 
       - store_test_results:
           path: test-reports
+
+  integration_tests:
+    environment:
+      # tell pipenv
+      PIPENV_VENV_IN_PROJECT: true
+
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          # set an env token to where our circleci database is
+          # by default the user is `root` and the db name is `circle_test`
+          TEST_DATABASE_URL: postgresql://root:mecha@localhost/circle_test
+
+      # Postgres container
+      - image: circleci/postgres:9.6.2-alpine
+        environment:
+          #          DB_USER: mecha
+          #          DB_DATABASE: mecha
+          POSTGRES_PASSWORD: mecha
+
+      # Unreal container
+      - image: eearslya/mecha3-unreal:latest
+        name: irc
+
+      # Anope container
+      - image: eearslya/mecha3-anope:latest
+        name: services
+
+    working_directory: ~/repo
+
+    steps:
+      - attach_workspace:
+          at: .
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v3-dependencies-{{ checksum "Pipfile.lock" }}
+
+
+      # do caching magic
+      - save_cache:
+          paths:
+            - ".venv"
+          key: v3-dependencies-{{ checksum "Pipfile.lock" }}
+
+
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            - DOCKERIZE_VERSION: v0.3.0
+
+      # install psql tools
+      - run:
+          name: update apt tables
+          command: sudo apt-get update
+      - run:
+          name: install psql client
+          command: sudo apt-get install postgresql-client-9.6
+      - run: whoami
+      # wait for the database to spin up
+      - run:
+          name: Wait for db
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      # setup the database
+      - run:
+          name: Setup postgres database
+          command: |
+            psql -d $TEST_DATABASE_URL -c "CREATE TABLE public.fact ( name character varying NOT NULL, lang character varying NOT NULL, message character varying NOT NULL, author character varying, CONSTRAINT fact_pkey PRIMARY KEY (name, lang));"
+            psql -d $TEST_DATABASE_URL -c "INSERT INTO public.fact (name, lang, message, author) VALUES ('test', 'en', 'This is a test fact.', 'Shatt');"
+
+      # Run full smoke test
+      - run:
+          name: smoke test
+          command: |
+            timeout 10 pipenv run python -m src --config circle.toml || :
+            grep -i "Connected to IRC" logs/unit_tests.log
+
   setup_workspace:
     environment:
       # tell pipenv
@@ -198,6 +262,9 @@ workflows:
             - setup_workspace
       - tests:
           #          don't bother running tests if linting catches any errors
+          requires:
+            - setup_workspace
+      - integration_tests:
           requires:
             - setup_workspace
 
