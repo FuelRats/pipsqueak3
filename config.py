@@ -13,7 +13,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
-import json
+import toml
 import logging
 import os
 import coloredlogs
@@ -113,7 +113,7 @@ def setup(filename: str) -> None:
     if os.path.exists(path):
         logging.info(f"Found a file/directory at {filename}'! attempting to load...")
         with open(path, 'r', encoding="UTF8") as infile:
-            config_dict = json.load(infile)
+            config_dict = toml.load(infile)
             logging.info("Successfully loaded JSON from file specified!")
 
         setup_logging(config_dict['logging']['log_file'])

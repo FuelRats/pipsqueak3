@@ -10,6 +10,7 @@ pure-sasl = "*"
 coloredlogs = "*"
 humanfriendly = "*"
 psycopg2-binary = "*"
+toml = "*"
 
 [dev-packages]
 pytest = "*"

@@ -4,7 +4,7 @@ Config files files go in this directory, and are shared with Docker
     images. Specifically, this folder will be mounted rw in
     `mechasqueak/config`
 
-The template configuration, `config.template.json` has all the necessary
+The template configuration, `config.template.toml` has all the necessary
     keys to run mechasqueak, however it's just a stub.
 
 The sections
