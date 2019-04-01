@@ -15,7 +15,7 @@ from html import escape
 import json
 from typing import Dict, List, Optional, Tuple
 
-from aiohttp import ClientError, ClientSession, ClientTimeout
+import aiohttp
 
 from config import config
 from ..utils import Vector
@@ -64,7 +64,7 @@ class Galaxy:
     MAX_RETRIES = 3
     "The maximum number of times to retry a failed HTTP request before failing permanently."
 
-    TIMEOUT = ClientTimeout(total=10)
+    TIMEOUT = aiohttp.ClientTimeout(total=10)
     "A ClientTimeout object representing the total time an HTTP request can take before failing."
 
     RETRY_SLEEP = 1
@@ -302,11 +302,11 @@ class Galaxy:
         url = f"{base_url}{endpoint}?{param_string}"
         for retry in range(self.MAX_RETRIES):
             try:
-                async with ClientSession(raise_for_status=True,
-                                         timeout=self.TIMEOUT) as session:
+                async with aiohttp.ClientSession(raise_for_status=True,
+                                                 timeout=self.TIMEOUT) as session:
                     async with session.get(url) as response:
                         return json.loads(await response.text())
-            except ClientError:
+            except aiohttp.ClientError:
                 # If we've used our last retry, re-raise the offending exception.
                 if retry == (self.MAX_RETRIES - 1):
                     raise
