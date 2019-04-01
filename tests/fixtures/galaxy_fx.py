@@ -111,6 +111,11 @@ def galaxy_fx(mock_system_api_server_fx) -> Galaxy: # pylint: disable=redefined-
     """
 
     fixture = Galaxy(mock_system_api_server_fx.url_for("/"))
+
     # Remove the sleep timer for retries for the purposes of testing.
-    fixture.RETRY_SLEEP = 0
+    async def delay_stub(_retry) -> None:
+        pass
+
+    fixture._retry_delay = delay_stub
+
     return fixture

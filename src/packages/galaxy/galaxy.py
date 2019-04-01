@@ -13,7 +13,7 @@ See LICENSE.md
 import asyncio
 from html import escape
 import json
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import aiohttp
 
@@ -66,9 +66,6 @@ class Galaxy:
 
     TIMEOUT = aiohttp.ClientTimeout(total=10)
     "A ClientTimeout object representing the total time an HTTP request can take before failing."
-
-    RETRY_SLEEP = 1
-    "The amount of time, in seconds, to wait between HTTP retries."
 
     def __init__(self, url: str = None):
         self.url = url or config['api']['url']
@@ -281,7 +278,16 @@ class Galaxy:
         if nearest['data']:
             return [neighbor['name'] for neighbor in nearest['data']]
 
-    async def _call(self, endpoint: str, params: Dict[str, str] = None) -> object:
+    async def _retry_delay(self, current_retry: int) -> None:
+        """
+        Uses asyncio.sleep to pause execution for a number of seconds equal to
+        `current_retry` squared.
+        """
+        await asyncio.sleep(current_retry ** 2)
+
+    async def _call(self,
+                    endpoint: str,
+                    params: Optional[Dict[str, str]] = None) -> Union[dict, list]:
         """
         Perform an API call on the Fuel Rats Systems API.
 
@@ -290,7 +296,7 @@ class Galaxy:
             params (Dict): A dictionary of key-value pairs that will make up the query string.
 
         Returns:
-            An object representing the parsed JSON data returned from the API endpoint.
+            A dict or list object representing the parsed JSON data returned from the API endpoint.
         """
 
         base_url = self.url
@@ -312,4 +318,4 @@ class Galaxy:
                     raise
 
                 # Introduce a short pause between retries
-                await asyncio.sleep(self.RETRY_SLEEP)
+                await self._retry_delay(retry)
