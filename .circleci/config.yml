@@ -111,11 +111,11 @@ jobs:
           POSTGRES_PASSWORD: mecha
 
       # Unreal container
-      - image: eearslya/mecha3-unreal:latest
+      - image: theunkn0wn1/unrealircd:latest
         name: irc
 
       # Anope container
-      - image: eearslya/mecha3-anope:latest
+      - image: theunkn0wn1/anope_services:latest
         name: services
 
     working_directory: ~/repo
