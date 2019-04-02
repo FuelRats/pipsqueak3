@@ -3,13 +3,20 @@
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
 version: 2
+executors:
+  python:
+    docker:
+      - image: python:3.7
+    environment:
+      # tell pipenv to put its venv in the project path, for the sake of workspace caching
+      PIPENV_VENV_IN_PROJECT: true
+      # set an env token to where our circleci database is
+      # by default the user is `root` and the db name is `circle_test`
+      TEST_DATABASE_URL: postgresql://root:mecha@localhost/circle_test
+
 jobs:
   tests:
-    environment:
-      # tell pipenv
-      PIPENV_VENV_IN_PROJECT: true
-      CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
-
+    executor: python
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
@@ -91,10 +98,7 @@ jobs:
       - store_test_results:
           path: test-reports
   setup_workspace:
-    environment:
-      # tell pipenv
-      PIPENV_VENV_IN_PROJECT: true
-
+    executor: python
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
@@ -138,10 +142,7 @@ jobs:
 
 
   linting:
-    environment:
-      # tell pipenv
-      PIPENV_VENV_IN_PROJECT: true
-
+    executor: python
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
