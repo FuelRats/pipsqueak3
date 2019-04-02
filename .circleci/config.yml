@@ -102,7 +102,9 @@ jobs:
           keys:
             - v3-dependencies-{{ checksum "Pipfile.lock" }}
 
-
+      - run:
+          - name: install pipenv
+          - command: pip install pipenv
       - run:
           name: install dependencies
           command: |
