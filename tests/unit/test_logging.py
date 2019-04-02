@@ -17,7 +17,7 @@ import os
 
 import pytest
 
-pytestmark = pytest.mark.logging
+pytestmark = [pytest.mark.unit, pytest.mark.logging]
 
 
 def log_severity_call(logger, severity, random_string):

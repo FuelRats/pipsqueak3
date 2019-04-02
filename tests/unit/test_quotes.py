@@ -16,6 +16,7 @@ import pytest
 
 from src.packages.quotation.rat_quotation import Quotation
 
+@pytest.mark.unit
 @pytest.mark.quotation
 class TestQuotes(object):
 

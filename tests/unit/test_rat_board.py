@@ -11,7 +11,8 @@ from src.packages.board.rat_board import RatBoard, IndexNotFreeError, RescueNotC
 from src.packages.rescue.rat_rescue import Rescue
 from src.packages.utils import Platforms
 
-pytestmark = pytest.mark.ratboard
+pytestmark = [pytest.mark.unit, pytest.mark.ratboard]
+
 
 class RatBoardTests(TestCase):
     """

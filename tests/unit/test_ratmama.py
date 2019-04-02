@@ -13,14 +13,14 @@ See LICENSE.md
 
 import pytest
 from src.packages.board.rat_board import RatBoard
-from tests.mock_callables import AsyncCallableMock
+from tests.fixtures.mock_callables import AsyncCallableMock
 from src.packages.context.context import Context
 import src.packages.ratmama as ratmama
 from src.packages.rescue.rat_rescue import Platforms
 from src.packages.rescue.rat_rescue import Rescue
 import config
 
-pytestmark = [pytest.mark.ratsignal_parse, pytest.mark.asyncio]
+pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio]
 
 
 class TestRSignal(object):

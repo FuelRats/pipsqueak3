@@ -36,12 +36,12 @@ sys.argv = ["test",
 from config import setup_logging
 
 # Include other conftest files
-pytest_plugins = ["tests.galaxy.galaxy_fx"]
+pytest_plugins = ["tests.fixtures.galaxy_fx"]
 
 setup_logging("logs/unit_tests.log")
 
 from src.packages.permissions.permissions import Permission
-from tests.mock_bot import MockBot
+from tests.fixtures.mock_bot import MockBot
 from src.packages.board.rat_board import RatBoard
 from src.packages.rescue.rat_rescue import Rescue
 from src.packages.rat.rat import Rat
@@ -50,7 +50,7 @@ from src.packages.context.context import Context
 from src.packages.epic.epic import Epic
 from src.packages.user.user import User
 from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
-from tests.mock_callables import CallableMock, AsyncCallableMock
+from tests.fixtures.mock_callables import CallableMock, AsyncCallableMock
 from src.packages.database import DatabaseManager
 from src.packages.fact_manager.fact import Fact
 

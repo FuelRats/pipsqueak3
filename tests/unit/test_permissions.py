@@ -39,6 +39,7 @@ def restricted_command_fx(async_callable_fx, Setup_fx):
     return async_callable_fx
 
 
+@pytest.mark.unit
 @pytest.mark.permissions
 @pytest.mark.usefixtures("Setup_fx")
 class TestPermissions(object):

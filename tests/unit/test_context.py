@@ -14,7 +14,7 @@ import pytest
 
 from src.packages.context.context import Context
 
-pytestmark = pytest.mark.context
+pytestmark = [pytest.mark.unit, pytest.mark.context]
 
 
 def test_constructor(bot_fx, user_fx):

@@ -14,7 +14,7 @@ import pytest
 import datetime
 from datetime import timezone
 
-pytestmark = pytest.mark.fact_class
+pytestmark = [pytest.mark.unit, pytest.mark.fact_class]
 
 
 @pytest.mark.parametrize("strings", ["Shatt", "Ion4", "290ugs03", "ThISsTRiNG is AwFuL"])

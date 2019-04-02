@@ -16,7 +16,7 @@ from src.packages.rat.rat import Rat
 from src.packages.cache.rat_cache import RatCache
 from src.packages.utils import Platforms
 
-pytestmark = pytest.mark.asyncio
+pytestmark = [pytest.mark.unit, pytest.mark.asyncio]
 
 
 async def test_find_rat_by_name_existing(rat_good_fx: Rat, rat_cache_fx):

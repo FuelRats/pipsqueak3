@@ -19,7 +19,7 @@ from src.packages.rat.rat import Rat
 from src.packages.rescue.rat_rescue import Rescue
 from src.packages.utils import Status
 
-pytestmark = pytest.mark.rescue
+pytestmark = [pytest.mark.unit, pytest.mark.rescue]
 
 
 def test_rescue_defaults():

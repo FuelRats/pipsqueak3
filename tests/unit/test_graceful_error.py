@@ -14,8 +14,9 @@ import pytest
 
 from src.packages.graceful_errors import graceful_errors
 
+pytestmark = [pytest.mark.unit, pytest.mark.graceful_error]
 
-@pytest.mark.graceful_error
+
 class TestGracefulErrors(object):
     """
     Tests for the graceful_errors module

@@ -17,7 +17,7 @@ import pytest
 from src.packages.epic.epic import Epic
 from src.packages.rat.rat import Rat
 
-pytestmark = pytest.mark.epic
+pytestmark = [pytest.mark.unit, pytest.mark.epic]
 
 
 @pytest.mark.parametrize("uuid", (uuid4(), uuid4(), uuid4()))
