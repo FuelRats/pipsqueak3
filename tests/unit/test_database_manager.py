@@ -15,7 +15,7 @@ import pytest
 import psycopg2
 from psycopg2 import extensions, sql
 
-pytestmark = pytest.mark.database_manager
+pytestmark = [pytest.mark.unit, pytest.mark.database_manager]
 
 
 def test_init_values(test_dbm_fx):

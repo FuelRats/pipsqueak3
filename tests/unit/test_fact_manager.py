@@ -19,7 +19,7 @@ from psycopg2 import sql
 
 from src.packages.fact_manager.fact_manager import FactManager, Fact
 
-pytestmark = pytest.mark.fact_manager
+pytestmark = [pytest.mark.unit, pytest.mark.fact_manager]
 
 
 @pytest.fixture(scope='session')

@@ -7,7 +7,8 @@ from src.packages.utils import Vector
 
 from src.packages.utils import ratlib as ratlib
 
-pytestmark = pytest.mark.ratlib
+pytestmark = [pytest.mark.unit, pytest.mark.ratlib]
+
 
 nickname_test_list = [
     ('ThisIsATest[BOT]', "ThisIsATest"),

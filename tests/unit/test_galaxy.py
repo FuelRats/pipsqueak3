@@ -11,7 +11,7 @@ See LICENSE
 
 import pytest
 
-pytestmark = pytest.mark.galaxy
+pytestmark = [pytest.mark.unit, pytest.mark.galaxy]
 
 
 @pytest.mark.asyncio

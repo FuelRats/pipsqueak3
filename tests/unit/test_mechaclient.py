@@ -17,7 +17,7 @@ from src.packages.cache.rat_cache import RatCache
 from src.packages.commands import command
 from src.packages.context.context import Context
 
-pytestmark = pytest.mark.mechaclient
+pytestmark = [pytest.mark.unit, pytest.mark.mechaclient]
 
 
 def test_verify_api_handler_private(bot_fx):

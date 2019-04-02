@@ -78,7 +78,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv run pytest -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
+            pipenv run pytest -m "unit or regressions" -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
             pipenv run codecov
 
       - store_artifacts:

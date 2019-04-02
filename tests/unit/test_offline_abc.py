@@ -14,7 +14,7 @@ import pytest
 
 from src.packages.offline_awareness import OfflineAwareABC
 
-pytestmark = pytest.mark.offline
+pytestmark = [pytest.mark.unit, pytest.mark.offline]
 
 
 class Aware(OfflineAwareABC):

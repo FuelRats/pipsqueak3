@@ -12,7 +12,7 @@ import pytest
 
 from src.packages.user.user import User
 
-pytestmark = pytest.mark.user
+pytestmark = [pytest.mark.unit, pytest.mark.user]
 
 
 @pytest.mark.parametrize("expected_host", [
@@ -121,7 +121,7 @@ async def test_user_from_whois_miss(monkeypatch, bot_fx):
         raise AttributeError("because pydle")
 
     # patch in the exception raiser
-    monkeypatch.setattr("tests.mock_bot.MockBot.whois", mock_whois)
+    monkeypatch.setattr("tests.fixtures.mock_bot.MockBot.whois", mock_whois)
 
     ret = await User.from_pydle(bot_fx, "snafu")
     assert ret is None

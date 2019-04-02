@@ -14,6 +14,7 @@ See LICENSE.md
 import pytest
 import config
 
+@pytest.mark.unit
 @pytest.mark.setup_tests
 def test_bad_filename(random_string_fx):
     """

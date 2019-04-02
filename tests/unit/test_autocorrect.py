@@ -13,7 +13,7 @@ import pytest
 
 from src.packages.utils import correct_system_name
 
-pytestmark = pytest.mark.autocorrect
+pytestmark = [pytest.mark.unit, pytest.mark.autocorrect]
 
 @pytest.mark.parametrize("system_name, expected_name", [
     ("Fuelum", "FUELUM"),

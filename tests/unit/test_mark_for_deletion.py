@@ -17,7 +17,8 @@ import pytest
 
 from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 
-pytestmark = pytest.mark.mark_for_deletion
+pytestmark = [pytest.mark.unit, pytest.mark.mark_for_deletion]
+
 
 @pytest.mark.parametrize("reason,reporter,marked", [
     ([], 42.2, -1),

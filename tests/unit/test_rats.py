@@ -6,6 +6,7 @@ from src.packages.rat.rat import Rat
 from src.packages.utils import Platforms
 
 
+@pytest.mark.unit
 @pytest.mark.rat
 class TestRatsPyTest(object):
     @pytest.mark.parametrize("platform", [
