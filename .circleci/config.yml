@@ -6,7 +6,7 @@ version: 2.1
 executors:
   python_exec:
     docker:
-      - image: python:3.7
+      - image: circleci/python:3.7
     environment:
       # tell pipenv to put its venv in the project path, for the sake of workspace caching
       PIPENV_VENV_IN_PROJECT: true
@@ -113,7 +113,7 @@ jobs:
       # give CircleCi access to cached venv
       - run:
           name: Fix permissions on venv
-          command: chown -R circleci:circleci ".venv"
+          command: sudo chown -R circleci:circleci ".venv"
 
       # do caching magic
       - save_cache:
