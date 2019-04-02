@@ -113,7 +113,7 @@ jobs:
       # give CircleCi access to cached venv
       - run:
           name: Fix permissions on venv
-          command: sudo chown -R circleci:circleci ".venv"
+          command: chown -R circleci:circleci ".venv"
 
       # do caching magic
       - save_cache:
