@@ -16,7 +16,8 @@ executors:
 
 jobs:
   tests:
-    executor: python
+    executor:
+      -name: python
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
@@ -98,7 +99,8 @@ jobs:
       - store_test_results:
           path: test-reports
   setup_workspace:
-    executor: python
+    executor:
+      -name: python
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
@@ -142,7 +144,8 @@ jobs:
 
 
   linting:
-    executor: python
+    executor:
+      -name: python
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
