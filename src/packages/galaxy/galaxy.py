@@ -10,9 +10,10 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
+import asyncio
 from html import escape
 import json
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import aiohttp
 
@@ -59,6 +60,12 @@ class Galaxy:
         )
     }
     MAX_PLOT_DISTANCE = 20000
+
+    MAX_RETRIES = 3
+    "The maximum number of times to retry a failed HTTP request before failing permanently."
+
+    TIMEOUT = aiohttp.ClientTimeout(total=10)
+    "A ClientTimeout object representing the total time an HTTP request can take before failing."
 
     def __init__(self, url: str = None):
         self.url = url or config['api']['url']
@@ -271,7 +278,16 @@ class Galaxy:
         if nearest['data']:
             return [neighbor['name'] for neighbor in nearest['data']]
 
-    async def _call(self, endpoint: str, params: Dict[str, str]) -> object:
+    async def _retry_delay(self, current_retry: int) -> None:
+        """
+        Uses asyncio.sleep to pause execution for a number of seconds equal to
+        `current_retry` squared.
+        """
+        await asyncio.sleep(current_retry ** 2)
+
+    async def _call(self,
+                    endpoint: str,
+                    params: Optional[Dict[str, str]] = None) -> Union[dict, list]:
         """
         Perform an API call on the Fuel Rats Systems API.
 
@@ -280,7 +296,7 @@ class Galaxy:
             params (Dict): A dictionary of key-value pairs that will make up the query string.
 
         Returns:
-            An object representing the parsed JSON data returned from the API endpoint.
+            A dict or list object representing the parsed JSON data returned from the API endpoint.
         """
 
         base_url = self.url
@@ -290,6 +306,16 @@ class Galaxy:
                 [f"{key}={escape(str(value))}" for key, value in params.items()]
             )
         url = f"{base_url}{endpoint}?{param_string}"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                return json.loads(await response.text())
+        for retry in range(self.MAX_RETRIES):
+            try:
+                async with aiohttp.ClientSession(raise_for_status=True,
+                                                 timeout=self.TIMEOUT) as session:
+                    async with session.get(url) as response:
+                        return json.loads(await response.text())
+            except aiohttp.ClientError:
+                # If we've used our last retry, re-raise the offending exception.
+                if retry == (self.MAX_RETRIES - 1):
+                    raise
+
+                # Introduce a short pause between retries
+                await self._retry_delay(retry)

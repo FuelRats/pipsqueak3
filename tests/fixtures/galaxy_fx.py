@@ -95,6 +95,12 @@ def mock_system_api_server_fx():
             """{"data":[]}"""
         )
 
+        # Tests that Galaxy will retry failed requests
+        httpserver.expect_oneshot_request("/badendpoint").respond_with_data(status = 400)
+        httpserver.expect_oneshot_request("/badendpoint").respond_with_data(status = 500)
+        httpserver.expect_oneshot_request("/badendpoint").respond_with_data("""{"success":true}""")
+        httpserver.expect_request("/reallybadendpoint").respond_with_data(status = 404)
+
         yield httpserver
 
 

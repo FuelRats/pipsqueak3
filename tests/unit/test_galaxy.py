@@ -9,7 +9,10 @@ Licensed under the BSD 3-Clause License.
 See LICENSE
 """
 
+import asyncio
 import pytest
+
+import aiohttp
 
 pytestmark = [pytest.mark.unit, pytest.mark.galaxy]
 
@@ -120,3 +123,35 @@ async def test_plot_waypoint_route_invalid(galaxy_fx):
     """
     with pytest.raises(ValueError):
         await galaxy_fx.plot_waypoint_route("Fuelum", "Fualun")
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("retry, seconds", ((1, 1), (2, 4), (3, 9)))
+async def test_retry_delay(galaxy_fx, monkeypatch, async_callable_fx, retry: int, seconds: int):
+    """
+    Test that `retry_delay` calls the appropriate function to pause execution for the
+    appropriate amount of time.
+    """
+    monkeypatch.setattr(asyncio, 'sleep', async_callable_fx)
+    await galaxy_fx._retry_delay(retry)
+    assert async_callable_fx.was_called
+    assert async_callable_fx.was_called_with(seconds)
+
+@pytest.mark.asyncio
+async def test_http_retry_eventually(galaxy_fx, monkeypatch, async_callable_fx):
+    """
+    Test that Galaxy will retry a failed request a number of times before failing.
+    Ensures that an eventually-good endpoint will return data.
+    """
+    monkeypatch.setattr(galaxy_fx, '_retry_delay', async_callable_fx)
+    data = await galaxy_fx._call("badendpoint")
+    assert data['success']
+
+@pytest.mark.asyncio
+async def test_http_retry_permanent(galaxy_fx, monkeypatch, async_callable_fx):
+    """
+    Test that Galaxy has a limit to number of retries before it will outright
+    fail.
+    """
+    monkeypatch.setattr(galaxy_fx, '_retry_delay', async_callable_fx)
+    with pytest.raises(aiohttp.ClientError):
+        await galaxy_fx._call("reallybadendpoint")
