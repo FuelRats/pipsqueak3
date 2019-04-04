@@ -12,11 +12,13 @@ This module is built on top of the Pydle system.
 
 """
 from logging import getLogger
+from typing import Dict
 from uuid import uuid4
 
 from pydle import Client
 
 from config import config
+from src.config import implementation_marker
 from src.packages.board.rat_board import RatBoard
 from src.packages.commands import trigger
 from src.packages.context.context import Context
@@ -33,6 +35,14 @@ class MechaClient(Client):
     """
 
     __version__ = "3.0a"
+
+    @implementation_marker
+    def validate_config(self, data: Dict):
+        print(f"in {self}.validate_config")
+
+    @implementation_marker
+    def rehash_handler(self, data: Dict):
+        print(f"in {self}.rehash_handler")
 
     def __init__(self, *args, **kwargs):
         """
