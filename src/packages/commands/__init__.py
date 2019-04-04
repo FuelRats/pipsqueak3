@@ -11,6 +11,9 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
+from . import rat_command
 from .rat_command import command, trigger
+from src.config import plugin_manager
 
+plugin_manager.register(rat_command, "commands")
 __all__ = ["command", "trigger"]

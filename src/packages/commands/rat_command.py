@@ -13,10 +13,11 @@ This module is built on top of the Pydle system.
 """
 
 import logging
-from typing import Callable, Any
+from typing import Callable, Any, Dict
 
-from src.packages.rules.rules import get_rule, clear_rules
 from config import config
+from src.config import config_marker
+from src.packages.rules.rules import get_rule, clear_rules
 
 # set the logger for rat_command
 LOG = logging.getLogger(f"mecha.{__name__}")
@@ -44,6 +45,20 @@ _registered_commands = {}  # pylint: disable=invalid-name
 
 # character/s that must prefix a message for it to be parsed as a command.
 PREFIX = config['commands']['prefix']
+
+
+@config_marker
+def rehash_handler(data: Dict):
+    """
+    handle rehash events
+
+    Args:
+        data (Dict): new config object
+    """
+    global PREFIX
+
+    PREFIX = config['commands']['prefix']
+    LOG.debug(f"in rehash, applying new configuration data...")
 
 
 async def trigger(ctx) -> Any:
