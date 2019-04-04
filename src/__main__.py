@@ -17,11 +17,12 @@ import logging
 
 from config import config
 # noinspection PyUnresolvedReferences
+from src import commands
 from src.mechaclient import MechaClient
 from src.packages.commands import command
 from src.packages.context import Context
 from src.packages.permissions import require_permission, RAT
-from src import config
+
 LOG = logging.getLogger(f"mecha.{__name__}")
 
 
@@ -59,16 +60,14 @@ async def start():
 
     client = MechaClient(**client_args)
 
-    LOG.debug("registering client plugins...")
-    config.plugin_manager.register(client)
     LOG.info("connecting to irc...")
     await client.connect(hostname=config['irc']['server'],
                          port=config['irc']['port'],
                          tls=config['irc']['tls'],
                          )
 
-
     LOG.info("Connected to IRC.")
+
 
 # entry point
 if __name__ == "__main__":
