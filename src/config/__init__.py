@@ -19,12 +19,18 @@ from . import _spec
 
 # create the plugin manager
 plugin_manager = pluggy.PluginManager(_PLUGIN_NAME)
+"""
+Configuration plugin manager
+"""
 
 # register our specifications
 plugin_manager.add_hookspecs(_spec)
 
 # create implementation markers
 
-implementation_marker = pluggy.HookimplMarker(_PLUGIN_NAME)
+config_marker = pluggy.HookimplMarker(_PLUGIN_NAME)
+"""
+used to mark config plugin implementations
+"""
 
-__all__ = ["plugin_manager", "implementation_marker"]
+__all__ = ["plugin_manager", "config_marker"]
