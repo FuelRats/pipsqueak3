@@ -20,7 +20,7 @@ import coloredlogs
 from typing import Union
 
 from src.packages.cli_manager import cli_manager
-
+from src.config import plugin_manager
 config: Union[None, dict] = None
 
 
@@ -114,9 +114,12 @@ def setup(filename: str) -> None:
         logging.info(f"Found a file/directory at {filename}'! attempting to load...")
         with open(path, 'r', encoding="UTF8") as infile:
             config_dict = toml.load(infile)
-            logging.info("Successfully loaded JSON from file specified!")
+            logging.info("Successfully loaded from file specified!")
 
         setup_logging(config_dict['logging']['log_file'])
+        logging.info("verifying configuration....")
+        plugin_manager.hook.validate_config(data=config_dict)  # FIXME: this does nothing as it runs before plugins are loaded
+        logging.info("done verifying. config loaded without error.")
         config = config_dict
     else:
         raise FileNotFoundError(f"Unable to find {filename}")

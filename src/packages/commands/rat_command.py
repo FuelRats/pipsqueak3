@@ -61,6 +61,16 @@ def rehash_handler(data: Dict):
     LOG.debug(f"in rehash, applying new configuration data...")
 
 
+@config_marker
+def validate_config(data: Dict):
+    LOG.debug(f"in {__name__}.validate_config")
+    # validate the commands subkey exists, also load it for less repetition
+    sub_key = data['commands']
+    # verify our trigger key exists and is a string.
+    if not isinstance(sub_key['prefix'], str):
+        raise ValueError(sub_key['prefix'])
+
+
 async def trigger(ctx) -> Any:
     """
 
