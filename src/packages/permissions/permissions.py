@@ -15,11 +15,28 @@ This module is built on top of the Pydle system.
 import logging
 from functools import wraps
 from typing import Any, Union, Callable, Dict, Set
+
 from config import config
+from src.config import config_marker
 from ..context import Context
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
+
+@config_marker
+def validate_config(data: Dict):
+    ...
+
+
+@config_marker
+def rehash_handler(data: Dict):
+
+    LOG.debug(f"handling configuration rehash event for {__name__}")
+    RECRUIT.update(data['permissions']['recruit'])
+    RAT.update(data['permissions']['rat'])
+    OVERSEER.update(data['permissions']['overseer'])
+    TECHRAT.update(data['permissions']['techrat'])
+    ADMIN.update(data['permissions']['administrator'])
 
 class Permission:
     """
@@ -187,9 +204,6 @@ class Permission:
     def __gt__(self, other: 'Permission') -> bool:
         return self.level > other.level
 
-    def __hash__(self):
-        return hash(self.level)
-
 
 # mapping between vhosts and permissions
 _by_vhost: Dict[str, Permission] = {}
@@ -197,19 +211,19 @@ _by_vhost: Dict[str, Permission] = {}
 # TODO: implement null constructor, populate fields in post.
 _PERMISSIONS_DICT = config['permissions']
 # the uninitiated
-RECRUIT = Permission.from_dict(_PERMISSIONS_DICT['recruit'])
+RECRUIT = Permission()
 
 # the run of the mill
-RAT = Permission.from_dict(_PERMISSIONS_DICT['rat'])
+RAT = Permission()
 
 # the overseers of the mad house
-OVERSEER = Permission.from_dict(_PERMISSIONS_DICT['overseer'])
+OVERSEER = Permission()
 
 # The rats that provide all the shiny toys
-TECHRAT = Permission.from_dict(_PERMISSIONS_DICT['techrat'])
+TECHRAT = Permission()
 
 # The Administrator.
-ADMIN = Permission.from_dict(_PERMISSIONS_DICT['administrator'])
+ADMIN = Permission()
 
 
 def require_permission(permission: Permission,
