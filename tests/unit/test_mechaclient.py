@@ -14,6 +14,7 @@ from src.packages.board.rat_board import RatBoard
 from src.packages.cache.rat_cache import RatCache
 from src.packages.commands import command
 from src.packages.context.context import Context
+from src.packages.fact_manager import FactManager
 
 pytestmark = [pytest.mark.unit, pytest.mark.mechaclient]
 

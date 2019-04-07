@@ -15,7 +15,6 @@ This module is built on top of the Pydle system.
 import logging
 from functools import wraps
 from typing import Any, Union, Callable, Dict, Set
-
 from config import config
 from ..context import Context
 
@@ -26,8 +25,9 @@ class Permission:
     """
     A permission level
     """
+    __slots__ = ["level", "_vhosts", "_denied_message"]
 
-    def __init__(self, level: int, vhosts: Set[str],
+    def __init__(self, level: int = -1, vhosts: Set[str] = None,
                  deny_message: str = "Access denied."):
         """
         creates a representation of a permission level required to execute an IRC command
@@ -40,21 +40,26 @@ class Permission:
         """
 
         LOG.debug(f"Created new Permission object with permission {level}")
-        self._level = level
-        self._vhosts = vhosts
+        self.level = level
+        self._vhosts = vhosts if vhosts else set()
         self._denied_message = deny_message
 
         _by_vhost.update({vhost: self for vhost in self._vhosts})
 
-    @property
-    def level(self) -> int:
+    def update(self, data: Dict) -> None:
         """
-        Permission level
+        in-place update of the object with new configuration values
 
-        Returns:
-            int
+        Args:
+            data (Dict): new dictionary to apply
+
         """
-        return self._level
+
+        vhosts = set(data['vhosts'])
+        level = data['level']
+
+        self.vhosts = vhosts
+        self.level = level
 
     @property
     def vhosts(self) -> Set[str]:
@@ -131,10 +136,12 @@ class Permission:
         if not isinstance(data, dict):
             raise TypeError(f"expected dict got {type(data)}")
 
-        vhosts = set(data['vhosts'])
-        level = data['level']
+        # instantiate a new object
+        instance = cls()
 
-        return cls(level=level, vhosts=vhosts)
+        # and populate its fields.
+        instance.update(data)
+        return instance
 
     @property
     def denied_message(self) -> str:
@@ -187,12 +194,13 @@ class Permission:
 # mapping between vhosts and permissions
 _by_vhost: Dict[str, Permission] = {}
 
+# TODO: implement null constructor, populate fields in post.
 _PERMISSIONS_DICT = config['permissions']
 # the uninitiated
 RECRUIT = Permission.from_dict(_PERMISSIONS_DICT['recruit'])
 
 # the run of the mill
-RAT = Permission(1, _PERMISSIONS_DICT['rat'])
+RAT = Permission.from_dict(_PERMISSIONS_DICT['rat'])
 
 # the overseers of the mad house
 OVERSEER = Permission.from_dict(_PERMISSIONS_DICT['overseer'])
