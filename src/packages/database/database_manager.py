@@ -7,12 +7,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
-from typing import Union, Tuple, List, Dict
+from typing import Union, Tuple, List, Dict, ClassVar
 
 import psycopg2
 from psycopg2 import sql, pool
 
-from config import config
+from src.config import plugin_manager, config_marker
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
@@ -52,6 +52,19 @@ class DatabaseManager:
         >>> dbm.query(query, ('tuple','of','values'))# doctest: +SKIP
 
     """
+    @classmethod
+    @config_marker
+    def rehash_handler(cls, data: Dict):
+        """
+        Apply new configuration data
+
+        Args:
+            data (typing.Dict): new configuration data to apply.
+
+        """
+        cls._config = data
+
+    _config: ClassVar[Dict] = {}
 
     def __init__(self,
                  dbhost=None,
@@ -66,20 +79,21 @@ class DatabaseManager:
 
             # Utilize function arguments if they are provided,
             # otherwise retrieve from config file and use those values.
-            self._dbhost = dbhost if dbhost is not None else config['database'].get('host')
+            self._dbhost = dbhost if dbhost is not None else self._config['database'].get('host')
             assert self._dbhost
 
-            self._dbport = dbport if dbhost is not None else config['database'].get('port')
+            self._dbport = dbport if dbhost is not None else self._config['database'].get('port')
             assert self._dbport
 
-            self._dbname = dbname if dbname is not None else config['database'].get('dbname')
+            self._dbname = dbname if dbname is not None else self._config['database'].get('dbname')
             assert self._dbname
 
-            self._dbuser = dbuser if dbuser is not None else config['database'].get('username')
+            self._dbuser = dbuser if dbuser is not None else self._config['database'].get(
+                'username')
             assert self._dbuser
 
             self._dbpass = dbpassword if dbpassword is not None else \
-                config['database'].get('password')
+                self._config['database'].get('password')
             assert self._dbpass
 
         # Create Database Connections Pool
@@ -135,3 +149,6 @@ class DatabaseManager:
         self._dbpool.putconn(connection)
 
         return list(result)
+
+
+plugin_manager.register(DatabaseManager, "Database")
