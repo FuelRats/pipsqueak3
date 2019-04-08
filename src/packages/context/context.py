@@ -19,11 +19,11 @@ from ..user import User
 if TYPE_CHECKING:
     from src.mechaclient import MechaClient
 
-PREFIX: str
 
 @config_marker
 def validate_config(data: Dict):
-    ...  # FIXME implement
+    if not isinstance(data['commands']['prefix'], str):
+        raise ValueError
 
 
 @config_marker

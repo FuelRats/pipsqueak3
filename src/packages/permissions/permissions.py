@@ -16,7 +16,6 @@ import logging
 from functools import wraps
 from typing import Any, Union, Callable, Dict, Set
 
-from config import config
 from src.config import config_marker
 from ..context import Context
 
@@ -30,13 +29,13 @@ def validate_config(data: Dict):
 
 @config_marker
 def rehash_handler(data: Dict):
-
     LOG.debug(f"handling configuration rehash event for {__name__}")
     RECRUIT.update(data['permissions']['recruit'])
     RAT.update(data['permissions']['rat'])
     OVERSEER.update(data['permissions']['overseer'])
     TECHRAT.update(data['permissions']['techrat'])
     ADMIN.update(data['permissions']['administrator'])
+
 
 class Permission:
     """

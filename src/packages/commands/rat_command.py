@@ -15,7 +15,6 @@ This module is built on top of the Pydle system.
 import logging
 from typing import Callable, Any, Dict
 
-from config import config
 from src.config import config_marker
 from src.packages.rules.rules import get_rule, clear_rules
 

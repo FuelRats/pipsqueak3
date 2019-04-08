@@ -21,7 +21,6 @@ from typing import Union
 
 from src.packages.cli_manager import cli_manager
 from src.config import plugin_manager
-config: Union[None, dict] = None
 
 
 def setup_logging(logfile: str):
@@ -111,22 +110,23 @@ def setup(filename: str) -> None:
 
     path = f"config/{filename}"
     # check if the file exists
-    if os.path.exists(path):
-        logging.info(f"Found a file/directory at {filename}'! attempting to load...")
-        with open(path, 'r', encoding="UTF8") as infile:
-            config_dict = toml.load(infile)
-            logging.info("Successfully loaded from file specified!")
-
-        setup_logging(config_dict['logging']['log_file'])
-        logging.info("verifying configuration....")
-        plugin_manager.hook.validate_config(data=config_dict)  # FIXME: this does nothing as it runs before plugins are loaded
-        logging.info("done verifying. config loaded without error.")
-        config = config_dict
-        logging.info(f"emitting new configuration to plugins...")
-        plugin_manager.hook.rehash_handler(data=config_dict)
-    else:
+    if not os.path.exists(path):
         raise FileNotFoundError(f"Unable to find {filename}")
 
+    logging.info(f"Found a file/directory at {filename}'! attempting to load...")
+    with open(path, 'r', encoding="UTF8") as infile:
+        config_dict = toml.load(infile)
+        logging.info("Successfully loaded from file specified!")
+
+    setup_logging(config_dict['logging']['log_file'])
+    logging.info("verifying configuration....")
+    plugin_manager.hook.validate_config(
+        data=config_dict)  # FIXME: this does nothing as it runs before plugins are loaded
+    logging.info("done verifying. config loaded without error.")
+
+    logging.info(f"emitting new configuration to plugins...")
+    plugin_manager.hook.rehash_handler(data=config_dict)
+    return config_dict
 
 # # fetch the CLI argument
 # _path = args().config_file
