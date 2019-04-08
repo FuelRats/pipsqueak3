@@ -44,7 +44,7 @@ class NameCollisionException(CommandException):
 _registered_commands = {}  # pylint: disable=invalid-name
 
 # character/s that must prefix a message for it to be parsed as a command.
-PREFIX = config['commands']['prefix']
+PREFIX: str
 
 
 @config_marker
@@ -57,7 +57,7 @@ def rehash_handler(data: Dict):
     """
     global PREFIX
 
-    PREFIX = config['commands']['prefix']
+    PREFIX = data['commands']['prefix']
     LOG.debug(f"in rehash, applying new configuration data...")
 
 

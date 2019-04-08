@@ -12,12 +12,11 @@ This module is built on top of the Pydle system.
 
 """
 from logging import getLogger
-from typing import Dict
+from typing import Dict, ClassVar
 from uuid import uuid4
 
 from pydle import Client
 
-from config import config
 from src.config import config_marker
 from src.packages.board.rat_board import RatBoard
 from src.packages.commands import trigger
@@ -36,15 +35,7 @@ class MechaClient(Client):
 
     __version__ = "3.0a"
 
-    @config_marker
-    def validate_config(self, data: Dict):
-        print(f"in {self}.validate_config")
-
-    @config_marker
-    def rehash_handler(self, data: Dict):
-        print(f"in {self}.rehash_handler")
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, mecha_config=None, **kwargs):
         """
         Custom mechasqueak constructor
 
@@ -59,7 +50,12 @@ class MechaClient(Client):
         self._fact_manager = None  # Instantiate Global Fact Manager
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
+        self._config = mecha_config if mecha_config else {}
         super().__init__(*args, **kwargs)
+
+    @property
+    def config(self):
+        return self._config
 
     async def on_connect(self):
         """
@@ -68,7 +64,7 @@ class MechaClient(Client):
         """
         LOG.debug(f"Connecting to channels...")
         # join a channel
-        for channel in config["irc"]["channels"]:
+        for channel in self.config["irc"]["channels"]:
             LOG.debug(f"Configured channel {channel}")
             await self.join(channel)
 
@@ -90,7 +86,7 @@ class MechaClient(Client):
         """
         LOG.debug(f"{channel}: <{user}> {message}")
 
-        if user == config['irc']['nickname']:
+        if user == self.config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             LOG.debug(f"Ignored {message} (anti-loop)")

@@ -10,21 +10,33 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from typing import Optional, Tuple, List, TYPE_CHECKING
+import typing
+from typing import Optional, Tuple, List, TYPE_CHECKING, Dict
 
-from config import config
+from src.config import config_marker
 from ..user import User
 
 if TYPE_CHECKING:
     from src.mechaclient import MechaClient
 
-PREFIX = config['commands']['prefix']
+PREFIX: str
+
+@config_marker
+def validate_config(data: Dict):
+    ...  # FIXME implement
+
+
+@config_marker
+def rehash_handler(data: Dict):
+    Context.PREFIX = data['commands']['prefix']
 
 
 class Context:
     """
     Command context, stores the context of a command's invocation
     """
+
+    PREFIX: typing.ClassVar[str] = "<!!NOTSET!!>"
 
     def __init__(self, bot: 'MechaClient',
                  user: User,
@@ -132,11 +144,11 @@ class Context:
             Context
         """
         # check if the message has our prefix
-        prefixed = message.startswith(PREFIX)
+        prefixed = message.startswith(cls.PREFIX)
 
         if prefixed:
             # before removing it from the message
-            message = message[len(PREFIX):]
+            message = message[len(cls.PREFIX):]
 
         # build the words and words_eol lists
         words, words_eol = _split_message(message)

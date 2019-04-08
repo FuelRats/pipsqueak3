@@ -25,21 +25,22 @@ config: Union[None, dict] = None
 
 
 def setup_logging(logfile: str):
+    args = cli_manager.args()
     # check for CLI verbosity flag
-    if cli_manager.ARGS.verbose:
+    if args.verbose:
         loglevel = logging.DEBUG
     else:
         loglevel = logging.INFO
 
     # check for nocolor flag
-    if cli_manager.ARGS.nocolors:
+    if args.nocolors:
         logcolors = False
     else:
         logcolors = True
 
     # check for new-log flag, overwriting existing log,
     # otherwise, append to the file per normal.
-    if cli_manager.ARGS.clean_log:
+    if args.clean_log:
         log_filemode = 'w'
     else:
         log_filemode = 'a'
@@ -121,11 +122,13 @@ def setup(filename: str) -> None:
         plugin_manager.hook.validate_config(data=config_dict)  # FIXME: this does nothing as it runs before plugins are loaded
         logging.info("done verifying. config loaded without error.")
         config = config_dict
+        logging.info(f"emitting new configuration to plugins...")
+        plugin_manager.hook.rehash_handler(data=config_dict)
     else:
         raise FileNotFoundError(f"Unable to find {filename}")
 
 
-# fetch the CLI argument
-_path = cli_manager.ARGS.config_file
-# and initialize
-setup(_path)
+# # fetch the CLI argument
+# _path = args().config_file
+# # and initialize
+# setup(_path)

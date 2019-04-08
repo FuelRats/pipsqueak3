@@ -209,7 +209,7 @@ class Permission:
 _by_vhost: Dict[str, Permission] = {}
 
 # TODO: implement null constructor, populate fields in post.
-_PERMISSIONS_DICT = config['permissions']
+_PERMISSIONS_DICT = {}
 # the uninitiated
 RECRUIT = Permission()
 

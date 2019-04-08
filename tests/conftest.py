@@ -15,13 +15,17 @@ import logging
 import random
 import string
 import sys
+from typing import Dict
 from uuid import uuid4, UUID
 
 import psycopg2.pool
 import pytest
 
+# This import statement is where the config gets read
+from config import setup_logging, setup
 # from psycopg2.pool import SimpleConnectionPool
-
+from src.config import config_marker, plugin_manager
+from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
@@ -31,9 +35,6 @@ sys.argv = ["test",
             "--clean-log",
             "--verbose",
             ]
-
-# This import statement is where the config gets read
-from config import setup_logging
 
 # Include other conftest files
 pytest_plugins = ["tests.fixtures.galaxy_fx"]
@@ -121,9 +122,9 @@ def rat_board_fx() -> RatBoard:
     return RatBoard()
 
 
-@pytest.fixture
-def bot_fx():
-    return MockBot(nickname="mock_mecha3[BOT]")
+@pytest.fixture()
+def bot_fx(configuration_fx):
+    return MockBot(nickname="mock_mecha3[BOT]", mecha_config=configuration_fx)
 
 
 @pytest.fixture
@@ -319,3 +320,32 @@ def test_fact_fx() -> Fact:
                 mfd=False,
                 edited=None
                 )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def global_init_fx():
+    plugin_manager.register(ConfigReceiver, "testing_config_recv")
+    # fetch the CLI argument
+    _path = cli_manager.args().config_file
+    # and initialize
+    setup(_path)
+
+
+class ConfigReceiver():
+    """
+    Namespace plugin for hooking into config events
+    """
+    data: Dict = {}
+
+    @classmethod
+    @config_marker
+    def rehash_handler(cls, data: Dict):
+        cls.data = data
+
+
+@pytest.fixture(scope="session")
+def configuration_fx(global_init_fx) -> Dict:
+    """
+    Provides a configuration object for use in tests
+    """
+    return ConfigReceiver.data

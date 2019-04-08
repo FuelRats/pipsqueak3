@@ -19,16 +19,17 @@ from typing import Set
 import pytest
 
 import src.packages.commands.rat_command as Commands
+from config import setup
+from src.packages.cli_manager import cli_manager
 from src.packages.permissions import permissions
-from src.packages.context.context import Context
-from src.packages.permissions.permissions import require_permission, require_channel, require_dm, Permission
+from src.packages.context import Context
+from src.packages.permissions import require_permission, require_channel, require_dm, Permission
 
 
 @pytest.fixture
 def Setup_fx(bot_fx):
     """Sets up the test environment"""
     Commands._flush()
-    Commands.bot = bot_fx
 
 
 @pytest.fixture
@@ -115,13 +116,6 @@ class TestPermissions(object):
         context = await Context.from_message(bot_fx, "#somechannel", "some_ov", "!restricted")
         await Commands.trigger(context)
         assert restricted_command_fx.was_called_once
-
-    def test_hash(self):
-        for perm1, perm2 in product(permissions._by_vhost.values(), permissions._by_vhost.values()):
-            if perm1 == perm2:
-                assert hash(perm1) == hash(perm2)
-            else:
-                assert hash(perm1) != hash(perm2)
 
     @pytest.mark.asyncio
     async def test_require_channel_valid(self, bot_fx, context_channel_fx):
