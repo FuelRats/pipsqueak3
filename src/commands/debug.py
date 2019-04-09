@@ -13,7 +13,9 @@ See LICENSE.md
 """
 import logging
 
+from config import setup
 from src.config import plugin_manager
+from src.packages.cli_manager import cli_manager
 from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
@@ -75,11 +77,14 @@ async def cmd_get_plugins(context: Context):
 async def cmd_rehash(context: Context):
     """ rehash the hash browns. (reloads config file)"""
     LOG.warning(f"config rehashing invoked by user {context.user.nickname}")
-    if not all(plugin_manager.hook.validate_config(data=None)):
-        await context.reply(f"config file failed to validate.")
-        return
-
-    LOG.info(f"config file validated. applying...")
-    plugin_manager.hook.rehash_handler(data=None)
-    LOG.info("done applying config file.")
-    await context.reply("done rehashing.")
+    try:
+        path = cli_manager.args().config_file
+        await context.reply(f"using config file {path}...")
+        setup(path)
+    except (KeyError, ValueError) as exc:
+        await context.reply(f"unable to rehash configuration file.")
+        raise ValueError("failed to rehash configuration") from exc
+    except FileExistsError:
+        await context.reply(f"unable to rehash configuration, you sure it changed?")
+    else:
+        await context.reply("done rehashing. have a nice day.")

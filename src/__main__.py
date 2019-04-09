@@ -15,10 +15,11 @@ This module is built on top of the Pydle system.
 import asyncio
 import logging
 
-from config import config
+from config import setup
 # noinspection PyUnresolvedReferences
 from src import commands
 from src.mechaclient import MechaClient
+from src.packages import cli_manager
 from src.packages.commands import command
 from src.packages.context import Context
 from src.packages.permissions import require_permission, RAT
@@ -42,6 +43,8 @@ async def start():
     """
     Initializes and connects the client, then passes it to rat_command.
     """
+
+    config = setup(cli_manager.args().config_file)
     client_args = {"nickname": config["irc"]["nickname"]}
 
     auth_method = config["authentication"]["method"]
@@ -58,7 +61,7 @@ async def start():
     else:
         raise ValueError(f"unknown authentication mechanism {auth_method}")
 
-    client = MechaClient(**client_args)
+    client = MechaClient(**client_args, mecha_config=config)
 
     LOG.info("connecting to irc...")
     await client.connect(hostname=config['irc']['server'],

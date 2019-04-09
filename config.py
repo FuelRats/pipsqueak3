@@ -13,14 +13,17 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
-import toml
+import gc
+import hashlib
 import logging
-import os
-import coloredlogs
-from typing import Union
+from pathlib import Path
+from typing import Dict, Tuple
 
-from src.packages.cli_manager import cli_manager
+import coloredlogs
+import toml
+
 from src.config import plugin_manager
+from src.packages.cli_manager import cli_manager
 
 
 def setup_logging(logfile: str):
@@ -99,26 +102,27 @@ def setup_logging(logfile: str):
     logging.info("Configuration file loading...")
 
 
-def setup(filename: str) -> None:
-    """
-    Sets up the module by loading the specified configuration file from disk
+_hash: str = ''
 
+
+def setup(filename: str) -> Dict:
+    """
+    Validate & apply configuration from disk
     Args:
         filename (str): path and filename to load.
     """
-    global config
+    # do the loading part
+    config_dict, file_hash = load_config(filename)
+    global _hash
 
-    path = f"config/{filename}"
-    # check if the file exists
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Unable to find {filename}")
+    if file_hash == _hash:
+        raise FileExistsError(f"new file's hash matches what we already have!"
+                              f"\told = {_hash}\tnew={file_hash}")
 
-    logging.info(f"Found a file/directory at {filename}'! attempting to load...")
-    with open(path, 'r', encoding="UTF8") as infile:
-        config_dict = toml.load(infile)
-        logging.info("Successfully loaded from file specified!")
+    _hash = file_hash
 
     setup_logging(config_dict['logging']['log_file'])
+    logging.info(f"new config hash is {file_hash}")
     logging.info("verifying configuration....")
     plugin_manager.hook.validate_config(
         data=config_dict)  # FIXME: this does nothing as it runs before plugins are loaded
@@ -128,7 +132,26 @@ def setup(filename: str) -> None:
     plugin_manager.hook.rehash_handler(data=config_dict)
     return config_dict
 
-# # fetch the CLI argument
-# _path = args().config_file
-# # and initialize
-# setup(_path)
+
+def load_config(filename) -> Tuple[Dict, str]:
+    path = Path("config") / filename
+
+    # create a new hasher
+    hasher = hashlib.sha256()
+    # check if the file exists
+    logging.debug(f"Found a file/directory at {path.resolve(strict=True)}'! attempting to load...")
+    with path.open('r', encoding="UTF8") as infile:
+        infile.flush()
+        config_dict = toml.load(infile)
+        logging.info("Successfully loaded from file specified!")
+
+    # update hasher with the raw bytes of the file
+    hasher.update(path.read_bytes())
+
+    del infile
+    gc.collect()
+
+    # digest the file, get its checksum.
+    checksum = hasher.hexdigest()
+
+    return config_dict, checksum

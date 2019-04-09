@@ -16,6 +16,9 @@ from typing import Optional, Tuple, List, TYPE_CHECKING, Dict
 from src.config import config_marker
 from ..user import User
 
+import logging
+
+LOG = logging.getLogger(f"mecha.{__name__}")
 if TYPE_CHECKING:
     from src.mechaclient import MechaClient
 
@@ -29,6 +32,7 @@ def validate_config(data: Dict):
 @config_marker
 def rehash_handler(data: Dict):
     Context.PREFIX = data['commands']['prefix']
+    LOG.debug(f"in rehash handler, using new prefix {Context.PREFIX}")
 
 
 class Context:

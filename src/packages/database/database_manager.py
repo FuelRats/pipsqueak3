@@ -68,7 +68,7 @@ class DatabaseManager:
 
     @classmethod
     @config_marker
-    def validate_config(cls, data: dict):
+    def validate_config(cls, data: Dict):
         # Module specific configuration
         try:
             module_config = data['database']

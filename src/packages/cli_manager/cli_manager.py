@@ -42,3 +42,9 @@ _PARSER.add_argument("--nocolors", "--nc",
 
 # you want args? get them yourself. FIXME sass
 args = _PARSER.parse_args
+"""
+callable returning a parsed argument namespace
+
+Note:
+    This is a callable to prevent muckery during startup
+"""
