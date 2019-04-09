@@ -13,7 +13,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
-import gc
 import hashlib
 import logging
 from pathlib import Path
@@ -149,7 +148,6 @@ def load_config(filename) -> Tuple[Dict, str]:
     hasher.update(path.read_bytes())
 
     del infile
-    gc.collect()
 
     # digest the file, get its checksum.
     checksum = hasher.hexdigest()
