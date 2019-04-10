@@ -20,6 +20,9 @@ from pydle import BasicClient
 
 @dataclass(frozen=True)
 class User:
+    """
+    Represents an IRC user
+    """
     away: bool
     away_message: Optional[str]
     username: str
