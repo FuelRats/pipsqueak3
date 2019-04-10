@@ -23,6 +23,7 @@ import config
 pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio]
 
 
+@pytest.mark.skip("Test suite requires a rewrite")  # FIXME
 class TestRSignal(object):
     rat_board: RatBoard
 
