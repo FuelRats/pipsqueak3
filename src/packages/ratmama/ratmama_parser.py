@@ -33,7 +33,7 @@ RATMAMA_REGEX = re.compile(r"""(?x)
      (?P<cmdr>.+?)                       # Match CDMR name.
      \s+-\s+                             #  -
      System:\s*(?P<system>.*?)           # Match system name
-     (?:\s[sS][yY][tT][eE][mM])?         # Strip " system" from end, if present (case insensitive)
+     (?:\s[sS][yY][sS][tT][eE][mM])?     # Strip " system" from end, if present (case insensitive)
      \s+-\s+                             #  -
      Platform:\s*(?P<platform>\w+)       # Match platform (currently can't contain spaces)
      \s+-\s+                             #  -
