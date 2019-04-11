@@ -154,8 +154,8 @@ async def handle_ratsignal(ctx: Context) -> None:
 
     for rescue in ctx.bot.board.rescues.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
-            await ctx.reply(
-                "You already sent a signal, please be patient while a dispatch is underway.")
+            await ctx.reply(f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
+                            f" someone will help you soon!")
             return
 
     sep: Optional[str] = None

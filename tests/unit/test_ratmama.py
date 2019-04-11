@@ -192,5 +192,5 @@ async def test_manual_signal_duplicate(bot_fx, async_callable_fx, monkeypatch):
     await ratmama.handle_ratsignal(context)
     await ratmama.handle_ratsignal(context)
 
-    assert async_callable_fx.was_called_with("You already sent a signal, please be patient "
-                                             "while a dispatch is underway.")
+    assert async_callable_fx.was_called_with("some_recruit: You already sent a Signal! Please stand"
+                                             " by, someone will help you soon!")
