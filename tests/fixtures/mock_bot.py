@@ -27,7 +27,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": False,
-
                 "realname": "tree hugger",
 
             },
@@ -39,7 +38,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-
                 "realname": "some pun-ter",
 
             },
@@ -51,7 +49,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-
                 "realname": "Stop sign",
 
             },
@@ -63,7 +60,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-
                 "realname": "SirRaymond",
 
             },
@@ -75,7 +71,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": False,
-
                 "realname": "White Sheets",
 
             },
@@ -87,7 +82,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": "some_announcer",
                 "identified": True,
-
                 "realname": "RatMama"
             }
         }
