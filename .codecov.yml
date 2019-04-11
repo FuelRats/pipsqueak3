@@ -20,7 +20,7 @@ coverage:
         if_not_found: success
         if_ci_failed: error
         only_pulls: false
-        flags: null
+        flags: unittest
         paths: all
 parsers:
   gcov:
@@ -31,9 +31,6 @@ parsers:
       macro: no
 
 comment:
-  layout: "files"
+  layout: "reach, diff, flags, files"
   behavior: default
-  require_changes: true  # if true: only post the comment if coverage changes
-  require_base: no        # [yes :: must have a base report to post]
-  require_head: yes       # [yes :: must have a head report to post]
-  branches: null
+  require_changes: no  # if true: only post the comment if coverage changes
