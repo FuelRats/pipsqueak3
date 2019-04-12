@@ -13,7 +13,7 @@
 
 
 # Use an official Python runtime as a parent image
-FROM python:3.6.6-alpine
+FROM python:3.7-alpine
 # Set the working directory to /mechasqueak
 WORKDIR /mechasqueak
 
@@ -26,7 +26,7 @@ RUN apk add --no-cache git
 RUN pip install pipenv
 
 # Install any needed packages specified in requirements.txt
-RUN pipenv install -d
+RUN pipenv install
 
 # Copy the current directory contents into the container at /mechasqueak
 ADD . /mechasqueak
