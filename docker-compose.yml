@@ -90,3 +90,23 @@ services:
     build: .
     image: mecha3
     command: ["pipenv","run","python","main.py","--config", "live.json"]
+
+  irc:
+    image: theunkn0wn1/unrealircd
+    ports:
+      - "6667:6667"
+      - "6697:6697"
+
+  anope:
+    image: anope_services
+    links:
+      - irc
+
+  database:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: mecha
+      POSTGRES_DB: circle_test
