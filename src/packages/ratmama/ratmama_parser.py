@@ -1,7 +1,7 @@
 """
 RatMama.py - RatMama and general ratsignal parsing
 
-Provides Facilities to parse ratsignals
+Provides facilities to parse ratsignals
 
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
@@ -10,6 +10,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+
 import logging
 import re
 from typing import Optional
@@ -29,29 +30,29 @@ RATMAMA_REGEX = re.compile(r"""(?x)
     Incoming\s+Client:\s*                # Match "Incoming Client" prefix
     (?P<all>                             # Wrap the entirety of rest of the pattern
                                          # in a group to make it easier to echo the entire thing
-    (?P<cmdr>[^\s].*?)                   # Match CDMR name.
-    \s+-\s+                              #  -
-    System:\s*(?P<system>.*?)            # Match system name
-    (?:\s[sS][yY][sS][tT][eE][mM]|)      # Strip " system" from end, if present (case insensitive)
-    \s+-\s+                              #  -
-    Platform:\s*(?P<platform>\w+)        # Match platform (currently can't contain spaces)
-    \s+-\s+                              #  -
-    O2:\s*(?P<o2>.+?)                    # Match oxygen status
-    \s+-\s+                              #  -
-    Language:\s*
-    (?P<full_language>                   # Match full language text (for regenerating the line)
-    (?P<language>.+?)\s*                 # Match language name. (currently unused)
-    \(                                   # The "(" of "(en-US)"
-    (?P<language_code>.+?)               # "en"
-    (?:                                  # Optional group
-        -(?P<language_country>.+)        # "-", "US" (currently unused)
-    )?                                   # Actually make the group optional.
-    \)                                   # The ")" of "(en-US)"
-    )                                    # End of full language text
-    (?:                                  # Possibly match IRC nickname
-    \s+-\s+                              #  -
-    IRC\s+Nickname:\s*(?P<nick>[^\s]+)   # IRC nickname
-    )?                                   # ... emphasis on "Possibly"
+     (?P<cmdr>.+?)                       # Match CDMR name.
+     \s+-\s+                             #  -
+     System:\s*(?P<system>.*?)           # Match system name
+     (?:\s[sS][yY][sS][tT][eE][mM])?     # Strip " system" from end, if present (case insensitive)
+     \s+-\s+                             #  -
+     Platform:\s*(?P<platform>\w+)       # Match platform (currently can't contain spaces)
+     \s+-\s+                             #  -
+     O2:\s*(?P<o2>.+?)                   # Match oxygen status
+     \s+-\s+                             #  -
+     Language:\s*
+     (?P<full_language>                  # Match full language text (for regenerating the line)
+      (?P<language>.+?)\s*               # Match language name. (currently unused)
+      \(                                 # The "(" of "(en-US)"
+      (?P<language_code>.+?)             # "en"
+      (?:                                # Optional group
+       -(?P<language_country>.+)         # "-", "US" (currently unused)
+      )?                                 # Actually make the group optional.
+      \)                                 # The ")" of "(en-US)"
+     )                                   # End of full language text
+     (?:                                 # Possibly match IRC nickname
+      \s+-\s+                            #  -
+      IRC\s+Nickname:\s*(?P<nick>[^\s]+) # IRC nickname
+     )?                                  # ... emphasis on "Possibly"
     )                                    # End of the main capture group
     \s*                                  # Handle any possible trailing whitespace
     $                                    # End of pattern
@@ -75,7 +76,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     """
 
     if ctx.user.nickname.casefold() not in (
-            k.casefold() for k in config.config["ratsignal_parser"]["announcer_nicks"]
+            nick.casefold() for nick in config.config["ratsignal_parser"]["announcer_nicks"]
     ):
         return
 
@@ -134,10 +135,11 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 @rule(r"\bratsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
 async def handle_ratsignal(ctx: Context) -> None:
     """
-     Tries to extract as much details as possible from a self-issued ratsignal and appends
-      these details to the rescue board.
+    Tries to extract as much details as possible from a self-issued ratsignal and appends
+    these details to the rescue board.
+
     Should it be unable to extract the details, it will open a case and ask for the details
-      to be set and will only set the name and nick fields of the rescue.
+    to be set and will only set the name and nick fields of the rescue.
 
     Args:
         ctx: Context of the self-issued ratsignal
@@ -152,8 +154,8 @@ async def handle_ratsignal(ctx: Context) -> None:
 
     for rescue in ctx.bot.board.rescues.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
-            await ctx.reply(
-                "You already sent a signal, please be patient while a dispatch is underway.")
+            await ctx.reply(f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
+                            f" someone will help you soon!")
             return
 
     sep: Optional[str] = None
@@ -171,6 +173,7 @@ async def handle_ratsignal(ctx: Context) -> None:
         index = ctx.bot.board.find_by_name(ctx.user.nickname)
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
+
     system: str = None
     code_red: bool = False
     platform: Platforms = None

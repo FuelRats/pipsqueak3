@@ -17,7 +17,8 @@ class MockBot(MechaClient):
                 'realname': 'you know',
                 'identified': True,
                 'account': None,
-                'nickname': 'unit_test[BOT]'},
+                'nickname': 'unit_test[BOT]'
+            },
             "unit_test": {
                 "nickname": "unit_test",
                 "username": "unit_test",
@@ -26,7 +27,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": False,
-
                 "realname": "tree hugger",
 
             },
@@ -38,7 +38,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-
                 "realname": "some pun-ter",
 
             },
@@ -50,7 +49,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-
                 "realname": "Stop sign",
 
             },
@@ -62,7 +60,6 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": True,
-
                 "realname": "SirRaymond",
 
             },
@@ -74,9 +71,18 @@ class MockBot(MechaClient):
                 "away_message": None,
                 "account": None,
                 "identified": False,
-
                 "realname": "White Sheets",
 
+            },
+            "some_announcer": {
+                "nickname": "some_announcer",
+                "username": "Announcer",
+                "hostname": "bot.fuelrats.com",
+                "away": False,
+                "away_message": None,
+                "account": "some_announcer",
+                "identified": True,
+                "realname": "RatMama"
             }
         }
 

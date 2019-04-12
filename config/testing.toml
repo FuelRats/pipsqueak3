@@ -27,7 +27,7 @@ online_mode = false
 url = "http://localhost/"
 
 [ratsignal_parser]
-announcer_nicks = [ "RatMama[Bot]",]
+announcer_nicks = [ "RatMama[Bot]", "some_announcer" ]
 
 [authentication.plain]
 username = ""
