@@ -96,7 +96,7 @@ class DatabaseManager:
         if not isinstance(module_config['username'], str):
             raise ValueError("database username must be a string.")
 
-        #Database Password
+        # Database Password
         if not isinstance(module_config['password'], str):
             raise ValueError("database password must be a string")
 

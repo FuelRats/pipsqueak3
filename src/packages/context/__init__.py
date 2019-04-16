@@ -9,9 +9,9 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 from src.config import plugin_manager
-from .context import Context
 from . import context
-__all__ = ["Context"]
+from .context import Context
 
+__all__ = ["Context"]
 
 plugin_manager.register(context, "context")

@@ -40,7 +40,7 @@ _PARSER.add_argument("--nocolors", "--nc",
                      help="Disable ANSI color coding. For people who hate fun.",
                      action="store_true")
 
-# you want args? get them yourself. FIXME sass
+# expose the parser function, since parsing it ourselves is a no-no
 args = _PARSER.parse_args
 """
 callable returning a parsed argument namespace
