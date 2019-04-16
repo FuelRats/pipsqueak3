@@ -16,4 +16,4 @@ from src.config import plugin_manager
 from .ratmama_parser import handle_ratmama_announcement, handle_ratsignal
 from . import ratmama_parser as _parser
 
-plugin_manager.register(_parser)
+plugin_manager.register(_parser, "ratmama_parser")
