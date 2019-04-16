@@ -8,7 +8,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from src.config import plugin_manager
+from src.config._manager import plugin_manager
 from . import context
 from .context import Context
 

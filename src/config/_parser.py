@@ -21,7 +21,7 @@ from typing import Dict, Tuple
 import coloredlogs
 import toml
 
-from src.config import plugin_manager
+from ._manager import plugin_manager
 from src.packages.cli_manager import cli_manager
 
 
@@ -104,6 +104,29 @@ def setup_logging(logfile: str):
 _hash: str = ''
 
 
+def load_config(filename) -> Tuple[Dict, str]:
+    path = Path("config") / filename
+
+    # create a new hasher
+    hasher = hashlib.sha256()
+    # check if the file exists
+    logging.debug(f"Found a file/directory at {path.resolve(strict=True)}'! attempting to load...")
+    with path.open('r', encoding="UTF8") as infile:
+        infile.flush()
+        config_dict = toml.load(infile)
+        logging.info("Successfully loaded from file specified!")
+
+    # update hasher with the raw bytes of the file
+    hasher.update(path.read_bytes())
+
+    del infile
+
+    # digest the file, get its checksum.
+    checksum = hasher.hexdigest()
+
+    return config_dict, checksum
+
+
 def setup(filename: str) -> Dict:
     """
     Validate & apply configuration from disk
@@ -130,26 +153,3 @@ def setup(filename: str) -> Dict:
     logging.info(f"emitting new configuration to plugins...")
     plugin_manager.hook.rehash_handler(data=config_dict)
     return config_dict
-
-
-def load_config(filename) -> Tuple[Dict, str]:
-    path = Path("config") / filename
-
-    # create a new hasher
-    hasher = hashlib.sha256()
-    # check if the file exists
-    logging.debug(f"Found a file/directory at {path.resolve(strict=True)}'! attempting to load...")
-    with path.open('r', encoding="UTF8") as infile:
-        infile.flush()
-        config_dict = toml.load(infile)
-        logging.info("Successfully loaded from file specified!")
-
-    # update hasher with the raw bytes of the file
-    hasher.update(path.read_bytes())
-
-    del infile
-
-    # digest the file, get its checksum.
-    checksum = hasher.hexdigest()
-
-    return config_dict, checksum

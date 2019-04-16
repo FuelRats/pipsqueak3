@@ -15,7 +15,6 @@ import logging
 import re
 from typing import Optional, Dict
 
-import config
 from src.config import config_marker
 from ..context import Context
 from ..rescue import Rescue

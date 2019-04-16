@@ -21,10 +21,8 @@ from uuid import uuid4, UUID
 import psycopg2.pool
 import pytest
 
-# This import statement is where the config gets read
-from config import setup_logging, setup
 # from psycopg2.pool import SimpleConnectionPool
-from src.config import config_marker, plugin_manager
+from src.config import config_marker, plugin_manager, setup_logging, setup
 from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 

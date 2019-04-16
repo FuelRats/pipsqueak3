@@ -13,14 +13,11 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from itertools import product
 from typing import Set
 
 import pytest
 
 import src.packages.commands.rat_command as Commands
-from config import setup
-from src.packages.cli_manager import cli_manager
 from src.packages.permissions import permissions
 from src.packages.context import Context
 from src.packages.permissions import require_permission, require_channel, require_dm, Permission

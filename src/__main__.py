@@ -15,7 +15,7 @@ This module is built on top of the Pydle system.
 import asyncio
 import logging
 
-from config import setup
+from src.config import setup
 # noinspection PyUnresolvedReferences
 from src import commands
 from src.mechaclient import MechaClient

@@ -13,8 +13,7 @@ See LICENSE.md
 """
 import logging
 
-from config import setup
-from src.config import plugin_manager
+from src.config import plugin_manager, setup
 from src.packages.cli_manager import cli_manager
 from src.packages.commands import command
 from src.packages.context.context import Context

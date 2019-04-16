@@ -13,12 +13,14 @@ See LICENSE.md
 
 import pluggy
 
-# load our hook specification
-from ._constants import _PLUGIN_NAME
+from ._manager import plugin_manager
+from ._parser import load_config, setup_logging, setup
 from . import _spec
+from ._constants import _PLUGIN_NAME
+# load our hook specification
+from ._manager import plugin_manager
 
 # create the plugin manager
-plugin_manager = pluggy.PluginManager(_PLUGIN_NAME)
 """
 Configuration plugin manager
 """
@@ -33,4 +35,4 @@ config_marker = pluggy.HookimplMarker(_PLUGIN_NAME)
 used to mark config plugin implementations
 """
 
-__all__ = ["plugin_manager", "config_marker"]
+__all__ = ["config_marker", "plugin_manager", "setup"]
