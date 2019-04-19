@@ -12,7 +12,7 @@ See LICENSE.md
 """
 import pytest
 
-from src.packages.context.context import Context
+from src.packages.context.context import Context, _split_message
 
 pytestmark = [pytest.mark.unit, pytest.mark.context]
 
@@ -90,3 +90,23 @@ async def test_from_message(bot_fx, channel, user, message, words, words_eol, pr
     assert user == ctx.user.nickname
     assert words == ctx.words
     assert words_eol == ctx.words_eol
+
+
+@pytest.mark.parametrize("payload, words, words_eol",
+                         [
+                             (
+                                     "pink fluffy unicorns",
+                                     ["pink", "fluffy", "unicorns"],
+                                     ["pink fluffy unicorns", "fluffy unicorns", "unicorns"]
+                             ),
+                             (
+                                     "my       malformed    string",
+                                     ['my', 'malformed', 'string'],
+                                     ['my malformed string', 'malformed string', 'string']
+                             )
+
+                         ])
+def test_split_message(payload, words, words_eol):
+    out_words, out_eol = _split_message(payload)
+    assert out_eol == words_eol, "words EOL did not match expected output!"
+    assert out_words == words, "words did not match expected output!@"
