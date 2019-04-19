@@ -176,18 +176,10 @@ def _split_message(string: str) -> Tuple[List[str], List[str]]:
         >>> _split_message("pink fluffy unicorns")
         (['pink', 'fluffy', 'unicorns'], ['pink fluffy unicorns', 'fluffy unicorns', 'unicorns'])
     """
-    words = []
-    words_eol = []
-    remaining = string
-    while True:
-        words_eol.append(remaining)
-        try:
-            word, remaining = remaining.split(maxsplit=1)
-        except ValueError:
-            # we couldn't split -> only one word left
-            words.append(remaining)
-            break
-        else:
-            words.append(word)
+    # get the words
+    words = string.split()
+
+    # reconstruct the original phrase EOL style, through clever usage of slice
+    words_eol = [" ".join(words[i:]) for i, _ in enumerate(words)]
 
     return words, words_eol
