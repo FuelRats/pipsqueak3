@@ -21,7 +21,7 @@ from typing import Dict, Tuple
 import coloredlogs
 import toml
 
-from ._manager import plugin_manager
+from ._manager import PLUGIN_MANAGER
 from src.packages.cli_manager import cli_manager
 
 
@@ -146,10 +146,10 @@ def setup(filename: str) -> Dict:
     setup_logging(config_dict['logging']['log_file'])
     logging.info(f"new config hash is {file_hash}")
     logging.info("verifying configuration....")
-    plugin_manager.hook.validate_config(
+    PLUGIN_MANAGER.hook.validate_config(
         data=config_dict)  # FIXME: this does nothing as it runs before plugins are loaded
     logging.info("done verifying. config loaded without error.")
 
     logging.info(f"emitting new configuration to plugins...")
-    plugin_manager.hook.rehash_handler(data=config_dict)
+    PLUGIN_MANAGER.hook.rehash_handler(data=config_dict)
     return config_dict

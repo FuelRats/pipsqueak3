@@ -13,7 +13,7 @@ See LICENSE.md
 
 from . import rat_command
 from .rat_command import command, trigger
-from src.config import plugin_manager
+from src.config import PLUGIN_MANAGER
 
-plugin_manager.register(rat_command, "commands")
+PLUGIN_MANAGER.register(rat_command, "commands")
 __all__ = ["command", "trigger"]

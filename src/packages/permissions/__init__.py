@@ -19,9 +19,9 @@ __all__ = [
     "OVERSEER",
     "ADMIN",
 ]
-from src.config import plugin_manager
+from src.config import PLUGIN_MANAGER
 from .permissions import Permission, require_permission, require_dm, require_channel, RAT, \
     TECHRAT, RECRUIT, OVERSEER, ADMIN
 from . import permissions
 
-plugin_manager.register(permissions)
+PLUGIN_MANAGER.register(permissions)

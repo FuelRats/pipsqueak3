@@ -13,7 +13,7 @@ See LICENSE.md
 """
 import logging
 
-from src.config import plugin_manager, setup
+from src.config import PLUGIN_MANAGER, setup
 from src.packages.cli_manager import cli_manager
 from src.packages.commands import command
 from src.packages.context.context import Context
@@ -65,7 +65,7 @@ async def cmd_superping(context: Context):
 async def cmd_get_plugins(context: Context):
     await context.reply(f"getting plugins...")
 
-    plugins = plugin_manager.list_name_plugin()
+    plugins = PLUGIN_MANAGER.list_name_plugin()
     names = [plugin[0] for plugin in plugins]
     await context.reply(",".join(names))
 

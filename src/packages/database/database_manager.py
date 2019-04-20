@@ -12,7 +12,7 @@ from typing import Union, Tuple, List, Dict, ClassVar
 import psycopg2
 from psycopg2 import sql, pool
 
-from src.config import plugin_manager, config_marker
+from src.config import PLUGIN_MANAGER, config_marker
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
@@ -185,4 +185,4 @@ class DatabaseManager:
         return list(result)
 
 
-plugin_manager.register(DatabaseManager, "Database")
+PLUGIN_MANAGER.register(DatabaseManager, "Database")

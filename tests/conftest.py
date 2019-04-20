@@ -22,7 +22,7 @@ import psycopg2.pool
 import pytest
 
 # from psycopg2.pool import SimpleConnectionPool
-from src.config import config_marker, plugin_manager, setup_logging, setup
+from src.config import config_marker, PLUGIN_MANAGER, setup_logging, setup
 from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 
@@ -322,7 +322,7 @@ def test_fact_fx() -> Fact:
 
 @pytest.fixture(scope="session", autouse=True)
 def global_init_fx():
-    plugin_manager.register(ConfigReceiver, "testing_config_recv")
+    PLUGIN_MANAGER.register(ConfigReceiver, "testing_config_recv")
     # fetch the CLI argument
     _path = cli_manager.args().config_file
     # and initialize

@@ -18,7 +18,7 @@ from typing import Dict, List, Optional, Tuple, Union, ClassVar
 
 import aiohttp
 
-from src.config import config_marker, plugin_manager
+from src.config import config_marker, PLUGIN_MANAGER
 from .star_system import StarSystem
 from ..utils import Vector
 
@@ -337,4 +337,4 @@ class Galaxy:
                 await self._retry_delay(retry)
 
 
-plugin_manager.register(Galaxy, "galaxy")
+PLUGIN_MANAGER.register(Galaxy, "galaxy")

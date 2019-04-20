@@ -26,4 +26,4 @@ import pluggy
 from ._constants import _PLUGIN_NAME
 
 LOG = logging.getLogger(f"mecha.{__name__}")
-plugin_manager = pluggy.PluginManager(_PLUGIN_NAME)
+PLUGIN_MANAGER = pluggy.PluginManager(_PLUGIN_NAME)
