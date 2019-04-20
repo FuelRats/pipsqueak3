@@ -17,7 +17,7 @@ from uuid import uuid4
 
 from pydle import Client
 
-from src.config import config_marker
+from src.config import CONFIG_MARKER
 from src.packages.board.rat_board import RatBoard
 from src.packages.commands import trigger
 from src.packages.context.context import Context

@@ -12,7 +12,7 @@ from typing import Union, Tuple, List, Dict, ClassVar
 import psycopg2
 from psycopg2 import sql, pool
 
-from src.config import PLUGIN_MANAGER, config_marker
+from src.config import PLUGIN_MANAGER, CONFIG_MARKER
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
@@ -53,7 +53,7 @@ class DatabaseManager:
 
     """
     @classmethod
-    @config_marker
+    @CONFIG_MARKER
     def rehash_handler(cls, data: Dict):
         """
         Apply new configuration data
@@ -67,7 +67,7 @@ class DatabaseManager:
     _config: ClassVar[Dict] = {}
 
     @classmethod
-    @config_marker
+    @CONFIG_MARKER
     def validate_config(cls, data: Dict):
         # Module specific configuration
         try:

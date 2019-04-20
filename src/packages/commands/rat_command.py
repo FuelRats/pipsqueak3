@@ -15,7 +15,7 @@ This module is built on top of the Pydle system.
 import logging
 from typing import Callable, Any, Dict
 
-from src.config import config_marker
+from src.config import CONFIG_MARKER
 from src.packages.rules.rules import get_rule, clear_rules
 
 # set the logger for rat_command
@@ -46,7 +46,7 @@ _registered_commands = {}  # pylint: disable=invalid-name
 PREFIX: str
 
 
-@config_marker
+@CONFIG_MARKER
 def rehash_handler(data: Dict):
     """
     handle rehash events
@@ -60,7 +60,7 @@ def rehash_handler(data: Dict):
     LOG.debug(f"in rehash, applying new configuration data...")
 
 
-@config_marker
+@CONFIG_MARKER
 def validate_config(data: Dict):
     LOG.debug(f"in {__name__}.validate_config")
     # validate the commands subkey exists, also load it for less repetition

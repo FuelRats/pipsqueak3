@@ -176,7 +176,7 @@ def setup(filename: str) -> Dict:
     logging.info("done verifying. config loaded without error.")
 
     logging.info(f"emitting new configuration to plugins...")
-    # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
 
+    # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
     PLUGIN_MANAGER.hook.rehash_handler(data=config_dict)  # pylint: disable=no-member
     return config_dict

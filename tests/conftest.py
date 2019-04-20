@@ -22,7 +22,7 @@ import psycopg2.pool
 import pytest
 
 # from psycopg2.pool import SimpleConnectionPool
-from src.config import config_marker, PLUGIN_MANAGER, setup_logging, setup
+from src.config import CONFIG_MARKER, PLUGIN_MANAGER, setup_logging, setup
 from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 
@@ -336,7 +336,7 @@ class ConfigReceiver():
     data: Dict = {}
 
     @classmethod
-    @config_marker
+    @CONFIG_MARKER
     def rehash_handler(cls, data: Dict):
         cls.data = data
 

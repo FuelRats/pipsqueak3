@@ -18,7 +18,7 @@ from typing import Dict, List, Optional, Tuple, Union, ClassVar
 
 import aiohttp
 
-from src.config import config_marker, PLUGIN_MANAGER
+from src.config import CONFIG_MARKER, PLUGIN_MANAGER
 from .star_system import StarSystem
 from ..utils import Vector
 
@@ -32,7 +32,7 @@ class Galaxy:
     configuration: ClassVar[Dict]
 
     @classmethod
-    @config_marker
+    @CONFIG_MARKER
     def rehash_handler(cls, data: Dict):
         """
         Apply new configuration data

@@ -16,18 +16,18 @@ import logging
 from functools import wraps
 from typing import Any, Union, Callable, Dict, Set
 
-from src.config import config_marker
+from src.config import CONFIG_MARKER
 from ..context import Context
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
 
-@config_marker
+@CONFIG_MARKER
 def validate_config(data: Dict):
     ...
 
 
-@config_marker
+@CONFIG_MARKER
 def rehash_handler(data: Dict):
     LOG.debug(f"handling configuration rehash event for {__name__}")
     RECRUIT.update(data['permissions']['recruit'])

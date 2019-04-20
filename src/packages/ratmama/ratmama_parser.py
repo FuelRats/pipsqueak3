@@ -15,7 +15,7 @@ import logging
 import re
 from typing import Optional, Dict
 
-from src.config import config_marker
+from src.config import CONFIG_MARKER
 from ..context import Context
 from ..rescue import Rescue
 from ..rules import rule
@@ -26,7 +26,7 @@ LOG = logging.getLogger(f"mecha.{__name__}")
 _config: Dict = {}
 
 
-@config_marker
+@CONFIG_MARKER
 def rehash_handler(data: Dict):
     """
     Apply new configuration data

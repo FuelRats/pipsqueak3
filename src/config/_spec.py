@@ -21,9 +21,8 @@ REHASH_SPEC = pluggy.HookspecMarker(_PLUGIN_NAME)
 
 
 # noinspection PyUnusedLocal
-# PYLINT: disable unused-argument
 @VALIDATOR_SPEC
-def validate_config(data: typing.Dict):
+def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
     """
     Validate new configuration data.
 
@@ -36,8 +35,9 @@ def validate_config(data: typing.Dict):
     ...
 
 
+# noinspection PyUnusedLocal
 @REHASH_SPEC
-def rehash_handler(data: typing.Dict):
+def rehash_handler(data: typing.Dict):  # pylint: disable=unused-argument
     """
     Apply new configuration data
 
