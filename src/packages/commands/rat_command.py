@@ -62,6 +62,12 @@ def rehash_handler(data: Dict):
 
 @CONFIG_MARKER
 def validate_config(data: Dict):
+    """
+    Validate the configuration file
+
+    Args:
+        data (DICT): configuration candidate
+    """
     LOG.debug(f"in {__name__}.validate_config")
     # validate the commands subkey exists, also load it for less repetition
     sub_key = data['commands']
