@@ -15,9 +15,9 @@ This module is built on top of the Pydle system.
 import asyncio
 import logging
 
-from src.config import setup
 # noinspection PyUnresolvedReferences
-from src import commands
+from src import commands  # pylint: disable=unused-import
+from src.config import setup
 from src.mechaclient import MechaClient
 from src.packages import cli_manager
 from src.packages.commands import command
@@ -44,7 +44,7 @@ async def start():
     Initializes and connects the client, then passes it to rat_command.
     """
 
-    config = setup(cli_manager.args().config_file)
+    config = setup(cli_manager.GET_ARGUMENTS().config_file)
     client_args = {"nickname": config["irc"]["nickname"]}
 
     auth_method = config["authentication"]["method"]

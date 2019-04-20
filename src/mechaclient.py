@@ -12,12 +12,11 @@ This module is built on top of the Pydle system.
 
 """
 from logging import getLogger
-from typing import Dict, ClassVar
+from typing import Dict
 from uuid import uuid4
 
 from pydle import Client
 
-from src.config import CONFIG_MARKER
 from src.packages.board.rat_board import RatBoard
 from src.packages.commands import trigger
 from src.packages.context.context import Context
@@ -54,7 +53,10 @@ class MechaClient(Client):
         super().__init__(*args, **kwargs)
 
     @property
-    def config(self):
+    def config(self) -> Dict:
+        """
+        Mecha's config object
+        """
         return self._config
 
     async def on_connect(self):

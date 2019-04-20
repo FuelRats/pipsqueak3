@@ -32,7 +32,7 @@ def setup_logging(logfile: str):
     Args:
         logfile (str): file path to log into
     """
-    args = cli_manager.args()
+    args = cli_manager.GET_ARGUMENTS()
     # check for CLI verbosity flag
     if args.verbose:
         loglevel = logging.DEBUG

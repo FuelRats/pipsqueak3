@@ -77,7 +77,7 @@ async def cmd_rehash(context: Context):
     """ rehash the hash browns. (reloads config file)"""
     LOG.warning(f"config rehashing invoked by user {context.user.nickname}")
     try:
-        path = cli_manager.args().config_file
+        path = cli_manager.GET_ARGUMENTS().config_file
         await context.reply(f"using config file {path}...")
         setup(path)
     except (KeyError, ValueError) as exc:

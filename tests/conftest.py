@@ -324,7 +324,7 @@ def test_fact_fx() -> Fact:
 def global_init_fx():
     PLUGIN_MANAGER.register(ConfigReceiver, "testing_config_recv")
     # fetch the CLI argument
-    _path = cli_manager.args().config_file
+    _path = cli_manager.GET_ARGUMENTS().config_file
     # and initialize
     setup(_path)
 
