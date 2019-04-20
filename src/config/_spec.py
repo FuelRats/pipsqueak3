@@ -16,11 +16,13 @@ import pluggy
 
 from ._constants import _PLUGIN_NAME
 
-validator_spec = pluggy.HookspecMarker(_PLUGIN_NAME)
-rehash_spec = pluggy.HookspecMarker(_PLUGIN_NAME)
+VALIDATOR_SPEC = pluggy.HookspecMarker(_PLUGIN_NAME)
+REHASH_SPEC = pluggy.HookspecMarker(_PLUGIN_NAME)
 
 
-@validator_spec
+# noinspection PyUnusedLocal
+# PYLINT: disable unused-argument
+@VALIDATOR_SPEC
 def validate_config(data: typing.Dict):
     """
     Validate new configuration data.
@@ -34,7 +36,7 @@ def validate_config(data: typing.Dict):
     ...
 
 
-@rehash_spec
+@REHASH_SPEC
 def rehash_handler(data: typing.Dict):
     """
     Apply new configuration data

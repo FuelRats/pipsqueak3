@@ -21,11 +21,17 @@ from typing import Dict, Tuple
 import coloredlogs
 import toml
 
-from ._manager import PLUGIN_MANAGER
 from src.packages.cli_manager import cli_manager
+from ._manager import PLUGIN_MANAGER
 
 
 def setup_logging(logfile: str):
+    """
+    Sets up the logging system
+
+    Args:
+        logfile (str): file path to log into
+    """
     args = cli_manager.args()
     # check for CLI verbosity flag
     if args.verbose:
@@ -35,9 +41,9 @@ def setup_logging(logfile: str):
 
     # check for nocolor flag
     if args.nocolors:
-        logcolors = False
+        log_colors = False
     else:
-        logcolors = True
+        log_colors = True
 
     # check for new-log flag, overwriting existing log,
     # otherwise, append to the file per normal.
@@ -92,7 +98,7 @@ def setup_logging(logfile: str):
                         level_styles=log_levelstyles,
                         field_styles=log_fieldstyles,
                         datefmt=log_datefmt,
-                        isatty=logcolors,
+                        isatty=log_colors,
                         )
 
     # disable propagation
@@ -104,7 +110,16 @@ def setup_logging(logfile: str):
 _hash: str = ''
 
 
-def load_config(filename) -> Tuple[Dict, str]:
+def load_config(filename: str) -> Tuple[Dict, str]:
+    """
+    Loads the configuration file
+
+    Args:
+        filename (str): name of configuration file, relative to ./config
+
+    Returns:
+        loaded data and the file's hash.
+    """
     path = Path("config") / filename
 
     # create a new hasher
@@ -130,12 +145,20 @@ def load_config(filename) -> Tuple[Dict, str]:
 def setup(filename: str) -> Dict:
     """
     Validate & apply configuration from disk
+
     Args:
         filename (str): path and filename to load.
+
+    Returns:
+        configuration data located at filename.
     """
     # do the loading part
     config_dict, file_hash = load_config(filename)
-    global _hash
+
+    # this is totally NOT a constant pylint. -_-
+    # also it appears the usage of global is unavoidable here, without introducing
+    # needless complexity via a class
+    global _hash  # pylint: disable=invalid-name, global-statement
 
     if file_hash == _hash:
         raise FileExistsError(f"new file's hash matches what we already have!"
@@ -146,10 +169,14 @@ def setup(filename: str) -> Dict:
     setup_logging(config_dict['logging']['log_file'])
     logging.info(f"new config hash is {file_hash}")
     logging.info("verifying configuration....")
-    PLUGIN_MANAGER.hook.validate_config(
+
+    # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
+    PLUGIN_MANAGER.hook.validate_config(  # pylint: disable=no-member
         data=config_dict)  # FIXME: this does nothing as it runs before plugins are loaded
     logging.info("done verifying. config loaded without error.")
 
     logging.info(f"emitting new configuration to plugins...")
-    PLUGIN_MANAGER.hook.rehash_handler(data=config_dict)
+    # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
+
+    PLUGIN_MANAGER.hook.rehash_handler(data=config_dict)  # pylint: disable=no-member
     return config_dict
