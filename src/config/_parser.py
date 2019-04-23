@@ -162,7 +162,7 @@ def setup(filename: str) -> Dict:
 
     if file_hash == _hash:
         raise FileExistsError(f"new file's hash matches what we already have!"
-                              f"\told = {_hash}\tnew={file_hash}")
+                              f"\t({file_hash})")
 
     _hash = file_hash
 
