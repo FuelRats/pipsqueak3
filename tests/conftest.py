@@ -320,16 +320,7 @@ def test_fact_fx() -> Fact:
                 )
 
 
-@pytest.fixture(scope="session", autouse=True)
-def global_init_fx():
-    PLUGIN_MANAGER.register(ConfigReceiver, "testing_config_recv")
-    # fetch the CLI argument
-    _path = cli_manager.GET_ARGUMENTS().config_file
-    # and initialize
-    setup(_path)
-
-
-class ConfigReceiver():
+class ConfigReceiver:
     """
     Namespace plugin for hooking into config events
     """
@@ -341,9 +332,24 @@ class ConfigReceiver():
         cls.data = data
 
 
-@pytest.fixture(scope="session")
-def configuration_fx(global_init_fx) -> Dict:
+@pytest.fixture(scope="session", autouse=True)
+def global_init_fx() -> None:
     """
-    Provides a configuration object for use in tests
+    Session scoped auto-use plugin for loading CLI flags, configuration settings, and preparing
+    the logging system.
+
+    This fixture does not provide a value.
+    """
+    PLUGIN_MANAGER.register(ConfigReceiver, "testing_config_recv")
+    # fetch the CLI argument
+    _path = cli_manager.GET_ARGUMENTS().config_file
+    # and initialize
+    setup(_path)
+
+
+@pytest.fixture(scope="session")
+def configuration_fx() -> Dict:
+    """
+    provides the session configuration dictionary, as loaded at test session start.
     """
     return ConfigReceiver.data
