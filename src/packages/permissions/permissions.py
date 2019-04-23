@@ -24,12 +24,29 @@ LOG = logging.getLogger(f"mecha.{__name__}")
 
 @CONFIG_MARKER
 def validate_config(data: Dict):
-    ...
+    """
+    Validate new configuration data.
+
+    Args:
+        data (typing.Dict): new configuration data  to validate
+
+    Raises:
+        ValueError:  config section failed to validate.
+        KeyError:  config section failed to validate.
+    """
+    ...  # TODO: permissions config validation
 
 
 @CONFIG_MARKER
 def rehash_handler(data: Dict):
-    LOG.debug(f"handling configuration rehash event for {__name__}")
+    """
+    Apply new configuration data
+
+    Args:
+        data (typing.Dict): new configuration data to apply.
+
+    """
+    LOG.debug("applying new permissions scheme...")
     RECRUIT.update(data['permissions']['recruit'])
     RAT.update(data['permissions']['rat'])
     OVERSEER.update(data['permissions']['overseer'])

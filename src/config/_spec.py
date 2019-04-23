@@ -30,7 +30,8 @@ def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
         data (typing.Dict): new configuration data  to validate
 
     Raises:
-        ValueError: config section failed to validate.
+        ValueError:  config section failed to validate.
+        KeyError:  config section failed to validate.
     """
     ...
 
