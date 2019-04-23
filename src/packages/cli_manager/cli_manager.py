@@ -2,7 +2,7 @@
 cli_manager.py - Manage CLI arguments
 
 This module will automatically parse arguments provided from the command line when this module is
-**first imported** and provide it for importing by other modules via the `GET_ARGUMENTS` attribute
+**first imported** and provide it for importing by other modules via the `GET_ARGUMENTS` method
 
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
