@@ -42,9 +42,6 @@ class NameCollisionException(CommandException):
 
 _registered_commands = {}  # pylint: disable=invalid-name
 
-# character/s that must prefix a message for it to be parsed as a command.
-PREFIX: str
-
 
 @CONFIG_MARKER
 def rehash_handler(data: Dict):
@@ -54,10 +51,7 @@ def rehash_handler(data: Dict):
     Args:
         data (Dict): new config object
     """
-    global PREFIX
-
-    PREFIX = data['commands']['prefix']
-    LOG.debug(f"in rehash, applying new configuration data...")
+    ...  # TODO validation?
 
 
 @CONFIG_MARKER
@@ -68,12 +62,7 @@ def validate_config(data: Dict):
     Args:
         data (DICT): configuration candidate
     """
-    LOG.debug(f"in {__name__}.validate_config")
-    # validate the commands subkey exists, also load it for less repetition
-    sub_key = data['commands']
-    # verify our trigger key exists and is a string.
-    if not isinstance(sub_key['prefix'], str):
-        raise ValueError(sub_key['prefix'])
+    ...  # TODO application?
 
 
 async def trigger(ctx) -> Any:
@@ -102,7 +91,7 @@ async def trigger(ctx) -> Any:
                 LOG.debug(
                     f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found.")
             else:
-                LOG.debug(f"Could not find command or rule for {PREFIX}{ctx.words[0]}.")
+                LOG.debug(f"Could not find command or rule for {ctx.words[0]}.")
     else:
         # Might still be a prefixless rule
         command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=True)
