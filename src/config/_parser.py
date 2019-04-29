@@ -144,13 +144,16 @@ def load_config(filename: str) -> Tuple[Dict, str]:
 
 def setup(filename: str) -> Dict:
     """
-    Validate & apply configuration from disk
+    Validates and applies the configuration from disk.
 
     Args:
         filename (str): path and filename to load.
 
+    Raises:
+        FileExistsError: the specified file has the same SHA256 hash as what is currently loaded in memory
+
     Returns:
-        configuration data located at filename.
+        configuration data located at `filename`.
     """
     # do the loading part
     config_dict, file_hash = load_config(filename)
