@@ -1,9 +1,8 @@
 """
 __init__.py -   Configuration plugin system.
 
-This module houses the configuration plugin system, which enables arbitrary modules to plug into configuration related
-events.
-
+This module houses the configuration plugin system, which enables arbitrary modules to plug into
+ configuration related events.
 
 Copyright (c) 2019 The Fuel Rats Mischief,
 All rights reserved.
@@ -30,8 +29,8 @@ Usage
 
 
     .. warning::
-         an event hook can accept *less* arguments than the hook specification, but having more arguments than
-         the specification allows results in an exception.
+         an event hook can accept *less* arguments than the hook specification, but having more
+         arguments than the specification allows results in an exception.
 
          This is a feature the underlying `pluggy` package provides.
 
@@ -44,8 +43,8 @@ Usage
 
 
     .. hint::
-        For module-scoped plugins it is recommended to use the containing package's `__init__.py` file to have this done
-        automatically at load time
+        For module-scoped plugins it is recommended to use the containing package's `__init__.py`
+        file to have this done automatically at load time
 
     See Also:
         `src.config <src >`_
@@ -74,10 +73,11 @@ PLUGIN_MANAGER.add_hookspecs(_spec)
 
 CONFIG_MARKER = pluggy.HookimplMarker(_PLUGIN_NAME)
 """
-This decorator is used by plugins to signify which functions / methods of theirs to use as a configuration plugin 
-handler.
+This decorator is used by plugins to signify which functions / methods of theirs to use as a 
+configuration plugin handler.
 
-.. warning:: If the handler is not marked using this decorator, it will **not** be recognized by the system.
+.. warning:: If the handler is not marked using this decorator, it will **not** be recognized by 
+the system.
 
 
 """
