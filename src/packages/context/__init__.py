@@ -8,7 +8,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from src.config._manager import PLUGIN_MANAGER
+from src.config import PLUGIN_MANAGER
 from . import context
 from .context import Context
 
