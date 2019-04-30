@@ -29,7 +29,7 @@ class Galaxy:
     """
     Worker class to interface with the Fuel Rats Systems API.
     """
-    configuration: ClassVar[Dict]
+    config: ClassVar[Dict]
 
     @classmethod
     @CONFIG_MARKER
@@ -41,7 +41,7 @@ class Galaxy:
             data (Dict): new configuration data to apply.
 
         """
-        cls.configuration = data
+        cls.config = data
 
     LANDMARK_SYSTEMS = {
         'beagle point': StarSystem(
@@ -84,7 +84,7 @@ class Galaxy:
     "A ClientTimeout object representing the total time an HTTP request can take before failing."
 
     def __init__(self, url: str = None):
-        self.url = url or self.configuration['api']['url']
+        self.url = url or self.config['api']['url']
 
     async def find_system_by_name(self, name: str) -> Optional[StarSystem]:
         """
