@@ -123,18 +123,22 @@ def load_config(filename: str) -> Tuple[Dict, str]:
     hasher = hashlib.sha256()
     # check if the file exists
     logging.debug(f"Found a file/directory at {path.resolve(strict=True)}'! attempting to load...")
-    with path.open('r', encoding="UTF8") as infile:
-        infile.flush()
-        config_dict = toml.load(infile)
-        logging.info("Successfully loaded from file specified!")
+
+    # read the raw bytes into a buffer
+    buffer = path.read_bytes()
+
+    # decode buffer so we have the text for toml loading.
+    decoded_buffer = buffer.decode("UTF8")
 
     # update hasher with the raw bytes of the file
-    hasher.update(path.read_bytes())
+    hasher.update(buffer)
 
-    del infile
-
+    # load the toml
+    config_dict = toml.loads(decoded_buffer)
     # digest the file, get its checksum.
     checksum = hasher.hexdigest()
+
+    logging.info(f"Loaded configuration file {path.resolve()} ({checksum})")
 
     return config_dict, checksum
 
