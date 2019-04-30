@@ -18,7 +18,7 @@ from typing import Dict, List, Optional, Tuple, Union, ClassVar
 
 import aiohttp
 
-from src.config import CONFIG_MARKER, PLUGIN_MANAGER
+from src.config import CONFIG_MARKER
 from .star_system import StarSystem
 from ..utils import Vector
 
@@ -335,6 +335,3 @@ class Galaxy:
 
                 # Introduce a short pause between retries
                 await self._retry_delay(retry)
-
-
-PLUGIN_MANAGER.register(Galaxy, "galaxy")
