@@ -12,7 +12,6 @@ This module is built on top of the Pydle system.
 
 """
 from logging import getLogger
-from typing import Dict
 from uuid import uuid4
 
 from pydle import Client
@@ -51,13 +50,6 @@ class MechaClient(Client):
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config if mecha_config else {}
         super().__init__(*args, **kwargs)
-
-    @property
-    def config(self) -> Dict:
-        """
-        Mecha's config object
-        """
-        return self._config
 
     async def on_connect(self):
         """
