@@ -73,10 +73,10 @@ PLUGIN_MANAGER.add_hookspecs(_spec)
 
 CONFIG_MARKER = pluggy.HookimplMarker(_PLUGIN_NAME)
 """
-This decorator is used by plugins to signify which functions / methods of theirs to use as a 
+This decorator is used by plugins to signify which functions / methods of theirs to use as a
 configuration plugin handler.
 
-.. warning:: If the handler is not marked using this decorator, it will **not** be recognized by 
+.. warning:: If the handler is not marked using this decorator, it will **not** be recognized by
 the system.
 
 
