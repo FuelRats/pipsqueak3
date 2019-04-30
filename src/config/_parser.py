@@ -150,7 +150,8 @@ def setup(filename: str) -> Dict:
         filename (str): path and filename to load.
 
     Raises:
-        FileExistsError: the specified file has the same SHA256 hash as what is currently loaded in memory
+        FileExistsError: the specified file has the same SHA256 hash as what is currently loaded in
+         memory
 
     Returns:
         configuration data located at `filename`.

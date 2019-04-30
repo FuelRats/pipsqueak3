@@ -10,27 +10,27 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from __future__ import annotations  # for forward references standard in >=3.8
+
+import logging
 import typing
-from typing import Optional, Tuple, List, TYPE_CHECKING, Dict
 
 from src.config import CONFIG_MARKER
 from ..user import User
 
-import logging
-
 LOG = logging.getLogger(f"mecha.{__name__}")
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from src.mechaclient import MechaClient
 
 
 @CONFIG_MARKER
-def validate_config(data: Dict):
+def validate_config(data: typing.Dict):
     if not isinstance(data['commands']['prefix'], str):
         raise ValueError
 
 
 @CONFIG_MARKER
-def rehash_handler(data: Dict):
+def rehash_handler(data: typing.Dict):
     Context.PREFIX = data['commands']['prefix']
     LOG.debug(f"in rehash handler, using new prefix {Context.PREFIX}")
 
@@ -42,7 +42,7 @@ class Context:
 
     PREFIX: typing.ClassVar[str] = "<!!NOTSET!!>"
 
-    def __init__(self, bot: 'MechaClient',
+    def __init__(self, bot: MechaClient,
                  user: User,
                  target: str,
                  words: [str],
@@ -61,7 +61,7 @@ class Context:
             prefixed (bool): marker if the message is prefixed
         """
         self._user: User = user
-        self._bot: 'MechaClient' = bot
+        self._bot: MechaClient = bot
         self._target: str = target
         self._words: [str] = words
         self._words_eol: [str] = words_eol
@@ -87,7 +87,7 @@ class Context:
         return self._user
 
     @property
-    def bot(self) -> 'MechaClient':
+    def bot(self) -> MechaClient:
         """
         MechaClient instance
 
@@ -107,7 +107,7 @@ class Context:
         return self._words
 
     @property
-    def words_eol(self) -> [str]:
+    def words_eol(self) -> typing.List[str]:
         """
         Words in invoking message to EOL
 
@@ -127,14 +127,14 @@ class Context:
         return self._target
 
     @property
-    def channel(self) -> Optional[str]:
+    def channel(self) -> typing.Optional[str]:
         """
         If the message was sent in a channel, this will be its name and `None` otherwise.
         """
         return self.target if self.bot.is_channel(self.target) else None
 
     @classmethod
-    async def from_message(cls, bot: 'MechaClient', channel: str, sender: str, message: str):
+    async def from_message(cls, bot: MechaClient, channel: str, sender: str, message: str):
         """
         Creates a context from a IRC message
 
@@ -175,7 +175,7 @@ class Context:
             await self.bot.message(self.user.nickname, msg)
 
 
-def _split_message(string: str) -> Tuple[List[str], List[str]]:
+def _split_message(string: str) -> typing.Tuple[typing.List[str], typing.List[str]]:
     """
     Split up a string into words and words_eol
 

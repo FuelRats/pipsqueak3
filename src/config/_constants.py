@@ -1,7 +1,5 @@
 """
-_constants -   # FIXME teplates
-
-
+_constants.py configuration constants
 
 Copyright (c) 2019 The Fuel Rats Mischief,
 All rights reserved.

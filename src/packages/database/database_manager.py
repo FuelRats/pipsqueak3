@@ -12,7 +12,7 @@ from typing import Union, Tuple, List, Dict, ClassVar
 import psycopg2
 from psycopg2 import sql, pool
 
-from src.config import PLUGIN_MANAGER, CONFIG_MARKER
+from src.config import CONFIG_MARKER
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
@@ -52,6 +52,7 @@ class DatabaseManager:
         >>> dbm.query(query, ('tuple','of','values'))# doctest: +SKIP
 
     """
+
     @classmethod
     @CONFIG_MARKER
     def rehash_handler(cls, data: Dict):
@@ -183,6 +184,3 @@ class DatabaseManager:
         self._dbpool.putconn(connection)
 
         return list(result)
-
-
-PLUGIN_MANAGER.register(DatabaseManager, "Database")
