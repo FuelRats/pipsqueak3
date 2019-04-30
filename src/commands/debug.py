@@ -59,10 +59,11 @@ async def cmd_superping(context: Context):
     await context.reply("pong!")
 
 
-@command("getPlugins")
+@command("getConfigPlugins")
 @require_channel
 @require_permission(TECHRAT)
 async def cmd_get_plugins(context: Context):
+    """Lists configuration plugins"""
     await context.reply(f"getting plugins...")
 
     plugins = PLUGIN_MANAGER.list_name_plugin()

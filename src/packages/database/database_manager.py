@@ -70,7 +70,12 @@ class DatabaseManager:
     @classmethod
     @CONFIG_MARKER
     def validate_config(cls, data: Dict):
-        # Module specific configuration
+        """
+        Validate database portion of the configuration file
+
+        Args:
+            data(typing.Dict): configuration object
+        """
         try:
             module_config = data['database']
         except (KeyError, AttributeError) as ex:

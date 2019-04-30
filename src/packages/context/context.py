@@ -25,12 +25,24 @@ if typing.TYPE_CHECKING:
 
 @CONFIG_MARKER
 def validate_config(data: typing.Dict):
+    """
+    Validate context portion of the configuration file
+
+    Args:
+        data(typing.Dict): configuration object
+    """
     if not isinstance(data['commands']['prefix'], str):
         raise ValueError
 
 
 @CONFIG_MARKER
 def rehash_handler(data: typing.Dict):
+    """
+    Apply context-related configuration values from event
+
+    Args:
+        data(typing.Dict): configuration object
+    """
     Context.PREFIX = data['commands']['prefix']
     LOG.debug(f"in rehash handler, using new prefix {Context.PREFIX}")
 
