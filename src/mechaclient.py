@@ -80,7 +80,7 @@ class MechaClient(Client):
         """
         LOG.debug(f"{channel}: <{user}> {message}")
 
-        if user == self.config['irc']['nickname']:
+        if user == self._config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             LOG.debug(f"Ignored {message} (anti-loop)")
