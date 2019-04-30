@@ -38,8 +38,8 @@ Usage
     While not strictly required, you should give your plugin a unique name.
 
     .. code::
-        >>> PLUGIN_MANAGER.register(MyPlugin(), "src.config.doctest_plugin")
-        'src.config.doctest_plugin'
+    >>> PLUGIN_MANAGER.register(MyPlugin(), "src.config.doctest_plugin")
+    'src.config.doctest_plugin'
 
 
     .. hint::

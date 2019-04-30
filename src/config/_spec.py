@@ -33,7 +33,6 @@ def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
         ValueError:  config section failed to validate.
         KeyError:  config section failed to validate.
     """
-    ...
 
 
 # noinspection PyUnusedLocal
@@ -46,4 +45,3 @@ def rehash_handler(data: typing.Dict):  # pylint: disable=unused-argument
         data (typing.Dict): new configuration data to apply.
 
     """
-    ...
