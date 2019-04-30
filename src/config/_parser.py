@@ -107,9 +107,6 @@ def setup_logging(logfile: str):
     logging.info("Configuration file loading...")
 
 
-_hash: str = ''
-
-
 def load_config(filename: str) -> Tuple[Dict, str]:
     """
     Loads the configuration file
@@ -149,27 +146,11 @@ def setup(filename: str) -> Dict:
     Args:
         filename (str): path and filename to load.
 
-    Raises:
-        FileExistsError: the specified file has the same SHA256 hash as what is currently loaded in
-         memory
-
     Returns:
         configuration data located at `filename`.
     """
     # do the loading part
     config_dict, file_hash = load_config(filename)
-
-    # this is totally NOT a constant pylint. -_-
-    # also it appears the usage of global is unavoidable here, without introducing
-    # needless complexity via a class
-    global _hash  # pylint: disable=invalid-name, global-statement
-
-    if file_hash == _hash:
-        raise FileExistsError(f"new file's hash matches what we already have!"
-                              f"\t({file_hash})")
-
-    _hash = file_hash
-
     setup_logging(config_dict['logging']['log_file'])
     logging.info(f"new config hash is {file_hash}")
     logging.info("verifying configuration....")
