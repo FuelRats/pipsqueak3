@@ -161,7 +161,7 @@ def setup(filename: str) -> Dict:
 
     # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
     PLUGIN_MANAGER.hook.validate_config(  # pylint: disable=no-member
-        data=config_dict)  # FIXME: this does nothing as it runs before plugins are loaded
+        data=config_dict)
     logging.info("done verifying. config loaded without error.")
 
     logging.info(f"emitting new configuration to plugins...")

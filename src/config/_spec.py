@@ -1,7 +1,9 @@
 """
-_validator -   # FIXME teplates
+_spec.py  - Configuration plugin hook specifications
 
-
+this file contains the hook specifications for the configuration system.
+Any plugin implementing the configuration interface **must** implement the below
+functions in order to benefit from the system.
 
 Copyright (c) 2019 The Fuel Rats Mischief,
 All rights reserved.
