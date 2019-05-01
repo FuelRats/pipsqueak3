@@ -125,7 +125,12 @@ async def test_db_query_direct(test_dbm_fx):
          'port': 5432,
          'dbname': 'circle_test',
          'username': 'root',
-         'password': 0xDEADBEEF}
+         'password': 0xDEADBEEF},
+        {'host': 0xBEEFCEEE,
+        'port': 5432,
+        'dbname': 'circle_test',
+        'username': 'root',
+        'password': 'mecha'}
 ))
 def test_validate_config_invalid(configuration_fx, data, test_dbm_fx):
     with pytest.raises(ValueError):
