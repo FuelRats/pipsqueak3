@@ -80,7 +80,7 @@ class DatabaseManager:
         module_config = data['database']
 
         # Require all values to be set
-        for setting in module_config.items():
+        for setting in module_config.values():
             if not setting:
                 raise ValueError(f"[database]{setting} is required for instantiation but was empty")
 
