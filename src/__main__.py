@@ -44,7 +44,7 @@ async def start():
     Initializes and connects the client, then passes it to rat_command.
     """
 
-    config = setup(cli_manager.GET_ARGUMENTS().config_file)
+    config, _ = setup(cli_manager.GET_ARGUMENTS().config_file)
     client_args = {"nickname": config["irc"]["nickname"]}
 
     auth_method = config["authentication"]["method"]

@@ -79,12 +79,11 @@ async def cmd_rehash(context: Context):
     LOG.warning(f"config rehashing invoked by user {context.user.nickname}")
     try:
         path = cli_manager.GET_ARGUMENTS().config_file
-        await context.reply(f"using config file {path}...")
-        setup(path)
+        await context.reply(f"reloading configuration...")
+        _, resulting_hash = setup(path)
     except (KeyError, ValueError) as exc:
         await context.reply(f"unable to rehash configuration file.")
         raise ValueError("failed to rehash configuration") from exc
-    except FileExistsError:
-        await context.reply(f"unable to rehash configuration, you sure it changed?")
     else:
-        await context.reply("done rehashing. have a nice day.")
+        # no errors, respond status OK with the first octet of the hash.
+        await context.reply(f"rehashing completed successfully. ({resulting_hash[:8]}) ")

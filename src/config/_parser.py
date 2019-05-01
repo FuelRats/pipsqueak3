@@ -143,7 +143,7 @@ def load_config(filename: str) -> Tuple[Dict, str]:
     return config_dict, checksum
 
 
-def setup(filename: str) -> Dict:
+def setup(filename: str) -> Tuple[Dict, str]:
     """
     Validates and applies the configuration from disk.
 
@@ -168,4 +168,4 @@ def setup(filename: str) -> Dict:
 
     # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
     PLUGIN_MANAGER.hook.rehash_handler(data=config_dict)  # pylint: disable=no-member
-    return config_dict
+    return config_dict, file_hash
