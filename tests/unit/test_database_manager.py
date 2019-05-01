@@ -106,12 +106,27 @@ async def test_db_query_direct(test_dbm_fx):
 
 
 @pytest.mark.parametrize("data", (
-        {'host': 'localhost',
+        {'host': '',
          'port': 5432,
          'dbname': 'circle_test',
          'username': 'root',
          'password': 'mecha'},
-        {}
+        {'host': 'localhost',
+         'port': "5432",
+         'dbname': 'circle_test',
+         'username': 'root',
+         'password': 'mecha'},
+        {'host': 'uhh',
+         'port': 5432,
+         'dbname': '???',
+         'username': 42,
+         'password': 'mecha'},
+        {'host': '',
+         'port': 5432,
+         'dbname': 'circle_test',
+         'username': 'root',
+         'password': 0xDEADBEEF}
 ))
 def test_validate_config_invalid(configuration_fx, data, test_dbm_fx):
-    test_dbm_fx.validate_config(data=data)
+    with pytest.raises(ValueError):
+        test_dbm_fx.validate_config(data=data)

@@ -81,28 +81,28 @@ class DatabaseManager:
 
         # Require all values to be set
         for setting in module_config.items():
-            if setting is None:
-                raise ValueError(f"{setting} is required for instantiation")
+            if not setting:
+                raise ValueError(f"[database]{setting} is required for instantiation but was empty")
 
         # Host
         if not isinstance(module_config['host'], str):
-            raise ValueError("host must be a string.")
+            raise ValueError("[database]host must be a string.")
 
         # Port
         if not isinstance(module_config['port'], int):
-            raise ValueError("port must be an integer.")
+            raise ValueError("[database]port must be an integer.")
 
         # Database Name
         if not isinstance(module_config['dbname'], str):
-            raise ValueError("database name must be a string.")
+            raise ValueError("[database]database name must be a string.")
 
         # Database Username
         if not isinstance(module_config['username'], str):
-            raise ValueError("database username must be a string.")
+            raise ValueError("[database]database username must be a string.")
 
         # Database Password
         if not isinstance(module_config['password'], str):
-            raise ValueError("database password must be a string")
+            raise ValueError("[database]database password must be a string")
 
     def __init__(self,
                  dbhost=None,
