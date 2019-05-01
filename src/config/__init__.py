@@ -46,10 +46,6 @@ Usage
         For module-scoped plugins it is recommended to use the containing package's `__init__.py`
         file to have this done automatically at load time
 
-    See Also:
-        `src.config <src >`_
-
-hello world!
 See LICENSE.md
 """
 
