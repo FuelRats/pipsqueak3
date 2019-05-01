@@ -58,7 +58,7 @@ class MechaClient(Client):
         """
         LOG.debug(f"Connecting to channels...")
         # join a channel
-        for channel in self.config["irc"]["channels"]:
+        for channel in self._config["irc"]["channels"]:
             LOG.debug(f"Configured channel {channel}")
             await self.join(channel)
 
