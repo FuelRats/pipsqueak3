@@ -76,10 +76,8 @@ class DatabaseManager:
         Args:
             data(typing.Dict): configuration object
         """
-        try:
-            module_config = data['database']
-        except (KeyError, AttributeError) as ex:
-            raise ValueError("No Database configuration in file.") from ex
+
+        module_config = data['database']
 
         # Require all values to be set
         for setting in module_config.items():
