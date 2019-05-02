@@ -18,8 +18,8 @@ from typing import Set
 import pytest
 
 import src.packages.commands.rat_command as Commands
-from src.packages.permissions import permissions
 from src.packages.context import Context
+from src.packages.permissions import permissions
 from src.packages.permissions import require_permission, require_channel, require_dm, Permission
 
 
@@ -278,3 +278,50 @@ class TestPermissions(object):
 
         with pytest.raises(TypeError):
             permission_fx.denied_message = garbage
+
+    @pytest.mark.parametrize("data",
+                             (
+                                     {'recruit': {'vhosts': ['recruit.fuelrats.com'], 'level': -1},
+                                      'rat': {'vhosts': ['rat.fuelrats.com'], 'level': 1},
+                                      'overseer': {'vhosts': ['overseer.fuelrats.com'], 'level': 2},
+                                      'techrat': {'vhosts': ['techrat.fuelrats.com'], 'level': 3},
+                                      'administrator': {'vhosts': ['op.fuelrats.com',
+                                                                   'netadmin.fuelrats.com',
+                                                                   'admin.fuelrats.com',
+                                                                   'i.see.all'],
+                                                        'level': 4}}
+                                     ,
+                                     {'recruit': {'vhosts': ['recruit.fuelrats.com'], 'level': 0},
+                                      'rat': {'vhosts': ['rat.fuelrats.com'], 'level': 1},
+                                      'overseer': {'vhosts': ['overseer.fuelrats.com'], 'level': 2},
+                                      'techrat': {'vhosts': [42], 'level': 3},
+                                      'administrator': {'vhosts': ['op.fuelrats.com',
+                                                                   'netadmin.fuelrats.com',
+                                                                   'admin.fuelrats.com',
+                                                                   'i.see.all'],
+                                                        'level': 4}}
+                                     ,
+                                     {'recruit': {'vhosts': None, 'level': 0},
+                                      'rat': {'vhosts': ['rat.fuelrats.com'], 'level': 1},
+                                      'overseer': {'vhosts': ['overseer.fuelrats.com'], 'level': 2},
+                                      'techrat': {'vhosts': [42], 'level': 3},
+                                      'administrator': {'vhosts': ['op.fuelrats.com',
+                                                                   'netadmin.fuelrats.com',
+                                                                   'admin.fuelrats.com',
+                                                                   'i.see.all'],
+                                                        'level': 4}}
+                                     ,
+                                     {'recruit': {'vhosts': [], 'level': "I like pizza"},
+                                      'rat': {'vhosts': ['rat.fuelrats.com'], 'level': 1},
+                                      'overseer': {'vhosts': ['overseer.fuelrats.com'], 'level': 2},
+                                      'techrat': {'vhosts': [42], 'level': 3},
+                                      'administrator': {'vhosts': ['op.fuelrats.com',
+                                                                   'netadmin.fuelrats.com',
+                                                                   'admin.fuelrats.com',
+                                                                   'i.see.all'],
+                                                        'level': 4}}
+                                     ,
+                             ))
+    def test_validate_config_bad_data(self, data):
+        with pytest.raises(ValueError):
+            permissions.validate_config({"permissions": data})

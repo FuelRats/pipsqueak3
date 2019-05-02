@@ -34,7 +34,27 @@ def validate_config(data: Dict):
         ValueError:  config section failed to validate.
         KeyError:  config section failed to validate.
     """
-    ...  # TODO: permissions config validation
+    subgroup: Dict = data['permissions']
+
+    for key, block in subgroup.items():
+        KEY_VALIDATION_FAILED_ = f"[vhosts] {key} validation failed"
+
+        if not isinstance(block['vhosts'], list):
+            LOG.error(f"{key} contains invalid data. expected a List, got {block['vhosts']}")
+            raise ValueError(KEY_VALIDATION_FAILED_)
+        if not isinstance(block['level'], int):
+            LOG.error(
+                f"{key} contains invalid data, expected an integer and got {type(block['level'])}")
+            raise ValueError(KEY_VALIDATION_FAILED_)
+
+        if block['level'] < 0:
+            LOG.warning(f"{key} contains non-sensible data, level should be positive")
+            raise ValueError(KEY_VALIDATION_FAILED_)
+
+        for vhost in block['vhosts']:
+            if not isinstance(vhost, str):
+                LOG.warning(f"subkey for {key} was not a string, instead got {vhost}")
+                raise ValueError(KEY_VALIDATION_FAILED_)
 
 
 @CONFIG_MARKER
