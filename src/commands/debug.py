@@ -13,8 +13,7 @@ See LICENSE.md
 """
 import logging
 
-from src.config import PLUGIN_MANAGER, setup
-from src.packages.cli_manager import cli_manager
+from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
@@ -69,21 +68,3 @@ async def cmd_get_plugins(context: Context):
     plugins = PLUGIN_MANAGER.list_name_plugin()
     names = [plugin[0] for plugin in plugins]
     await context.reply(",".join(names))
-
-
-@command("rehash")
-@require_channel(message="please do this where everyone can see 😒")
-@require_permission(TECHRAT, override_message="no.")
-async def cmd_rehash(context: Context):
-    """ rehash the hash browns. (reloads config file)"""
-    LOG.warning(f"config rehashing invoked by user {context.user.nickname}")
-    try:
-        path = cli_manager.GET_ARGUMENTS().config_file
-        await context.reply(f"reloading configuration...")
-        _, resulting_hash = setup(path)
-    except (KeyError, ValueError) as exc:
-        await context.reply(f"unable to rehash configuration file.")
-        raise ValueError("failed to rehash configuration") from exc
-    else:
-        # no errors, respond status OK with the first octet of the hash.
-        await context.reply(f"rehashing completed successfully. ({resulting_hash[:8]}) ")
