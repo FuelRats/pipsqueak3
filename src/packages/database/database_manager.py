@@ -7,7 +7,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
-from typing import Union, Tuple, List, Dict, ClassVar
+import typing
 
 import psycopg2
 from psycopg2 import sql, pool
@@ -53,9 +53,11 @@ class DatabaseManager:
 
     """
 
+    _config: typing.ClassVar[typing.Dict] = {}
+
     @classmethod
     @CONFIG_MARKER
-    def rehash_handler(cls, data: Dict):
+    def rehash_handler(cls, data: typing.Dict):
         """
         Apply new configuration data
 
@@ -65,11 +67,9 @@ class DatabaseManager:
         """
         cls._config = data
 
-    _config: ClassVar[Dict] = {}
-
     @classmethod
     @CONFIG_MARKER
-    def validate_config(cls, data: Dict):
+    def validate_config(cls, data: typing.Dict):
         """
         Validate database portion of the configuration file
 
@@ -146,7 +146,9 @@ class DatabaseManager:
             LOG.exception("Unable to connect to database!")
             raise error
 
-    async def query(self, query: sql.SQL, values: Union[Tuple, Dict]) -> List:
+    async def query(self,
+                    query: sql.SQL,
+                    values: typing.Union[typing.Tuple, typing.Dict]) -> typing.List:
         """
         Send a query to the connected database.  Pulls a connection from the pool and creates
         a cursor, executing the composed query with the values.
@@ -163,7 +165,7 @@ class DatabaseManager:
             raise TypeError("Expected composed SQL object for query.")
 
         # Verify value is tuple or dict.
-        if not isinstance(values, (Dict, Tuple)):
+        if not isinstance(values, (dict, tuple)):
             raise TypeError(f"Expected tuple or dict for query values.")
 
         # Pull a connection from the pool, and create a cursor from it.
