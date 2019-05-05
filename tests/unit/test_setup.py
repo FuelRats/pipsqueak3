@@ -12,7 +12,9 @@ See LICENSE.md
 """
 
 import pytest
-import config
+
+import src.config
+
 
 @pytest.mark.unit
 @pytest.mark.setup_tests
@@ -23,4 +25,4 @@ def test_bad_filename(random_string_fx):
     """
     filename = random_string_fx
     with pytest.raises(FileNotFoundError):
-        config.setup(filename)
+        src.config.setup(filename)

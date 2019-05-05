@@ -8,6 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = ["ARGS"]
+__all__ = ["GET_ARGUMENTS"]
 
-from .cli_manager import ARGS
+from .cli_manager import GET_ARGUMENTS

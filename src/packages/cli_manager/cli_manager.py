@@ -2,7 +2,7 @@
 cli_manager.py - Manage CLI arguments
 
 This module will automatically parse arguments provided from the command line when this module is
-**first imported** and provide it for importing by other modules via the `args` attribute
+**first imported** and provide it for importing by other modules via the `GET_ARGUMENTS` method
 
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
@@ -40,5 +40,11 @@ _PARSER.add_argument("--nocolors", "--nc",
                      help="Disable ANSI color coding. For people who hate fun.",
                      action="store_true")
 
-# parse the arguments into an object
-ARGS = _PARSER.parse_args()
+# expose the parser function, since parsing it ourselves is a no-no
+GET_ARGUMENTS = _PARSER.parse_args
+"""
+callable returning a parsed argument namespace
+
+Note:
+    This is a callable to prevent muckery during startup
+"""

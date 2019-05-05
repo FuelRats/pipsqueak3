@@ -13,22 +13,20 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from itertools import product
 from typing import Set
 
 import pytest
 
 import src.packages.commands.rat_command as Commands
+from src.packages.context import Context
 from src.packages.permissions import permissions
-from src.packages.context.context import Context
-from src.packages.permissions.permissions import require_permission, require_channel, require_dm, Permission
+from src.packages.permissions import require_permission, require_channel, require_dm, Permission
 
 
 @pytest.fixture
 def Setup_fx(bot_fx):
     """Sets up the test environment"""
     Commands._flush()
-    Commands.bot = bot_fx
 
 
 @pytest.fixture
@@ -115,13 +113,6 @@ class TestPermissions(object):
         context = await Context.from_message(bot_fx, "#somechannel", "some_ov", "!restricted")
         await Commands.trigger(context)
         assert restricted_command_fx.was_called_once
-
-    def test_hash(self):
-        for perm1, perm2 in product(permissions._by_vhost.values(), permissions._by_vhost.values()):
-            if perm1 == perm2:
-                assert hash(perm1) == hash(perm2)
-            else:
-                assert hash(perm1) != hash(perm2)
 
     @pytest.mark.asyncio
     async def test_require_channel_valid(self, bot_fx, context_channel_fx):
@@ -287,3 +278,50 @@ class TestPermissions(object):
 
         with pytest.raises(TypeError):
             permission_fx.denied_message = garbage
+
+    @pytest.mark.parametrize("data",
+                             (
+                                     {'recruit': {'vhosts': ['recruit.fuelrats.com'], 'level': -1},
+                                      'rat': {'vhosts': ['rat.fuelrats.com'], 'level': 1},
+                                      'overseer': {'vhosts': ['overseer.fuelrats.com'], 'level': 2},
+                                      'techrat': {'vhosts': ['techrat.fuelrats.com'], 'level': 3},
+                                      'administrator': {'vhosts': ['op.fuelrats.com',
+                                                                   'netadmin.fuelrats.com',
+                                                                   'admin.fuelrats.com',
+                                                                   'i.see.all'],
+                                                        'level': 4}}
+                                     ,
+                                     {'recruit': {'vhosts': ['recruit.fuelrats.com'], 'level': 0},
+                                      'rat': {'vhosts': ['rat.fuelrats.com'], 'level': 1},
+                                      'overseer': {'vhosts': ['overseer.fuelrats.com'], 'level': 2},
+                                      'techrat': {'vhosts': [42], 'level': 3},
+                                      'administrator': {'vhosts': ['op.fuelrats.com',
+                                                                   'netadmin.fuelrats.com',
+                                                                   'admin.fuelrats.com',
+                                                                   'i.see.all'],
+                                                        'level': 4}}
+                                     ,
+                                     {'recruit': {'vhosts': None, 'level': 0},
+                                      'rat': {'vhosts': ['rat.fuelrats.com'], 'level': 1},
+                                      'overseer': {'vhosts': ['overseer.fuelrats.com'], 'level': 2},
+                                      'techrat': {'vhosts': [42], 'level': 3},
+                                      'administrator': {'vhosts': ['op.fuelrats.com',
+                                                                   'netadmin.fuelrats.com',
+                                                                   'admin.fuelrats.com',
+                                                                   'i.see.all'],
+                                                        'level': 4}}
+                                     ,
+                                     {'recruit': {'vhosts': [], 'level': "I like pizza"},
+                                      'rat': {'vhosts': ['rat.fuelrats.com'], 'level': 1},
+                                      'overseer': {'vhosts': ['overseer.fuelrats.com'], 'level': 2},
+                                      'techrat': {'vhosts': [42], 'level': 3},
+                                      'administrator': {'vhosts': ['op.fuelrats.com',
+                                                                   'netadmin.fuelrats.com',
+                                                                   'admin.fuelrats.com',
+                                                                   'i.see.all'],
+                                                        'level': 4}}
+                                     ,
+                             ))
+    def test_validate_config_bad_data(self, data):
+        with pytest.raises(ValueError):
+            permissions.validate_config({"permissions": data})

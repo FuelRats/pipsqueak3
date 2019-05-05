@@ -16,18 +16,71 @@ import logging
 from functools import wraps
 from typing import Any, Union, Callable, Dict, Set
 
-from config import config
+from src.config import CONFIG_MARKER
 from ..context import Context
 
 LOG = logging.getLogger(f"mecha.{__name__}")
+
+
+@CONFIG_MARKER
+def validate_config(data: Dict):
+    """
+    Validate new configuration data.
+
+    Args:
+        data (typing.Dict): new configuration data  to validate
+
+    Raises:
+        ValueError:  config section failed to validate.
+        KeyError:  config section failed to validate.
+    """
+    subgroup: Dict = data['permissions']
+
+    for key, block in subgroup.items():
+        KEY_VALIDATION_FAILED_ = f"[vhosts] {key} validation failed"
+
+        if not isinstance(block['vhosts'], list):
+            LOG.error(f"{key} contains invalid data. expected a List, got {block['vhosts']}")
+            raise ValueError(KEY_VALIDATION_FAILED_)
+        if not isinstance(block['level'], int):
+            LOG.error(
+                f"{key} contains invalid data, expected an integer and got {type(block['level'])}")
+            raise ValueError(KEY_VALIDATION_FAILED_)
+
+        if block['level'] < 0:
+            LOG.warning(f"{key} contains non-sensible data, level should be positive")
+            raise ValueError(KEY_VALIDATION_FAILED_)
+
+        for vhost in block['vhosts']:
+            if not isinstance(vhost, str):
+                LOG.warning(f"subkey for {key} was not a string, instead got {vhost}")
+                raise ValueError(KEY_VALIDATION_FAILED_)
+
+
+@CONFIG_MARKER
+def rehash_handler(data: Dict):
+    """
+    Apply new configuration data
+
+    Args:
+        data (typing.Dict): new configuration data to apply.
+
+    """
+    LOG.debug("applying new permissions scheme...")
+    RECRUIT.update(data['permissions']['recruit'])
+    RAT.update(data['permissions']['rat'])
+    OVERSEER.update(data['permissions']['overseer'])
+    TECHRAT.update(data['permissions']['techrat'])
+    ADMIN.update(data['permissions']['administrator'])
 
 
 class Permission:
     """
     A permission level
     """
+    __slots__ = ["level", "_vhosts", "_denied_message"]
 
-    def __init__(self, level: int, vhosts: Set[str],
+    def __init__(self, level: int = -1, vhosts: Set[str] = None,
                  deny_message: str = "Access denied."):
         """
         creates a representation of a permission level required to execute an IRC command
@@ -40,21 +93,26 @@ class Permission:
         """
 
         LOG.debug(f"Created new Permission object with permission {level}")
-        self._level = level
-        self._vhosts = vhosts
+        self.level = level
+        self._vhosts = vhosts if vhosts else set()
         self._denied_message = deny_message
 
         _by_vhost.update({vhost: self for vhost in self._vhosts})
 
-    @property
-    def level(self) -> int:
+    def update(self, data: Dict) -> None:
         """
-        Permission level
+        in-place update of the object with new configuration values
 
-        Returns:
-            int
+        Args:
+            data (Dict): new dictionary to apply
+
         """
-        return self._level
+
+        vhosts = set(data['vhosts'])
+        level = data['level']
+
+        self.vhosts = vhosts
+        self.level = level
 
     @property
     def vhosts(self) -> Set[str]:
@@ -131,10 +189,12 @@ class Permission:
         if not isinstance(data, dict):
             raise TypeError(f"expected dict got {type(data)}")
 
-        vhosts = set(data['vhosts'])
-        level = data['level']
+        # instantiate a new object
+        instance = cls()
 
-        return cls(level=level, vhosts=vhosts)
+        # and populate its fields.
+        instance.update(data)
+        return instance
 
     @property
     def denied_message(self) -> str:
@@ -180,28 +240,26 @@ class Permission:
     def __gt__(self, other: 'Permission') -> bool:
         return self.level > other.level
 
-    def __hash__(self):
-        return hash(self.level)
-
 
 # mapping between vhosts and permissions
 _by_vhost: Dict[str, Permission] = {}
 
-_PERMISSIONS_DICT = config['permissions']
+# TODO: implement null constructor, populate fields in post.
+_PERMISSIONS_DICT = {}
 # the uninitiated
-RECRUIT = Permission.from_dict(_PERMISSIONS_DICT['recruit'])
+RECRUIT = Permission()
 
 # the run of the mill
-RAT = Permission(1, _PERMISSIONS_DICT['rat'])
+RAT = Permission()
 
 # the overseers of the mad house
-OVERSEER = Permission.from_dict(_PERMISSIONS_DICT['overseer'])
+OVERSEER = Permission()
 
 # The rats that provide all the shiny toys
-TECHRAT = Permission.from_dict(_PERMISSIONS_DICT['techrat'])
+TECHRAT = Permission()
 
 # The Administrator.
-ADMIN = Permission.from_dict(_PERMISSIONS_DICT['administrator'])
+ADMIN = Permission()
 
 
 def require_permission(permission: Permission,

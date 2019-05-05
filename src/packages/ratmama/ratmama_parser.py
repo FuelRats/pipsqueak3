@@ -13,15 +13,30 @@ See LICENSE.md
 
 import logging
 import re
-from typing import Optional
+from typing import Optional, Dict
 
-import config
+from src.config import CONFIG_MARKER
 from ..context import Context
 from ..rescue import Rescue
 from ..rules import rule
 from ..utils import Platforms
 
 LOG = logging.getLogger(f"mecha.{__name__}")
+
+_config: Dict = {}
+
+
+@CONFIG_MARKER
+def rehash_handler(data: Dict):
+    """
+    Apply new configuration data
+
+    Args:
+        data (typing.Dict): new configuration data to apply.
+
+    """
+    _config.update(data)
+
 
 RATMAMA_REGEX = re.compile(r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.
@@ -62,7 +77,6 @@ RATMAMA_REGEX = re.compile(r"""(?x)
 @rule(r"^\s*Incoming Client:", case_sensitive=False, full_message=False, prefixless=True,
       pass_match=False)
 async def handle_ratmama_announcement(ctx: Context) -> None:
-
     """
     Handles the Announcement made by RatMama.
     Details are extracted, wrapped in a Rescue object and appended to the Rescue board.
@@ -76,7 +90,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     """
 
     if ctx.user.nickname.casefold() not in (
-            nick.casefold() for nick in config.config["ratsignal_parser"]["announcer_nicks"]
+            nick.casefold() for nick in _config["ratsignal_parser"]["announcer_nicks"]
     ):
         return
 
@@ -103,7 +117,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             diff_response += "Platform changed! "
 
         if not o2_status != exist_rescue.code_red:
-            diff_response += "O2 Status changed!" if o2_status else\
+            diff_response += "O2 Status changed!" if o2_status else \
                 "O2 Status changed, it is now CODE RED!"
 
         if diff_response:

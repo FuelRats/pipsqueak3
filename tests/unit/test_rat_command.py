@@ -18,8 +18,8 @@ import pydle
 import pytest
 
 import src.packages.commands.rat_command as Commands
-from src.packages.context.context import Context
 from src.packages.commands.rat_command import NameCollisionException
+from src.packages.context.context import Context
 
 
 @pytest.fixture
@@ -63,13 +63,13 @@ class TestRatCommand(object):
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
-    async def test_call_command(self, alias, bot_fx):
+    async def test_call_command(self, alias, bot_fx, configuration_fx):
         """
         Verifiy that found commands can be invoked via Commands.Trigger()
         """
         Commands._flush()
 
-        trigger_alias = f"{Commands.PREFIX}{alias}"
+        trigger_alias = f"{configuration_fx['commands']['prefix']}{alias}"
 
         @Commands.command(alias)
         async def potato(context: Context):

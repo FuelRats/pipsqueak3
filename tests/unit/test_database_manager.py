@@ -11,8 +11,8 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE
 """
-import pytest
 import psycopg2
+import pytest
 from psycopg2 import extensions, sql
 
 pytestmark = [pytest.mark.unit, pytest.mark.database_manager]
@@ -101,5 +101,37 @@ async def test_db_query_direct(test_dbm_fx):
     Query the database using the query function directly.
     """
     assert await test_dbm_fx.query(sql.SQL("SELECT name, lang, message "
-                                        "from fact WHERE name=%s AND lang=%s"),
+                                           "from fact WHERE name=%s AND lang=%s"),
                                    ('test', 'en')) == [('test', 'en', 'This is a test fact.')]
+
+
+@pytest.mark.parametrize("data", (
+        {'host': '',
+         'port': 5432,
+         'dbname': 'circle_test',
+         'username': 'root',
+         'password': 'mecha'},
+        {'host': 'localhost',
+         'port': "5432",
+         'dbname': 'circle_test',
+         'username': 'root',
+         'password': 'mecha'},
+        {'host': 'uhh',
+         'port': 5432,
+         'dbname': '???',
+         'username': 42,
+         'password': 'mecha'},
+        {'host': '',
+         'port': 5432,
+         'dbname': 'circle_test',
+         'username': 'root',
+         'password': 0xDEADBEEF},
+        {'host': 0xBEEFCEEE,
+         'port': 5432,
+         'dbname': 'circle_test',
+         'username': 'root',
+         'password': 'mecha'}
+))
+def test_validate_config_invalid(configuration_fx, data, test_dbm_fx):
+    with pytest.raises(ValueError):
+        test_dbm_fx.validate_config(data={'database': data})

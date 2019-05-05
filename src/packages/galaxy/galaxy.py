@@ -11,21 +11,37 @@ See LICENSE.md
 """
 
 import asyncio
-from html import escape
 import json
-from typing import Dict, List, Optional, Tuple, Union
+import logging
+import typing
+from html import escape
 
 import aiohttp
 
-from config import config
-from ..utils import Vector
+from src.config import CONFIG_MARKER
 from .star_system import StarSystem
+from ..utils import Vector
+
+LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class Galaxy:
     """
     Worker class to interface with the Fuel Rats Systems API.
     """
+    _config: typing.ClassVar[typing.Dict]
+
+    @classmethod
+    @CONFIG_MARKER
+    def rehash_handler(cls, data: typing.Dict):
+        """
+        Apply new configuration data
+
+        Args:
+            data (typing.Dict): new configuration data to apply.
+
+        """
+        cls._config = data
 
     LANDMARK_SYSTEMS = {
         'beagle point': StarSystem(
@@ -68,9 +84,9 @@ class Galaxy:
     "A ClientTimeout object representing the total time an HTTP request can take before failing."
 
     def __init__(self, url: str = None):
-        self.url = url or config['api']['url']
+        self.url = url or self._config['api']['url']
 
-    async def find_system_by_name(self, name: str) -> Optional[StarSystem]:
+    async def find_system_by_name(self, name: str) -> typing.Optional[StarSystem]:
         """
         Finds a single system by its name and return its StarSystem object
 
@@ -95,7 +111,7 @@ class Galaxy:
                               name=sys['name'],
                               spectral_class=sys['spectral_class'])
 
-    async def _find_main_star(self, system_id: int) -> Optional[Dict]:
+    async def _find_main_star(self, system_id: int) -> typing.Optional[typing.Dict]:
         """
         Find the main star of a system given its system ID.
 
@@ -116,7 +132,7 @@ class Galaxy:
                 result['spectral_class'] = star['attributes']['subType'][0]
                 return result
 
-    async def find_nearest_landmark(self, system: StarSystem) -> Tuple[StarSystem, float]:
+    async def find_nearest_landmark(self, system: StarSystem) -> typing.Tuple[StarSystem, float]:
         """
         Find the nearest "landmark" system to the one provided. A list of landmark systems
         can be found in Galaxy.LANDMARK_SYSTEMS.
@@ -146,7 +162,7 @@ class Galaxy:
 
         return (closest_system, closest_distance)
 
-    async def search_systems_by_name(self, name: str) -> Optional[List[str]]:
+    async def search_systems_by_name(self, name: str) -> typing.Optional[typing.List[str]]:
         """
         Perform a fuzzy (Soundex) search for star systems on the name
         given to us.
@@ -170,7 +186,7 @@ class Galaxy:
     async def plot_waypoint_route(self,
                                   start: str,
                                   end: str,
-                                  interval: int = MAX_PLOT_DISTANCE) -> List[str]:
+                                  interval: int = MAX_PLOT_DISTANCE) -> typing.List[str]:
         """
         Plot a route of waypoints between two faraway systems. Distance between
         waypoints should not exceed "interval" light-years.
@@ -219,7 +235,7 @@ class Galaxy:
     async def _furthest_between(self,
                                 start: StarSystem,
                                 end: StarSystem,
-                                distance: int) -> Optional[StarSystem]:
+                                distance: int) -> typing.Optional[StarSystem]:
         """
         Finds the furthest star from away from "start" and towards "end",
         with a limitation of no more than "distance" light-years.
@@ -247,12 +263,12 @@ class Galaxy:
         if nearest:
             return await self.find_system_by_name(nearest[0])
 
-    async def _find_nearest_systems(self,     # pylint: disable=invalid-name
+    async def _find_nearest_systems(self,  # pylint: disable=invalid-name
                                     x: float,
                                     y: float,
                                     z: float,
                                     limit: int = 10,
-                                    cubesize: int = 50) -> Optional[List[str]]:
+                                    cubesize: int = 50) -> typing.Optional[typing.List[str]]:
         """
         Given a set of galactic coordinates, find the closest star systems.
 
@@ -287,13 +303,13 @@ class Galaxy:
 
     async def _call(self,
                     endpoint: str,
-                    params: Optional[Dict[str, str]] = None) -> Union[dict, list]:
+                    params: typing.Optional[typing.Dict[str, str]] = None) -> typing.Union[dict, list]:
         """
         Perform an API call on the Fuel Rats Systems API.
 
         Args:
             endpoint (str): The API endpoint to request.
-            params (Dict): A dictionary of key-value pairs that will make up the query string.
+            params (typing.Dict): A dictionary of key-value pairs that will make up the query string.
 
         Returns:
             A dict or list object representing the parsed JSON data returned from the API endpoint.

@@ -15,13 +15,15 @@ import logging
 import random
 import string
 import sys
+from typing import Dict
 from uuid import uuid4, UUID
 
 import psycopg2.pool
 import pytest
 
 # from psycopg2.pool import SimpleConnectionPool
-
+from src.config import CONFIG_MARKER, PLUGIN_MANAGER, setup_logging, setup
+from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
@@ -31,9 +33,6 @@ sys.argv = ["test",
             "--clean-log",
             "--verbose",
             ]
-
-# This import statement is where the config gets read
-from config import setup_logging
 
 # Include other conftest files
 pytest_plugins = ["tests.fixtures.galaxy_fx"]
@@ -121,9 +120,9 @@ def rat_board_fx() -> RatBoard:
     return RatBoard()
 
 
-@pytest.fixture
-def bot_fx():
-    return MockBot(nickname="mock_mecha3[BOT]")
+@pytest.fixture()
+def bot_fx(configuration_fx):
+    return MockBot(nickname="mock_mecha3[BOT]", mecha_config=configuration_fx)
 
 
 @pytest.fixture
@@ -319,3 +318,38 @@ def test_fact_fx() -> Fact:
                 mfd=False,
                 edited=None
                 )
+
+
+class ConfigReceiver:
+    """
+    Namespace plugin for hooking into config events
+    """
+    data: Dict = {}
+
+    @classmethod
+    @CONFIG_MARKER
+    def rehash_handler(cls, data: Dict):
+        cls.data = data
+
+
+@pytest.fixture(scope="session", autouse=True)
+def global_init_fx() -> None:
+    """
+    Session scoped auto-use plugin for loading CLI flags, configuration settings, and preparing
+    the logging system.
+
+    This fixture does not provide a value.
+    """
+    PLUGIN_MANAGER.register(ConfigReceiver, "testing_config_recv")
+    # fetch the CLI argument
+    _path = cli_manager.GET_ARGUMENTS().config_file
+    # and initialize
+    setup(_path)
+
+
+@pytest.fixture(scope="session")
+def configuration_fx() -> Dict:
+    """
+    provides the session configuration dictionary, as loaded at test session start.
+    """
+    return ConfigReceiver.data

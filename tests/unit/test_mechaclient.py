@@ -10,12 +10,11 @@ See LICENSE
 """
 import pytest
 
-from src.packages.fact_manager import FactManager
 from src.packages.board.rat_board import RatBoard
 from src.packages.cache.rat_cache import RatCache
-
 from src.packages.commands import command
 from src.packages.context.context import Context
+from src.packages.fact_manager import FactManager
 
 pytestmark = [pytest.mark.unit, pytest.mark.mechaclient]
 
@@ -52,6 +51,7 @@ def test_verify_api_handler(bot_fx):
     """
     Asserts the API handler raises an Attribute error if setting is attempted.
     """
+
     # Helper Class
     class FakeAPIHandler:
         ...
@@ -68,6 +68,7 @@ def test_verify_fact_manager(bot_fx, fact_manager_bad_types):
     """
     Asserts the Fact Manager can be set, requires a FactManager object, and returns properly.
     """
+
     # Helper Class
     class FakeFactManager(FactManager):
         # Overriding the parent class init to prevent it from creating a DB connection.
@@ -86,6 +87,7 @@ def test_verify_fact_manager_deleter(bot_fx):
     """
     Asserts no error is thrown upon deletion of the fact_manager property.
     """
+
     # Helper Class
     class FakeFactManager(FactManager):
         # Overriding the parent class init to prevent it from creating a DB connection.

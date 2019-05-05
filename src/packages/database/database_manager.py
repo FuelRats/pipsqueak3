@@ -7,12 +7,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import logging
-from typing import Union, Tuple, List, Dict
+import typing
 
 import psycopg2
 from psycopg2 import sql, pool
 
-from config import config
+from src.config import CONFIG_MARKER
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
@@ -53,6 +53,57 @@ class DatabaseManager:
 
     """
 
+    _config: typing.ClassVar[typing.Dict] = {}
+
+    @classmethod
+    @CONFIG_MARKER
+    def rehash_handler(cls, data: typing.Dict):
+        """
+        Apply new configuration data
+
+        Args:
+            data (typing.Dict): new configuration data to apply.
+
+        """
+        cls._config = data
+
+    @classmethod
+    @CONFIG_MARKER
+    def validate_config(cls, data: typing.Dict):
+        """
+        Validate database portion of the configuration file
+
+        Args:
+            data(typing.Dict): configuration object
+        """
+
+        module_config = data['database']
+
+        # Require all values to be set
+        for setting in module_config.values():
+            if not setting:
+                raise ValueError(f"[database]{setting} is required for instantiation but was empty")
+
+        # Host
+        if not isinstance(module_config['host'], str):
+            raise ValueError("[database]host must be a string.")
+
+        # Port
+        if not isinstance(module_config['port'], int):
+            raise ValueError("[database]port must be an integer.")
+
+        # Database Name
+        if not isinstance(module_config['dbname'], str):
+            raise ValueError("[database]database name must be a string.")
+
+        # Database Username
+        if not isinstance(module_config['username'], str):
+            raise ValueError("[database]database username must be a string.")
+
+        # Database Password
+        if not isinstance(module_config['password'], str):
+            raise ValueError("[database]database password must be a string")
+
     def __init__(self,
                  dbhost=None,
                  dbport=None,
@@ -66,20 +117,21 @@ class DatabaseManager:
 
             # Utilize function arguments if they are provided,
             # otherwise retrieve from config file and use those values.
-            self._dbhost = dbhost if dbhost is not None else config['database'].get('host')
+            self._dbhost = dbhost if dbhost is not None else self._config['database'].get('host')
             assert self._dbhost
 
-            self._dbport = dbport if dbhost is not None else config['database'].get('port')
+            self._dbport = dbport if dbhost is not None else self._config['database'].get('port')
             assert self._dbport
 
-            self._dbname = dbname if dbname is not None else config['database'].get('dbname')
+            self._dbname = dbname if dbname is not None else self._config['database'].get('dbname')
             assert self._dbname
 
-            self._dbuser = dbuser if dbuser is not None else config['database'].get('username')
+            self._dbuser = dbuser if dbuser is not None else self._config['database'].get(
+                'username')
             assert self._dbuser
 
             self._dbpass = dbpassword if dbpassword is not None else \
-                config['database'].get('password')
+                self._config['database'].get('password')
             assert self._dbpass
 
         # Create Database Connections Pool
@@ -94,7 +146,9 @@ class DatabaseManager:
             LOG.exception("Unable to connect to database!")
             raise error
 
-    async def query(self, query: sql.SQL, values: Union[Tuple, Dict]) -> List:
+    async def query(self,
+                    query: sql.SQL,
+                    values: typing.Union[typing.Tuple, typing.Dict]) -> typing.List:
         """
         Send a query to the connected database.  Pulls a connection from the pool and creates
         a cursor, executing the composed query with the values.
@@ -111,7 +165,7 @@ class DatabaseManager:
             raise TypeError("Expected composed SQL object for query.")
 
         # Verify value is tuple or dict.
-        if not isinstance(values, (Dict, Tuple)):
+        if not isinstance(values, (dict, tuple)):
             raise TypeError(f"Expected tuple or dict for query values.")
 
         # Pull a connection from the pool, and create a cursor from it.

@@ -5,7 +5,6 @@ PyTest module for Context-specific regressions
 from pytest import mark
 
 from src.packages.commands import rat_command
-from src.packages.commands.rat_command import PREFIX
 from src.packages.context.context import Context
 from src.packages.commands import command
 from src.packages.user.user import User
@@ -25,11 +24,11 @@ async def test_on_command_double_prefix(bot_fx, monkeypatch, context_fx, async_c
 
     ctx = await Context.from_message(bot_fx, "#unit_test", context_fx.user.nickname,
 
-                                     f"{PREFIX}{PREFIX}boom")
+                                     f"{Context.PREFIX}{Context.PREFIX}boom")
 
     monkeypatch.setattr(rat_command, "_registered_commands", dict())
 
-    @command(f"{PREFIX}boom")
+    @command(f"{Context.PREFIX}boom")
     async def cmd_boom(context: Context):
         return 42
 

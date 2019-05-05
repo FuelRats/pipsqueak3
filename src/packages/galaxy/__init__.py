@@ -12,7 +12,10 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
+from src.config import PLUGIN_MANAGER
 from .galaxy import Galaxy
 from .star_system import StarSystem
 
 __all__ = ["Galaxy", "StarSystem"]
+
+PLUGIN_MANAGER.register(Galaxy, "galaxy")

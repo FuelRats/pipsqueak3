@@ -16,7 +16,6 @@ import logging
 from typing import Callable, Any
 
 from src.packages.rules.rules import get_rule, clear_rules
-from config import config
 
 # set the logger for rat_command
 LOG = logging.getLogger(f"mecha.{__name__}")
@@ -41,9 +40,6 @@ class NameCollisionException(CommandException):
 
 
 _registered_commands = {}  # pylint: disable=invalid-name
-
-# character/s that must prefix a message for it to be parsed as a command.
-PREFIX = config['commands']['prefix']
 
 
 async def trigger(ctx) -> Any:
@@ -72,7 +68,7 @@ async def trigger(ctx) -> Any:
                 LOG.debug(
                     f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found.")
             else:
-                LOG.debug(f"Could not find command or rule for {PREFIX}{ctx.words[0]}.")
+                LOG.debug(f"Could not find command or rule for {ctx.words[0]}.")
     else:
         # Might still be a prefixless rule
         command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=True)
