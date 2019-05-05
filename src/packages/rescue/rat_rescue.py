@@ -13,16 +13,14 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
-from functools import reduce
-from operator import xor
 from typing import Union, Optional, List, TYPE_CHECKING
-from uuid import UUID
+from uuid import UUID, uuid4
 
+from ..cache import RatCache
 from ..epic import Epic
 from ..mark_for_deletion import MarkForDeletion
-from ..rat import Rat
-from ..cache import RatCache
 from ..quotation import Quotation
+from ..rat import Rat
 from ..utils import Platforms, Status
 
 if TYPE_CHECKING:
@@ -93,7 +91,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._rats = rats if rats else []
         self._created_at: datetime = created_at if created_at else datetime.utcnow()
         self._updated_at: datetime = updated_at if updated_at else datetime.utcnow()
-        self._api_id: UUID = uuid
+        self._api_id: UUID = uuid if uuid else uuid4()
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else []
@@ -154,25 +152,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
     def __hash__(self):
 
         if self._hash is None:
-            attributes = (
-                self.uuid,
-                self.board_index,
-                self.client,
-                self.platform,
-                self.first_limpet,
-                self.created_at,
-                self.updated_at,
-                self.system,
-                self.active,
-                self.code_red,
-                self.outcome,
-                self.title,
-                self.first_limpet,
-                self.lang_id,
-                self.irc_nickname,
-            )
-
-            self._hash = reduce(xor, map(hash, attributes))
+            self._hash = hash(self.uuid)
         return self._hash
 
     @property
