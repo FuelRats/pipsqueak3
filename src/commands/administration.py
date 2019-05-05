@@ -27,9 +27,9 @@ LOG = logging.getLogger(f"mecha.{__name__}")
 async def cmd_rehash(context: Context):
     """ rehash the hash browns. (reloads config file)"""
     LOG.warning(f"config rehashing invoked by user {context.user.nickname}")
+    path = cli_manager.GET_ARGUMENTS().config_file
+    await context.reply(f"reloading configuration...")
     try:
-        path = cli_manager.GET_ARGUMENTS().config_file
-        await context.reply(f"reloading configuration...")
         _, resulting_hash = setup(path)
     except (KeyError, ValueError) as exc:
         # emit stacktrace to logfile
