@@ -3,7 +3,7 @@ Unittest file for the Rat_Board module.
 """
 from copy import deepcopy
 from unittest import TestCase
-from uuid import uuid4, UUID
+from uuid import uuid4
 
 import pytest
 
@@ -101,7 +101,7 @@ class RatBoardTests(TestCase):
         """
         self.board.append(self.some_rescue)
         with self.subTest(condition="existing"):
-            found = self.board.find_by_uuid(self.some_rescue.uuid)
+            found = self.board.find_by_uuid(self.some_rescue.api_id)
             self.assertIsNotNone(found)
 
         with self.subTest(condition="not found"):
@@ -152,7 +152,7 @@ class RatBoardTests(TestCase):
         # make our assertion
         self.assertTrue(
             # spawn a case with the same uuid, and make our check
-            Rescue(self.some_rescue.uuid, "nope", "i have no idea!", "nope") in self.board)
+            Rescue(self.some_rescue.api_id, "nope", "i have no idea!", "nope") in self.board)
 
     def test_contains_non_existing(self):
         """
@@ -266,37 +266,36 @@ class TestRatBoardPyTest(object):
         assert expected == nextFree
 
     @pytest.mark.parametrize("test_input", [
-                            "UNIT_TEST",
-                            "@12345678-9876-53d1-ea5e-0000deadbeef",
-                            "42"])
+        "UNIT_TEST",
+        "42",
+        None  # replace with api id, since fixtures are not available  in parametrize
+    ])
     def test_search_valid(self, test_input, rat_board_fx: RatBoard, rescue_plain_fx: Rescue):
-        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
         rat_board_fx.append(rescue_plain_fx)
-        assert rat_board_fx.search(test_input) == rescue_plain_fx
+        assert rat_board_fx.search(
+            test_input if test_input else f"@{rescue_plain_fx.api_id}") is rescue_plain_fx
 
     @pytest.mark.parametrize("test_input", [
-                            "unit_tes",  # bad client name
-                            "42.5",  # bad case number (decimals)
-                            "100",  # bad case number (int)
-                            '@12345678-9876-53d1-ea5e-0000dead'  # wrong length uuid
-                            ])
+        "unit_tes",  # bad client name
+        "42.5",  # bad case number (decimals)
+        "100",  # bad case number (int)
+        '@12345678-9876-53d1-ea5e-0000dead'  # wrong length uuid
+    ])
     def test_search_garbage_returns_none(self, test_input, rat_board_fx: RatBoard,
                                          rescue_plain_fx: Rescue):
-        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
         rat_board_fx.append(rescue_plain_fx)
         assert rat_board_fx.search(test_input) is None
 
     @pytest.mark.parametrize("test_input", [
-                            '@12345678-9876-53d1-ea5e-0000deadbee-',
-                            '@12345678-9876-53d1-ea5e-000deadsheep',
-                            True,
-                            False,
-                            42,
-                            uuid4(),
-                            None])
+        '@12345678-9876-53d1-ea5e-0000deadbee-',
+        '@12345678-9876-53d1-ea5e-000deadsheep',
+        True,
+        False,
+        42,
+        uuid4(),
+        None])
     def test_search_garbage_raises_exception(self, test_input, rat_board_fx: RatBoard,
                                              rescue_plain_fx: Rescue):
-        rescue_plain_fx.uuid = UUID('12345678-9876-53d1-ea5e-0000deadbeef')
         rat_board_fx.append(rescue_plain_fx)
         with pytest.raises((TypeError, ValueError,)):
             rat_board_fx.search(test_input)

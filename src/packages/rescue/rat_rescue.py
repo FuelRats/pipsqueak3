@@ -126,7 +126,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
 
         # check equality
         conditions = [
-            self.uuid == other.uuid,
+            self.api_id == other.api_id,
             self.board_index == other.board_index,
             self.client == other.client,
             self.rats == other.rats,
@@ -152,7 +152,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
     def __hash__(self):
 
         if self._hash is None:
-            self._hash = hash(self.uuid)
+            self._hash = hash(self.api_id)
         return self._hash
 
     @property
@@ -321,7 +321,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             raise TypeError(f"expected int or None, got {type(value)}")
 
     @property
-    def uuid(self) -> UUID:
+    def api_id(self) -> UUID:
         """
         The API Id of the rescue.
 
@@ -330,22 +330,6 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
 
         return self._api_id
-
-    @uuid.setter
-    def uuid(self, value: UUID) -> None:
-        """
-        Sets the API uuid associated with the Rescue
-
-        Args:
-            value (UUID): The API ID
-
-        Returns:
-            None
-        """
-        if isinstance(value, UUID):
-            self._api_id = value
-        else:
-            raise ValueError(f"expected UUID, got type {type(value)}")
 
     @property
     def client(self) -> str:
@@ -831,7 +815,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
                             f"{type(reason)}")
 
-        LOG.debug(f"marking rescue @{self.uuid} for deletion. reporter is {reporter} and "
+        LOG.debug(f"marking rescue @{self.api_id} for deletion. reporter is {reporter} and "
                   f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")

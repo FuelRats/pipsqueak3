@@ -95,7 +95,7 @@ class RatBoard:
                       f"createdAt {rescue.created_at} == {other.created_at}")
 
             # if the IDs match then we know they are the same case.
-            if other.uuid is not None and rescue.uuid == other.uuid:
+            if other.api_id is not None and rescue.api_id == other.api_id:
                 return True
 
             # check if the key attributes are equal
@@ -195,7 +195,7 @@ class RatBoard:
 
         """
         for rescue in self.rescues.values():
-            if rescue.uuid == guid:
+            if rescue.api_id == guid:
                 return rescue
         return None
 
@@ -296,7 +296,7 @@ class RatBoard:
                 # FIXME: change to match API Handler interface, once it exists
                 await self.handler.update_rescue(rescue)
 
-            LOG.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.uuid}...")
+            LOG.debug(f"Updating local rescue #{rescue.board_index} (@{rescue.api_id}...")
             self.append(rescue=rescue, overwrite=True)
             result = True
 
@@ -316,12 +316,12 @@ class RatBoard:
             KeyError: rescue was not on the board.
         """
         if self.handler is not None:
-            LOG.debug(f"Calling API to remove case by id {rescue.uuid}")
+            LOG.debug(f"Calling API to remove case by id {rescue.api_id}")
             #  PRAGMA: NOCOVER
             # FIXME: Do stuff with the API handler, once we know what the interface looks like.
             await self.handler.update_rescue(rescue)
         LOG.debug(f"Removing case #{rescue.board_index} "
-                  f"(@{rescue.uuid})from the board.")
+                  f"(@{rescue.api_id})from the board.")
         self.rescues.pop(rescue.board_index)
 
     def clear_board(self) -> None:
