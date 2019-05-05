@@ -16,7 +16,7 @@ from src.packages.context import Context
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 import pytest
-
+import string
 
 @pytest.mark.asyncio
 async def test_rehash_dm(context_pm_fx, bot_fx, async_callable_fx, monkeypatch):
@@ -48,8 +48,7 @@ async def test_rehash_not_authorized(bot_fx, async_callable_fx, monkeypatch):
 
 @pytest.mark.parametrize("exc_class", (ValueError, KeyError))
 @pytest.mark.asyncio
-async def test_rehash_application_failure(bot_fx, async_callable_fx, monkeypatch, exc_class,
-                                          context_channel_fx, caplog):
+async def test_rehash_application_failure(bot_fx, async_callable_fx, monkeypatch, exc_class, ):
     """
     verifies the commands behavior when the setup() call fails (predictably).
     """
@@ -63,3 +62,22 @@ async def test_rehash_application_failure(bot_fx, async_callable_fx, monkeypatch
     await administration.cmd_rehash(context)
 
     assert "unable to rehash configuration" in bot_fx.sent_messages[1]['message']
+
+
+@pytest.mark.asyncio
+async def test_rehash_successful(bot_fx, callable_fx, monkeypatch):
+    """
+    successful invocation test
+    """
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin", "!rehash")
+
+    some_checksum = string.ascii_letters[:8]
+    callable_fx.return_value = ({}, 'abcdefghijk')
+    monkeypatch.setattr(administration, "setup", callable_fx)
+
+    await administration.cmd_rehash(context)
+
+    # assert the hash is in the message
+    assert some_checksum in bot_fx.sent_messages[1]['message']
+    # and that success is
+    assert "success" in bot_fx.sent_messages[1]['message']
