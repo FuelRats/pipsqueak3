@@ -519,10 +519,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if not isinstance(value, datetime):
             raise TypeError(f"Expected datetime, got {type(value)}")
-        elif value < self.created_at:
+        if value < self.created_at:
             raise ValueError(f"{value} is older than the cases creation date!")
-        else:
-            self._updated_at = value
+        self._updated_at = value
 
     @property
     def unidentified_rats(self) -> List[str]:
