@@ -62,14 +62,6 @@ def test_verify_expected_irc_nickname(rescue_plain_fx, expected_irc_nickname):
     assert rescue_plain_fx.irc_nickname == expected_irc_nickname
 
 
-def test_verify_expected_ratboard(rescue_sop_fx, rat_board_fx):
-    """
-    Verify rescue, when appended, is contained within the Ratboard object.
-    """
-    rat_board_fx.append(rescue_sop_fx)
-    assert rescue_sop_fx in rat_board_fx
-
-
 def test_validate_rescue_uuid(rescue_sop_fx):
     """
     Validates the UUID of rescue_sop_fx._id
