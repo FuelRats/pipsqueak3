@@ -137,7 +137,7 @@ class RatBoard(abc.Mapping):
             del self._storage_by_client
 
     @asynccontextmanager
-    async def create_rescue(self, *args, **kwargs) -> Rescue:
+    async def create_rescue(self, *args, ovewrite=False, **kwargs) -> Rescue:
         """
         Context manager that creates a rescue on the board for use
 
@@ -146,8 +146,9 @@ class RatBoard(abc.Mapping):
         Args:
             pass through to :class:Rescue 's constructor
 
-            *args ():
-            **kwargs ():
+            *args (): args to pass to :class:`Rescue` 's constructor
+            overwite(bool): overwrite existing rescues
+            **kwargs (): keyword arguments to pass to Rescue's constructor
 
         Yields:
             created rescue object
@@ -156,14 +157,17 @@ class RatBoard(abc.Mapping):
         rescue = Rescue(*args, board_index=self.free_case_number, **kwargs)
         yield rescue
         # then append it to ourselves
-        self._append(rescue)
+        await self.append(rescue, overwrite=ovewrite)
 
-    def _append(self, rescue: Rescue) -> None:
+    async def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """
-        Actually append the object to ourselves
+        Append a rescue to ourselves
+
+
 
         Args:
             rescue (Rescue): object to append
+            overwrite(bool): overwrite existing cases
     """
         self._storage_by_uuid[rescue.api_id] = rescue
         self._storage_by_index[rescue.board_index] = rescue
