@@ -9,7 +9,8 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from .rat_board import RatBoard, IndexNotFreeError, RescueBoardException, \
+from .board import RatBoard
+from .rat_board import IndexNotFreeError, RescueBoardException, \
     RescueNotChangedException, RescueNotFoundException
 
 __all__ = [
