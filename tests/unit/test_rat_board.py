@@ -2,6 +2,7 @@
 Unittest file for the Rat_Board module.
 """
 import itertools
+from contextlib import suppress
 
 import pytest
 
@@ -103,3 +104,32 @@ async def test_free_case_rollover_no_free(rat_board_fx, random_string_fx):
     for index in range(CYCLE_AT + 15):
         async with rat_board_fx.create_rescue(client=random_string_fx) as rescue:
             assert rescue.board_index == index, "bad index assigned"
+
+
+@pytest.mark.asyncio
+async def test_modify_rescue_client(rescues_fx, rat_board_fx, random_string_fx):
+    """
+    Verifies the board behaves correctly when the client name is changed
+    """
+    old_client = rescues_fx.client
+    await rat_board_fx.append(rescues_fx)
+
+    async with rat_board_fx.modify_rescue(rescues_fx.client) as rescue:
+        rescue.client = random_string_fx
+
+    assert old_client not in rat_board_fx, "bad index still in board"
+    assert random_string_fx in rat_board_fx, "new client name not in board"
+
+
+async def test_modify_rescue_explosion(rat_board_fx, random_string_fx):
+    """
+    verifies the board doesn't drop a case when an exception is raised inside a modify_rescue() call
+    """
+    async with rat_board_fx.create_rescue(client=random_string_fx):
+        ...
+
+    with suppress(RuntimeError):  # intentionally suppress the exception we raise
+        async with rat_board_fx.modify_rescue(random_string_fx):
+            raise RuntimeError  # intentionally raise an exception
+
+    assert random_string_fx in rat_board_fx, "the board dropped the rescue!"

@@ -129,9 +129,6 @@ class RatBoard(abc.Mapping):
                 )
 
     def __delitem__(self, key: _KEY_TYPE):
-        if key not in self:
-            raise KeyError(key)
-
         # get the target
         target = self[key]
 
@@ -139,7 +136,7 @@ class RatBoard(abc.Mapping):
         del self._storage_by_uuid[target.api_id]
         del self._storage_by_index[target.board_index]
         if target.client:
-            del self._storage_by_client
+            del self._storage_by_client[target.client]
 
     @asynccontextmanager
     async def create_rescue(self, *args, ovewrite=False, **kwargs) -> Rescue:
@@ -196,14 +193,13 @@ class RatBoard(abc.Mapping):
 
         target = self[key]
 
-        # nickname and index are mutable, and used for indexing
-        # so we need to track if either of these actually changed
-        old_nickname = target.client
-        old_index = target.board_index
-        yield target
+        # most tracked attributes may be modified in here, so we pop the rescue
+        # from tracking and append it after
 
-        # client changed, reindex that key
-        if old_nickname != target.client:
-            ...
+        del self[key]
 
-        # FIXME complete
+        try:
+            yield target
+        finally:
+            # we need to be sure to re-append the rescue upon completion (so errors don't drop cases)
+            await self.append(target)
