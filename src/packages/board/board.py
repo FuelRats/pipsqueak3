@@ -1,5 +1,5 @@
 """
-$file.fileName - 
+board.py - rescue board tracking facility
 
 
 Copyright (c) 2019 The Fuel Rats Mischief,
@@ -28,7 +28,7 @@ Notes:
     mecha will still count beyond this value unrestricted, but will attempt
     to keep assigned case numbers below this value whenever possible.
 """
-_KEY_TYPE = typing.Union[str, int, UUID]
+_KEY_TYPE = typing.Union[str, int, UUID]  # pylint: disable=invalid-name
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
@@ -201,5 +201,6 @@ class RatBoard(abc.Mapping):
         try:
             yield target
         finally:
-            # we need to be sure to re-append the rescue upon completion (so errors don't drop cases)
+            # we need to be sure to re-append the rescue upon completion
+            # (so errors don't drop cases)
             await self.append(target)
