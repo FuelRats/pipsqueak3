@@ -10,13 +10,8 @@ See LICENSE.md
 """
 
 from .board import RatBoard
-from .rat_board import IndexNotFreeError, RescueBoardException, \
-    RescueNotChangedException, RescueNotFoundException
 
 __all__ = [
     "RatBoard",
-    "RescueNotFoundException",
-    "RescueNotChangedException",
-    "IndexNotFreeError",
-    "RescueBoardException"
+
 ]
