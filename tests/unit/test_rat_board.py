@@ -1,8 +1,11 @@
 """
 Unittest file for the Rat_Board module.
 """
+import itertools
 
 import pytest
+
+from src.packages.board.board import CYCLE_AT
 
 pytestmark = [pytest.mark.unit, pytest.mark.ratboard]
 
@@ -15,6 +18,7 @@ async def test_create_rescue(rat_board_fx, name):
         assert rescue.client == name, "client didn't match!"
 
     assert name in rat_board_fx, "rescue didn't make it in!"
+    assert rescue.board_index == 0, "board gave us the wrong index"
 
 
 @pytest.mark.asyncio
@@ -72,3 +76,30 @@ def test_getitem_invalid(rat_board_fx):
     with pytest.raises(KeyError):
         # this clearly shouldn't work, but just in case (and for coverage -_-)
         _ = rat_board_fx[(42, "I like pizza")]
+
+
+@pytest.mark.asyncio
+async def test_free_case_roll_over_free(rat_board_fx):
+    """
+    Verifies the board resets its counter, and assigns a free index on [0, CYCLE_AT]
+    (as such an index should be free)
+    """
+
+    # create a rescue
+    async with rat_board_fx.create_rescue() as rescue:
+        ...
+    # hack the counter
+    rat_board_fx._index_counter = itertools.count(CYCLE_AT + 1)
+    # render assertion
+    assert rat_board_fx.free_case_number == 1, "board did not give us the correct board index"
+
+
+@pytest.mark.asyncio
+async def test_free_case_rollover_no_free(rat_board_fx, random_string_fx):
+    """
+    tests that the board will assign case numbers > CYCLE_AT as necessary
+    """
+
+    for index in range(CYCLE_AT + 15):
+        async with rat_board_fx.create_rescue(client=random_string_fx) as rescue:
+            assert rescue.board_index == index, "bad index assigned"

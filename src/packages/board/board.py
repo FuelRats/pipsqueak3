@@ -110,12 +110,17 @@ class RatBoard(abc.Mapping):
             :obj:`CYCLE_AT` whenever possible, though will return values
             in excess of :obj:`CYCLE_AT` as necessary.
         """
+        next_free = self._free_case_number
+
         # if we are larger or equal to the CYCLE_AT point, reset the counter
-        if self._free_case_number >= CYCLE_AT:
+        overflow = next_free >= CYCLE_AT
+        if overflow:
             self._index_counter = itertools.count()
+            # get the next free index from the underlying magic
+            return self._free_case_number
 
         # return the next index from the magic
-        return self._free_case_number
+        return next_free
 
     def __contains__(self, key: _KEY_TYPE) -> bool:
         return (key in self._storage_by_client or
@@ -169,6 +174,8 @@ class RatBoard(abc.Mapping):
             rescue (Rescue): object to append
             overwrite(bool): overwrite existing cases
     """
+        if (rescue.api_id in self or rescue.board_index in self) and not overwrite:
+            raise ValueError("Attempted to append a rescue that already exists to the board")
         self._storage_by_uuid[rescue.api_id] = rescue
         self._storage_by_index[rescue.board_index] = rescue
 
