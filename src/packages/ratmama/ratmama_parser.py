@@ -103,7 +103,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     lang_code: str = result.group("language_code")
     nickname: Optional[str] = result.group("nick")
 
-    exist_rescue: Optional[Rescue] = ctx.bot.board.find_by_name(client_name)
+    exist_rescue: Optional[Rescue] = ctx.bot.board[
+        client_name] if client_name in ctx.bot.board else None
 
     if exist_rescue:
         # we got a case already!
@@ -135,8 +136,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,
                                 code_red=not o2_status, lang_id=lang_code, platform=platform)
 
-        ctx.bot.board.append(rescue, overwrite=False)
-        index = ctx.bot.board.find_by_name(client=client_name).board_index
+        await ctx.bot.board.append(rescue, overwrite=False)
+        index = ctx.bot.board[client_name].board_index
         await ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
                         f"Reported System: {system_name} (distance to be implemented) - "
                         f"Platform: {platform_name} - "
@@ -166,7 +167,7 @@ async def handle_ratsignal(ctx: Context) -> None:
     # the ratsignal is nothing we are interested anymore
     message = re.sub("ratsignal", "", message, flags=re.I)
 
-    for rescue in ctx.bot.board.rescues.values():
+    for rescue in ctx.bot.board.values():
         if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
             await ctx.reply(f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
                             f" someone will help you soon!")
@@ -183,8 +184,8 @@ async def handle_ratsignal(ctx: Context) -> None:
         sep = '-'
 
     if not sep:
-        ctx.bot.board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
-        index = ctx.bot.board.find_by_name(ctx.user.nickname)
+        await ctx.bot.board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
+        index = ctx.bot.board[ctx.user.nickname]
         await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
         return
 
@@ -215,7 +216,7 @@ async def handle_ratsignal(ctx: Context) -> None:
         code_red=code_red,
         platform=platform
     )
-    ctx.bot.board.append(rescue)
+    await ctx.bot.board.append(rescue)
     await ctx.reply(f"Case created for {ctx.user.nickname}"
                     f" on {platform.name} in {system}. "
                     f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
