@@ -121,6 +121,7 @@ async def test_modify_rescue_client(rescues_fx, rat_board_fx, random_string_fx):
     assert random_string_fx in rat_board_fx, "new client name not in board"
 
 
+@pytest.mark.asyncio
 async def test_modify_rescue_explosion(rat_board_fx, random_string_fx):
     """
     verifies the board doesn't drop a case when an exception is raised inside a modify_rescue() call
