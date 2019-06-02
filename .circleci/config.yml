@@ -274,4 +274,4 @@ notify:
   branches:
     - all
   webhooks:
-    - url: http://orthanc.localecho.net/cgi-bin/webhook.py
+    - url: https://announcer-dev.fuelrats.com/circle
