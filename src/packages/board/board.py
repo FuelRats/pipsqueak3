@@ -20,7 +20,9 @@ from uuid import UUID
 
 from src.packages.rescue import Rescue
 
-CYCLE_AT = 15
+from src.config import CONFIG_MARKER
+
+cycle_at = 15
 """
 Determines at what board index does mecha (attempt) to start over indexing
 
@@ -31,6 +33,39 @@ Notes:
 _KEY_TYPE = typing.Union[str, int, UUID]  # pylint: disable=invalid-name
 
 LOG = logging.getLogger(f"mecha.{__name__}")
+
+
+@CONFIG_MARKER
+def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
+    """
+    Validate new configuration data.
+
+    Args:
+        data (typing.Dict): new configuration data  to validate
+
+    Raises:
+        ValueError:  config section failed to validate.
+        KeyError:  config section failed to validate.
+    """
+    if 'board' not in data:
+        raise ValueError("board configuration section is missing!")
+
+    if data['board']['cycle_at'] <= 0:
+        raise ValueError("constraint cycle_at must be non-zero and positive")
+
+
+# noinspection PyUnusedLocal
+@CONFIG_MARKER
+def rehash_handler(data: typing.Dict):  # pylint: disable=unused-argument
+    """
+    Apply new configuration data
+
+    Args:
+        data (typing.Dict): new configuration data to apply.
+
+    """
+    global cycle_at
+    cycle_at = data['board']['cycle_at']
 
 
 class RatBoard(abc.Mapping):
@@ -113,7 +148,7 @@ class RatBoard(abc.Mapping):
         next_free = self._free_case_number
 
         # if we are larger or equal to the CYCLE_AT point, reset the counter
-        overflow = next_free >= CYCLE_AT
+        overflow = next_free >= cycle_at
         if overflow:
             self._index_counter = itertools.count()
             # get the next free index from the underlying magic
@@ -187,8 +222,8 @@ class RatBoard(abc.Mapping):
         Args:
             key ():
 
-        Returns:
-
+        Yields:
+            Rescue: rescue to modify based on its `key`
         """
 
         target = self[key]

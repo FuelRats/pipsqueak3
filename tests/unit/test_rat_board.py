@@ -6,7 +6,7 @@ from contextlib import suppress
 
 import pytest
 
-from src.packages.board.board import CYCLE_AT
+from src.packages.board.board import cycle_at
 
 pytestmark = [pytest.mark.unit, pytest.mark.ratboard]
 
@@ -90,7 +90,7 @@ async def test_free_case_roll_over_free(rat_board_fx):
     async with rat_board_fx.create_rescue() as rescue:
         ...
     # hack the counter
-    rat_board_fx._index_counter = itertools.count(CYCLE_AT + 1)
+    rat_board_fx._index_counter = itertools.count(cycle_at + 1)
     # render assertion
     assert rat_board_fx.free_case_number == 1, "board did not give us the correct board index"
 
@@ -101,7 +101,7 @@ async def test_free_case_rollover_no_free(rat_board_fx, random_string_fx):
     tests that the board will assign case numbers > CYCLE_AT as necessary
     """
 
-    for index in range(CYCLE_AT + 15):
+    for index in range(cycle_at + 15):
         async with rat_board_fx.create_rescue(client=random_string_fx) as rescue:
             assert rescue.board_index == index, "bad index assigned"
 
