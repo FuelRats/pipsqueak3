@@ -752,6 +752,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
                 # TODO: fetch rats from API handler, use that data to make a new Rat instance
 
                 rat = Rat(name=name, uuid=guid)
+                RatCache().append(rat)
                 self.rats.append(rat)
                 assigned_rat = rat
 

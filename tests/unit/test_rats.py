@@ -90,7 +90,7 @@ class TestRatsPyTest(object):
         """Verifies constructor behavior with a cache present"""
         uuid = uuid4()
         rat = Rat(uuid, "unit_test[BOT]", Platforms.PC)
-
+        rat_cache_fx.append(rat)
         assert Platforms.PC == rat.platform
         assert uuid == rat.uuid
         assert "unit_test[BOT]" == rat.name

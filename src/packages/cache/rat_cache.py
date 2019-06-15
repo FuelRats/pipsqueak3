@@ -11,6 +11,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from __future__ import annotations
 from typing import Dict, Optional, TYPE_CHECKING
 from uuid import UUID
 
@@ -160,3 +161,10 @@ class RatCache(Singleton):
         """
         self.by_name.clear()
         self.by_uuid.clear()
+
+    def append(self, rat: Rat):
+        if not rat.uuid or not rat.name:
+            raise ValueError(rat)
+
+        self.by_uuid[rat.uuid] = rat
+        self.by_name[rat.name] = rat

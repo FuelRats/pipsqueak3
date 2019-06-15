@@ -112,8 +112,9 @@ def rat_good_fx(request) -> Rat:
     Testing fixture containing good and registered rats
     """
     params = request.param
-    myRat = Rat(params[2], name=params[0], platform=params[1])
-    return myRat
+    rat = Rat(params[2], name=params[0], platform=params[1])
+    RatCache().append(rat)
+    return rat
 
 
 @pytest.fixture
