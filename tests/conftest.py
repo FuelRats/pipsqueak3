@@ -41,13 +41,13 @@ setup_logging("logs/unit_tests.log")
 
 from src.packages.permissions.permissions import Permission
 from tests.fixtures.mock_bot import MockBot
-from src.packages.board.rat_board import RatBoard
-from src.packages.rescue.rat_rescue import Rescue
-from src.packages.rat.rat import Rat
+from src.packages.board import RatBoard
+from src.packages.rescue import Rescue
+from src.packages.rat import Rat
 from src.packages.utils import Platforms
-from src.packages.context.context import Context
-from src.packages.epic.epic import Epic
-from src.packages.user.user import User
+from src.packages.context import Context
+from src.packages.epic import Epic
+from src.packages.user import User
 from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from tests.fixtures.mock_callables import CallableMock, AsyncCallableMock
 from src.packages.database import DatabaseManager
@@ -73,6 +73,13 @@ def rescue_sop_fx(request) -> Rescue:
                       board_index=params[3])
     myRescue.platform = params[1]
     return myRescue
+
+
+@pytest.fixture(params=(0, 1))
+def rescues_fx(request, rescue_sop_fx, rescue_plain_fx):
+    if request.param:
+        return rescue_plain_fx
+    return rescue_sop_fx
 
 
 @pytest.fixture

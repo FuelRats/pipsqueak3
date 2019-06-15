@@ -13,16 +13,14 @@ This module is built on top of the Pydle system.
 import logging
 from contextlib import contextmanager
 from datetime import datetime
-from functools import reduce
-from operator import xor
 from typing import Union, Optional, List, TYPE_CHECKING
-from uuid import UUID
+from uuid import UUID, uuid4
 
+from ..cache import RatCache
 from ..epic import Epic
 from ..mark_for_deletion import MarkForDeletion
-from ..rat import Rat
-from ..cache import RatCache
 from ..quotation import Quotation
+from ..rat import Rat
 from ..utils import Platforms, Status
 
 if TYPE_CHECKING:
@@ -93,7 +91,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._rats = rats if rats else []
         self._created_at: datetime = created_at if created_at else datetime.utcnow()
         self._updated_at: datetime = updated_at if updated_at else datetime.utcnow()
-        self._api_id: UUID = uuid
+        self._api_id: UUID = uuid if uuid else uuid4()
         self._client: str = client
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else []
@@ -125,54 +123,12 @@ class Rescue:  # pylint: disable=too-many-public-methods
         if not isinstance(other, Rescue):
             # instance type check
             return NotImplemented
-
-        # check equality
-        conditions = [
-            self.uuid == other.uuid,
-            self.board_index == other.board_index,
-            self.client == other.client,
-            self.rats == other.rats,
-            self.platform == other.platform,
-            self.first_limpet == other.first_limpet,
-            self.created_at == other.created_at,
-            self.updated_at == other.updated_at,
-            self.system == other.system,
-            self.unidentified_rats == other.unidentified_rats,
-            self.active == other.active,
-            self.code_red == other.code_red,
-            self.outcome == other.outcome,
-            self.title == other.title,
-            self.first_limpet == other.first_limpet,
-            self.marked_for_deletion == other.marked_for_deletion,
-            self.lang_id == other.lang_id,
-            self.rats == other.rats,
-            self.irc_nickname == other.irc_nickname,
-        ]
-
-        return all(conditions)
+        return other.api_id == self.api_id
 
     def __hash__(self):
 
         if self._hash is None:
-            attributes = (
-                self.uuid,
-                self.board_index,
-                self.client,
-                self.platform,
-                self.first_limpet,
-                self.created_at,
-                self.updated_at,
-                self.system,
-                self.active,
-                self.code_red,
-                self.outcome,
-                self.title,
-                self.first_limpet,
-                self.lang_id,
-                self.irc_nickname,
-            )
-
-            self._hash = reduce(xor, map(hash, attributes))
+            self._hash = hash(self.api_id)
         return self._hash
 
     @property
@@ -341,7 +297,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             raise TypeError(f"expected int or None, got {type(value)}")
 
     @property
-    def uuid(self) -> UUID:
+    def api_id(self) -> UUID:
         """
         The API Id of the rescue.
 
@@ -350,22 +306,6 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
 
         return self._api_id
-
-    @uuid.setter
-    def uuid(self, value: UUID) -> None:
-        """
-        Sets the API uuid associated with the Rescue
-
-        Args:
-            value (UUID): The API ID
-
-        Returns:
-            None
-        """
-        if isinstance(value, UUID):
-            self._api_id = value
-        else:
-            raise ValueError(f"expected UUID, got type {type(value)}")
 
     @property
     def client(self) -> str:
@@ -555,10 +495,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if not isinstance(value, datetime):
             raise TypeError(f"Expected datetime, got {type(value)}")
-        elif value < self.created_at:
+        if value < self.created_at:
             raise ValueError(f"{value} is older than the cases creation date!")
-        else:
-            self._updated_at = value
+        self._updated_at = value
 
     @property
     def unidentified_rats(self) -> List[str]:
@@ -851,7 +790,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
                             f"{type(reason)}")
 
-        LOG.debug(f"marking rescue @{self.uuid} for deletion. reporter is {reporter} and "
+        LOG.debug(f"marking rescue @{self.api_id} for deletion. reporter is {reporter} and "
                   f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")

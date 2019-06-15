@@ -13,8 +13,8 @@ See LICENSE.md
 
 import pytest
 
-from src.packages.context.context import Context
 import src.packages.ratmama as ratmama
+from src.packages.context.context import Context
 from src.packages.rescue.rat_rescue import Platforms
 
 pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio]
@@ -50,7 +50,7 @@ async def test_announcer_parse(bot_fx,
 
     await ratmama.handle_ratmama_announcement(context)
 
-    rescue = context.bot.board.find_by_name(cmdr)
+    rescue = context.bot.board[cmdr]
     assert rescue is not None
     assert rescue.client == cmdr
     assert rescue.system == system
@@ -76,7 +76,7 @@ async def test_announcer_invalid_platform(bot_fx, async_callable_fx, monkeypatch
 
     await ratmama.handle_ratmama_announcement(context)
 
-    assert context.bot.board.find_by_name("SomeClient") is not None
+    assert context.bot.board["SomeClient"] is not None
 
 
 async def test_announcer_reconnect(bot_fx, async_callable_fx, monkeypatch):
@@ -94,7 +94,7 @@ async def test_announcer_reconnect(bot_fx, async_callable_fx, monkeypatch):
     await ratmama.handle_ratmama_announcement(context)
     await ratmama.handle_ratmama_announcement(context)
 
-    rescue = context.bot.board.find_by_name("SomeClient")
+    rescue = context.bot.board["SomeClient"]
     index = rescue.board_index
 
     assert async_callable_fx.was_called_with(f"SomeClient has reconnected! Case #{index}")
@@ -141,7 +141,8 @@ async def test_announce_from_invalid_user(bot_fx, async_callable_fx, monkeypatch
     await ratmama.handle_ratmama_announcement(context)
 
     assert not async_callable_fx.was_called
-    assert context.bot.board.find_by_name("SomeClient") is None
+    assert "SomeClient" not in context.bot.board
+
 
 
 @pytest.mark.parametrize("signal, platform, system, code_red", [
@@ -170,7 +171,7 @@ async def test_manual_signal(bot_fx,
 
     await ratmama.handle_ratsignal(context)
 
-    rescue = context.bot.board.find_by_name("some_recruit")
+    rescue = context.bot.board["some_recruit"]
     assert rescue is not None
     assert rescue.client == "some_recruit"
     assert rescue.platform == platform

@@ -10,7 +10,7 @@ See LICENSE
 """
 import pytest
 
-from src.packages.board.rat_board import RatBoard
+from src.packages.board import RatBoard
 from src.packages.cache.rat_cache import RatCache
 from src.packages.commands import command
 from src.packages.context.context import Context
