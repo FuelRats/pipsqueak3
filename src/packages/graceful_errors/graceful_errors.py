@@ -15,22 +15,12 @@ import random
 from typing import Dict
 from uuid import UUID
 
-from ..board import IndexNotFreeError, \
-    RescueBoardException, RescueNotChangedException, RescueNotFoundException
-from ..commands.rat_command import InvalidCommandException, NameCollisionException
-
 BY_ERROR: Dict[type(Exception), str] = {
     AttributeError: "Overripe",
     IndexError: "Stale",
     TypeError: "Stinky",
     ValueError: "Moldy",
     RuntimeError: "Abominable",
-    IndexNotFreeError: "Low-grade",
-    InvalidCommandException: "Vile",
-    NameCollisionException: "Expired",
-    RescueBoardException: "Unsavory",
-    RescueNotChangedException: "Malodorous",
-    RescueNotFoundException: "Repulsive",
 
 }
 

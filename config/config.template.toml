@@ -49,3 +49,6 @@ level = 3
 [permissions.administrator]
 vhosts = [ "op.fuelrats.com", "netadmin.fuelrats.com", "admin.fuelrats.com", "i.see.all",]
 level = 4
+
+[board]
+cycle_at = 15

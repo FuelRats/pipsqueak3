@@ -10,10 +10,12 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-import pytest
 from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4, UUID
+
+import pytest
+
 from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from src.packages.rat.rat import Rat
 from src.packages.rescue.rat_rescue import Rescue
@@ -60,20 +62,12 @@ def test_verify_expected_irc_nickname(rescue_plain_fx, expected_irc_nickname):
     assert rescue_plain_fx.irc_nickname == expected_irc_nickname
 
 
-def test_verify_expected_ratboard(rescue_sop_fx, rat_board_fx):
-    """
-    Verify rescue, when appended, is contained within the Ratboard object.
-    """
-    rat_board_fx.append(rescue_sop_fx)
-    assert rescue_sop_fx in rat_board_fx
-
-
 def test_validate_rescue_uuid(rescue_sop_fx):
     """
     Validates the UUID of rescue_sop_fx._id
     """
     result = UUID(rescue_sop_fx._api_id.hex, version=4)
-    assert rescue_sop_fx.uuid == result
+    assert rescue_sop_fx.api_id == result
 
 
 def test_client_is_set(rescue_sop_fx):

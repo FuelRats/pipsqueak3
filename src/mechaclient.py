@@ -16,7 +16,7 @@ from uuid import uuid4
 
 from pydle import Client
 
-from src.packages.board.rat_board import RatBoard
+from src.packages.board import RatBoard
 from src.packages.commands import trigger
 from src.packages.context.context import Context
 from src.packages.fact_manager.fact_manager import FactManager
