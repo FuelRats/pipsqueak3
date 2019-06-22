@@ -89,6 +89,15 @@ async def test_flush(rat_cache_fx: RatCache):
     assert {} == rat_cache_fx.by_name
 
 
+async def test_append(rat_cache_fx):
+    dummy_a = Rat(None, name="nan")
+    dummy_b = Rat(uuid4(), name=None)
+
+    for rat in (dummy_a, dummy_b):
+        with pytest.raises(ValueError):
+            rat_cache_fx.append(rat)
+
+
 @pytest.mark.usefixtures('reset_rat_cache_fx')
 async def test_singleton():
     """Verifies rat_cache acts as a singleton"""
