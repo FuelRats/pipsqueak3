@@ -20,6 +20,7 @@ from src.packages.board import RatBoard
 from src.packages.commands import trigger
 from src.packages.context.context import Context
 from src.packages.fact_manager.fact_manager import FactManager
+from src.packages.galaxy import Galaxy
 from src.packages.graceful_errors import graceful_errors
 from src.packages.utils import sanitize
 
@@ -49,6 +50,7 @@ class MechaClient(Client):
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config if mecha_config else {}
+        self._galaxy = None
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -183,3 +185,33 @@ class MechaClient(Client):
         LOG.warning("Board Deleted!")
         del self._rat_board
         self._rat_board = None
+
+    @property
+    def galaxy(self) -> Galaxy:
+        """
+        Galaxy property
+        """
+        if not self._galaxy:
+            self._galaxy = Galaxy()
+
+        return self._galaxy
+
+    @galaxy.setter
+    def galaxy(self, value):
+        """
+        Galaxy setter
+        """
+        if not isinstance(value, Galaxy):
+            raise TypeError("galaxy property must be of type Galaxy.")
+
+        LOG.warning("Galaxy Setter invoked!")
+        self._galaxy = value
+
+    @galaxy.deleter
+    def galaxy(self):
+        """
+        Galaxy deleter
+        """
+        LOG.warning("Galaxy deleted!")
+        del self._galaxy
+        self._galaxy = None

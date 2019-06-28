@@ -15,6 +15,7 @@ from src.packages.cache.rat_cache import RatCache
 from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.fact_manager import FactManager
+from src.packages.galaxy import Galaxy
 
 pytestmark = [pytest.mark.unit, pytest.mark.mechaclient]
 
@@ -128,6 +129,42 @@ def test_verify_rat_cache(bot_fx, monkeypatch):
     with monkeypatch.context() as monkeypatcher:
         monkeypatcher.setattr(bot_fx, "_rat_cache", RatCache())
         assert bot_fx.rat_cache is bot_fx._rat_cache
+
+
+def test_verify_galaxy(bot_fx, galaxy_fx):
+    """
+    Asserts the Galaxy reference can be set, requires a Galaxy object, and returns properly.
+    """
+
+    bot_fx.galaxy = galaxy_fx
+    assert isinstance(bot_fx._galaxy, Galaxy)
+    assert bot_fx.galaxy is bot_fx._galaxy
+
+
+@pytest.mark.parametrize("invalid_type", [46621, "Galaxy"])
+def test_verify_galaxy_invalid_types(bot_fx, invalid_type):
+    """
+    Asserts the Galaxy setter will raise when given an invalid type to set.
+    """
+    with pytest.raises(TypeError):
+        bot_fx.galaxy = invalid_type
+
+
+def test_verify_galaxy_lazy_load(bot_fx):
+    """
+    Asserts the Galaxy reference will be lazy-loaded if not found.
+    """
+    bot_fx._galaxy = None
+    assert isinstance(bot_fx.galaxy, Galaxy)
+
+
+def test_verify_galaxy_deleter(bot_fx, galaxy_fx):
+    """
+    Asserts no error is thrown upon deletion of the galaxy property.
+    """
+
+    bot_fx.galaxy = galaxy_fx
+    del bot_fx.galaxy
 
 
 @pytest.mark.asyncio
