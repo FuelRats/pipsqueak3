@@ -504,9 +504,8 @@ async def test_add_rat_by_uuid(uuid: UUID, name: str, rescue_plain_fx: Rescue, r
     """
     Verifies `Rescue.add_rat` can add a rat given a guid and a name
     """
-    result_rescue = deepcopy(rescue_plain_fx)
 
-    await result_rescue.add_rat(name=name, guid=uuid)
+    await rescue_plain_fx.add_rat(name=name, guid=uuid)
 
     assert name in rat_cache_fx.by_name
 
