@@ -1,0 +1,30 @@
+# teamcity-services.yml
+# defines services exposed to teamcity builds
+
+#Copyright (c) 2019 The Fuel Rats Mischief,
+#All rights reserved.
+#
+#Licensed under the BSD 3-Clause License.
+#
+#See LICENSE.md
+#
+
+version: '3.2'
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: mecha
+      POSTGRES_DB: circle_test
+    ports:
+      - "5432:5432"
+  irc:
+    image: theunkn0wn1/unrealircd
+    ports:
+      - "6667:6667"
+      - "6697:6697"
+  anope:
+      image: theunkn0wn1/anope_services
+      links:
+        - irc
