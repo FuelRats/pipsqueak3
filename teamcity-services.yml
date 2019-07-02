@@ -17,13 +17,13 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: mecha
       POSTGRES_DB: circle_test
-    ports:
-      - "5432:5432"
+#    ports:
+#      - "5432:5432"
   irc:
     image: theunkn0wn1/unrealircd
-    ports:
-      - "6667:6667"
-      - "6697:6697"
+#    ports:
+#      - "6667:6667"
+#      - "6697:6697"
   anope:
       image: theunkn0wn1/anope_services
       links:
