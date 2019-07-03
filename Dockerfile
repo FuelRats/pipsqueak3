@@ -13,7 +13,7 @@
 
 
 # Use an official Python runtime as a parent image
-FROM python:3.7.3-alpine
+FROM python:3.7.3
 # Set the working directory to /mechasqueak
 WORKDIR /mechasqueak
 
