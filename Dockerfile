@@ -19,8 +19,6 @@ WORKDIR /mechasqueak
 
 COPY ./Pipfile ./
 COPY ./Pipfile.lock ./
-# fetch git, as we will need it.
-RUN apk add --no-cache git
 
 # install pipenv
 RUN pip install pipenv
