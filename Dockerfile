@@ -9,21 +9,24 @@
 #Licensed under the BSD 3-Clause License.
 #
 #See LICENSE.md
-
-# Use an official Python runtime as a parent image
-FROM python:3.7.3
+FROM python:3.7.3-alpine
 # Set the working directory to /mechasqueak
 WORKDIR /mechasqueak
+ENV PIPENV_VENV_IN_PROJECT True
 
 COPY ./Pipfile ./
 COPY ./Pipfile.lock ./
 
-# install pipenv
 RUN pip install pipenv
 
-# Install any needed packages specified in requirements.txt
-RUN pipenv install -d
+# psql install shit
+RUN \
+ apk add --no-cache postgresql-libs && \
+ apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
+ pipenv install -d && \
+ apk --purge del .build-deps
 
 # Copy the current directory contents into the container at /mechasqueak
 ADD . /mechasqueak
 
+CMD pipenv run python -m src
