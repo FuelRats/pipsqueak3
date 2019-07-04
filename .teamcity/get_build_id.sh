@@ -1,7 +1,6 @@
 #!/bin/bash
-BUILD_NUMBER=%build.number%
-echo "BUILD_NUMBER=${BUILD_NUMBER}"
-GIT_HASH=%build.vcs.number%
+# get the current commit from git
+GIT_HASH=git rev-parse --short HEAD
 echo "GIT_HASH=${GIT_HASH}"
 GIT_HASH_SHORT=${GIT_HASH:0:7}
 echo "GIT_HASH_SHORT=${GIT_HASH_SHORT}"
