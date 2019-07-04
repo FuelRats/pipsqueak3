@@ -21,7 +21,7 @@ RUN apk add --no-cache curl bash
 RUN \
  apk add --no-cache --virtual .build-deps gcc musl-dev&& \
  pip install bitarray&& \
- pipenv install -d --system \
+ pipenv install --system -d \
  apk --purge del .build-deps
 
 # install linting deps
