@@ -12,7 +12,6 @@
 FROM python:3.7.3-alpine
 # Set the working directory to /mechasqueak
 WORKDIR /mechasqueak
-ENV PIPENV_VENV_IN_PROJECT True
 
 COPY ./Pipfile ./
 COPY ./Pipfile.lock ./
@@ -23,10 +22,10 @@ RUN pip install pipenv
 RUN \
  apk add --no-cache postgresql-libs && \
  apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
- pipenv install -d && \
+ pipenv install -d --system && \
  apk --purge del .build-deps
 
 # Copy the current directory contents into the container at /mechasqueak
 ADD . /mechasqueak
 
-CMD pipenv run python -m src
+CMD python -m src

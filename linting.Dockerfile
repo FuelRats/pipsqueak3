@@ -20,7 +20,7 @@ WORKDIR /mechasqueak
 RUN apk add --no-cache curl bash
 RUN \
  apk add --no-cache --virtual .build-deps gcc musl-dev&& \
- pipenv run pip install bitarray&& \
+ pip install bitarray&& \
  apk --purge del .build-deps
 
 # install linting deps
