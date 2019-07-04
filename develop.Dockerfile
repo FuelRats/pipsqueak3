@@ -1,6 +1,6 @@
 #
-#Dockerfile - build script linting mechasqueak3 irc bot
-# this script will run the linting suite
+#Dockerfile - development dockerfile for SPARK
+# expands the base ( production ) mecha image with development dependencies
 #
 #Copyright (c) 2018 The Fuel Rat Mischief,
 #All rights reserved.
@@ -21,6 +21,7 @@ RUN apk add --no-cache curl bash
 RUN \
  apk add --no-cache --virtual .build-deps gcc musl-dev&& \
  pip install bitarray&& \
+ pipenv install -d --system \
  apk --purge del .build-deps
 
 # install linting deps

@@ -22,7 +22,7 @@ RUN pip install pipenv
 RUN \
  apk add --no-cache postgresql-libs && \
  apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
- pipenv install -d --system && \
+ pipenv install --system && \
  apk --purge del .build-deps
 
 # Copy the current directory contents into the container at /mechasqueak
