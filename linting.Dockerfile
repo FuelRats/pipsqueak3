@@ -16,6 +16,7 @@
 ARG base_image=CHANGE/ME
 FROM mecha:$base_image
 
+WORKDIR /mechasqueak
 RUN apk add --no-cache curl
 RUN \
  apk add --no-cache --virtual .build-deps gcc musl-dev&& \
