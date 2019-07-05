@@ -2,7 +2,8 @@
 echo "ls -a..."
 ls -a
 echo "running pylint"....
-pylint src || python pylint-exit $?
+pylint src
+python pylint-exit $? || echo "##teamcity[buildProblem='pylint failed!']"
 echo "running pycodestyle..."
 pycodestyle src
 echo "done!"
