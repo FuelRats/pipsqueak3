@@ -10,7 +10,7 @@ function check_cwd() {
   echo "my working directory is ${PWD}"
   if [[ $PWD != "/mechasqueak" ]]; then
     echo "working directory mismatch!"
-    echo "##teamcity[buildProblem description='Working directory is WRONG! check the configs. executing in $PWD but expected /mechasqueak']"
+    echo "##teamcity[message text='Working directory is WRONG! check the configs. executing in $PWD but expected /mechasqueak' status='WARNING']"
     echo "attempting to correct path...."
     cd /mechasqueak
   fi
