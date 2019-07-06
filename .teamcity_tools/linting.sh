@@ -5,9 +5,15 @@ function run_list_files() {
   ls -a
   echo "##teamcity[blockClosed name='Directory listing']"
 }
-function list_cwd() {
+function check_cwd() {
   echo "##teamcity[blockOpened name='List working directory...']"
-  pwd
+  working_directory=pwd
+  echo "my working directory is ${working_directory}"
+  if ["${working_directory}" != "/mechasqueak"]; then
+    echo "working directory mismatch!"
+    echo "##teamcity[buildProblem description='Working directory is WRONG! check the configs. executing in ${working_directory} but expected /mechasqueak']"
+    exit 3
+  fi
   echo "##teamcity[blockClosed name='List working directory...']"
 }
 
@@ -65,7 +71,7 @@ function run_pycodestyle() {
 
 function main() {
   run_list_files
-  list_cwd
+  check_cwd
   run_pylint || exit 1
   run_pycodestyle || exit 1
   echo "done!"
