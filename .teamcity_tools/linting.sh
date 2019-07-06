@@ -60,6 +60,7 @@ function run_pycodestyle() {
 }
 
 function main() {
+  echo "##teamcity[message text='Script invocation is: ${0}']"
   run_list_files
   check_cwd
   run_pylint || exit 1
