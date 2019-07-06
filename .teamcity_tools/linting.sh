@@ -7,11 +7,10 @@ function run_list_files() {
 }
 function check_cwd() {
   echo "##teamcity[blockOpened name='Check working directory...']"
-  local working_directory=pwd
-  echo "my working directory is ${working_directory}"
-  if ["${working_directory}" != "/mechasqueak"]; then
+  echo "my working directory is ${PWD}"
+  if [[ $PWD != "/mechasqueak" ]]; then
     echo "working directory mismatch!"
-    echo "##teamcity[buildProblem description='Working directory is WRONG! check the configs. executing in ${working_directory} but expected /mechasqueak']"
+    echo "##teamcity[buildProblem description='Working directory is WRONG! check the configs. executing in $PWD but expected /mechasqueak']"
     echo "attempting to correct path...."
     cd /mechasqueak
   fi
