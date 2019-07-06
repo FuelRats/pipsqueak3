@@ -20,6 +20,7 @@ pylint = "*"
 pytest-httpserver = "*"
 codecov = "*"
 pycodestyle = "*"
+teamcity-messages = "*"
 
 [requires]
 python_version = "3.7"
