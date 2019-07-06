@@ -65,6 +65,7 @@ function run_pycodestyle() {
 
 function main() {
   run_list_files
+  list_cwd
   run_pylint || exit 1
   run_pycodestyle || exit 1
   echo "done!"
