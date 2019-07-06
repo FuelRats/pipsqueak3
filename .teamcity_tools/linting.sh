@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source ./shared_lib.sh
+source /mechasqueak/.teamcity_tools/shared_lib.sh
 
 function run_list_files() {
   echo "##teamcity[blockOpened name='Directory listing']"
