@@ -272,6 +272,7 @@ workflows:
 
 notify:
   branches:
-    - all
+    ignore:
+      - "ci/teamcity"
   webhooks:
     - url: https://announcer-dev.fuelrats.com/circle

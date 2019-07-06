@@ -7,7 +7,7 @@ function run_list_files() {
 }
 function check_cwd() {
   echo "##teamcity[blockOpened name='List working directory...']"
-  working_directory=pwd
+  local working_directory=pwd
   echo "my working directory is ${working_directory}"
   if ["${working_directory}" != "/mechasqueak"]; then
     echo "working directory mismatch!"
