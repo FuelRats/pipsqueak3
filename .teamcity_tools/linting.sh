@@ -5,6 +5,11 @@ function run_list_files() {
   ls -a
   echo "##teamcity[blockClosed name='Directory listing']"
 }
+function list_cwd() {
+  echo "##teamcity[blockOpened name='List working directory...']"
+  pwd
+  echo "##teamcity[blockClosed name='List working directory...']"
+}
 
 function get_pylint_count() {
   local output="$1"  # String containing Pylint's output
