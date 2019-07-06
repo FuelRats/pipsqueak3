@@ -6,15 +6,16 @@ function run_list_files() {
   echo "##teamcity[blockClosed name='Directory listing']"
 }
 function check_cwd() {
-  echo "##teamcity[blockOpened name='List working directory...']"
+  echo "##teamcity[blockOpened name='Check working directory...']"
   local working_directory=pwd
   echo "my working directory is ${working_directory}"
   if ["${working_directory}" != "/mechasqueak"]; then
     echo "working directory mismatch!"
     echo "##teamcity[buildProblem description='Working directory is WRONG! check the configs. executing in ${working_directory} but expected /mechasqueak']"
-    exit 3
+    echo "attempting to correct path...."
+    cd /mechasqueak
   fi
-  echo "##teamcity[blockClosed name='List working directory...']"
+  echo "##teamcity[blockClosed name='Check working directory...']"
 }
 
 function get_pylint_count() {
