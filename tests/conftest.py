@@ -35,7 +35,7 @@ sys.argv = ["test",
             ]
 
 # Include other conftest files
-pytest_plugins = ["tests.fixtures.galaxy_fx"]
+pytest_plugins = ["tests.fixtures.galaxy_fx", "tests.fixtures.api_manager_fx"]
 
 setup_logging("logs/unit_tests.log")
 
