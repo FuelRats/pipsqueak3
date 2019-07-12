@@ -141,7 +141,8 @@ class APIManager:
                                     {'marked': rescue.marked_for_deletion.marked,
                                      'reason': rescue.marked_for_deletion.reason,
                                      'reporter': rescue.marked_for_deletion.reporter
-                                    }),
+                                     }
+                                    ),
             'rats': ('relationships.rats.data',
                      [{'type': 'rats', 'id': f"{rat.uuid}"} for rat in rescue.rats]),
             'first_limpet': ('relationships.firstLimpet.data',
@@ -248,7 +249,7 @@ class APIManager:
             created_at=APIManager.parse_api_datetime(attr['createdAt']),
             updated_at=APIManager.parse_api_datetime(attr['updatedAt'])
         )
-        #rescue.outcome = attr['outcome']  #@TODO Needs a setter or something...
+        # rescue.outcome = attr['outcome']  # @TODO Needs a setter or something...
         return rescue
 
     def __init__(self, config: typing.Optional[typing.Dict]):
@@ -372,7 +373,7 @@ class APIManager:
                     params: typing.Optional[typing.Dict[str, str]] = None,
                     method: typing.Optional[str] = "GET",
                     body: typing.Optional[typing.Dict] = None
-                   ) -> typing.Optional[typing.Union[dict, list]]:
+                    ) -> typing.Optional[typing.Union[dict, list]]:
         """
         Perform an API call on the Fuel Rats API.
 
@@ -424,7 +425,7 @@ class APIManager:
         http_headers = {
             'Accept': 'application/vnd.api+json',
             'Content-Type': 'application/vnd.api+json',
-            'User-Agent': 'MechaSqueak/3.0.0a'  #@TODO Use actual MechaClient version
+            'User-Agent': 'MechaSqueak/3.0.0a'  # @TODO Use actual MechaClient version
         }
         async with aiohttp.ClientSession(raise_for_status=True,
                                          timeout=self.TIMEOUT,
