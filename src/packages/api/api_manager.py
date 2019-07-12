@@ -106,12 +106,15 @@ class APIManager:
         Returns:
             A Dict with the requested change made, and all other elements left alone.
         """
+        if not path:
+            raise ValueError("No path given")
         paths = path.split(".")
         full_object = base_object
+        final_index = len(paths) - 1
         data = full_object
         for i, element in enumerate(paths, 0):
             # If this is the end of the path, update the object with the new value.
-            if i == (len(paths) - 1):
+            if i == final_index:
                 data[element] = value
             else:
                 # For nested dicts, initialize any dicts that don't already exist.
