@@ -12,8 +12,8 @@ See LICENSE.md
 import asyncio
 from datetime import datetime
 from html import escape
-import json
 import logging
+import json
 import typing
 from uuid import UUID
 
@@ -399,7 +399,8 @@ class APIManager:
             try:
                 return json.loads(await self._perform_http(url, method, body))
             except aiohttp.ClientError:
-                if retry == (self.MAX_RETRIES - 1):
+                # Even if it errors, do not retry POST or PATCH requests multiple times.
+                if retry == (self.MAX_RETRIES - 1) or method != 'GET':
                     raise
                 await asyncio.sleep(retry ** 2)
 
