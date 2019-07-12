@@ -54,6 +54,29 @@ class APIManager:
         if not cls._base_url.endswith('/'):
             cls._base_url = f"{cls._base_url}/"
 
+    @classmethod
+    @CONFIG_MARKER
+    def validate_config(cls, data: typing.Dict):
+        """
+        Validate the API's configuration values.
+
+        Args:
+            data (Dict): Configuration options
+        """
+        if 'api' not in data.keys():
+            raise ValueError("[API] Config section 'api' could not be found!")
+
+        api_data = data['api']
+
+        if not isinstance(api_data['url'], str):
+            raise ValueError("[API] API 'url' value must be a string.")
+
+        if not isinstance(api_data['online_mode'], bool):
+            raise ValueError("[API] API 'online_mode' must be true or false.")
+
+        if not api_data['url'].startswith('http'):
+            raise ValueError("[API] API 'url' must be a valid URL.")
+
     @staticmethod
     def parse_api_datetime(iso8601: str) -> datetime:
         """
