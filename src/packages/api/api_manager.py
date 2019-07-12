@@ -367,18 +367,12 @@ class APIManager:
             )
         return f"?{param_string}"
 
-    async def _retry_delay(self, current_retry: int) -> None:
-        """
-        Uses asyncio.sleep to pause execution for a number of seconds equal to
-        `current_retry` squared.
-        """
-        await asyncio.sleep(current_retry ** 2)
-
     async def _call(self,
                     endpoint: str,
                     params: typing.Optional[typing.Dict[str, str]] = None,
                     method: typing.Optional[str] = "GET",
-                    body: typing.Optional[typing.Dict] = None) -> typing.Optional[typing.Union[dict, list]]:
+                    body: typing.Optional[typing.Dict] = None
+                   ) -> typing.Optional[typing.Union[dict, list]]:
         """
         Perform an API call on the Fuel Rats API.
 
@@ -406,7 +400,7 @@ class APIManager:
             except aiohttp.ClientError:
                 if retry == (self.MAX_RETRIES - 1):
                     raise
-                await self._retry_delay(retry)
+                await asyncio.sleep(retry ** 2)
 
     async def _perform_http(self,
                             uri: str,
