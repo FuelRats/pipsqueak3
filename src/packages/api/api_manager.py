@@ -1,5 +1,5 @@
 """
-api.py - Provide functions for communicating with the Fuel Rats API.
+api_manager.py - Provide functions for communicating with the Fuel Rats API.
 
 Copyright (c) 2018 The Fuel Rat Mischief,
 All rights reserved.
@@ -434,7 +434,6 @@ class APIManager:
                 async with session.get(uri) as response:
                     return await response.text()
             elif method == 'POST':
-                breakpoint()
                 async with session.post(uri, json=body) as response:
                     return await response.text()
             elif method == 'PATCH':

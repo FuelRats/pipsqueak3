@@ -26,8 +26,7 @@ def mock_api_server_fx():
         ### Rat Data ###
         # - rat1
         httpserver.expect_request("/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d").respond_with_data(
-            """
-{"data": {"id": "8dfb8593-4694-44f2-af2f-686b1e6cf48d", "type": "rats", "attributes": {"name": "rat1", "data": null, "platform": "pc", "createdAt": "2019-07-11T09:14:48.441770+02:00", "updatedAt": "2019-07-11T09:14:48.441884+02:00"}, "links": {"self": "http://127.0.0.1/api/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d"}, "related": {}, "relationships": {"user": {"data": null, "links": {"self": "http://127.0.0.1/api/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d/relationships/user", "related": "http://127.0.0.1/api/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d/user"}, "meta": {"direction": "MANYTOONE", "results": {}}}}, "meta": {"forbidden_fields": []}}, "included": [], "links": {"self": "http://127.0.0.1/api/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d"}, "meta": {}}"""
+            """{"data": {"id": "8dfb8593-4694-44f2-af2f-686b1e6cf48d", "type": "rats", "attributes": {"name": "rat1", "data": null, "platform": "pc", "createdAt": "2019-07-11T09:14:48.441770+02:00", "updatedAt": "2019-07-11T09:14:48.441884+02:00"}, "links": {"self": "http://127.0.0.1/api/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d"}, "related": {}, "relationships": {"user": {"data": null, "links": {"self": "http://127.0.0.1/api/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d/relationships/user", "related": "http://127.0.0.1/api/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d/user"}, "meta": {"direction": "MANYTOONE", "results": {}}}}, "meta": {"forbidden_fields": []}}, "included": [], "links": {"self": "http://127.0.0.1/api/rats/8dfb8593-4694-44f2-af2f-686b1e6cf48d"}, "meta": {}}"""
         )
 
         ### Rat Searches ###
