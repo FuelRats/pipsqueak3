@@ -11,10 +11,10 @@ See LICENSE.md
 
 import asyncio
 from datetime import datetime
-from html import escape
 import logging
 import json
 import typing
+from urllib.parse import urlencode
 from uuid import UUID
 
 import aiohttp
@@ -63,7 +63,7 @@ class APIManager:
         Args:
             data (Dict): Configuration options
         """
-        if 'api' not in data.keys():
+        if 'api' not in data:
             raise ValueError("[API] Config section 'api' could not be found!")
 
         api_data = data['api']
@@ -206,8 +206,7 @@ class APIManager:
                     value = getattr(rescue, attrib)
                 # Otherwise, it's a tuple, and the value is the second element.
                 else:
-                    path = mapping[0]
-                    value = mapping[1]
+                    path, value = mapping
                 rescue_json = APIManager._set_by_path(rescue_json, path, value)
 
         rescue_json['type'] = 'rescues'
@@ -315,7 +314,6 @@ class APIManager:
             del data['relationships']['firstLimpet']
         jsonapi_data = {'data': data}
         new_rescue = await self._call('rescues', method='POST', body=jsonapi_data)
-        breakpoint()
         return APIManager._deserialize_rescue(new_rescue)
 
     async def update_rescue(self, rescue: Rescue):
@@ -330,7 +328,7 @@ class APIManager:
         await self._call(f"rescues/{rescue.api_id}", method='PATCH', body=jsonapi_data)
 
     # @TODO: @functools.lru_cache()
-    async def get_rat(self, uuid: str):
+    async def get_rat(self, uuid: str) -> typing.Optional[Rat]:
         """
         Use the API to get a rat by UUID.
 
@@ -338,7 +336,10 @@ class APIManager:
             uuid (str): The Rat's UUID.
 
         Returns:
-            A RatData object describing the Rat found, or None if none was found.
+            A Rat object describing the Rat found, or None if none was found.
+
+        Raises:
+            ValueError: If uuid is not given.
         """
         if not uuid:
             raise ValueError("uuid must be specified!")
@@ -376,24 +377,6 @@ class APIManager:
         except aiohttp.ClientError:
             return None
 
-    @staticmethod
-    def _build_uri_params(params: typing.Optional[typing.Dict[str, str]]) -> str:
-        """
-        Build a URI query string out of a Dict of key/value pairs.
-
-        Args:
-            params (Dict): The key/value pairs to build into a query.
-
-        Returns:
-            A properly HTML-escaped URI query string with leading question mark.
-        """
-        param_string = ""
-        if params:
-            param_string = '&'.join(
-                [f"{key}={escape(str(value))}" for key, value in params.items()]
-            )
-        return f"?{param_string}"
-
     async def _call(self,
                     endpoint: str,
                     params: typing.Optional[typing.Dict[str, str]] = None,
@@ -419,8 +402,8 @@ class APIManager:
             return None
 
         base_url = self._base_url
-        param_string = self._build_uri_params(params)
-        url = f"{base_url}{endpoint}{param_string}"
+        param_string = urlencode(params or {})
+        url = f"{base_url}{endpoint}?{param_string}"
         for retry in range(self.MAX_RETRIES):
             try:
                 return json.loads(await self._perform_http(url, method, body))
