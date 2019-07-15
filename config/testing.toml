@@ -1,6 +1,6 @@
 [irc]
 nickname = "Mechasqueak3-tests[BOT]"
-server = "localhost"
+server = "irc"
 port = 6697
 tls = true
 channels = [ "#unkn0wndev",]
