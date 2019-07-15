@@ -137,43 +137,50 @@ class APIManager:
         """
         # Associate each Rescue attribute with a 'path' in the JSON object.
         # The value can either be a string with the JSON path, or a tuple
-        # with the JSON path and the value to serialize.
+        # with the JSON path and a method that will fetch value to serialize.
         # If given only the JSON path, it will automatically grab the value
         # from the rescue object.
         maps = {
-            'api_id': ('id', f"{rescue.api_id}"),
+            'api_id': ('id', lambda rescue: f"{rescue.api_id}"),
             'client': 'attributes.client',
             'code_red': 'attributes.codeRed',
-            'platform': ('attributes.platform', rescue.platform.name.casefold()),
-            'status': ('attributes.status', rescue.status.name.casefold()),
+            'platform': ('attributes.platform',
+                         lambda rescue: rescue.platform.name.casefold()),
+            'status': ('attributes.status',
+                       lambda rescue: rescue.status.name.casefold()),
             'system': 'attributes.system',
             'title': 'attributes.title',
             'outcome': 'attributes.outcome',
             'unidentified_rats': 'attributes.unidentifiedRats',
-            'lang_id': ('attributes.data.langID', rescue.lang_id.casefold()),
+            'lang_id': ('attributes.data.langID',
+                        lambda rescue: rescue.lang_id.casefold()),
             'irc_nickname': 'attributes.data.IRCNick',
             'board_index': 'attributes.data.boardIndex',
             # Not sure what this attribute is, but we'll include it anyway.
-            'data_status': ('attributes.data.status', {}),
-            'quotes': ('attributes.quotes', [
-                {'author': quote.author,
-                 'message': quote.message,
-                 'createdAt': quote.created_at.astimezone().isoformat(),
-                 'updatedAt': quote.updated_at.astimezone().isoformat(),
-                 'lastAuthor': quote.last_author}
-                for quote in rescue.quotes
-            ]),
+            'data_status': ('attributes.data.status',
+                            lambda rescue: {}),
+            'quotes': ('attributes.quotes',
+                       lambda rescue: [
+                           {'author': quote.author,
+                            'message': quote.message,
+                            'createdAt': quote.created_at.astimezone().isoformat(),
+                            'updatedAt': quote.updated_at.astimezone().isoformat(),
+                            'lastAuthor': quote.last_author}
+                           for quote in rescue.quotes
+                       ]),
             'marked_for_deletion': ('attributes.data.markedForDeletion',
-                                    {'marked': rescue.marked_for_deletion.marked,
-                                     'reason': rescue.marked_for_deletion.reason,
-                                     'reporter': rescue.marked_for_deletion.reporter
-                                     }
-                                    ),
+                                    lambda rescue: {
+                                        'marked': rescue.marked_for_deletion.marked,
+                                        'reason': rescue.marked_for_deletion.reason,
+                                        'reporter': rescue.marked_for_deletion.reporter
+                                    }),
             'rats': ('relationships.rats.data',
-                     [{'type': 'rats', 'id': f"{rat.uuid}"} for rat in rescue.rats]),
+                     lambda rescue: [{'type': 'rats', 'id': f"{rat.uuid}"} for rat in rescue.rats]),
             'first_limpet': ('relationships.firstLimpet.data',
-                             {'type': 'rats',
-                              'id': f"{rescue.first_limpet}"} if rescue.first_limpet else None)
+                             lambda rescue: {
+                                 'type': 'rats',
+                                 'id': f"{rescue.first_limpet}"
+                             } if rescue.first_limpet else None)
         }
 
         if attr_filter is None:
@@ -207,6 +214,7 @@ class APIManager:
                 # Otherwise, it's a tuple, and the value is the second element.
                 else:
                     path, value = mapping
+                    value = value(rescue)
                 rescue_json = APIManager._set_by_path(rescue_json, path, value)
 
         rescue_json['type'] = 'rescues'
