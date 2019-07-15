@@ -84,7 +84,7 @@ class Galaxy:
     "A ClientTimeout object representing the total time an HTTP request can take before failing."
 
     def __init__(self, url: str = None):
-        self.url = url or self._config['api']['url']
+        self.url = url or self._config['system_api']['url']
 
     async def find_system_by_name(self, name: str) -> typing.Optional[StarSystem]:
         """
