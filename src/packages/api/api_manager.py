@@ -14,7 +14,7 @@ from datetime import datetime
 import logging
 import json
 import typing
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from uuid import UUID
 
 import aiohttp
@@ -74,8 +74,9 @@ class APIManager:
         if not isinstance(api_data['online_mode'], bool):
             raise ValueError("[API] API 'online_mode' must be true or false.")
 
-        if not api_data['url'].startswith('http'):
-            raise ValueError("[API] API 'url' must be a valid URL.")
+        parsed_url = urlparse(api_data['url'])
+        if parsed_url.scheme not in ['http', 'https'] or not parsed_url.netloc:
+            raise ValueError("[API] API 'url' must be a valid HTTP(S) URL.")
 
     @staticmethod
     def parse_api_datetime(iso8601: str) -> datetime:
