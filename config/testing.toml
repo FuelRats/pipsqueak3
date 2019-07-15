@@ -26,6 +26,9 @@ prefix = "!"
 online_mode = false
 url = "http://localhost/"
 
+[system_api]
+url = "http://localhost/"
+
 [ratsignal_parser]
 announcer_nicks = [ "RatMama[Bot]", "some_announcer" ]
 

@@ -16,6 +16,9 @@ prefix = "!"
 [api]
 online_mode = false
 
+[system_api]
+url = "https://system.api.url/api"
+
 [ratsignal_parser]
 announcer_nicks = [ "ratmama[bot]",]
 
