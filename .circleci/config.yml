@@ -166,7 +166,7 @@ jobs:
       - run:
           name: smoke test
           command: |
-            timeout 10 pipenv run python -m src --config circle.toml || :
+            timeout 10 pipenv run python -m src --config testing.toml || :
             grep -i "Connected to IRC" logs/unit_tests.log
 
   setup_workspace:
