@@ -77,7 +77,6 @@ async def test_find_rescue_by_uuid_invalid(api_manager_fx):
     assert rescue is None
 
 
-@pytest.mark.skip(reason='WIP')
 @pytest.mark.asyncio
 async def test_create_rescue(api_manager_fx, rescue_sop_fx):
     """

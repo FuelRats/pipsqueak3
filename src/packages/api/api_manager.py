@@ -305,7 +305,7 @@ class APIManager:
 
         try:
             data = await self._call(f"rescues/{uuid}", {'include': 'rats'})
-            if data['data']:
+            if data and 'data' in data:
                 return self._deserialize_rescue(data['data'], data['included'])
         except aiohttp.ClientError:
             return None
@@ -323,7 +323,7 @@ class APIManager:
             del data['relationships']['firstLimpet']
         jsonapi_data = {'data': data}
         new_rescue = await self._call('rescues', method='POST', body=jsonapi_data)
-        return APIManager._deserialize_rescue(new_rescue)
+        return APIManager._deserialize_rescue(new_rescue['data'])
 
     async def update_rescue(self, rescue: Rescue):
         """
@@ -332,6 +332,7 @@ class APIManager:
         Args:
             rescue (Rescue): The Rescue object to update in the API.
         """
+        # @TODO: Pass Set of changed attributes once they're available.
         data = APIManager._serialize_rescue(rescue)
         jsonapi_data = {'data': data}
         await self._call(f"rescues/{rescue.api_id}", method='PATCH', body=jsonapi_data)
@@ -418,9 +419,9 @@ class APIManager:
                 return json.loads(await self._perform_http(url, method, body))
             except aiohttp.ClientError:
                 # Even if it errors, do not retry POST or PATCH requests multiple times.
-                if retry == (self.MAX_RETRIES - 1) or method != 'GET':
+                if retry == self.MAX_RETRIES or method != 'GET':
                     raise
-                await asyncio.sleep(retry ** 2)
+                await asyncio.sleep((retry + 1) ** 2)
 
     async def _perform_http(self,
                             uri: str,
@@ -446,8 +447,7 @@ class APIManager:
             'Content-Type': 'application/vnd.api+json',
             'User-Agent': 'MechaSqueak/3.0.0a'  # @TODO Use actual MechaClient version
         }
-        async with aiohttp.ClientSession(raise_for_status=True,
-                                         timeout=self.TIMEOUT,
+        async with aiohttp.ClientSession(timeout=self.TIMEOUT,
                                          headers=http_headers) as session:
             if method == 'GET':
                 async with session.get(uri) as response:
