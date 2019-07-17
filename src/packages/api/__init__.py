@@ -10,8 +10,8 @@ See LICENSE.md
 """
 
 from src.config import PLUGIN_MANAGER
-from .api_manager import APIManager
+from .api_manager import APIManager, ApiOfflineError
 
-__all__ = ["APIManager"]
+__all__ = ["APIManager", "ApiOfflineError"]
 
 PLUGIN_MANAGER.register(APIManager, "api_manager")

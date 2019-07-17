@@ -29,6 +29,13 @@ from src.packages.utils import Platforms, Status
 LOG = logging.getLogger(f"mecha.{__name__}")
 
 
+class ApiOfflineError(Exception):
+    """
+    Exception raised when something tries to call the API while it is
+    in 'offline mode'.
+    """
+
+
 class APIManager:
     """
     Worker class to interface with the Fuel Rats API.
@@ -405,11 +412,13 @@ class APIManager:
         Returns:
             A dict or list object representing the parsed JSONAPI data returned.
             Returns None if in offline mode or the request fails.
+
+        Raises:
+            ApiOfflineError if the API is set to offline mode.
         """
 
         if not self._online_mode:
-            LOG.debug(f"API call to {endpoint} was requested, but we're in offline mode.")
-            return None
+            raise ApiOfflineError('API is running in offline mode')
 
         base_url = self._base_url
         param_string = urlencode(params or {})

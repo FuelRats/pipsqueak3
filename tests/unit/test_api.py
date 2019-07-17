@@ -13,6 +13,7 @@ import logging
 from uuid import UUID
 import pytest
 
+from src.packages.api import ApiOfflineError
 from src.packages.utils import Platforms, Status
 
 pytestmark = [pytest.mark.unit, pytest.mark.api]  # pylint: disable=invalid-name
@@ -105,3 +106,15 @@ async def test_rescue_serialize(api_manager_fx, rescue_sop_fx):
     rescue = api_manager_fx._serialize_rescue(rescue_sop_fx)  # pylint: disable=protected-access
     assert rescue
     assert rescue['attributes']
+
+
+@pytest.mark.asyncio
+async def test_api_call_offline(api_manager_fx):
+    """
+    Test that attempting to call the API while in offline mode will raise an
+    exception.
+    """
+    # pylint: disable=protected-access
+    api_manager_fx._online_mode = False
+    with pytest.raises(ApiOfflineError):
+        await api_manager_fx._call("/rats")
