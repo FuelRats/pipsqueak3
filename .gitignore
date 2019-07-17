@@ -104,11 +104,11 @@ ENV/
 .mypy_cache/
 
 #configuration
-config/config.json
-config/live.json
-config/drill.json
-config/develop.json
-config/configuration.json
+config/config.toml
+config/live.toml
+config/drill.toml
+config/develop.toml
+config/configuration.toml
 
 #certs
 *.pem
