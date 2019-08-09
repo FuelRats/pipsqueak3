@@ -9,10 +9,13 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
+import asyncio
 import logging
 import weakref
 from abc import abstractmethod, ABC
-from typing import List, NoReturn
+from typing import Dict, List, NoReturn
+
+from src.config import CONFIG_MARKER
 
 LOG = logging.getLogger(f"mecha.{__name__}")
 
@@ -43,6 +46,38 @@ class OfflineAwareABC(ABC):
         # create a finalizer-based weak reference, tie the callback to our GC method
         # then append it to our storage object
         self._storage.append(weakref.finalize(self, self.__gc))
+
+    @classmethod
+    @CONFIG_MARKER
+    def rehash_handler(cls, data: Dict):
+        """
+        Apply new configuration data
+
+        Args:
+            data (Dict): New configuration data to apply.
+        """
+        online = data['api']['online_mode']
+        if online:
+            method = cls.go_online
+        else:
+            method = cls.go_offline
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(method())
+
+    @classmethod
+    @CONFIG_MARKER
+    def validate_config(cls, data: Dict):
+        """
+        Validate the configuration for Offline Awareness.
+
+        Args:
+            data (Dict): Configuration object.
+
+        Raises:
+            ValueError if the config fails validation.
+        """
+        if not isinstance(data['api']['online_mode'], bool):
+            raise ValueError("[OfflineAware] Config option 'api.online_mode' must be a boolean.")
 
     @abstractmethod
     async def on_online(self) -> NoReturn:

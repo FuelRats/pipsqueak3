@@ -13,6 +13,8 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
+from src.config import PLUGIN_MANAGER
+
 from ._offline_aware_abc import OfflineAwareABC
 
 # ####
@@ -38,3 +40,5 @@ __all__ = [
     "online",
     "offline"
 ]
+
+PLUGIN_MANAGER.register(OfflineAwareABC, "offline_awareness")
