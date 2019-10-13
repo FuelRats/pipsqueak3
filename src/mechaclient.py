@@ -11,7 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-from logging import getLogger
+from loguru import logger
 from uuid import uuid4
 
 from pydle import Client
@@ -23,8 +23,6 @@ from src.packages.fact_manager.fact_manager import FactManager
 from src.packages.galaxy import Galaxy
 from src.packages.graceful_errors import graceful_errors
 from src.packages.utils import sanitize
-
-LOG = getLogger(f"mecha.{__name__}")
 
 
 class MechaClient(Client):
@@ -58,13 +56,13 @@ class MechaClient(Client):
         Called upon connection to the IRC server
         :return:
         """
-        LOG.debug(f"Connecting to channels...")
+        logger.debug(f"Connecting to channels...")
         # join a channel
         for channel in self._config["irc"]["channels"]:
-            LOG.debug(f"Configured channel {channel}")
+            logger.debug(f"Configured channel {channel}")
             await self.join(channel)
 
-        LOG.debug("joined channels.")
+        logger.debug("joined channels.")
         # call the super
         await super().on_connect()
 
@@ -80,17 +78,17 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
-        LOG.debug(f"{channel}: <{user}> {message}")
+        logger.debug(f"{channel}: <{user}> {message}")
 
         if user == self._config['irc']['nickname']:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
-            LOG.debug(f"Ignored {message} (anti-loop)")
+            logger.debug(f"Ignored {message} (anti-loop)")
             return None
         # await command execution
         # sanitize input string headed to command executor
         sanitized_message = sanitize(message)
-        LOG.debug(f"Sanitized {sanitized_message}, Original: {message}")
+        logger.debug(f"Sanitized {sanitized_message}, Original: {message}")
         try:
             ctx = await Context.from_message(self, channel, user, sanitized_message)
             await trigger(ctx)
@@ -98,7 +96,7 @@ class MechaClient(Client):
         # Disable pylint's complaint here, as a broad catch is exactly what we want.
         except Exception as ex:  # pylint: disable=broad-except
             ex_uuid = uuid4()
-            LOG.exception(ex_uuid)
+            logger.exception(ex_uuid)
             error_message = graceful_errors.make_graceful(ex, ex_uuid)
             # and report it to the user
             await self.message(channel, error_message)
@@ -109,7 +107,7 @@ class MechaClient(Client):
         Handle an IRC 396 message. This message is sent upon successful application of a host mask
         via usermode +x.
         """
-        LOG.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
+        logger.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
 
     @property
     def rat_cache(self) -> object:
@@ -137,7 +135,7 @@ class MechaClient(Client):
         if not isinstance(manager, FactManager):
             raise TypeError("fact_manager requires a FactManager.")
 
-        LOG.warning("Fact manager setter invoked!")
+        logger.warning("Fact manager setter invoked!")
         self._fact_manager = manager
 
     @fact_manager.deleter
@@ -145,7 +143,7 @@ class MechaClient(Client):
         """
         Fact Manager Deleter
         """
-        LOG.warning("Fact Manager deleter invoked!")
+        logger.warning("Fact Manager deleter invoked!")
         del self._fact_manager
         self._fact_manager = None
 
@@ -174,7 +172,7 @@ class MechaClient(Client):
         if not isinstance(value, RatBoard):
             raise TypeError("board property must be of type RatBoard.")
 
-        LOG.warning("Board Setter invoked!")
+        logger.warning("Board Setter invoked!")
         self._rat_board = value
 
     @board.deleter
@@ -182,7 +180,7 @@ class MechaClient(Client):
         """
         Rat Board Deleter
         """
-        LOG.warning("Board Deleted!")
+        logger.warning("Board Deleted!")
         del self._rat_board
         self._rat_board = None
 
@@ -204,7 +202,7 @@ class MechaClient(Client):
         if not isinstance(value, Galaxy):
             raise TypeError("galaxy property must be of type Galaxy.")
 
-        LOG.warning("Galaxy Setter invoked!")
+        logger.warning("Galaxy Setter invoked!")
         self._galaxy = value
 
     @galaxy.deleter
@@ -212,6 +210,6 @@ class MechaClient(Client):
         """
         Galaxy deleter
         """
-        LOG.warning("Galaxy deleted!")
+        logger.warning("Galaxy deleted!")
         del self._galaxy
         self._galaxy = None

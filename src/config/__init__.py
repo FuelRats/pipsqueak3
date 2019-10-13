@@ -60,6 +60,11 @@ from ._manager import PLUGIN_MANAGER
 # load the parsers
 from ._parser import load_config, setup_logging, setup
 
+import logging
+from loguru import logger
+import sys
+import inspect
+
 # create the plugin manager
 
 # register our specifications
@@ -78,4 +83,21 @@ the system.
 
 """
 
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        # Intercepts standard logging messages for the purpose of sending them to loguru
+        depth = next(i for i, f in enumerate(inspect.stack()[1:]) if f.filename != logging.__file__) + 1
+        logger_opt = logger.opt(depth=1, exception=record.exc_info)
+        logger_opt.log(record.levelno, record.getMessage())
+
+
+# Hook logging intercept
+logging.basicConfig(handlers=[InterceptHandler()], level=0)
+logger.info("Logging Hook Executed.  As a workaround, log messages sent to logging will be captured and passed "
+            "through loguru until a full logging pass is completed.")
+
+
 __all__ = ["CONFIG_MARKER", "PLUGIN_MANAGER", "setup"]
+
+
+

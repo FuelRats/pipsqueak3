@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 
 """
 import asyncio
-import logging
+from loguru import logger
 
 # noinspection PyUnresolvedReferences
 from src import commands  # pylint: disable=unused-import
@@ -24,8 +24,6 @@ from src.packages.commands import command
 from src.packages.context import Context
 from src.packages.permissions import require_permission, RAT
 
-LOG = logging.getLogger(f"mecha.{__name__}")
-
 
 @require_permission(RAT)
 @command("ping")
@@ -34,7 +32,7 @@ async def cmd_ping(context: Context):
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param context: `Context` object for the command call.
     """
-    LOG.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
+    logger.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
                 f"'{context.user.nickname}'")
     await context.reply(f"{context.user.nickname} pong!")
 
@@ -52,24 +50,24 @@ async def start():
         client_args["sasl_username"] = config['authentication']['plain']['username']
         client_args["sasl_password"] = config['authentication']['plain']['password']
         client_args["sasl_identity"] = config['authentication']['plain']['identity']
-        LOG.info("Authenticating via SASL PLAIN.")
+        logger.info("Authenticating via SASL PLAIN.")
     elif auth_method == "EXTERNAL":
         client_args["sasl_mechanism"] = "EXTERNAL"
         cert = config['authentication']['external']['tls_client_cert']
         client_args["tls_client_cert"] = f"certs/{cert}"
-        LOG.info(f"Authenticating using client certificate at {cert}.")
+        logger.info(f"Authenticating using client certificate at {cert}.")
     else:
         raise ValueError(f"unknown authentication mechanism {auth_method}")
 
     client = MechaClient(**client_args, mecha_config=config)
 
-    LOG.info("connecting to irc...")
+    logger.info("connecting to irc...")
     await client.connect(hostname=config['irc']['server'],
                          port=config['irc']['port'],
                          tls=config['irc']['tls'],
                          )
 
-    LOG.info("Connected to IRC.")
+    logger.info("Connected to IRC.")
 
 
 # entry point
