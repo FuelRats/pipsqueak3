@@ -20,7 +20,6 @@ from src.packages.rules.rules import get_rule, clear_rules
 # set the logger for rat_command
 
 
-
 class CommandException(Exception):
     """
     base Command Exception

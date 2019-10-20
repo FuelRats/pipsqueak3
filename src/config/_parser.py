@@ -54,9 +54,11 @@ def setup_logging(logfile: str):
 
     logger.configure(
         handlers=[
-            dict(sink=sys.stdout, format="<b><c><{time}</c></b> [{module}] <level>{level.name}</level> > {message}",
+            dict(sink=sys.stdout, format="<b><c><{time}</c></b> [{module}] "
+                                         "<level>{level.name}</level> > {message}",
                  colorize=True, backtrace=True, diagnose=True, level=loglevel),
-            dict(sink=logfile, level="DEBUG", format="< {time} > [ {module} ] {message}", rotation="50 MB",
+            dict(sink=logfile, level="DEBUG", format="< {time} > "
+                                                     "[ {module} ] {message}", rotation="50 MB",
                  enqueue=True, mode=log_filemode),
         ]
     )

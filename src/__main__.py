@@ -33,7 +33,7 @@ async def cmd_ping(context: Context):
     :param context: `Context` object for the command call.
     """
     logger.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
-                f"'{context.user.nickname}'")
+                   f"'{context.user.nickname}'")
     await context.reply(f"{context.user.nickname} pong!")
 
 
