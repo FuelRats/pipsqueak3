@@ -11,17 +11,15 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-import logging
 import re
+from loguru import logger
 from typing import Optional, Dict
-
 from src.config import CONFIG_MARKER
 from ..context import Context
 from ..rescue import Rescue
 from ..rules import rule
 from ..utils import Platforms
 
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 _config: Dict = {}
 
@@ -130,7 +128,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         if platform_name.casefold() in ("pc", "ps", "xb"):
             platform = Platforms[platform_name.upper()]
         else:
-            LOG.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
+            logger.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
 
         # no case for that name, we have to make our own
         rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,

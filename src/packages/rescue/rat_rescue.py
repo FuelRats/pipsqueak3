@@ -10,12 +10,11 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
-import logging
 from contextlib import contextmanager
+from loguru import logger
 from datetime import datetime
 from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID, uuid4
-
 from ..cache import RatCache
 from ..epic import Epic
 from ..mark_for_deletion import MarkForDeletion
@@ -25,8 +24,6 @@ from ..utils import Platforms, Status
 
 if TYPE_CHECKING:
     from ..board import RatBoard
-
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class Rescue:  # pylint: disable=too-many-public-methods
@@ -741,7 +738,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             elif found[1]:
                 # a generic match (not platform specific) was found
                 # TODO throw a warning so the invoking method can handle this condition
-                LOG.warning("A match was found, but it was not the right platform!")
+                logger.warning("A match was found, but it was not the right platform!")
                 self.rats.append(found[1])
                 assigned_rat = found[1]
 
@@ -791,7 +788,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
                             f"{type(reason)}")
 
-        LOG.debug(f"marking rescue @{self.api_id} for deletion. reporter is {reporter} and "
+        logger.debug(f"marking rescue @{self.api_id} for deletion. reporter is {reporter} and "
                   f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")

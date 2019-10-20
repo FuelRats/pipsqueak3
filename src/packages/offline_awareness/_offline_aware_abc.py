@@ -9,12 +9,10 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-import logging
 import weakref
+from loguru import logger
 from abc import abstractmethod, ABC
 from typing import List, NoReturn
-
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class OfflineAwareABC(ABC):
@@ -65,10 +63,10 @@ class OfflineAwareABC(ABC):
             This function is Idempotent.
         """
         if cls.online:
-            LOG.debug("already in online mode, ignoring call to go_online ...")
+            logger.debug("already in online mode, ignoring call to go_online ...")
             return  # already online, bail out.
 
-        LOG.info("Moving to online mode...")
+        logger.info("Moving to online mode...")
         cls.online = True
         for reference in cls._storage:
             # check if its still alive (possible to expire during iteration)
@@ -88,9 +86,9 @@ class OfflineAwareABC(ABC):
             This function is Idempotent.
         """
         if not cls.online:
-            LOG.debug("already in offline mode, ignoring call to go_offline ...")
+            logger.debug("already in offline mode, ignoring call to go_offline ...")
             return  # already offline, bail out.
-        LOG.info("Moving to offline mode")
+        logger.info("Moving to offline mode")
         cls.online = False
 
         for reference in cls._storage:
@@ -110,7 +108,7 @@ class OfflineAwareABC(ABC):
         Returns:
             number of references collected
         """
-        LOG.debug(f"garbage collection invoked...")
+        logger.debug(f"garbage collection invoked...")
 
         # calculate which references are dead
         to_delete = {reference for reference in cls._storage if not reference.alive}
@@ -120,5 +118,5 @@ class OfflineAwareABC(ABC):
         for reference in to_delete:
             cls._storage.remove(reference)
 
-        LOG.debug(f"garbage collection complete. {culled} dead references culled")
+        logger.debug(f"garbage collection complete. {culled} dead references culled")
         return culled

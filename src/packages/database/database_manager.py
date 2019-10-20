@@ -6,15 +6,13 @@ All rights reserved.
 Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
-import logging
-import typing
 
+import typing
 import psycopg2
+from loguru import logger
 from psycopg2 import sql, pool
 
 from src.config import CONFIG_MARKER
-
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class DatabaseManager:
@@ -143,7 +141,7 @@ class DatabaseManager:
                                                               password=self._dbpass)
 
         except psycopg2.DatabaseError as error:
-            LOG.exception("Unable to connect to database!")
+            logger.exception("Unable to connect to database!")
             raise error
 
     async def query(self,

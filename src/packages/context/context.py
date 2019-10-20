@@ -11,14 +11,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 from __future__ import annotations  # for forward references standard in >=3.8
-
-import logging
+from loguru import logger
 import typing
 
 from src.config import CONFIG_MARKER
 from ..user import User
 
-LOG = logging.getLogger(f"mecha.{__name__}")
 if typing.TYPE_CHECKING:
     from src.mechaclient import MechaClient
 
@@ -44,7 +42,7 @@ def rehash_handler(data: typing.Dict):
         data(typing.Dict): configuration object
     """
     Context.PREFIX = data['commands']['prefix']
-    LOG.debug(f"in rehash handler, using new prefix {Context.PREFIX}")
+    logger.debug(f"in rehash handler, using new prefix {Context.PREFIX}")
 
 
 class Context:

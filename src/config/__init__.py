@@ -83,12 +83,13 @@ the system.
 
 """
 
+
 class InterceptHandler(logging.Handler):
     def emit(self, record):
         # Intercepts standard logging messages for the purpose of sending them to loguru
         depth = next(i for i, f in enumerate(inspect.stack()[1:]) if f.filename != logging.__file__) + 1
         logger_opt = logger.opt(depth=1, exception=record.exc_info)
-        logger_opt.log(record.levelno, record.getMessage())
+        logger_opt.log(logging.getLevelName(record.levelno), record.getMessage())
 
 
 # Hook logging intercept
