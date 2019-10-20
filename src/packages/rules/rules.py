@@ -118,8 +118,8 @@ def rule(regex: str, *, case_sensitive: bool = False, full_message: bool = False
             except ValueError:
                 raise RuleNotPresentException(after)
 
-        logger.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
-                 f" created.")
+        logger.info(f"New rule matching '{regex}' "
+                    f"case-{'' if case_sensitive else 'in'} sensitively was created.")
         return tuple_
 
     return decorator
