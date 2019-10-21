@@ -12,13 +12,12 @@ This module is built on top of the Pydle system.
 
 """
 
-import logging
+from loguru import logger
 from typing import Callable, Any
 
 from src.packages.rules.rules import get_rule, clear_rules
 
 # set the logger for rat_command
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class CommandException(Exception):
@@ -60,27 +59,27 @@ async def trigger(ctx) -> Any:
             # A regular command
             command_fun = _registered_commands[ctx.words[0].casefold()]
             extra_args = ()
-            LOG.debug(f"Regular command {ctx.words[0]} invoked.")
+            logger.debug(f"Regular command {ctx.words[0]} invoked.")
         else:
             # Might be a regular rule
             command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=False)
             if command_fun:
-                LOG.debug(
+                logger.debug(
                     f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found.")
             else:
-                LOG.debug(f"Could not find command or rule for {ctx.words[0]}.")
+                logger.debug(f"Could not find command or rule for {ctx.words[0]}.")
     else:
         # Might still be a prefixless rule
         command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=True)
         if command_fun:
-            LOG.debug(
+            logger.debug(
                 f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} "
                 f"found.")
 
     if command_fun:
         return await command_fun(ctx, *extra_args)
 
-    LOG.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
+    logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
 
 
 def _register(func, names: list or str) -> bool:
@@ -141,10 +140,10 @@ def command(*aliases):
         Returns:
             Callable: *func*, unmodified.
         """
-        LOG.debug(f"Registering command aliases: {aliases}...")
+        logger.debug(f"Registering command aliases: {aliases}...")
         if not _register(func, aliases):
             raise InvalidCommandException("unable to register commands.")
-        LOG.debug(f"Registration of {aliases} completed.")
+        logger.debug(f"Registration of {aliases} completed.")
 
         return func
 

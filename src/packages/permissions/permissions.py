@@ -12,14 +12,12 @@ This module is built on top of the Pydle system.
 
 """
 
-import logging
+from loguru import logger
 from functools import wraps
 from typing import Any, Union, Callable, Dict, Set
 
 from src.config import CONFIG_MARKER
 from ..context import Context
-
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 @CONFIG_MARKER
@@ -40,20 +38,20 @@ def validate_config(data: Dict):
         KEY_VALIDATION_FAILED_ = f"[vhosts] {key} validation failed"
 
         if not isinstance(block['vhosts'], list):
-            LOG.error(f"{key} contains invalid data. expected a List, got {block['vhosts']}")
+            logger.error(f"{key} contains invalid data. expected a List, got {block['vhosts']}")
             raise ValueError(KEY_VALIDATION_FAILED_)
         if not isinstance(block['level'], int):
-            LOG.error(
+            logger.error(
                 f"{key} contains invalid data, expected an integer and got {type(block['level'])}")
             raise ValueError(KEY_VALIDATION_FAILED_)
 
         if block['level'] < 0:
-            LOG.warning(f"{key} contains non-sensible data, level should be positive")
+            logger.warning(f"{key} contains non-sensible data, level should be positive")
             raise ValueError(KEY_VALIDATION_FAILED_)
 
         for vhost in block['vhosts']:
             if not isinstance(vhost, str):
-                LOG.warning(f"subkey for {key} was not a string, instead got {vhost}")
+                logger.warning(f"subkey for {key} was not a string, instead got {vhost}")
                 raise ValueError(KEY_VALIDATION_FAILED_)
 
 
@@ -66,7 +64,7 @@ def rehash_handler(data: Dict):
         data (typing.Dict): new configuration data to apply.
 
     """
-    LOG.debug("applying new permissions scheme...")
+    logger.debug("applying new permissions scheme...")
     RECRUIT.update(data['permissions']['recruit'])
     RAT.update(data['permissions']['rat'])
     OVERSEER.update(data['permissions']['overseer'])
@@ -92,7 +90,7 @@ class Permission:
                 required
         """
 
-        LOG.debug(f"Created new Permission object with permission {level}")
+        logger.debug(f"Created new Permission object with permission {level}")
         self.level = level
         self._vhosts = vhosts if vhosts else set()
         self._denied_message = deny_message
@@ -280,8 +278,8 @@ def require_permission(permission: Permission,
     """
 
     def real_decorator(func):
-        LOG.debug("Inside the real_decorator")
-        LOG.debug(f"Wrapping a command with permission {permission}")
+        logger.debug("Inside the real_decorator")
+        logger.debug(f"Wrapping a command with permission {permission}")
 
         @wraps(func)
         async def guarded(context: Context, *args):
@@ -354,7 +352,7 @@ def require_channel(func: Union[str, Callable] = None,
             if context.channel is not None:
                 return await wrapped(context, *args)
 
-            LOG.debug(f"channel was None, enforcing channel requirement...")
+            logger.debug(f"channel was None, enforcing channel requirement...")
             await context.reply(message)
 
         return guarded
@@ -425,7 +423,7 @@ def require_dm(func: Union[str, Callable] = None,
             if context.channel is None:
                 return await wrapped(context, *args)
 
-            LOG.debug(f"channel was None, enforcing channel requirement...")
+            logger.debug(f"channel was None, enforcing channel requirement...")
             await context.reply(message)
 
         return guarded

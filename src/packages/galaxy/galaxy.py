@@ -12,7 +12,6 @@ See LICENSE.md
 
 import asyncio
 import json
-import logging
 import typing
 from html import escape
 
@@ -21,8 +20,6 @@ import aiohttp
 from src.config import CONFIG_MARKER
 from .star_system import StarSystem
 from ..utils import Vector
-
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class Galaxy:

@@ -12,15 +12,11 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import datetime
-import logging
-
 import psycopg2
 from psycopg2 import sql
-
+from loguru import logger
 from .fact import Fact
 from ..database import DatabaseManager
-
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class FactManager(DatabaseManager):
@@ -48,7 +44,7 @@ class FactManager(DatabaseManager):
 
         # Proclaim loudly into the void that we are loaded.
         super().__init__()
-        LOG.info("Fact Manager Initialized.")
+        logger.info("Fact Manager Initialized.")
 
     async def add(self, fact: Fact):
         """
@@ -88,7 +84,7 @@ class FactManager(DatabaseManager):
         except (psycopg2.DatabaseError, psycopg2.IntegrityError) as error:
             # Database is not available, or fact already exists and wasn't checked.
             # Raise error, generating graceful cheese error and log the exception.
-            LOG.exception(f"Unable to add fact '{fact.name}!")
+            logger.exception(f"Unable to add fact '{fact.name}!")
             raise error
 
     async def _destroy(self, name: str, lang: str):
@@ -124,7 +120,7 @@ class FactManager(DatabaseManager):
 
         # Check the fact's property to verify it is marked for deletion
         if fact is None or not fact.mfd:
-            LOG.exception("Attempted deletion of fact not marked for delete or does not exist.")
+            logger.exception("Attempted deletion of fact not marked for delete or does not exist.")
             raise psycopg2.ProgrammingError(f"{name}-{lang} is not marked for "
                                             f"deletion or does not exist")
 
@@ -148,7 +144,7 @@ class FactManager(DatabaseManager):
             psycopg2.DatabaseError: On any connectivity issue or no database available.
         """
         if not await self.exists(name, lang):
-            LOG.exception("Attempted edit on non-existent fact.")
+            logger.exception("Attempted edit on non-existent fact.")
             raise ValueError
 
         try:
@@ -160,11 +156,11 @@ class FactManager(DatabaseManager):
             query_values = {"edit_time": datetime.datetime.now(datetime.timezone.utc),
                             "message": new_message, "name": name, "lang": lang}
 
-            LOG.debug(f"query_values = {query_values}")
+            logger.debug(f"query_values = {query_values}")
 
             await self.query(edit_query, query_values)
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
-            LOG.exception(f"Editing fact '{name}-{lang}' failed.")
+            logger.exception(f"Editing fact '{name}-{lang}' failed.")
             raise error
         else:
             await self.add_transaction(fact_name=name, fact_lang=lang, author=editor, msg='Edited',
@@ -187,7 +183,7 @@ class FactManager(DatabaseManager):
             result = await self.query(query, (name, lang))
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # Check for offline database, or issues with the query.
-            LOG.exception(f"Could not establish existence of {name}-{lang}")
+            logger.exception(f"Could not establish existence of {name}-{lang}")
             raise error
 
         # We are only getting a single integer as a response, so we can unpack it by index.
@@ -214,7 +210,7 @@ class FactManager(DatabaseManager):
             result = await self.query(query, query_data)
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # ProgrammingError is a query failure, DatabaseError is database unavailable.
-            LOG.exception(f"Unable to retrieve history for {fact_name}-{fact_lang}")
+            logger.exception(f"Unable to retrieve history for {fact_name}-{fact_lang}")
             raise error
 
         return result
@@ -240,7 +236,7 @@ class FactManager(DatabaseManager):
             rows = await self.query(query, (name, lang))
         except (psycopg2.DatabaseError, psycopg2.ProgrammingError) as error:
             # Check for offline database, or query errors
-            LOG.exception("Unable to find fact due to exception.")
+            logger.exception("Unable to find fact due to exception.")
             raise error
 
         # unpack query into a fact object, or return None if there is no result.
@@ -288,7 +284,7 @@ class FactManager(DatabaseManager):
         try:
             await self.query(log_query, query_data)
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
-            LOG.exception("Unable to write transaction log to table.")
+            logger.exception("Unable to write transaction log to table.")
             raise error
 
     async def mfd(self, name: str, lang: str) -> bool:
@@ -319,7 +315,7 @@ class FactManager(DatabaseManager):
 
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # ProgrammingError is a query failure, DatabaseError is database unavailable.
-            LOG.exception(f"Error setting MFD field value for {name}-{lang}")
+            logger.exception(f"Error setting MFD field value for {name}-{lang}")
             raise error
 
         return mfd_value
@@ -342,7 +338,7 @@ class FactManager(DatabaseManager):
             raw_results = await self.query(query, (True,))
         except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
             # ProgrammingError is a query failure, DatabaseError is database unavailable.
-            LOG.exception(f"Error getting MFD list.")
+            logger.exception(f"Error getting MFD list.")
             raise error
         else:
             result = [f"{item[0]}-{item[1]}" for item in raw_results]

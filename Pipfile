@@ -11,6 +11,7 @@ coloredlogs = "*"
 humanfriendly = "*"
 psycopg2-binary = "*"
 toml = "*"
+loguru = "*"
 
 [dev-packages]
 pytest = "*"

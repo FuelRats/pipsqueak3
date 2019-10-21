@@ -14,12 +14,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE
 """
 import hashlib
-import logging
+from loguru import logger
 from pathlib import Path
 from typing import Dict, Tuple
 
-import coloredlogs
 import toml
+import sys
 
 from src.packages.cli_manager import cli_manager
 from ._manager import PLUGIN_MANAGER
@@ -35,9 +35,9 @@ def setup_logging(logfile: str):
     args = cli_manager.GET_ARGUMENTS()
     # check for CLI verbosity flag
     if args.verbose:
-        loglevel = logging.DEBUG
+        loglevel = "DEBUG"
     else:
-        loglevel = logging.INFO
+        loglevel = "INFO"
 
     # check for nocolor flag
     if args.nocolors:
@@ -52,59 +52,18 @@ def setup_logging(logfile: str):
     else:
         log_filemode = 'a'
 
-    # hook the logger
-    log = logging.getLogger(f"mecha.{__name__}")
+    logger.configure(
+        handlers=[
+            dict(sink=sys.stdout, format="<b><c><{time}</c></b> [{name}] "
+                                         "<level>{level.name}</level> > {message}",
+                 colorize=True, backtrace=True, diagnose=True, level=loglevel),
+            dict(sink=logfile, level="DEBUG", format="< {time} > "
+                                                     "[ {module} ] {message}", rotation="50 MB",
+                 enqueue=True, mode=log_filemode),
+        ]
+    )
 
-    # create a handler for said logger...
-    file_logger = logging.FileHandler(logfile, log_filemode, encoding="utf-8")
-    log_format = '<%(asctime)s %(name)s> [%(levelname)s] %(message)s'
-    log_datefmt = '%Y-%m-%d %H:%M:%S'
-    file_logger_format = logging.Formatter(log_format)
-
-    # set the formatter to actually use it
-    file_logger.setFormatter(file_logger_format)
-
-    # add the handler to the log.
-    logging.getLogger(f"mecha").addHandler(file_logger)
-
-    # set proper severity level
-    log.setLevel(loglevel)
-
-    # add Console logging
-    console = logging.StreamHandler()
-    logging.getLogger(f"mecha.{__name__}").addHandler(console)
-
-    # add console logging format
-    console_format = logging.Formatter(log_format)
-
-    # set console formatter to use our format.
-    console.setFormatter(console_format)
-
-    # coloredlogs hook
-    log_levelstyles = {'critical': {'color': 'red', 'bold': True},
-                       'error': {'color': 'red', 'bright': True},
-                       'warning': {'color': 'yellow', 'bright': True},
-                       'info': {'color': 'white', 'bright': True},
-                       'debug': {'color': 'black', 'bright': True}}
-
-    log_fieldstyles = {'asctime': {'color': 'white', 'bright': True},
-                       'levelname': {'color': 'white', 'bright': True},
-                       'name': {'color': 'yellow', 'bright': True}}
-
-    # coloredlogs hook
-    coloredlogs.install(handler=__name__,
-                        level=loglevel,
-                        fmt=log_format,
-                        level_styles=log_levelstyles,
-                        field_styles=log_fieldstyles,
-                        datefmt=log_datefmt,
-                        isatty=log_colors,
-                        )
-
-    # disable propagation
-    log.propagate = False
-
-    logging.info("Configuration file loading...")
+    logger.info("Configuration file loading...")
 
 
 def load_config(filename: str) -> Tuple[Dict, str]:
@@ -122,7 +81,7 @@ def load_config(filename: str) -> Tuple[Dict, str]:
     # create a new hasher
     hasher = hashlib.sha256()
     # check if the file exists
-    logging.debug(f"Found a file/directory at {path.resolve(strict=True)}'! attempting to load...")
+    logger.debug(f"Found a file/directory at {path.resolve(strict=True)}'! attempting to load...")
 
     # read the raw bytes into a buffer
     buffer = path.read_bytes()
@@ -138,7 +97,7 @@ def load_config(filename: str) -> Tuple[Dict, str]:
     # digest the file, get its checksum.
     checksum = hasher.hexdigest()
 
-    logging.info(f"Loaded configuration file {path.resolve()} ({checksum})")
+    logger.info(f"Loaded configuration file {path.resolve()} ({checksum})")
 
     return config_dict, checksum
 
@@ -156,15 +115,15 @@ def setup(filename: str) -> Tuple[Dict, str]:
     # do the loading part
     config_dict, file_hash = load_config(filename)
     setup_logging(config_dict['logging']['log_file'])
-    logging.info(f"new config hash is {file_hash}")
-    logging.info("verifying configuration....")
+    logger.info(f"new config hash is {file_hash}")
+    logger.info("verifying configuration....")
 
     # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
     PLUGIN_MANAGER.hook.validate_config(  # pylint: disable=no-member
         data=config_dict)
-    logging.info("done verifying. config loaded without error.")
+    logger.info("done verifying. config loaded without error.")
 
-    logging.info(f"emitting new configuration to plugins...")
+    logger.info(f"emitting new configuration to plugins...")
 
     # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
     PLUGIN_MANAGER.hook.rehash_handler(data=config_dict)  # pylint: disable=no-member

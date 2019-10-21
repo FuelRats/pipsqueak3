@@ -10,11 +10,11 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-import logging
+
 import re
+from loguru import logger
 from typing import Callable, NamedTuple, Pattern, List, Tuple, Optional
 
-LOG = logging.getLogger(__name__)
 
 _rules: List["Rule"] = []
 _prefixless_rules: List["Rule"] = []
@@ -118,8 +118,8 @@ def rule(regex: str, *, case_sensitive: bool = False, full_message: bool = False
             except ValueError:
                 raise RuleNotPresentException(after)
 
-        LOG.info(f"New rule matching '{regex}' case-{'' if case_sensitive else 'in'}sensitively was"
-                 f" created.")
+        logger.info(f"New rule matching '{regex}' "
+                    f"case-{'' if case_sensitive else 'in'} sensitively was created.")
         return tuple_
 
     return decorator

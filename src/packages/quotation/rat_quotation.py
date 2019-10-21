@@ -11,12 +11,9 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 
-import logging
+
 from datetime import datetime
-
 from ..context import Context
-
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class Quotation:

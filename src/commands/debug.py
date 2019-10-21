@@ -11,14 +11,12 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-import logging
 
 from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
-
-LOG = logging.getLogger(f"mecha.{__name__}")
+from loguru import logger
 
 
 @command("debug-whois")
@@ -31,7 +29,7 @@ async def cmd_debug_whois(context):
         str: string repreentation
     """
     data = await context.bot.whois(context.words[1])
-    LOG.debug(data)
+    logger.debug(data)
     await context.reply(f"{data}")
 
 

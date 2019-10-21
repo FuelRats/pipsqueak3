@@ -13,15 +13,13 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 
-import logging
+from loguru import logger
 from functools import reduce
 from operator import xor
 from typing import Optional
 from uuid import UUID
 
 from ..utils import Platforms
-
-LOG = logging.getLogger(f"mecha.{__name__}")
 
 
 class Rat:
@@ -96,9 +94,9 @@ class Rat:
             None
         """
         if isinstance(value, str):
-            LOG.debug(f"Value was a string with data '{value}'")
+            logger.debug(f"Value was a string with data '{value}'")
             uuid = UUID(value)
-            LOG.debug("Parsed value into a valid UUID.")
+            logger.debug("Parsed value into a valid UUID.")
             self._uuid = uuid
         elif isinstance(value, UUID):
             self._uuid = value
