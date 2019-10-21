@@ -95,8 +95,5 @@ class InterceptHandler(logging.Handler):
 
 # Hook logging intercept
 logging.basicConfig(handlers=[InterceptHandler()], level=0)
-logger.info("Logging Hook Executed.  As a workaround, log messages sent to logging will be "
-            "captured and passed through loguru until a full logging pass is completed.")
-
 
 __all__ = ["CONFIG_MARKER", "PLUGIN_MANAGER", "setup"]
