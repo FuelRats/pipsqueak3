@@ -13,7 +13,7 @@ if typing.TYPE_CHECKING:
 
 
 @attr.s
-class ApiABC(abc.ABC):
+class FuelratsApiABC(abc.ABC):
     rat_converter: ApiConverter[Rat]
     rescue_converter: ApiConverter[Rescue]
     url: str = attr.ib(default="https://localhost:80/api",

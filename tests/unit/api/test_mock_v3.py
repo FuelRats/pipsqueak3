@@ -31,6 +31,6 @@ async def test_update_rescue(mock_fuelrats_api_fx, rescue_sop_fx):
 async def test_create_rescue(mock_fuelrats_api_fx, rescue_plain_fx):
     result = await mock_fuelrats_api_fx.create_rescue(rescue_plain_fx)
 
-    rescue_plain_fx._api_id = rescue_plain_fx.api_id
+    rescue_plain_fx._api_id = result.api_id
 
     assert result == rescue_plain_fx
