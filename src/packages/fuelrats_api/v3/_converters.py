@@ -25,11 +25,11 @@ class RatConverter(ApiConverter[Rat]):
 class RescueConverter(ApiConverter[Rescue]):
     @classmethod
     def from_api(cls, data):
-        RENAMES = [
+        renames = [
             ("codeRed", "codeRed"),
             ("unidentifiedRats", "unidentified_rats")
         ]
-        REMOVES = [
+        removes = [
             "data", "createdAt", "updatedAt", "notes", "outcome"
         ]
         content = data['data']
@@ -38,12 +38,12 @@ class RescueConverter(ApiConverter[Rescue]):
         logger.debug("original attributes:= {}", attributes)
 
         # some fields have different names in the API
-        for source, destination in RENAMES:
+        for source, destination in renames:
             attributes[destination] = attributes[source]
             del attributes[source]
 
         # some fields we don't / cannot want to send to the API at all.
-        for key in REMOVES:
+        for key in removes:
             del attributes[key]
 
         logger.debug("translated attributes := {}", attributes)
