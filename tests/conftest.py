@@ -44,7 +44,7 @@ from tests.fixtures.mock_bot import MockBot
 from src.packages.board import RatBoard
 from src.packages.rescue import Rescue
 from src.packages.rat import Rat
-from src.packages.utils import Platforms
+from src.packages.utils import Platforms, Status
 from src.packages.context import Context
 from src.packages.epic import Epic
 from src.packages.user import User
@@ -90,7 +90,8 @@ def rescue_plain_fx() -> Rescue:
     Returns:
         Rescue : Plain initialized Rescue
     """
-    return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST", board_index=42)
+    return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST", board_index=42, status=Status.OPEN,
+                  platform=Platforms.PC)
 
 
 @pytest.fixture
