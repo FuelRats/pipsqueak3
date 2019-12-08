@@ -30,7 +30,7 @@ class RescueConverter(ApiConverter[Rescue]):
             ("unidentifiedRats", "unidentified_rats")
         ]
         REMOVES = [
-            "data", "createdAt", "updatedAt", "notes",
+            "data", "createdAt", "updatedAt", "notes", "outcome"
         ]
         content = data['data']
         uuid = UUID(content['id'])

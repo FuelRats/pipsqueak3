@@ -73,3 +73,6 @@ class MockupAPI(ApiABC):
             raise TypeError(key)
 
         return self.rat_converter.from_api(json)
+
+    async def create_rescue(self, rescue: Rescue) -> typing.Dict:
+        pass
