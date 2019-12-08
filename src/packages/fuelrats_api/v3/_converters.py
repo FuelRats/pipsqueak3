@@ -37,10 +37,12 @@ class RescueConverter(ApiConverter[Rescue]):
         attributes = content['attributes']
         logger.debug("original attributes:= {}", attributes)
 
+        # some fields have different names in the API
         for source, destination in RENAMES:
             attributes[destination] = attributes[source]
             del attributes[source]
 
+        # some fields we don't / cannot want to send to the API at all.
         for key in REMOVES:
             del attributes[key]
 
@@ -57,13 +59,13 @@ class RescueConverter(ApiConverter[Rescue]):
                     "attributes": {
                         "client": data.client,
                         "codeRed": data.code_red,
-                        "platform": data.platform.value.casefold(),
+                        "platform": data.platform.value.casefold(),  # lowercase in API
                         # "quotes": null,  # FIXME: serialize quotes
                         "status": data.status.value,
                         "system": data.system,
                         "title": data.title,
                         # "outcome": null,  # TODO: see if we need to include this
-                        # "unidentifiedRats": null,  # FIXME implement unident rat serialziation
+                        "unidentifiedRats": [],  # FIXME implement unident rat serialziation
 
                     }}}
         return output
