@@ -35,7 +35,7 @@ class MockupAPI(ApiABC):
             async with session.request(method=method, url=query, **kwargs) as response:
                 data = await response.json()
                 logger.debug("api response := {}", data)
-                if response.status != 200:
+                if response.status < 200 or response.status >= 300:
                     raise ApiError(response.status)
                 return data
 
@@ -74,5 +74,13 @@ class MockupAPI(ApiABC):
 
         return self.rat_converter.from_api(json)
 
-    async def create_rescue(self, rescue: Rescue) -> typing.Dict:
-        pass
+    async def create_rescue(self, rescue: Rescue) -> Rescue:
+        payload = self.rescue_converter.to_api(rescue)
+
+        # mock API doesn't allow client-generated IDs
+        del payload['data']['id']
+
+        query = f"{self.RESCUE_ENDPOINT}"
+        response = await self._query(method='POST', query=query, json=payload)
+
+        return self.rescue_converter.from_api(response)
