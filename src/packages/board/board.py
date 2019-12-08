@@ -21,6 +21,7 @@ from loguru import logger
 
 from src.config import CONFIG_MARKER
 from ..fuelrats_api import FuelratsApiABC
+from ..fuelrats_api.v3.mockup import ApiError
 from ..rescue import Rescue
 
 cycle_at = 15
@@ -181,62 +182,6 @@ class RatBoard(abc.Mapping):
         # return the next index from the magic
         return next_free
 
-    def __contains__(self, key: _KEY_TYPE) -> bool:
-        return (key in self._storage_by_client or
-                key in self._storage_by_uuid or
-                key in self._storage_by_index
-                )
-
-    def __delitem__(self, key: _KEY_TYPE):
-        # get the target
-        target = self[key]
-
-        # and purge it key by key
-        del self._storage_by_uuid[target.api_id]
-        del self._storage_by_index[target.board_index]
-        if target.client:
-            del self._storage_by_client[target.client]
-
-    @asynccontextmanager
-    async def create_rescue(self, *args, ovewrite=False, **kwargs) -> Rescue:
-        """
-        Context manager that creates a rescue on the board for use
-
-        automatically assigns
-
-        Args:
-            pass through to :class:Rescue 's constructor
-
-            *args (): args to pass to :class:`Rescue` 's constructor
-            overwite(bool): overwrite existing rescues
-            **kwargs (): keyword arguments to pass to Rescue's constructor
-
-        Yields:
-            created rescue object
-        """
-
-        rescue = Rescue(*args, board_index=self.free_case_number, **kwargs)
-        try:
-            if not self.online:
-                logger.warning("creating case in offline mode...")
-            else:
-                logger.trace("creating rescue on API...")
-                rescue = await self._handler.create_rescue(rescue)
-
-        finally:
-            yield rescue
-
-        try:
-            if not self.online:
-                logger.warning("updating case in offline mode...")
-            else:
-                logger.trace("Updating rescue on API...")
-                rescue = await self._handler.update_rescue(rescue)
-
-        finally:
-            # then append it to ourselves
-            await self.append(rescue, overwrite=ovewrite)
-
     async def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """
         Append a rescue to ourselves
@@ -257,6 +202,22 @@ class RatBoard(abc.Mapping):
     def online(self):
         """ is this module in online mode """
         return not self._offline and self._handler
+
+    def __contains__(self, key: _KEY_TYPE) -> bool:
+        return (key in self._storage_by_client or
+                key in self._storage_by_uuid or
+                key in self._storage_by_index
+                )
+
+    def __delitem__(self, key: _KEY_TYPE):
+        # get the target
+        target = self[key]
+
+        # and purge it key by key
+        del self._storage_by_uuid[target.api_id]
+        del self._storage_by_index[target.board_index]
+        if target.client:
+            del self._storage_by_client[target.client]
 
     @asynccontextmanager
     async def modify_rescue(self, key: _KEY_TYPE) -> Rescue:
@@ -281,11 +242,49 @@ class RatBoard(abc.Mapping):
             # Yield so the caller can modify the rescue
             yield target
 
-            # If we are in online mode, emit update event to API.
-            if self.online:
-                logger.trace("updating API...")
-                await self._handler.update_rescue(target)
         finally:
             # we need to be sure to re-append the rescue upon completion
             # (so errors don't drop cases)
             await self.append(target)
+
+        # If we are in online mode, emit update event to API.
+        if self.online:
+            logger.trace("updating API...")
+            await self._handler.update_rescue(target)
+
+    @asynccontextmanager
+    async def create_rescue(self, *args, ovewrite=False, **kwargs) -> Rescue:
+        """
+        Context manager that creates a rescue on the board for use
+
+        automatically assigns
+
+        Args:
+            pass through to :class:Rescue 's constructor
+
+            *args (): args to pass to :class:`Rescue` 's constructor
+            overwite(bool): overwrite existing rescues
+            **kwargs (): keyword arguments to pass to Rescue's constructor
+
+        Yields:
+            created rescue object
+        """
+
+        rescue = Rescue(*args, board_index=self.free_case_number, **kwargs)
+
+        # Always append it to ourselves, regardless of API errors
+        await self.append(rescue, overwrite=ovewrite)
+
+        try:
+            if not self.online:
+                logger.warning("creating case in offline mode...")
+            else:
+                logger.trace("creating rescue on API...")
+                rescue = await self._handler.create_rescue(rescue)
+
+            async with self.modify_rescue(rescue.board_index) as rescue:
+                # Yield the modifiable rescue object
+                yield rescue
+        except ApiError:
+            logger.exception("unable to create rescue on API!")
+            raise
