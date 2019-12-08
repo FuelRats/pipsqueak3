@@ -1,9 +1,8 @@
 from uuid import UUID
 
-from src.packages.fuelrats_api.v3.mockup import MockupAPI
-
 import pytest
 
+from src.packages.fuelrats_api.v3.mockup import MockupAPI
 from src.packages.rescue import Rescue
 
 pytestmark = [pytest.mark.fuelrats_api, pytest.mark.asyncio, pytest.mark.integration]
@@ -27,3 +26,11 @@ async def test_update_rescue(mock_fuelrats_api_fx, rescue_sop_fx):
     rescue_sop_fx._api_id = target
 
     await mock_fuelrats_api_fx.update_rescue(rescue_sop_fx)
+
+
+async def test_create_rescue(mock_fuelrats_api_fx, rescue_plain_fx):
+    result = await mock_fuelrats_api_fx.create_rescue(rescue_plain_fx)
+
+    rescue_plain_fx._api_id = rescue_plain_fx.api_id
+
+    assert result == rescue_plain_fx
