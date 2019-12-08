@@ -1,5 +1,5 @@
-import json
 import typing
+from json import dumps
 from uuid import UUID
 
 import aiohttp
@@ -9,7 +9,7 @@ from loguru import logger
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from ._converters import RatConverter, RescueConverter
-from .._base import ApiABC
+from .._base import FuelratsApiABC
 
 
 class ApiError(RuntimeError):
@@ -17,7 +17,7 @@ class ApiError(RuntimeError):
 
 
 @attr.s
-class MockupAPI(ApiABC):
+class MockupAPI(FuelratsApiABC):
     # name overrides
     rat_converter = RatConverter
     rescue_converter = RescueConverter
@@ -58,8 +58,8 @@ class MockupAPI(ApiABC):
         query = f"{self.RESCUE_ENDPOINT}/{rescue.api_id}"
         data = self.rescue_converter.to_api(rescue)
         logger.debug("update data := {}", data)
-        result = await self._query(method='PATCH', query=query, data=json.dumps(data),
-                                   skip_auto_headers={'CONTENT-TYPE'})
+        return await self._query(method='PATCH', query=query, data=dumps(data),
+                                 skip_auto_headers={'CONTENT-TYPE'})
 
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
         if isinstance(key, UUID):
