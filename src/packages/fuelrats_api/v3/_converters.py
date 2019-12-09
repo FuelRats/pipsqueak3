@@ -15,11 +15,11 @@ from .._converter import ApiConverter
 class RatConverter(ApiConverter[Rat]):
     @classmethod
     def from_api(cls, data):
-        entry = data['data'][0]
-        attributes = entry['attributes']
-        uuid = UUID(entry['id'])
-        name = attributes['name']
-        platform = Platforms[attributes['platform'].upper()]
+        entry = data["data"][0]
+        attributes = entry["attributes"]
+        uuid = UUID(entry["id"])
+        name = attributes["name"]
+        platform = Platforms[attributes["platform"].upper()]
 
         return Rat(uuid=uuid, platform=platform, name=name)
 
@@ -27,22 +27,17 @@ class RatConverter(ApiConverter[Rat]):
 class RescueConverter(ApiConverter[Rescue]):
     @classmethod
     def from_api(cls, data):
-        renames = [
-            ("codeRed", "codeRed"),
-            ("unidentifiedRats", "unidentified_rats")
-        ]
-        removes = [
-            "data", "createdAt", "updatedAt", "notes", "outcome"
-        ]
-        content = data['data']
-        uuid = UUID(content['id'])
-        attributes = content['attributes']
+        renames = [("codeRed", "codeRed"), ("unidentifiedRats", "unidentified_rats")]
+        removes = ["data", "createdAt", "updatedAt", "notes", "outcome"]
+        content = data["data"]
+        uuid = UUID(content["id"])
+        attributes = content["attributes"]
         logger.debug("original attributes:= {}", attributes)
 
         # parse mecha-specific data from the attributes.data field
-        internal_data = RescueData(**content['data'])
+        internal_data = RescueData(**content["data"])
 
-        attributes['board_index'] = internal_data.boardIndex
+        attributes["board_index"] = internal_data.boardIndex
         attributes["lang_id"] = internal_data.langID
         attributes["marked_for_deletion"] = internal_data.markedForDeletion
 
@@ -60,23 +55,23 @@ class RescueConverter(ApiConverter[Rescue]):
     @classmethod
     def to_api(cls, data: Rescue):
 
-        internal_data = RescueData(data.board_index, data.lang_id, {},
-                                   data.marked_for_deletion)
+        internal_data = RescueData(data.board_index, data.lang_id, {}, data.marked_for_deletion)
         output = {
-            "data":
-                {
-                    "type": "rescues",
-                    "id": f"{data.api_id}",  # cast to string as UUID can't be serialized
-                    "attributes": {
-                        "client": data.client,
-                        "codeRed": data.code_red,
-                        "platform": data.platform.value.casefold(),  # lowercase in API
-                        # "quotes": null,  # FIXME: serialize quotes
-                        "status": data.status.value,
-                        "system": data.system,
-                        "title": data.title,
-                        # "outcome": null,  # TODO: see if we need to include this
-                        "unidentifiedRats": [],  # FIXME implement unident rat serialziation
-                        "data": attr.asdict(internal_data, recurse=True)
-                    }}}
+            "data": {
+                "type": "rescues",
+                "id": f"{data.api_id}",  # cast to string as UUID can't be serialized
+                "attributes": {
+                    "client": data.client,
+                    "codeRed": data.code_red,
+                    "platform": data.platform.value.casefold(),  # lowercase in API
+                    # "quotes": null,  # FIXME: serialize quotes
+                    "status": data.status.value,
+                    "system": data.system,
+                    "title": data.title,
+                    # "outcome": null,  # TODO: see if we need to include this
+                    "unidentifiedRats": [],  # FIXME implement unident rat serialziation
+                    "data": attr.asdict(internal_data, recurse=True),
+                },
+            }
+        }
         return output

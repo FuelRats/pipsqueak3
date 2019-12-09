@@ -16,8 +16,9 @@ if typing.TYPE_CHECKING:
 class FuelratsApiABC(abc.ABC):
     rat_converter: ApiConverter[Rat]
     rescue_converter: ApiConverter[Rescue]
-    url: str = attr.ib(default="https://localhost:80/api",
-                       validator=attr.validators.instance_of(str))
+    url: str = attr.ib(
+        default="https://localhost:80/api", validator=attr.validators.instance_of(str)
+    )
 
     @abc.abstractmethod
     async def get_rescues(self) -> typing.List[Rescue]:

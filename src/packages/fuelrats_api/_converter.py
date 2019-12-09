@@ -12,7 +12,6 @@ _DTYPE = typing.TypeVar("_DTYPE")
 
 
 class ApiConverter(typing.Protocol[_DTYPE]):
-
     @classmethod
     def to_api(cls, data: _DTYPE) -> typing.Dict:
         ...
