@@ -201,7 +201,7 @@ class RatBoard(abc.Mapping):
     @property
     def online(self):
         """ is this module in online mode """
-        return not self._offline and self._handler
+        return not self._offline and self._handler is not None
 
     def __contains__(self, key: _KEY_TYPE) -> bool:
         return (key in self._storage_by_client or
@@ -269,11 +269,8 @@ class RatBoard(abc.Mapping):
         Yields:
             created rescue object
         """
-
-        rescue = Rescue(*args, board_index=self.free_case_number, **kwargs)
-
-        # Always append it to ourselves, regardless of API errors
-        await self.append(rescue, overwrite=ovewrite)
+        index = self.free_case_number
+        rescue = Rescue(*args, board_index=index, **kwargs)
 
         try:
             if not self.online:
@@ -282,9 +279,21 @@ class RatBoard(abc.Mapping):
                 logger.trace("creating rescue on API...")
                 rescue = await self._handler.create_rescue(rescue)
 
+
+        except ApiError:
+            logger.exception("unable to create rescue on API!")
+            raise
+
+        finally:
+            # For some reason the API swallows the board index?
+            rescue.board_index = index
+            # Always append it to ourselves, regardless of API errors
+            await self.append(rescue, overwrite=ovewrite)
+
+        try:
             async with self.modify_rescue(rescue.board_index) as rescue:
                 # Yield the modifiable rescue object
                 yield rescue
         except ApiError:
-            logger.exception("unable to create rescue on API!")
+            logger.exception("unable to update created rescue on API!")
             raise

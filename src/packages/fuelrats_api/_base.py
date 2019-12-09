@@ -28,7 +28,7 @@ class FuelratsApiABC(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def create_rescue(self, rescue: Rescue) -> typing.Dict:
+    async def create_rescue(self, rescue: Rescue) -> Rescue:
         ...
 
     @abc.abstractmethod
