@@ -571,11 +571,11 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
     with pytest.raises(TypeError):
         rescue_sop_fx.mark_delete(None, "sna")
 
-        with pytest.raises(TypeError):
-            rescue_sop_fx.mark_delete("sna", None)
+    with pytest.raises(TypeError):
+        rescue_sop_fx.mark_delete("sna", None)
 
-        with pytest.raises(ValueError):
-            rescue_sop_fx.mark_delete("unit_test", "")
+    with pytest.raises(TypeError):
+        rescue_sop_fx.mark_delete("unit_test", "")
 
 
 def test_mark_for_deletion_unset(rescue_sop_fx: Rescue):

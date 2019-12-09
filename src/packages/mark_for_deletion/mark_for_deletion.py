@@ -21,7 +21,7 @@ def not_empty(inst, attr, value):
         raise TypeError("value must not be empty.")
 
 
-reason_validator = attr.validators.and_(attr.validators.instance_of(str), not_empty)
+non_empty_string = attr.validators.and_(attr.validators.instance_of(str), not_empty)
 
 
 @attr.s(frozen=True, hash=True)
@@ -32,11 +32,10 @@ class MarkForDeletion:
     )
 
     reporter: Optional[str] = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(str)),
+        validator=attr.validators.optional(non_empty_string),
         default=None
     )
     reason: Optional[str] = attr.ib(
-        validator=attr.validators.optional(reason_validator),
+        validator=attr.validators.optional(non_empty_string),
         default=None
     )
-
