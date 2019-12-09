@@ -29,7 +29,21 @@ class MockupAPI(FuelratsApiABC):
 
     # internals
     @staticmethod
-    async def _query(method: str, query: str, **kwargs):
+    async def _query(method: str, query: str, **kwargs) -> typing.Dict:
+        """
+        Invoke API request
+
+        Args:
+            method: HTTP method
+            query:  HTTP endpoint + parameters
+            **kwargs:  kwargs passed to underlying Aiohttp query
+
+        Returns:
+            API response
+
+        Raises:
+            ApiError: non-2xx response code received
+        """
         logger.debug("[{method}] {query}", method=method, query=query)
         async with aiohttp.ClientSession() as session:
             async with session.request(method=method, url=query, **kwargs) as response:
@@ -54,7 +68,7 @@ class MockupAPI(FuelratsApiABC):
         json = await self._query(method="GET", query=query)
         return self.rescue_converter.from_api(json)
 
-    async def update_rescue(self, rescue: Rescue) -> None:
+    async def update_rescue(self, rescue: Rescue) -> typing.Dict:
         query = f"{self.RESCUE_ENDPOINT}/{rescue.api_id}"
         data = self.rescue_converter.to_api(rescue)
         logger.debug("update data := {}", data)
