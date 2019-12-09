@@ -10,10 +10,11 @@ async def test_create_rescue(board_online_fx, rescue_plain_fx):
     # return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST", board_index=42, status=Status.OPEN,
     #               platform=Platforms.PC)
 
-    async with board_online_fx.create_rescue(
-            "UNIT_TEST", "ki", "UNIT_TEST", status=Status.OPEN, platform=Platforms.PC
-    ) as rescue:
-        ...
+    rescue = await  board_online_fx.create_rescue(
+        "UNIT_TEST", "ki", "UNIT_TEST", status=Status.OPEN, platform=Platforms.PC
+    )
+    ...
+
     rescue_plain_fx._api_id = rescue.api_id
     rescue_plain_fx.board_index = rescue.board_index
 
