@@ -39,6 +39,13 @@ class RescueConverter(ApiConverter[Rescue]):
         attributes = content['attributes']
         logger.debug("original attributes:= {}", attributes)
 
+        # parse mecha-specific data from the attributes.data field
+        internal_data = RescueData(**content['data'])
+
+        attributes['board_index'] = internal_data.boardIndex
+        attributes["lang_id"] = internal_data.langID
+        attributes["marked_for_deletion"] = internal_data.markedForDeletion
+
         # some fields have different names in the API
         for source, destination in renames:
             attributes[destination] = attributes[source]
