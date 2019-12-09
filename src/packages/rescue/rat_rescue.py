@@ -787,6 +787,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
 
         self.marked_for_deletion = MarkForDeletion(reporter=reporter, reason=reason, marked=True)
+        if (not reporter and not reason) or (reporter and not reason) or (reason and not reporter):
+            raise TypeError("both reporter and reason MUST be specified.")
+
         logger.debug(f"marking rescue @{self.api_id} for deletion. reporter is {reporter} and "
                      f"their reason is '{reason}'.")
         if reason == "":
