@@ -1,6 +1,4 @@
 from ._base import FuelratsApiABC
+from ._converter import ApiConverter
 
-API_ROOT = "{target}/api"
-RAT_ROOT = f"{API_ROOT}/rats"
-
-__all__ = ["FuelratsApiABC"]
+__all__ = ["FuelratsApiABC", "ApiConverter"]
