@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
+import attr
 from loguru import logger
 
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
+from src.packages.rescue.data import Data as RescueData
 from src.packages.utils import Platforms
 from .._converter import ApiConverter
 
@@ -41,7 +43,6 @@ class RescueConverter(ApiConverter[Rescue]):
         for source, destination in renames:
             attributes[destination] = attributes[source]
             del attributes[source]
-
         # some fields we don't / cannot want to send to the API at all.
         for key in removes:
             del attributes[key]
@@ -51,6 +52,9 @@ class RescueConverter(ApiConverter[Rescue]):
 
     @classmethod
     def to_api(cls, data: Rescue):
+
+        internal_data = RescueData(data.board_index, data.lang_id, {},
+                                   data.marked_for_deletion)
         output = {
             "data":
                 {
@@ -66,6 +70,6 @@ class RescueConverter(ApiConverter[Rescue]):
                         "title": data.title,
                         # "outcome": null,  # TODO: see if we need to include this
                         "unidentifiedRats": [],  # FIXME implement unident rat serialziation
-
+                        "data": attr.asdict(internal_data, recurse=True)
                     }}}
         return output
