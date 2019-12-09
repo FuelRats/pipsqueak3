@@ -16,7 +16,7 @@ jobs:
       - image: circleci/python:3.8-buster
         environment:
           # set an env token to where our circleci database is
-          # by default the user is `root` and the db name is `circle_test`
+          # by default the user is `postgres` and the db name is `circle_test`
           TEST_DATABASE_URL: postgresql://postgres:mecha@localhost/circle_test
 
       # Postgres container
@@ -100,8 +100,8 @@ jobs:
       - image: circleci/python:3.8-buster
         environment:
           # set an env token to where our circleci database is
-          # by default the user is `root` and the db name is `circle_test`
-          TEST_DATABASE_URL: postgresql://root:mecha@localhost/circle_test
+          # by default the user is `postgres` and the db name is `circle_test`
+          TEST_DATABASE_URL: postgresql://postgres:mecha@localhost/circle_test
 
       # Postgres container
       - image: circleci/postgres:11.6-alpine
