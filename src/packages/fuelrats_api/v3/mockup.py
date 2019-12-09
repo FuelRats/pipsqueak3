@@ -30,7 +30,7 @@ class MockupAPI(FuelratsApiABC):
     # internals
     @staticmethod
     async def _query(method: str, query: str, **kwargs):
-        logger.debug('[{method}] {query}', method=method, query=query)
+        logger.debug("[{method}] {query}", method=method, query=query)
         async with aiohttp.ClientSession() as session:
             async with session.request(method=method, url=query, **kwargs) as response:
                 data = await response.json()
@@ -51,23 +51,24 @@ class MockupAPI(FuelratsApiABC):
 
     async def get_rescue(self, uuid: UUID) -> Rescue:
         query = f"{self.RESCUE_ENDPOINT}/{uuid}"
-        json = await self._query(method='GET', query=query)
+        json = await self._query(method="GET", query=query)
         return self.rescue_converter.from_api(json)
 
     async def update_rescue(self, rescue: Rescue) -> None:
         query = f"{self.RESCUE_ENDPOINT}/{rescue.api_id}"
         data = self.rescue_converter.to_api(rescue)
         logger.debug("update data := {}", data)
-        return await self._query(method='PATCH', query=query, data=dumps(data),
-                                 skip_auto_headers={'CONTENT-TYPE'})
+        return await self._query(
+            method="PATCH", query=query, data=dumps(data), skip_auto_headers={"CONTENT-TYPE"},
+        )
 
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
         if isinstance(key, UUID):
             query = f"{self.RAT_ENDPOINT}/{key}"
-            json = await self._query(method='GET', query=query)
+            json = await self._query(method="GET", query=query)
         elif isinstance(key, str):
             query = f"{self.RAT_ENDPOINT}?filter=[name:eq]={key}"
-            json = await self._query(method='GET', query=query)
+            json = await self._query(method="GET", query=query)
 
         else:
             raise TypeError(key)
@@ -78,9 +79,9 @@ class MockupAPI(FuelratsApiABC):
         payload = self.rescue_converter.to_api(rescue)
 
         # mock API doesn't allow client-generated IDs
-        del payload['data']['id']
+        del payload["data"]["id"]
 
         query = f"{self.RESCUE_ENDPOINT}"
-        response = await self._query(method='POST', query=query, json=payload)
+        response = await self._query(method="POST", query=query, json=payload)
 
         return self.rescue_converter.from_api(response)
