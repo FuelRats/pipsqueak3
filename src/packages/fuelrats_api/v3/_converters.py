@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import typing
 from uuid import UUID
 
 import attr
@@ -9,7 +10,31 @@ from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from src.packages.rescue.data import Data as RescueData
 from src.packages.utils import Platforms
-from .._converter import ApiConverter
+from .._converter import ApiConverter, _DTYPE
+from ...mark_for_deletion import MarkForDeletion
+
+
+class MarkForDeleteConverter(ApiConverter[MarkForDeletion]):
+    @classmethod
+    def from_api(cls, data):
+        return MarkForDeletion(**data)
+
+
+@attr.s
+class InternalDataConverter(ApiConverter[RescueData]):
+    mfd_converter: typing.ClassVar[ApiConverter[MarkForDeletion]] = MarkForDeleteConverter
+
+    @classmethod
+    def from_api(cls, data):
+        return RescueData(
+            boardIndex=data['boardIndex'],
+            langID=data['langID'],
+            markedForDeletion=cls.mfd_converter.from_api(data['markedForDeletion'])
+        )
+
+    @classmethod
+    def to_api(cls, data: _DTYPE) -> typing.Dict:
+        return attr.asdict(data, recurse=True)
 
 
 class RatConverter(ApiConverter[Rat]):
@@ -24,7 +49,10 @@ class RatConverter(ApiConverter[Rat]):
         return Rat(uuid=uuid, platform=platform, name=name)
 
 
+@attr.s
 class RescueConverter(ApiConverter[Rescue]):
+    internal_data_converter: typing.ClassVar[ApiConverter[RescueData]] = InternalDataConverter
+
     @classmethod
     def from_api(cls, data):
         renames = [("codeRed", "codeRed"), ("unidentifiedRats", "unidentified_rats")]
@@ -34,12 +62,11 @@ class RescueConverter(ApiConverter[Rescue]):
         attributes = content["attributes"]
         logger.debug("original attributes:= {}", attributes)
 
-        # parse mecha-specific data from the attributes.data field
-        internal_data = RescueData(**content["data"])
+        internal_data = cls.internal_data_converter.from_api(attributes['data'])
 
         attributes["board_index"] = internal_data.boardIndex
         attributes["lang_id"] = internal_data.langID
-        attributes["marked_for_deletion"] = internal_data.markedForDeletion
+        attributes["mark_for_deletion"] = internal_data.markedForDeletion
 
         # some fields have different names in the API
         for source, destination in renames:
