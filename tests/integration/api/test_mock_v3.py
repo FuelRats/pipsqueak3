@@ -2,16 +2,9 @@ from uuid import UUID
 
 import pytest
 
-from src.packages.fuelrats_api.v3.mockup import MockupAPI
 from src.packages.rescue import Rescue
 
 pytestmark = [pytest.mark.fuelrats_api, pytest.mark.asyncio, pytest.mark.integration]
-
-
-@pytest.fixture
-def mock_fuelrats_api_fx():
-    # TODO pull from configuration system
-    return MockupAPI(url=r'http://api.thehellisthis.com:6543/api')
 
 
 async def test_get_rescue(mock_fuelrats_api_fx, ):

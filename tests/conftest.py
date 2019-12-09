@@ -25,9 +25,7 @@ import pytest
 from src.config import CONFIG_MARKER, PLUGIN_MANAGER, setup_logging, setup
 from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
-
 # Set argv to keep cli arguments meant for pytest from polluting our things
-
 sys.argv = ["test",
             "--config-file", "testing.toml",
             "--clean-log",
@@ -52,6 +50,7 @@ from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from tests.fixtures.mock_callables import CallableMock, AsyncCallableMock
 from src.packages.database import DatabaseManager
 from src.packages.fact_manager.fact import Fact
+from src.packages.fuelrats_api.v3.mockup import MockupAPI
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -224,7 +223,7 @@ def epic_fx(rescue_plain_fx, rat_good_fx) -> Epic:
 @pytest.fixture
 def mark_for_deletion_plain_fx() -> MarkForDeletion:
     """Provides a plain MFD object"""
-    return MarkForDeletion(False)
+    return MarkForDeletion()
 
 
 @pytest.fixture(params=[(True, 'White Sheets', 'Disallowable cut of jib'),
@@ -362,3 +361,17 @@ def configuration_fx() -> Dict:
     provides the session configuration dictionary, as loaded at test session start.
     """
     return ConfigReceiver.data
+
+
+@pytest.fixture
+def mock_fuelrats_api_fx():
+    # TODO pull from configuration system
+    return MockupAPI(url=r'http://api.thehellisthis.com:6543/api')
+
+
+@pytest.fixture
+def board_online_fx(rat_board_fx, mock_fuelrats_api_fx):
+    rat_board_fx._handler = mock_fuelrats_api_fx
+    rat_board_fx._offline = False
+
+    return rat_board_fx
