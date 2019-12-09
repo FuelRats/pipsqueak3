@@ -252,12 +252,11 @@ class RatBoard(abc.Mapping):
             logger.trace("updating API...")
             await self._handler.update_rescue(target)
 
-    @asynccontextmanager
     async def create_rescue(self, *args, ovewrite=False, **kwargs) -> Rescue:
         """
-        Context manager that creates a rescue on the board for use
-
-        automatically assigns
+        Creates a rescue, in online mode this will perform creation actions against the API.
+        In the event of API error, the rescue will still be created locally, though an exception
+        raised.
 
         Args:
             pass through to :class:Rescue 's constructor
@@ -266,8 +265,11 @@ class RatBoard(abc.Mapping):
             overwite(bool): overwrite existing rescues
             **kwargs (): keyword arguments to pass to Rescue's constructor
 
-        Yields:
+        Returns:
             created rescue object
+
+        Raises:
+            ApiError: Something went wrong in API creation, rescue has been created locally.
         """
         index = self.free_case_number
         rescue = Rescue(*args, board_index=index, **kwargs)
@@ -281,18 +283,13 @@ class RatBoard(abc.Mapping):
 
         except ApiError:
             logger.exception("unable to create rescue on API!")
+            # Emit upstream so the caller knows something went wrong
             raise
 
         finally:
-            # For some reason the API swallows the board index?
+            # FIXME For some reason the API swallows the board index?
             rescue.board_index = index
             # Always append it to ourselves, regardless of API errors
             await self.append(rescue, overwrite=ovewrite)
 
-        try:
-            async with self.modify_rescue(rescue.board_index) as rescue:
-                # Yield the modifiable rescue object
-                yield rescue
-        except ApiError:
-            logger.exception("unable to update created rescue on API!")
-            raise
+            return rescue
