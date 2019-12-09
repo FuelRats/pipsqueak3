@@ -279,7 +279,6 @@ class RatBoard(abc.Mapping):
                 logger.trace("creating rescue on API...")
                 rescue = await self._handler.create_rescue(rescue)
 
-
         except ApiError:
             logger.exception("unable to create rescue on API!")
             raise
