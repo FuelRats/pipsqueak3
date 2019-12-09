@@ -16,7 +16,7 @@ log_file = "logs/unit_tests.log"
 host = "localhost"
 port = 5432
 dbname = "circle_test"
-username = "root"
+username = "postgres"
 password = "mecha"
 
 [commands]
