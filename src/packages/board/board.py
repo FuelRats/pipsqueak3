@@ -90,8 +90,11 @@ class RatBoard(abc.Mapping):
                  "__weakref__"
                  ]
 
-    def __init__(self, api_handler=None, offline=True):
-        self._handler: FuelratsApiABC = api_handler
+    def __init__(
+            self,
+            api_handler: typing.Optional[FuelratsApiABC] = None,
+            offline: bool = True):
+        self._handler: typing.Optional[FuelratsApiABC] = api_handler
         """
         fuelrats.com API handler
         """
@@ -116,13 +119,13 @@ class RatBoard(abc.Mapping):
         super(RatBoard, self).__init__()
 
     async def on_online(self):
-        logger.info("Board moving to online mode...")
+        logger.info("Rescue board online.")
         self._offline = False
         # TODO get API version from remote and log it
         # TODO emit canned offline events to API
 
     async def on_offline(self):
-        logger.warning("Board moving to offline mode...")
+        logger.warning("Rescue board now offline.")
         self._offline = True
 
     def __getitem__(self, key: _KEY_TYPE) -> Rescue:
