@@ -786,7 +786,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             TypeError: invalid params
         """
 
-        self.marked_for_deletion = MarkForDeletion(reporter=reporter, reason=reason, marked=True)
+        mfd = MarkForDeletion(reporter=reporter, reason=reason, marked=True)
         if (reporter or reason) and (not reporter or not reason):
             raise TypeError("both reporter and reason MUST be specified.")
 
@@ -794,6 +794,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
                      f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")
+
+        self.marked_for_deletion = mfd
 
     def unmark_delete(self) -> None:
         """
