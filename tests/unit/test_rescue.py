@@ -568,6 +568,8 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
     """
     Verify what happens when garbage gets thrown at `rescue.mark`
     """
+    original = rescue_sop_fx.marked_for_deletion
+
     with pytest.raises(TypeError):
         rescue_sop_fx.mark_delete(None, "sna")
 
@@ -576,6 +578,8 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
 
     with pytest.raises(TypeError):
         rescue_sop_fx.mark_delete("unit_test", "")
+
+    assert rescue_sop_fx.marked_for_deletion is original
 
 
 def test_mark_for_deletion_unset(rescue_sop_fx: Rescue):
