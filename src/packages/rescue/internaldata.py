@@ -6,8 +6,12 @@ from ..mark_for_deletion import MarkForDeletion
 
 
 @attr.s
-class Data:
-    """ API ['attributes']['data'] field """
+class InternalData:
+    """
+    Mecha-internal Rescue data, stored in the
+    API ['attributes']['data'] field
+    of the API Rescue object.
+    """
 
     boardIndex: int = attr.ib(validator=attr.validators.instance_of(int))
     langID: str = attr.ib(validator=attr.validators.instance_of(str), default="en")

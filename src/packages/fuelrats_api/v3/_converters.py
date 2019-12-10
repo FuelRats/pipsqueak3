@@ -8,7 +8,7 @@ from loguru import logger
 
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
-from src.packages.rescue.data import Data as RescueData
+from src.packages.rescue.internaldata import InternalData as RescueData
 from src.packages.utils import Platforms
 from .._converter import ApiConverter, _DTYPE
 from ...mark_for_deletion import MarkForDeletion
