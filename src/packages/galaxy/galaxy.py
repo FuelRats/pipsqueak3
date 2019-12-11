@@ -172,12 +172,9 @@ class Galaxy:
             none could be found.
         """
 
-        matches = await self._call("search",
-                                   {"name": name.upper(),
-                                    "type": "dmeta",
-                                    "limit": "5"})
+        matches = await self._call("mecha", {"name": name.upper()})
         # Check to ensure the data set is not missing or empty.
-        if matches['data']:
+        if 'data' in matches and matches['data']:
             return [match['name'] for match in matches['data']]
 
     async def plot_waypoint_route(self,

@@ -69,12 +69,12 @@ def mock_system_api_server_fx():
 
         # Fuzzy Searches
         # - Fualun
-        httpserver.expect_request("/search", query_string=b"name=FUALUN&type=dmeta&limit=5").respond_with_data(
-            """{"data":[{"name":"FOLNA"},{"name":"FEI LIN"},{"name":"FEI LIAN"}]}"""
+        httpserver.expect_request("/mecha", query_string=b"name=FUALUN").respond_with_data(
+            """{"meta":{"name":"FUALUN"},"data":[{"name":"Walun","similarity":0.3}]}"""
         )
         # - Fallthrough for failed searches
-        httpserver.expect_request("/search").respond_with_data(
-            """{"data":[]}"""
+        httpserver.expect_request("/mecha").respond_with_data(
+            """{"meta":{"name":"","error":"No hits."}}"""
         )
 
         # Nearest Star Systems

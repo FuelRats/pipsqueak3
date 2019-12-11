@@ -79,9 +79,7 @@ async def test_search_systems_by_name(galaxy_fx):
     Test that we can get a list of similar systems by name.
     """
     nearest = await galaxy_fx.search_systems_by_name("Fualun")
-    assert 'FOLNA' in nearest
-    assert 'FEI LIN' in nearest
-    assert 'FEI LIAN' in nearest
+    assert 'Walun' in nearest
 
 
 @pytest.mark.asyncio
@@ -89,7 +87,7 @@ async def test_search_systems_by_invalid_name(galaxy_fx):
     """
     Test that receiving no similar results for a system returns None.
     """
-    invalid = await galaxy_fx.search_systems_by_name("!")
+    invalid = await galaxy_fx.search_systems_by_name("!!!")
     assert invalid is None
 
 
