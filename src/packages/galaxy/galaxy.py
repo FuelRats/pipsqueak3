@@ -40,38 +40,6 @@ class Galaxy:
         """
         cls._config = data
 
-    LANDMARK_SYSTEMS = {
-        'beagle point': StarSystem(
-            name='BEAGLE POINT',
-            position=Vector(-1111.5625, -134.21875, 65269.75),
-            spectral_class='K'
-        ),
-        'colonia': StarSystem(
-            name='COLONIA',
-            position=Vector(-9530.5, -910.28125, 19808.125),
-            spectral_class='F'
-        ),
-        'fuelum': StarSystem(
-            name='FUELUM',
-            position=Vector(52, -52.65625, 49.8125),
-            spectral_class='K'
-        ),
-        'rodentia': StarSystem(
-            name='RODENTIA',
-            position=Vector(-9530.53125, -907.25, 19787.375),
-            spectral_class='M'
-        ),
-        'sagittarius a*': StarSystem(
-            name='SAGITTARIUS A*',
-            position=Vector(25.21875, -20.90625, 25899.96875),
-            spectral_class=None
-        ),
-        'sol': StarSystem(
-            name='SOL',
-            position=Vector.zero(),
-            spectral_class='G'
-        )
-    }
     MAX_PLOT_DISTANCE = 20000
 
     MAX_RETRIES = 3
@@ -139,7 +107,9 @@ class Galaxy:
                 result['spectral_class'] = star['attributes']['subType'][0]
                 return result
 
-    async def find_nearest_landmark(self, system: StarSystem) -> typing.Tuple[StarSystem, float]:
+    async def find_nearest_landmark(self,
+                                    system: StarSystem
+                                    ) -> typing.Optional[typing.Tuple[StarSystem, float]]:
         """
         Find the nearest "landmark" system to the one provided. A list of landmark systems
         can be found in Galaxy.LANDMARK_SYSTEMS.
@@ -150,24 +120,13 @@ class Galaxy:
         Returns:
             A tuple containing the landmark StarSystem closest to the one provided, and a float
             value indicating the distance between the two.
+            May return None in the case of an API failure.
         """
 
-        if system.name.casefold() in self.LANDMARK_SYSTEMS:
-            return (system, 0)
-
-        closest_system = None
-        closest_distance = -1
-        for landmark in self.LANDMARK_SYSTEMS.values():
-            distance = system.distance(landmark)
-            if closest_distance == -1 or distance < closest_distance:
-                closest_distance = round(distance, 2)
-                closest_system = landmark
-
-        if closest_system is None:
-            # Something's gone terribly wrong, likely the LANDMARK_SYSTEMS dict is empty.
-            raise RuntimeError(f"Could not find a closest landmark match for '{system.name}'!")
-
-        return (closest_system, closest_distance)
+        data = await self._call("landmark", {"name": system.name})
+        if 'landmarks' in data and data['landmarks']:
+            landmark = await self.find_system_by_name(data['landmarks'][0]['name'])
+            return (landmark, round(data['landmarks'][0]['distance'], 2))
 
     async def search_systems_by_name(self, name: str) -> typing.Optional[typing.List[str]]:
         """

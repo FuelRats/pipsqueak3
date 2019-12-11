@@ -125,6 +125,16 @@ def mock_system_api_server_fx():
             """{"data":[]}"""
         )
 
+        # Landmark searches
+        # - Angrbonii
+        httpserver.expect_request("/landmark", query_string=b"name=Angrbonii").respond_with_data(
+            """{"meta": {"name": "Angrbonii"}, "landmarks": [{"name": "Fuelum", "distance": 14.5622606203501}]}"""
+        )
+        # - Fuelum
+        httpserver.expect_request("/landmark", query_string=b"name=Fuelum").respond_with_data(
+            """{"meta": {"name": "Fuelum"}, "landmarks": [{"name": "Fuelum", "distance": 0.00450693909432589}]}"""
+        )
+
         # Tests that Galaxy will retry failed requests
         httpserver.expect_oneshot_request("/badendpoint").respond_with_data(status = 400)
         httpserver.expect_oneshot_request("/badendpoint").respond_with_data(status = 500)

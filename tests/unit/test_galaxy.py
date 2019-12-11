@@ -46,7 +46,7 @@ async def test_find_nearest_landmark(galaxy_fx):
     """
     system = await galaxy_fx.find_system_by_name('Angrbonii')
     nearest = await galaxy_fx.find_nearest_landmark(system)
-    assert nearest[0].name == 'FUELUM'
+    assert nearest[0].name == 'Fuelum'
     assert nearest[1] == 14.56
 
 
@@ -59,18 +59,6 @@ async def test_find_nearest_landmark_self(galaxy_fx):
     nearest = await galaxy_fx.find_nearest_landmark(system)
     assert nearest[0].name == 'Fuelum'
     assert nearest[1] == 0
-
-
-@pytest.mark.asyncio
-async def test_find_nearest_landmark_invalid(galaxy_fx, monkeypatch):
-    """
-    Test that find_nearest_landmark will raise in the unlikely event it can't find
-    a landmark.
-    """
-    system = await galaxy_fx.find_system_by_name('Angrbonii')
-    monkeypatch.setattr(galaxy_fx, 'LANDMARK_SYSTEMS', {})
-    with pytest.raises(RuntimeError):
-        await galaxy_fx.find_nearest_landmark(system)
 
 
 @pytest.mark.asyncio
