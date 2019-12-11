@@ -94,14 +94,24 @@ class Galaxy:
             A ``StarSystem`` object representing the found system, or ``None`` if none was found.
         """
 
-        if name.casefold() in self.LANDMARK_SYSTEMS:
-            return self.LANDMARK_SYSTEMS[name.casefold()]
+        data = await self._call("search", {"name": name, "limit": 1})
+        if 'data' in data and data['data'] and data['data'][0]['name'].casefold() == name.casefold():
+            return await self.find_system_by_id(data['data'][0]['id'])
 
-        data = await self._call("api/systems", {"filter[name:eq]": name.upper()})
-        result_count = data['meta']['results']['available']
-        if result_count > 0:
-            system_id = data['data'][0]['id']
-            sys = data['data'][0]['attributes']
+    async def find_system_by_id(self, system_id: int) -> typing.Optional[StarSystem]:
+        """
+        Finds a single system by its ID and returns its StarSystem object.
+
+        Args:
+            system_id (int): The ID of the system to search for.
+
+        Returns:
+            A ``StarSystem`` object representing the found system, or ``None`` if none was found.
+        """
+
+        data = await self._call(f"api/systems/{system_id}")
+        if 'data' in data and data['data']:
+            sys = data['data']['attributes']
             main_star = await self._find_main_star(system_id)
             sys['spectral_class'] = main_star['spectral_class'] if main_star is not None else None
             return StarSystem(position=Vector(**sys['coords']),

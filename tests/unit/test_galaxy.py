@@ -26,7 +26,7 @@ async def test_find_system_by_name(galaxy_fx):
     assert system.position.x == 61.65625
     assert system.position.y == -42.4375
     assert system.position.z == 53.59375
-    assert system.name == "ANGRBONII"
+    assert system.name == "Angrbonii"
     assert system.spectral_class == "L"
 
 
@@ -57,7 +57,7 @@ async def test_find_nearest_landmark_self(galaxy_fx):
     """
     system = await galaxy_fx.find_system_by_name('Fuelum')
     nearest = await galaxy_fx.find_nearest_landmark(system)
-    assert nearest[0].name == 'FUELUM'
+    assert nearest[0].name == 'Fuelum'
     assert nearest[1] == 0
 
 
@@ -97,11 +97,11 @@ async def test_plot_waypoint_route(galaxy_fx):
     Test that we can successfully plot a route in 20kly increments.
     """
     route = await galaxy_fx.plot_waypoint_route("Fuelum", "Beagle Point")
-    assert route[0] == 'FUELUM'
-    assert route[1] == 'EORLD PRI QI-Z D1-4302'
-    assert route[2] == 'PRAE FLYI RO-I B29-113'
-    assert route[3] == 'CHUA EOHN CT-F D12-2'
-    assert route[4] == 'BEAGLE POINT'
+    assert route[0] == 'Fuelum'
+    assert route[1] == 'Eorld Pri QI-Z d1-4302'
+    assert route[2] == 'Prae Flyi RO-I b29-113'
+    assert route[3] == 'Chua Eohn CT-F d12-2'
+    assert route[4] == 'Beagle Point'
 
 
 @pytest.mark.asyncio
@@ -110,8 +110,8 @@ async def test_plot_waypoint_route_nearby(galaxy_fx):
     Test that plotting between two systems already within 20kly of each other other works.
     """
     route = await galaxy_fx.plot_waypoint_route("Fuelum", "Angrbonii")
-    assert route[0] == 'FUELUM'
-    assert route[1] == 'ANGRBONII'
+    assert route[0] == 'Fuelum'
+    assert route[1] == 'Angrbonii'
 
 
 @pytest.mark.asyncio
