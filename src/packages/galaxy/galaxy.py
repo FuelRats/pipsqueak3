@@ -51,12 +51,17 @@ class Galaxy:
     def __init__(self, url: str = None):
         self.url = url or self._config['system_api']['url']
 
-    async def find_system_by_name(self, name: str) -> typing.Optional[StarSystem]:
+    async def find_system_by_name(self,
+                                  name: str,
+                                  full_details: bool = False) -> typing.Optional[StarSystem]:
         """
         Finds a single system by its name and return its StarSystem object
 
         Args:
             name (str): The name of the system to search for.
+            full_details (bool): Specify whether to simply find the correct system name
+                or to retrieve all relevant details about a system (coordinates, spectral class,
+                etc.)
 
         Returns:
             A ``StarSystem`` object representing the found system, or ``None`` if none was found.
@@ -64,7 +69,10 @@ class Galaxy:
 
         data = await self._call("search", {"name": name, "limit": 1})
         if 'data' in data and data['data'] and data['data'][0]['name'].casefold() == name.casefold():
-            return await self.find_system_by_id(data['data'][0]['id'])
+            if full_details:
+                return await self.find_system_by_id(data['data'][0]['id'])
+            else:
+                return StarSystem(name=data['data'][0]['name'])
 
     async def find_system_by_id(self, system_id: int) -> typing.Optional[StarSystem]:
         """

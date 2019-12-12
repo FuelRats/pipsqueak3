@@ -23,6 +23,15 @@ async def test_find_system_by_name(galaxy_fx):
     Test that we can find a system by name and get the proper information.
     """
     system = await galaxy_fx.find_system_by_name("Angrbonii")
+    assert system.name == "Angrbonii"
+
+
+@pytest.mark.asyncio
+async def test_find_system_by_name_full(galaxy_fx):
+    """
+    Test that we can find a system by name and get the proper information.
+    """
+    system = await galaxy_fx.find_system_by_name("Angrbonii", True)
     assert system.position.x == 61.65625
     assert system.position.y == -42.4375
     assert system.position.z == 53.59375

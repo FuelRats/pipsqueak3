@@ -21,7 +21,7 @@ class StarSystem:
     """
 
     name: str
-    position: Vector
+    position: Vector = Vector.zero
     spectral_class: str = None
 
     def distance(self, other: 'StarSystem') -> float:
