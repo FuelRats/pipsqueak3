@@ -119,3 +119,16 @@ async def test_http_retry_permanent(galaxy_fx, monkeypatch, async_callable_fx):
     monkeypatch.setattr(galaxy_fx, '_retry_delay', async_callable_fx)
     with pytest.raises(aiohttp.ClientError):
         await galaxy_fx._call("reallybadendpoint")
+
+
+@pytest.mark.asyncio
+async def test_star_system_distance(galaxy_fx):
+    """
+    Test the calculation of distance between two StarSystem objects.
+    """
+    first = await galaxy_fx.find_system_by_name("Fuelum", True)
+    second = await galaxy_fx.find_system_by_name("Angrbonii", True)
+    distance_one = first.distance(second)
+    distance_two = second.distance(first)
+    assert distance_one == distance_two
+    assert distance_one == 14.56
