@@ -89,37 +89,6 @@ async def test_search_systems_by_invalid_name(galaxy_fx):
 
 
 @pytest.mark.asyncio
-async def test_plot_waypoint_route(galaxy_fx):
-    """
-    Test that we can successfully plot a route in 20kly increments.
-    """
-    route = await galaxy_fx.plot_waypoint_route("Fuelum", "Beagle Point")
-    assert route[0] == 'Fuelum'
-    assert route[1] == 'Eorld Pri QI-Z d1-4302'
-    assert route[2] == 'Prae Flyi RO-I b29-113'
-    assert route[3] == 'Chua Eohn CT-F d12-2'
-    assert route[4] == 'Beagle Point'
-
-
-@pytest.mark.asyncio
-async def test_plot_waypoint_route_nearby(galaxy_fx):
-    """
-    Test that plotting between two systems already within 20kly of each other other works.
-    """
-    route = await galaxy_fx.plot_waypoint_route("Fuelum", "Angrbonii")
-    assert route[0] == 'Fuelum'
-    assert route[1] == 'Angrbonii'
-
-
-@pytest.mark.asyncio
-async def test_plot_waypoint_route_invalid(galaxy_fx):
-    """
-    Test that plotting an invalid route raises an exception.
-    """
-    with pytest.raises(ValueError):
-        await galaxy_fx.plot_waypoint_route("Fuelum", "Fualun")
-
-@pytest.mark.asyncio
 @pytest.mark.parametrize("retry, seconds", ((1, 1), (2, 4), (3, 9)))
 async def test_retry_delay(galaxy_fx, monkeypatch, async_callable_fx, retry: int, seconds: int):
     """
