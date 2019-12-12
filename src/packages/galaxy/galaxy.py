@@ -119,8 +119,7 @@ class Galaxy:
                                     system: StarSystem
                                     ) -> typing.Optional[typing.Tuple[StarSystem, float]]:
         """
-        Find the nearest "landmark" system to the one provided. A list of landmark systems
-        can be found in Galaxy.LANDMARK_SYSTEMS.
+        Find the nearest "landmark" system to the one provided.
 
         Args:
             system (StarSystem): The system to center the search around.
@@ -138,14 +137,13 @@ class Galaxy:
 
     async def search_systems_by_name(self, name: str) -> typing.Optional[typing.List[str]]:
         """
-        Perform a fuzzy (Soundex) search for star systems on the name
-        given to us.
+        Perform a fuzzy search for star systems on the name given to us.
 
         Args:
             name (str): The system name to search for.
 
         Returns:
-            A list of up to 10 system names that closest match ``name``, or ``None`` if
+            A list of up to 5 system names that closest match ``name``, or ``None`` if
             none could be found.
         """
 
