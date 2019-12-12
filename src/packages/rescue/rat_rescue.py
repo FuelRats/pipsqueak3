@@ -11,10 +11,12 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 from contextlib import contextmanager
-from loguru import logger
 from datetime import datetime
 from typing import Union, Optional, List, TYPE_CHECKING
 from uuid import UUID, uuid4
+
+from loguru import logger
+
 from ..cache import RatCache
 from ..epic import Epic
 from ..mark_for_deletion import MarkForDeletion
@@ -783,27 +785,25 @@ class Rescue:  # pylint: disable=too-many-public-methods
         Raises:
             TypeError: invalid params
         """
-        # type enforcement
-        if not isinstance(reporter, str) or not isinstance(reason, str):
-            raise TypeError(f"reporter and/or reason of invalid type. got {type(reporter)},"
-                            f"{type(reason)}")
+
+        mfd = MarkForDeletion(reporter=reporter, reason=reason, marked=True)
+        # both, or neither field, must be set.
+        if bool(reporter) ^ bool(reason):
+            raise TypeError("both reporter and reason MUST be specified.")
 
         logger.debug(f"marking rescue @{self.api_id} for deletion. reporter is {reporter} and "
                      f"their reason is '{reason}'.")
         if reason == "":
             raise ValueError("Reason required.")
-        self.marked_for_deletion.reporter = reporter
-        self.marked_for_deletion.reason = reason
-        self.marked_for_deletion.marked = True
+
+        self.marked_for_deletion = mfd
 
     def unmark_delete(self) -> None:
         """
         helper method for unmarking a rescue for deletion. resets the Md object
         """
 
-        self.marked_for_deletion.marked = False
-        self.marked_for_deletion.reason = None
-        self.marked_for_deletion.reporter = None
+        self.marked_for_deletion = MarkForDeletion()
 
     @contextmanager
     def change(self):

@@ -15,8 +15,8 @@ pytestmark = [pytest.mark.unit, pytest.mark.ratboard]
 @pytest.mark.parametrize("name", ("SicklyTadpole", "xxxRiderxxx", "f1sh_sticks"))
 async def test_create_rescue(rat_board_fx, name):
     """ verifies a rescue can be created via Create"""
-    async with rat_board_fx.create_rescue(client=name) as rescue:
-        assert rescue.client == name, "client didn't match!"
+    rescue = await rat_board_fx.create_rescue(client=name)
+    assert rescue.client == name, "client didn't match!"
 
     assert name in rat_board_fx, "rescue didn't make it in!"
     assert rescue.board_index == 0, "board gave us the wrong index"
@@ -87,8 +87,7 @@ async def test_free_case_roll_over_free(rat_board_fx):
     """
 
     # create a rescue
-    async with rat_board_fx.create_rescue() as rescue:
-        ...
+    await rat_board_fx.create_rescue()
     # hack the counter
     rat_board_fx._index_counter = itertools.count(cycle_at + 1)
     # render assertion
@@ -102,8 +101,8 @@ async def test_free_case_rollover_no_free(rat_board_fx, random_string_fx):
     """
 
     for index in range(cycle_at + 15):
-        async with rat_board_fx.create_rescue(client=random_string_fx) as rescue:
-            assert rescue.board_index == index, "bad index assigned"
+        rescue = await rat_board_fx.create_rescue(client=random_string_fx)
+        assert rescue.board_index == index, "bad index assigned"
 
 
 @pytest.mark.asyncio
@@ -126,8 +125,7 @@ async def test_modify_rescue_explosion(rat_board_fx, random_string_fx):
     """
     verifies the board doesn't drop a case when an exception is raised inside a modify_rescue() call
     """
-    async with rat_board_fx.create_rescue(client=random_string_fx):
-        ...
+    await rat_board_fx.create_rescue(client=random_string_fx)
 
     with suppress(RuntimeError):  # intentionally suppress the exception we raise
         async with rat_board_fx.modify_rescue(random_string_fx):
