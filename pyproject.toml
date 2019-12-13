@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "pipsqueak3"
+version = "0.0.0"
+description = "Mechasqueak3"
+authors = ["Joshua Salzedo <thHunkn0WNd@gmail.com>"]
+license = "BSD-3-Clause"
+packages = [
+    { include = "src"}
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+aiohttp = "*"
+pydle = ">=0.9.1"
+pure-sasl = "*"
+humanfriendly = "*"
+psycopg2-binary = "*"
+toml = "*"
+loguru = "*"
+pluggy = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-cov = "*"
+pytest-asyncio = "*"
+pylint = "*"
+pytest-httpserver = "*"
+codecov = "*"
+pycodestyle = "*"
+
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
