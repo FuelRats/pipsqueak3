@@ -6,6 +6,7 @@ version: 2
 jobs:
   tests:
     environment:
+      POETRY_VIRTUALENVS_PATH=~/repo/.venv
       CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
 
     docker:
@@ -90,6 +91,9 @@ jobs:
           path: test-reports
 
   integration_tests:
+    environment:
+      POETRY_VIRTUALENVS_PATH=~/repo/.venv
+
     docker:
       - image: circleci/python:3.8-buster
         environment:
@@ -164,6 +168,9 @@ jobs:
             grep -i "Connected to IRC" logs/unit_tests.log
 
   setup_workspace:
+    environment:
+      POETRY_VIRTUALENVS_PATH=~/repo/.venv
+
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
@@ -208,6 +215,9 @@ jobs:
 
 
   linting:
+    environment:
+      POETRY_VIRTUALENVS_PATH=~/repo/.venv
+
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
