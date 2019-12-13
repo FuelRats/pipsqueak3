@@ -235,6 +235,10 @@ jobs:
           at: .
 
       - run:
+        name: Manually install pylint-exit
+        command: pip install 'pylint-exit>=1.1.0'
+
+      - run:
           name: Run pylint over project
           # run pylint, pass it through pylint-exit so Circle doesn't throw a fit
           command: poetry run pylint src || poetry run pylint-exit $?
