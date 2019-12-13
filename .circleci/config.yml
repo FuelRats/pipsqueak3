@@ -195,8 +195,8 @@ jobs:
           name: install dependencies
           command: |
             pip install 'poetry==1.0.0'
+            poetry add pylint-exit>=1.1.0
             poetry install
-            poetry install -d pylint-exit>=1.1.0
 
       # give CircleCi access to cached venv
       - run:
