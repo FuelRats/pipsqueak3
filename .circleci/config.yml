@@ -36,14 +36,14 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v4-dependencies-{{ checksum "Pipfile.lock" }}
+            - v4-dependencies-{{ checksum "poetry.lock" }}
 
 
       # do caching magic
       - save_cache:
           paths:
             - ".venv"
-          key: v4-dependencies-{{ checksum "Pipfile.lock" }}-{{ checksum "Pipfile"}}
+          key: v4-dependencies-{{ checksum "poetry.lock" }}-{{ checksum "pyproject.toml"}}
 
 
       - run:
@@ -120,14 +120,14 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v4-dependencies-{{ checksum "Pipfile.lock" }}-{{ checksum "Pipfile"}}
+            - v4-dependencies-{{ checksum "poetry.lock" }}-{{ checksum "pyproject.toml"}}
 
 
       # do caching magic
       - save_cache:
           paths:
             - ".venv"
-          key: v4-dependencies-{{ checksum "Pipfile.lock" }}-{{ checksum "Pipfile"}}
+          key: v4-dependencies-{{ checksum "poetry.lock" }}-{{ checksum "pyproject.toml"}}
 
 
       - run:
@@ -181,7 +181,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v4-dependencies-{{ checksum "Pipfile.lock" }}
+            - v4-dependencies-{{ checksum "poetry.lock" }}
 
 
       - run:
@@ -199,7 +199,7 @@ jobs:
       - save_cache:
           paths:
             - ".venv"
-          key: v4-dependencies-{{ checksum "Pipfile.lock" }}-{{ checksum "Pipfile"}}
+          key: v4-dependencies-{{ checksum "poetry.lock" }}-{{ checksum "pyproject.toml"}}
       # cache code and dependencies for later jobs
       - persist_to_workspace:
           root: .
