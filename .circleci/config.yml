@@ -6,9 +6,7 @@ version: 2
 jobs:
   tests:
     environment:
-      POETRY_CACHE_DIR: /home/circleci/repo/.poetry/cache
       POETRY_VIRTUALENVS_IN_PROJECT: true
-      POETRY_VIRTUALENVS_PATH: /home/circleci/repo/.poetry/venv
       CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
 
     docker:
@@ -45,7 +43,7 @@ jobs:
       # do caching magic
       - save_cache:
           paths:
-            - ".poetry"
+            - ".venv"
           key: v5-dependencies-{{ checksum "poetry.lock" }}-{{ checksum "pyproject.toml"}}
 
 
@@ -94,9 +92,7 @@ jobs:
 
   integration_tests:
     environment:
-      POETRY_CACHE_DIR: /home/circleci/repo/.poetry/cache
       POETRY_VIRTUALENVS_IN_PROJECT: true
-      POETRY_VIRTUALENVS_PATH: /home/circleci/repo/.poetry/venv
 
     docker:
       - image: circleci/python:3.8-buster
@@ -134,7 +130,7 @@ jobs:
       # do caching magic
       - save_cache:
           paths:
-            - ".poetry"
+            - ".venv"
           key: v5-dependencies-{{ checksum "poetry.lock" }}-{{ checksum "pyproject.toml"}}
 
 
@@ -173,9 +169,7 @@ jobs:
 
   setup_workspace:
     environment:
-      POETRY_CACHE_DIR: /home/circleci/repo/.poetry/cache
       POETRY_VIRTUALENVS_IN_PROJECT: true
-      POETRY_VIRTUALENVS_PATH: /home/circleci/repo/.poetry/venv
 
     docker:
       # specify the version you desire here
@@ -206,12 +200,12 @@ jobs:
       # give CircleCi access to cached venv
       - run:
           name: Fix permissions on venv
-          command: sudo chown -R circleci:circleci ".poetry"
+          command: sudo chown -R circleci:circleci ".venv"
 
       # do caching magic
       - save_cache:
           paths:
-            - ".poetry"
+            - ".venv"
           key: v5-dependencies-{{ checksum "poetry.lock" }}-{{ checksum "pyproject.toml"}}
       # cache code and dependencies for later jobs
       - persist_to_workspace:
@@ -222,9 +216,7 @@ jobs:
 
   linting:
     environment:
-      POETRY_CACHE_DIR: /home/circleci/repo/.poetry/cache
       POETRY_VIRTUALENVS_IN_PROJECT: true
-      POETRY_VIRTUALENVS_PATH: /home/circleci/repo/.poetry/venv
 
     docker:
       # specify the version you desire here
