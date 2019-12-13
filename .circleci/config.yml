@@ -6,8 +6,6 @@ version: 2
 jobs:
   tests:
     environment:
-      # tell pipenv
-      PIPENV_VENV_IN_PROJECT: true
       CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
 
     docker:
@@ -78,8 +76,8 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv run pytest -m "unit or regressions" -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
-            pipenv run codecov -F unittest
+            poetry run pytest -m "unit or regressions" -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
+            poetry run codecov -F unittest
 
       - store_artifacts:
           path: logs/unit_tests.log
@@ -92,10 +90,6 @@ jobs:
           path: test-reports
 
   integration_tests:
-    environment:
-      # tell pipenv
-      PIPENV_VENV_IN_PROJECT: true
-
     docker:
       - image: circleci/python:3.8-buster
         environment:
@@ -166,14 +160,10 @@ jobs:
       - run:
           name: smoke test
           command: |
-            timeout 10 pipenv run python -m src --config testing.toml || :
+            timeout 10 poetry run python -m src --config testing.toml || :
             grep -i "Connected to IRC" logs/unit_tests.log
 
   setup_workspace:
-    environment:
-      # tell pipenv
-      PIPENV_VENV_IN_PROJECT: true
-
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
@@ -197,7 +187,8 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            pipenv install -d
+            pip install 'poetry==1.0.0'
+            poetry install
 
       # give CircleCi access to cached venv
       - run:
@@ -217,10 +208,6 @@ jobs:
 
 
   linting:
-    environment:
-      # tell pipenv
-      PIPENV_VENV_IN_PROJECT: true
-
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
@@ -240,10 +227,10 @@ jobs:
       - run:
           name: Run pylint over project
           # run pylint, pass it through pylint-exit so Circle doesn't throw a fit
-          command: pipenv run pylint src || pipenv run pylint-exit $?
+          command: poetry run pylint src || poetry run pylint-exit $?
       - run:
           name: run pycodestyle over project
-          command: pipenv run pycodestyle src
+          command: poetry run pycodestyle src
 
 workflows:
   version: 2
