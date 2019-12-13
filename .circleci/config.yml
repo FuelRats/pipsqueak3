@@ -235,8 +235,8 @@ jobs:
           at: .
 
       - run:
-        name: Manually install pylint-exit
-        command: pip install 'pylint-exit>=1.1.0'
+          name: Manually install pylint-exit
+          command: pip install 'pylint-exit>=1.1.0'
 
       - run:
           name: Run pylint over project
