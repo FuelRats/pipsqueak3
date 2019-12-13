@@ -6,7 +6,7 @@ version: 2
 jobs:
   tests:
     environment:
-      POETRY_VIRTUALENVS_PATH: ~/repo/.venv
+      POETRY_VIRTUALENVS_PATH: /home/circleci/repo/.venv
       CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
 
     docker:
@@ -92,7 +92,7 @@ jobs:
 
   integration_tests:
     environment:
-      POETRY_VIRTUALENVS_PATH: ~/repo/.venv
+      POETRY_VIRTUALENVS_PATH: /home/circleci/repo/.venv
 
     docker:
       - image: circleci/python:3.8-buster
@@ -169,7 +169,7 @@ jobs:
 
   setup_workspace:
     environment:
-      POETRY_VIRTUALENVS_PATH: ~/repo/.venv
+      POETRY_VIRTUALENVS_PATH: /home/circleci/repo/.venv
 
     docker:
       # specify the version you desire here
@@ -216,7 +216,7 @@ jobs:
 
   linting:
     environment:
-      POETRY_VIRTUALENVS_PATH: ~/repo/.venv
+      POETRY_VIRTUALENVS_PATH: /home/circleci/repo/.venv
 
     docker:
       # specify the version you desire here
