@@ -56,7 +56,7 @@ def setup_logging(logfile: str):
         handlers=[
             dict(sink=sys.stdout, format="<b><c><{time}</c></b> [{name}] "
                                          "<level>{level.name}</level> > {message}",
-                 colorize=True, backtrace=True, diagnose=True, level=loglevel),
+                 colorize=True, backtrace=False, diagnose=False, level=loglevel),
             dict(sink=logfile, level="DEBUG", format="< {time} > "
                                                      "[ {module} ] {message}", rotation="50 MB",
                  enqueue=True, mode=log_filemode),
