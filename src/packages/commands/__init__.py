@@ -11,7 +11,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from . import rat_command
+from . import rat_command, case_management
 from .rat_command import command, trigger
 
-__all__ = ["command", "trigger"]
+__all__ = ["command", "trigger", "case_management"]

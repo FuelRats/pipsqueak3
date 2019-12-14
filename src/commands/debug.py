@@ -16,6 +16,7 @@ from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
+from src.packages.utils import Platforms, Status
 from loguru import logger
 
 
@@ -66,3 +67,30 @@ async def cmd_get_plugins(context: Context):
     plugins = PLUGIN_MANAGER.list_name_plugin()
     names = [plugin[0] for plugin in plugins]
     await context.reply(",".join(names))
+
+
+@command("debug-case")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_create_debug_case(context: Context):
+    debug_rescue = await context.bot.board.create_rescue(client="Shatt", system="HIP 21991",
+                                                         platform=Platforms.PC,
+                                                         active=True,
+                                                         status=Status.OPEN)
+
+    await context.reply(f"Created Debug Case as case #{debug_rescue.board_index}!")
+    await context.reply(f"Client: {debug_rescue.client}    System: {debug_rescue.system}")
+
+
+@command("debug-cr")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_create_debug_case(context: Context):
+    debug_rescue = await context.bot.board.create_rescue(client="ShattCR", system="HIP 21991",
+                                                         platform=Platforms.PC,
+                                                         active=True,
+                                                         status=Status.OPEN,
+                                                         code_red=True)
+
+    await context.reply(f"Created Debug Case as case #{debug_rescue.board_index}!")
+    await context.reply(f"Client: {debug_rescue.client}    System: {debug_rescue.system}")
