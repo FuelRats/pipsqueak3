@@ -34,12 +34,16 @@ async def cmd_case_management_active(ctx: Context):
     Permission: Rat
     """
     if len(ctx.words) != 2:
-        await ctx.reply("Usage: !active <Client Name|Case Number")
+        logger.debug("cmd active: bad input")
+        await ctx.reply("Usage: !active <Client Name|Case Number>")
+        return
 
     rescue = ctx.bot.board.get(ctx.words[1])
 
-    if rescue not in ctx.bot.board:
+    if not ctx.bot.board.get(ctx.words[1]):
+        logger.debug("cmd active: rescue not found")
         await ctx.reply("No open case with that number or client name.")
+        return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.active = not case.active
