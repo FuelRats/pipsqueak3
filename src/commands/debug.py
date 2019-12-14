@@ -80,6 +80,7 @@ async def cmd_create_debug_case(context: Context):
 
     await context.reply(f"Created Debug Case as case #{debug_rescue.board_index}!")
     await context.reply(f"Client: {debug_rescue.client}    System: {debug_rescue.system}")
+    await context.reply(f"API ID: {debug_rescue.api_id}")
 
 
 @command("debug-cr")
