@@ -793,8 +793,6 @@ class Rescue:  # pylint: disable=too-many-public-methods
 
         logger.debug(f"marking rescue @{self.api_id} for deletion. reporter is {reporter} and "
                      f"their reason is '{reason}'.")
-        if reason == "":
-            raise ValueError("Reason required.")
 
         self.marked_for_deletion = mfd
 
