@@ -18,6 +18,25 @@ from src.packages.context.context import Context
 from src.packages.permissions.permissions import require_permission, RAT, TECHRAT, OVERSEER, ADMIN,\
     require_channel
 from src.packages.utils import Platforms, Status, Formatting
+from src.packages.rescue import Rescue
+
+
+# User input validation helper
+def _validate(ctx: Context, validate: str) -> Rescue or None:
+    try:
+        if validate not in ctx.bot.board:
+            rescue = ctx.bot.board[int(ctx.words[1])]
+        else:
+            rescue = ctx.bot.board.get(ctx.words[1])
+    except (KeyError, ValueError):
+        try:
+            force_uuid = uuid.UUID(ctx.words[1])
+        except ValueError:
+            return None
+        else:
+            rescue = ctx.bot.board.get(force_uuid)
+
+    return rescue
 
 
 @require_channel
@@ -39,22 +58,15 @@ async def cmd_case_management_active(ctx: Context):
         await ctx.reply("Usage: !active <Client Name|Case Number>")
         return
 
-    try:
-        if ctx.words[1] not in ctx.bot.board:
-            rescue = ctx.bot.board[int(ctx.words[1])]
-        else:
-            rescue = ctx.bot.board.get(ctx.words[1])
-    except (KeyError, ValueError):
-        try:
-            force_uuid = uuid.UUID(ctx.words[1])
-        except ValueError:
-            await ctx.reply("No case with that name or number.")
-            return
-        else:
-            rescue = ctx.bot.board.get(force_uuid)
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
 
     # We either have a valid case or we've left the method at this point.
-    async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
+    async with ctx.bot.board.modify_rescue(rescue) as case:
         case.active = not case.active
         await ctx.reply(f'{case.client}\'s case is now {"Active" if case.active else "Inactive"}.')
 
@@ -67,20 +79,12 @@ async def cmd_case_management_assign(ctx: Context):
         await ctx.reply("Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
         return
 
-    # validate client/case/UUID
-    try:
-        if ctx.words[1] not in ctx.bot.board:
-            rescue = ctx.bot.board[int(ctx.words[1])]
-        else:
-            rescue = ctx.bot.board.get(ctx.words[1])
-    except (KeyError, ValueError):
-        try:
-            force_uuid = uuid.UUID(ctx.words[1])
-        except ValueError:
-            await ctx.reply("No case with that name or number.")
-            return
-        else:
-            rescue = ctx.bot.board.get(force_uuid)
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
 
     # Get rats from input command
     rat_list = ctx.words_eol[2].split()
@@ -109,20 +113,116 @@ async def cmd_case_management_clear(ctx: Context):
         await ctx.reply("Usage: !clear <Client Name|Board Index> [First Limpet Sender]")
         return
 
-        # validate client/case/UUID
-    try:
-        if ctx.words[1] not in ctx.bot.board:
-            rescue = ctx.bot.board[int(ctx.words[1])]
-        else:
-            rescue = ctx.bot.board.get(ctx.words[1])
-    except (KeyError, ValueError):
-        try:
-            force_uuid = uuid.UUID(ctx.words[1])
-        except ValueError:
-            await ctx.reply("No case with that name or number.")
-            return
-        else:
-            rescue = ctx.bot.board.get(force_uuid)
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
 
-    async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
-        pass
+    # Only set First Limpet if it was specified.
+    if len(ctx.words) == 3:
+        first_limpet = ctx.words[2]
+    else:
+        first_limpet = ""
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.active = False
+        case.status = Status.CLOSED
+        if first_limpet:
+            case.first_limpet = first_limpet
+            # TODO: Add paperwork call link here
+
+    # FIXME: Deleting case from the board, as we don't have a proper method yet.
+    del ctx.bot.board[rescue.board_index]
+
+    await ctx.reply(f"Case {case.client} was cleared!")
+
+
+@require_channel
+@require_permission(RAT)
+@command("cmdr", "commander")
+async def cmd_case_management_cmdr(ctx: Context):
+    if len(ctx.words) < 2:
+        await ctx.reply("Usage: !cmdr <Client Name|Board Index> <CMDR name>")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.client = ctx.words[2]
+        await ctx.reply(f"Client for {case.board_index} is now CMDR {case.client}")
+
+
+@require_channel
+@require_channel(RAT)
+@command("codered", "casered", "cr")
+async def cmd_case_management_codered(ctx: Context):
+    if len(ctx.words) < 2:
+        await ctx.reply("Usage: !codered <Client Name|Board Index>")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.code_red = not case.code_red
+        if case.code_red:
+            await ctx.reply(f"Code Red! {case.client} is on Emergency Oxygen!")
+        else:
+            await ctx.reply(f"{case.client} is no longer a Code Red.")
+
+
+@require_channel
+@require_permission(OVERSEER)
+@command("delete")
+async def cmd_case_management_delete(ctx: Context):
+    if len(ctx.words) < 2:
+        await ctx.reply("Usage: !delete <Database ID>")
+        return
+
+    # Validate we have UUID:
+    try:
+        requested_case = uuid.UUID(ctx.words[1])
+    except ValueError:
+        await ctx.reply("Invalid Database ID.")
+        return
+    else:
+        rescue = ctx.bot.board.get(requested_case)
+        await ctx.reply(f"Deleted case with id {str(rescue.api_id)} - THIS IS NOT REVERTIBLE!")
+        # FIXME: Add proper method to delete a case from the board
+        del ctx.bot.board[requested_case]
+
+
+# TODO: !Epic
+
+# TODO: !grab
+
+@require_channel
+@require_permission(RAT)
+@command("inject")
+async def cmd_case_management_inject(ctx: Context):
+    if len(ctx.words) < 3:
+        await ctx.reply("Usage: !inject <Client Name|Board Index> <Text to Add>")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.add_quote(ctx.words_eol[2], ctx.user.nickname)
+        await ctx.reply(f"{case.client}'s case updated with: "
+                        f"'{ctx.words_eol[2]}' (Case {case.board_index})")
