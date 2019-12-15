@@ -113,7 +113,7 @@ async def test_modify_rescue_client(rescues_fx, rat_board_fx, random_string_fx):
     old_client = rescues_fx.client
     await rat_board_fx.append(rescues_fx)
 
-    async with rat_board_fx.modify_rescue(rescues_fx.client) as rescue:
+    async with rat_board_fx.modify_rescue(rescues_fx) as rescue:
         rescue.client = random_string_fx
 
     assert old_client not in rat_board_fx, "bad index still in board"
