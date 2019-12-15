@@ -39,6 +39,7 @@ Fuelrats API location
 """
 
 _KEY_TYPE = typing.Union[str, int, UUID]  # pylint: disable=invalid-name
+BoardKey = typing.TypeVar("BoardKey", _KEY_TYPE, Rescue)
 
 
 @CONFIG_MARKER
@@ -130,7 +131,7 @@ class RatBoard(abc.Mapping):
 
     def __getitem__(self, key: _KEY_TYPE) -> Rescue:
         if isinstance(key, str):
-            return self._storage_by_client[key]
+            return self._storage_by_client[key.casefold()]
 
         if isinstance(key, UUID):
             return self._storage_by_uuid[key]
@@ -199,7 +200,7 @@ class RatBoard(abc.Mapping):
         self._storage_by_index[rescue.board_index] = rescue
 
         if rescue.client:
-            self._storage_by_client[rescue.client] = rescue
+            self._storage_by_client[rescue.client.casefold()] = rescue
 
     @property
     def online(self):
@@ -207,10 +208,11 @@ class RatBoard(abc.Mapping):
         return not self._offline and self._handler is not None
 
     def __contains__(self, key: _KEY_TYPE) -> bool:
-        return (key in self._storage_by_client or
-                key in self._storage_by_uuid or
-                key in self._storage_by_index
-                )
+        if isinstance(key, str):
+            return key.casefold() in self._storage_by_client
+        if isinstance(key, UUID):
+            return key in self._storage_by_uuid
+        return key in self._storage_by_index
 
     def __delitem__(self, key: _KEY_TYPE):
         # get the target
@@ -220,10 +222,10 @@ class RatBoard(abc.Mapping):
         del self._storage_by_uuid[target.api_id]
         del self._storage_by_index[target.board_index]
         if target.client:
-            del self._storage_by_client[target.client]
+            del self._storage_by_client[target.client.casefold()]
 
     @asynccontextmanager
-    async def modify_rescue(self, key: _KEY_TYPE) -> Rescue:
+    async def modify_rescue(self, key: BoardKey) -> Rescue:
         """
         Context manager to modify a Rescue
 
@@ -233,6 +235,8 @@ class RatBoard(abc.Mapping):
         Yields:
             Rescue: rescue to modify based on its `key`
         """
+        if isinstance(key, Rescue):
+            key = key.board_index
 
         target = self[key]
 
