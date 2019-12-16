@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import itertools
 import typing
+from asyncio import Lock
 from collections import abc
 from contextlib import asynccontextmanager
 from uuid import UUID
@@ -88,6 +89,7 @@ class RatBoard(abc.Mapping):
                  "_storage_by_index",
                  "_index_counter",
                  "_offline",
+                 "_modification_lock",
                  "__weakref__"
                  ]
 
@@ -116,6 +118,11 @@ class RatBoard(abc.Mapping):
         Internal counter for tracking used indexes
         """
         self._offline = offline
+
+        self._modification_lock = Lock()
+        """
+        Modification lock to prevent concurrent modification of the board.
+        """
 
         super(RatBoard, self).__init__()
 
@@ -194,13 +201,17 @@ class RatBoard(abc.Mapping):
             rescue (Rescue): object to append
             overwrite(bool): overwrite existing cases
     """
-        if (rescue.api_id in self or rescue.board_index in self) and not overwrite:
-            raise ValueError("Attempted to append a rescue that already exists to the board")
-        self._storage_by_uuid[rescue.api_id] = rescue
-        self._storage_by_index[rescue.board_index] = rescue
+        logger.trace("acquiring modification lock...")
+        async with self._modification_lock:
+            logger.trace("acquired modification lock.")
+            if (rescue.api_id in self or rescue.board_index in self) and not overwrite:
+                raise ValueError("Attempted to append a rescue that already exists to the board")
+            self._storage_by_uuid[rescue.api_id] = rescue
+            self._storage_by_index[rescue.board_index] = rescue
 
-        if rescue.client:
-            self._storage_by_client[rescue.client.casefold()] = rescue
+            if rescue.client:
+                self._storage_by_client[rescue.client.casefold()] = rescue
+        logger.trace("released modification lock.")
 
     @property
     def online(self):
@@ -215,10 +226,13 @@ class RatBoard(abc.Mapping):
         return key in self._storage_by_index
 
     def __delitem__(self, key: _KEY_TYPE):
-        # get the target
+        # Sanity check.
+        if not self._modification_lock.locked():
+            raise RuntimeError("attempted to delete a rescue without acquiring the lock first!")
+        # Get the target.
         target = self[key]
 
-        # and purge it key by key
+        # Purge it key by key.
         del self._storage_by_uuid[target.api_id]
         del self._storage_by_index[target.board_index]
         if target.client:
@@ -235,29 +249,38 @@ class RatBoard(abc.Mapping):
         Yields:
             Rescue: rescue to modify based on its `key`
         """
-        if isinstance(key, Rescue):
-            key = key.board_index
+        logger.trace("acquiring modification lock...")
+        async with self._modification_lock:
+            logger.trace("acquired modification lock.")
+            if isinstance(key, Rescue):
+                key = key.board_index
 
-        target = self[key]
+            target = self[key]
 
-        # most tracked attributes may be modified in here, so we pop the rescue
-        # from tracking and append it after
+            # most tracked attributes may be modified in here, so we pop the rescue
+            # from tracking and append it after
 
-        del self[key]
+            del self[key]
 
-        try:
-            # Yield so the caller can modify the rescue
-            yield target
+            self._modification_lock.release()
+            try:
+                # Yield so the caller can modify the rescue
+                yield target
 
-        finally:
-            # we need to be sure to re-append the rescue upon completion
-            # (so errors don't drop cases)
-            await self.append(target)
+            finally:
+                # we need to be sure to re-append the rescue upon completion
+                # (so errors don't drop cases)
+                await self.append(target)
+                # append will reacquire the lock, so don;t reacquire it ourselves (damn no rlocks),
+                # but the context manger is gunna freak out if we don't re-acquire it though.
+                await self._modification_lock.acquire()
 
-        # If we are in online mode, emit update event to API.
-        if self.online:
-            logger.trace("updating API...")
-            await self._handler.update_rescue(target)
+            # If we are in online mode, emit update event to API.
+            if self.online:
+                logger.trace("updating API...")
+                await self._handler.update_rescue(target)
+
+        logger.trace("released modification lock.")
 
     async def create_rescue(self, *args, ovewrite=False, **kwargs) -> Rescue:
         """
@@ -294,9 +317,16 @@ class RatBoard(abc.Mapping):
             raise
 
         finally:
-            # FIXME For some reason the API swallows the board index?
             rescue.board_index = index
             # Always append it to ourselves, regardless of API errors
             await self.append(rescue, overwrite=ovewrite)
 
-            return rescue
+        return rescue
+
+    async def remove_rescue(self, target: BoardKey):
+        """ removes a rescue from active tracking """
+        if isinstance(target, Rescue):
+            target = target.board_index
+
+        # TODO: add to internal deck in offline mode so we can push to the API when we eventually
+        del self[target]
