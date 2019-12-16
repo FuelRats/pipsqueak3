@@ -24,6 +24,8 @@ from src.packages.galaxy import Galaxy
 from src.packages.graceful_errors import graceful_errors
 from src.packages.utils import sanitize
 
+from typing import Dict
+
 
 class MechaClient(Client):
     """
@@ -45,6 +47,7 @@ class MechaClient(Client):
         """
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._fact_manager = None  # Instantiate Global Fact Manager
+        self._last_user_message: Dict[str, str] = {}  # Holds last message from user, by irc nick
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config if mecha_config else {}
@@ -90,6 +93,7 @@ class MechaClient(Client):
         sanitized_message = sanitize(message)
         logger.debug(f"Sanitized {sanitized_message}, Original: {message}")
         try:
+            self._last_user_message[user.casefold()] = sanitized_message  # Store sanitized message
             ctx = await Context.from_message(self, channel, user, sanitized_message)
             await trigger(ctx)
 
@@ -213,3 +217,7 @@ class MechaClient(Client):
         logger.warning("Galaxy deleted!")
         del self._galaxy
         self._galaxy = None
+
+    @property
+    def last_user_message(self) -> Dict[str, str]:
+        return self._last_user_message
