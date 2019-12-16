@@ -327,6 +327,9 @@ class RatBoard(abc.Mapping):
         """ removes a rescue from active tracking """
         if isinstance(target, Rescue):
             target = target.board_index
-
-        # TODO: add to internal deck in offline mode so we can push to the API when we eventually
-        del self[target]
+        logger.trace("Acquiring modification lock...")
+        with self._modification_lock:
+            logger.trace("Acquired modification lock.")
+            # TODO: add to internal deck in offline mode so we can push to the API when we eventually
+            del self[target]
+        logger.trace("Released modification lock.")
