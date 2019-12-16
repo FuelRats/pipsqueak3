@@ -49,7 +49,7 @@ async def cmd_debug_userinfo(context: Context):
 @command("superPing!")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_superping(context: Context):
+async def cmd_debug_superping(context: Context):
     """
     A debug command to coerce mecha to respond.
     """
@@ -60,13 +60,23 @@ async def cmd_superping(context: Context):
 @command("getConfigPlugins")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_get_plugins(context: Context):
+async def cmd_debug_get_plugins(context: Context):
     """Lists configuration plugins"""
     await context.reply(f"getting plugins...")
 
     plugins = PLUGIN_MANAGER.list_name_plugin()
     names = [plugin[0] for plugin in plugins]
     await context.reply(",".join(names))
+
+
+@command("debug-lastmsg")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_debug_lastmessage(context: Context):
+    """Get last message sent by user"""
+    specified_user = context.words[1].casefold()
+    await context.reply(f"Last message from {specified_user}:")
+    await context.reply(f"{context.bot.last_user_message[specified_user]!r}")
 
 
 @command("debug-case")

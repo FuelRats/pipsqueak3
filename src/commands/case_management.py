@@ -9,7 +9,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import uuid
-
+import re
 from loguru import logger
 
 from src.config import PLUGIN_MANAGER
@@ -19,10 +19,13 @@ from src.packages.permissions.permissions import require_permission, RAT, TECHRA
     require_channel
 from src.packages.utils import Platforms, Status, Formatting
 from src.packages.rescue import Rescue
+from typing import Optional
+
+_TIME_RE = re.compile('(\d+)[: ](\d+)')
 
 
 # User input validation helper
-def _validate(ctx: Context, validate: str) -> Rescue or None:
+def _validate(ctx: Context, validate: str) -> Optional[Rescue]:
     try:
         if validate not in ctx.bot.board:
             rescue = ctx.bot.board[int(ctx.words[1])]
@@ -109,7 +112,7 @@ async def cmd_case_management_assign(ctx: Context):
 @require_permission(RAT)
 @command("clear", "close")
 async def cmd_case_management_clear(ctx: Context):
-    if len(ctx.words) < 2:
+    if len(ctx.words) > 2:
         await ctx.reply("Usage: !clear <Client Name|Board Index> [First Limpet Sender]")
         return
 
@@ -198,6 +201,9 @@ async def cmd_case_management_delete(ctx: Context):
         return
     else:
         rescue = ctx.bot.board.get(requested_case)
+        # TODO: if the case is not present on the board, present the request to the API
+        #  and delete that case.
+
         await ctx.reply(f"Deleted case with id {str(rescue.api_id)} - THIS IS NOT REVERTIBLE!")
         # FIXME: Add proper method to delete a case from the board
         del ctx.bot.board[requested_case]
@@ -206,6 +212,39 @@ async def cmd_case_management_delete(ctx: Context):
 # TODO: !Epic
 
 # TODO: !grab
+@require_channel
+@require_permission(RAT)
+@command("grab")
+async def cmd_case_management_grab(ctx: Context):
+    if len(ctx.words) != 2:
+        await ctx.reply("Usage: !grab <Client Name>")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        async with ctx.bot.board.create_rescue() as case:
+            case.add_quote()
+        return
+
+    if ctx.words[1].casefold() in ctx.bot.last_user_message:
+        last_message = ctx.bot.last_user_message[ctx.words[1]]
+    elif int(ctx.words[1]) in ctx.bot.board:
+        if rescue.client.casefold() in ctx.bot.last_user_message:
+            last_message = ctx.bot.last_user_message[rescue.client.casefold()]
+        else:
+            await ctx.reply("Nothing to grab from that client.")
+            return
+    else:
+        await ctx.reply("Nothing to grab from that client.")
+        return
+
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.add_quote(last_message, ctx.words[1].casefold())
+        await ctx.reply(f"{case.client}'s case updated with "
+                        f"{last_message!r} (Case {case.board_index})")
+
 
 @require_channel
 @require_permission(RAT)
@@ -219,10 +258,30 @@ async def cmd_case_management_inject(ctx: Context):
     rescue = _validate(ctx, ctx.words[1])
 
     if not rescue:
-        await ctx.reply("No case with that name or number.")
-        return
+        rescue = await ctx.bot.board.create_rescue(client=ctx.words[1])
+        async with ctx.bot.board.modify_rescue(rescue) as case:
+            case.add_quote(ctx.user.nickname, ctx.words_eol[2])
+
+            for keyword in ctx.words_eol[2].split():
+                if keyword in [item.value for item in Platforms]:
+                    case.platform = Platforms[keyword]
+                if keyword.casefold() == "cr" or "code red" in ctx.words_eol[2].casefold()\
+                        or _TIME_RE.match(ctx.words_eol[2]):
+                    case.code_red = True
+
+            await ctx.reply(f"{case.client}'s case opened with: "
+                            f"{ctx.words_eol[1]}  (Case {case.board_index})")
+
+            if case.code_red:
+                await ctx.reply(f"Code Red! {case.client} is on Emergency Oxygen!")
+
+            await ctx.reply(f"CR: {case.code_red}    Platform: {case.platform.value}")
+
+            return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.add_quote(ctx.words_eol[2], ctx.user.nickname)
-        await ctx.reply(f"{case.client}'s case updated with: "
-                        f"'{ctx.words_eol[2]}' (Case {case.board_index})")
+
+    await ctx.reply(f"{case.client}'s case updated with: "
+                    f"'{ctx.words_eol[2]}' (Case {case.board_index})")
+
