@@ -8,6 +8,10 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+import datetime
+from datetime import tzinfo
+import humanfriendly
+
 import uuid
 import re
 from loguru import logger
@@ -19,6 +23,7 @@ from src.packages.permissions.permissions import require_permission, RAT, TECHRA
     require_channel
 from src.packages.utils import Platforms, Status, Formatting
 from src.packages.rescue import Rescue
+from src.packages.utils import ratlib
 from typing import Optional
 
 _TIME_RE = re.compile('(\d+)[: ](\d+)')
@@ -275,8 +280,6 @@ async def cmd_case_management_inject(ctx: Context):
             if case.code_red:
                 await ctx.reply(f"Code Red! {case.client} is on Emergency Oxygen!")
 
-            await ctx.reply(f"CR: {case.code_red}    Platform: {case.platform.value}")
-
             return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
@@ -285,3 +288,105 @@ async def cmd_case_management_inject(ctx: Context):
     await ctx.reply(f"{case.client}'s case updated with: "
                     f"'{ctx.words_eol[2]}' (Case {case.board_index})")
 
+
+@require_channel
+@require_permission(RAT)
+@command("ircnick", "nick", "nickname")
+async def cmd_case_management_ircnick(ctx: Context):
+    if len(ctx.words) < 2:
+        await ctx.reply("Usage: !ircnick <Client Name|Board Index> <New Client Name>")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    new_name = ctx.words[2]
+
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.irc_nickname = new_name
+        await ctx.reply(f"Set IRC Nickname to {case.irc_nickname!r}")
+
+    if new_name.casefold() != rescue.client.casefold():
+        await ctx.reply("Caution: IRC Nickname does not match CMDR Name.")
+
+
+@require_channel
+@require_permission(RAT)
+@command("pc")
+async def cmd_case_management_pc(ctx: Context):
+    if len(ctx.words) < 2:
+        await ctx.reply("Usage: !pc <Client Name|Board Index>")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.platform = Platforms.PC
+        await ctx.reply(f"{case.client}'s platform set to PC.")
+
+
+@require_channel
+@require_permission(RAT)
+@command("ps")
+async def cmd_case_management_ps(ctx: Context):
+    if len(ctx.words) < 2:
+        await ctx.reply("Usage: !ps <Client Name|Board Index>")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.platform = Platforms.PS
+        await ctx.reply(f"{case.client}'s platform set to Playstation.")
+
+
+# TODO: !pwn
+
+@require_channel()
+@require_permission(RAT)
+@command("quote")
+async def cmd_case_management_quote(ctx: Context):
+    if len(ctx.words) < 2:
+        await ctx.reply("Usage: !quote <Client Name|Board Index")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    created_timestamp = rescue.updated_at.strftime("%b %d %H:%M:%S UTC")
+
+    header = f"{rescue.client}'s case {rescue.board_index} at " \
+             f"{rescue.system if rescue.system else 'an unspecified system'}, " \
+             f"updated {created_timestamp}  " \
+             f"@{rescue.api_id}"
+
+    await ctx.reply(header)
+
+    if rescue.quotes:
+        for i, quote in enumerate(rescue.quotes):
+            # FIXME: Quote dates are not set properly on the Quotation object,
+            #  so the timestamp is useless.
+            # quote_timestamp = humanfriendly.format_timespan((datetime.datetime.utcnow()
+            #                                                 - quote.updated_at),
+            #                                                detailed=False,
+            #                                                max_units=2) + " ago"
+            # await ctx.reply(f'[{i}][{quote.author} ({quote_timestamp})] {quote.message}')
+            await ctx.reply(f'[{i}][{quote.author}] {quote.message}')
