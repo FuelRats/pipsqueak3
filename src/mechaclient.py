@@ -25,6 +25,7 @@ from src.packages.graceful_errors import graceful_errors
 from src.packages.utils import sanitize
 
 from typing import Dict
+from datetime import datetime, timezone
 
 
 class MechaClient(Client):
@@ -52,6 +53,7 @@ class MechaClient(Client):
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config if mecha_config else {}
         self._galaxy = None
+        self._start_time = datetime.now(tz=timezone.utc)
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -221,3 +223,7 @@ class MechaClient(Client):
     @property
     def last_user_message(self) -> Dict[str, str]:
         return self._last_user_message
+
+    @property
+    def start_time(self) -> datetime:
+        return self._start_time
