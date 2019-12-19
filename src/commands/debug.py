@@ -105,3 +105,10 @@ async def cmd_create_debug_case(context: Context):
 
     await context.reply(f"Created Debug Case as case #{debug_rescue.board_index}!")
     await context.reply(f"Client: {debug_rescue.client}    System: {debug_rescue.system}")
+
+
+@command("debug-eol")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_words_eol(context: Context):
+    await context.reply(f"EOL: {context.words_eol}")
