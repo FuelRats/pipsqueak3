@@ -18,6 +18,8 @@ from src.packages.context.context import Context
 from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
 from src.packages.utils import Platforms, Status
 from loguru import logger
+import humanfriendly
+from datetime import datetime, timezone
 
 
 @command("debug-whois")
@@ -112,3 +114,13 @@ async def cmd_create_debug_case(context: Context):
 @require_permission(TECHRAT)
 async def cmd_words_eol(context: Context):
     await context.reply(f"EOL: {context.words_eol}")
+
+@command("debug-starttime")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_uptime(context: Context):
+    timestamp = humanfriendly.format_timespan((datetime.now(tz=timezone.utc)
+                                               - context.bot.start_time),
+                                              detailed=False, max_units=2) + " ago"
+    await context.reply(f'This instance was connected on '
+                        f'{context.bot.start_time.strftime("%b %d %H:%M:%S UTC")} ({timestamp})')
