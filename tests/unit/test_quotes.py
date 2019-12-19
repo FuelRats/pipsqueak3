@@ -10,11 +10,13 @@ See LICENSE.md
 
 This module is built on top of the Pydle system.
 """
+import asyncio
 import datetime
 
 import pytest
 
 from src.packages.quotation.rat_quotation import Quotation
+
 
 @pytest.mark.unit
 @pytest.mark.quotation
@@ -50,66 +52,22 @@ class TestQuotes(object):
         quote = Quotation(message="foo", author=expected_author)
         assert expected_author == quote.author
 
-    def test_author_is_readonly(self):
-        """
-        verifies `Quotation.author` is a readonly property.
-        :return:
-        :rtype:
-        """
-        quote = Quotation("foo")
-        with pytest.raises(AttributeError):
-            quote.author = "unit_test[BOT]"
-
     def test_created_at(self):
         expected_time = datetime.datetime.utcnow()
         quote = Quotation(message="foo", created_at=expected_time)
         assert quote.created_at == expected_time
 
-    def test_updated_at_setter_valid(self):
-        """
-        Verifies `Quotation.updated_at` is writable given correct parameters
-        :return:
-        :rtype:
-        """
-        expected_time = datetime.datetime.utcnow()
-        quote = Quotation(message="foo", updated_at=expected_time)
-
-        assert expected_time == quote.updated_at
-
-        quote.updated_at = expected_time = datetime.datetime.utcnow()
-        assert expected_time == quote.updated_at
-
-    @pytest.mark.parametrize("garbage", [12, False, ["foo"], "bar", None])
-    def test_updated_at_invalid(self, garbage):
-        """
-        Verifies writing garbage to `Quotation.updated_at` raises expected
-        Error when garbage is thrown at it
-
-        """
-        quote = Quotation("foobar")
-        with pytest.raises(ValueError):
-            quote.updated_at = garbage
-
-    @pytest.mark.parametrize("garbage", [12, False, ["foo"], None])
-    def test_last_author_setter_invalid(self, garbage):
-        """
-        Verifies `Quotation.last_author` can be written to
-        :return:
-        :rtype:
-        """
-        quote = Quotation("foobar")
-
-        with pytest.raises(ValueError):
-            quote.last_author = garbage
-
-    def test_modify(self, context_fx):
+    @pytest.mark.asyncio
+    async def test_modify(self, context_fx):
         """
         Verifies a quote can be changed correctly, that the correct fields are
          set
         """
 
         quote = Quotation("foo")
-        quote.modify(context_fx, message="bar")
+        with quote.modify(context_fx) as some_quote:
+            await asyncio.sleep(0.125)
+            some_quote.message = "bar"
         assert "bar" == quote.message
         assert quote.created_at != quote.updated_at
         assert quote.author != quote.last_author
