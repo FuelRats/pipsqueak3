@@ -12,12 +12,11 @@ This module is built on top of the Pydle system.
 """
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Union, Optional, List, TYPE_CHECKING
+from typing import Union, Optional, List, TYPE_CHECKING, Dict
 from uuid import UUID, uuid4
 
 from loguru import logger
 
-from ..cache import RatCache
 from ..epic import Epic
 from ..mark_for_deletion import MarkForDeletion
 from ..quotation import Quotation
@@ -87,13 +86,13 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         self._platform: Platforms = platform
         self.rat_board: 'RatBoard' = board
-        self._rats = rats if rats else []
+        self._rats = rats if rats else {}
         self._created_at: datetime = created_at if created_at else datetime.utcnow()
         self._updated_at: datetime = updated_at if updated_at else datetime.utcnow()
         self._api_id: UUID = uuid if uuid else uuid4()
         self._client: str = client
         self._irc_nick: str = irc_nickname
-        self._unidentified_rats = unidentified_rats if unidentified_rats else []
+        self._unidentified_rats = unidentified_rats if unidentified_rats else {}
         self._system: str = system.upper() if system else None
         self._active: bool = active
         self._quotes: list = quotes if quotes else []
@@ -129,6 +128,14 @@ class Rescue:  # pylint: disable=too-many-public-methods
         if self._hash is None:
             self._hash = hash(self.api_id)
         return self._hash
+
+    async def add_rat(self, rat: Rat):
+        if rat.unidentified:
+            # unidentified rat
+            self.unidentified_rats[rat.name.casefold()] = rat
+
+        else:
+            self.rats[rat.name.casefold()] = rat
 
     @property
     def status(self) -> Status:
@@ -499,7 +506,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._updated_at = value
 
     @property
-    def unidentified_rats(self) -> List[str]:
+    def unidentified_rats(self) -> Dict[str, Rat]:
         """
         List of unidentified rats by their IRC nicknames
 
@@ -521,15 +528,15 @@ class Rescue:  # pylint: disable=too-many-public-methods
             TypeError: value was of an illegal type
 
         """
-        if isinstance(value, list):
-            for name in value:
-                if isinstance(name, str):
-                    self._unidentified_rats.append(name)
+        if isinstance(value, dict):
+            for name, rat in value.items():
+                if isinstance(name, str) and isinstance(rat, Rat):
+                    self._unidentified_rats[name.casefold()] = rat
                 else:
-                    raise ValueError(f"Element '{name}' expected to be of type str"
+                    raise TypeError(f"Element '{name}' expected to be of type str"
                                      f"str, got {type(name)}")
         else:
-            raise TypeError(f"expected type str, got {type(value)}")
+            raise TypeError(f"expected type dict, got {type(value)}")
 
     @property
     def open(self) -> bool:
@@ -665,7 +672,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             raise TypeError(f"got {type(value)} expected MarkForDeletion object")
 
     @property
-    def rats(self) -> List[Rat]:
+    def rats(self) -> Dict[str, Rat]:
         """
         Identified rats assigned to rescue
 
@@ -686,93 +693,34 @@ class Rescue:  # pylint: disable=too-many-public-methods
         Returns:
 
         """
-        if isinstance(value, list):
+        if isinstance(value, dict):
             self._rats = value
 
         else:
             raise TypeError(f"expected type list got {type(value)}")
 
-    async def add_rat(self,
-                      name: str = None,
-                      guid: UUID or str = None,
-                      rat: Rat = None) -> Optional[Rat]:
+    def remove_rat(self, rat: Union[Rat, str]) -> None:
         """
-        Adds a rat to the rescue. This method should be run inside a `try` block, as failures will
-        be raised as exceptions.
-
-        this method will attempt to coerce `guid:str` into a UUID and may fail in
-            spectacular fashion
-
-        Args:
-            rat (Rat): Existing Rat object to assign.
-            name (str): name of a rat to add
-            guid (UUID or str): api uuid of the rat, used if the rat is not found in the cache
-                - if this is a string it will be type coerced into a UUID
-        Returns:
-            Rat: the added rat object
+        Removes a rat from the rescue.
+        If passed a string: it is treated as a unidentified rat
+        If passed a Rat: assume its an identified rat
 
         Raises:
-            ValueError: guid was of type `str` and could not be coerced.
-            ValueError: Attempted to assign a Rat that does not have a UUID.
+            KeyError: rat not found
 
-        Examples:
-            ```python
+        Args:
+            rat: Rat or string unidentified rat name
 
-            ```
+
         """
-        assigned_rat: Optional[Rat] = None
-
         if isinstance(rat, Rat):
-            # we already have a rat object, lets verify it has an ID and assign it.
-            if rat.uuid is not None:
-                self.rats.append(rat)
-                assigned_rat = rat
-            else:
-                raise ValueError("Assigned rat does not have a known API ID")
+            # If the rats not there let it burn.
+            del self.rats[rat.name.casefold()]
 
-        if isinstance(name, str):
-            # lets check if we already have this rat in the cache (platform, any)
-            found = (await RatCache().get_rat_by_name(name, self.platform),
-                     await RatCache().get_rat_by_name(name))
-            if found[0]:
-                self.rats.append(found[0])
-                assigned_rat = found[0]
-            elif found[1]:
-                # a generic match (not platform specific) was found
-                # TODO throw a warning so the invoking method can handle this condition
-                logger.warning("A match was found, but it was not the right platform!")
-                self.rats.append(found[1])
-                assigned_rat = found[1]
-
-            else:
-                # lets make a new Rat!
-                # if self.rat_board:  # PRAGMA: NOCOVER
-                #    pass  # TODO fetch rat from API
-                # TODO: fetch rats from API handler, use that data to make a new Rat instance
-
-                rat = Rat(name=name, uuid=guid)
-                RatCache().append(rat)
-                self.rats.append(rat)
-                assigned_rat = rat
-
-        elif guid is not None:
-            if isinstance(guid, str):
-                # attempt to coerce into a UUID
-                parsed_guid = UUID(guid)
-            elif isinstance(guid, UUID):
-                parsed_guid = guid
-            else:
-                raise ValueError(f"Expected str/UUID, got {type(guid)}")
-
-            # lets check if we already have this rat in the cache
-            found = await RatCache().get_rat_by_uuid(parsed_guid)
-            if found:
-                self.rats.append(found)
-                assigned_rat = found
-            else:
-                pass  # TODO: placeholder for fetching rats from the API handler
-
-        return assigned_rat
+        elif isinstance(rat, str):
+            del self.unidentified_rats[rat.casefold()]
+        else:
+            raise TypeError("expected Union[Rat,str] got type {}", type(rat))
 
     def mark_delete(self, reporter: str, reason: str) -> None:
         """
