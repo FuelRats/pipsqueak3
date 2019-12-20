@@ -534,7 +534,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
                     self._unidentified_rats[name.casefold()] = rat
                 else:
                     raise TypeError(f"Element '{name}' expected to be of type str"
-                                     f"str, got {type(name)}")
+                                    f"str, got {type(name)}")
         else:
             raise TypeError(f"expected type dict, got {type(value)}")
 
