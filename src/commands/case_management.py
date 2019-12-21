@@ -104,7 +104,7 @@ async def cmd_case_management_assign(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
         for rat in rat_list:
             # TODO Perform Rat Validation here (assign)
-            if rat not in case.rats:
+            if rat.casefold() not in case.rats:
                 case.rats.append(rat)
             else:
                 await ctx.reply(f"{rat} is already assigned to case {case.board_index}.")
@@ -515,6 +515,36 @@ async def cmd_case_management_title(ctx: Context):
 
 
 # TODO: !unassign
+@require_channel
+@require_permission(RAT)
+@command("unassign", "rm", "remove", "standdown")
+async def cmd_case_management_assign(ctx: Context):
+    if len(ctx.words) < 2:
+        await ctx.reply("Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
+        return
+
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    # Get rats from input command
+    rat_list = ctx.words_eol[2].split()
+
+    # Get client's IRC nick, otherwise use client name as entered
+    rescue_client = rescue.irc_nickname if rescue.irc_nickname else rescue.client
+
+    async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
+        removed_rats = []
+        for i, rat in enumerate(rat_list):
+            if rat.casefold() in case.rats:
+                del case.rats[i]
+                removed_rats.append(rat)
+
+    removed_rats_str = ' ,'.join(removed_rats)
+    await ctx.reply(f"{removed_rats_str} are directed to stand down. (Unassigned from case)")
 
 
 @require_channel

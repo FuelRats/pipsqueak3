@@ -115,6 +115,7 @@ async def cmd_create_debug_case(context: Context):
 async def cmd_words_eol(context: Context):
     await context.reply(f"EOL: {context.words_eol}")
 
+
 @command("debug-starttime")
 @require_channel
 @require_permission(TECHRAT)
