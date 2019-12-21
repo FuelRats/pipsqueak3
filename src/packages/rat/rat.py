@@ -13,11 +13,12 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 
-from loguru import logger
 from functools import reduce
 from operator import xor
 from typing import Optional
 from uuid import UUID
+
+from loguru import logger
 
 from ..utils import Platforms
 
@@ -70,6 +71,11 @@ class Rat:
             self._hash = reduce(xor, map(hash, attrs))
 
         return self._hash
+
+    @property
+    def unidentified(self):
+        """ Returns if this Rat object is identified (bound to an API identity) """
+        return self.uuid is None
 
     @property
     def uuid(self):
