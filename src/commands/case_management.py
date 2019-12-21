@@ -19,11 +19,13 @@ from loguru import logger
 from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
+from src.packages.epic import Epic
 from src.packages.permissions.permissions import require_permission, RAT, TECHRAT, OVERSEER, ADMIN,\
     require_channel
 from src.packages.quotation.rat_quotation import Quotation
 from src.packages.utils import Platforms, Status, Formatting
 from src.packages.rescue import Rescue
+from src.packages.rat import Rat
 from src.packages.utils import ratlib
 from typing import Optional
 
@@ -102,13 +104,11 @@ async def cmd_case_management_assign(ctx: Context):
     rescue_client = rescue.irc_nickname if rescue.irc_nickname else rescue.client
 
     async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
-        for rat in rat_list:
-            # TODO Perform Rat Validation here (assign)
-            if rat.casefold() not in case.rats:
-                case.rats.append(rat)
-            else:
-                await ctx.reply(f"{rat} is already assigned to case {case.board_index}.")
-                return
+        for name in rat_list:
+                await case.add_rat(Rat(name=name, uuid=None))
+
+                if name in case.unidentified_rats:
+                    await ctx.reply(f"Warning: {name!r} is NOT identified.")
 
     await ctx.reply(f'{rescue_client}: Please add the following rat(s) to your friends list:'
                     f' {", ".join(str(rat) for rat in rat_list)}')
@@ -215,9 +215,33 @@ async def cmd_case_management_delete(ctx: Context):
         del ctx.bot.board[requested_case]
 
 
-# TODO: !Epic
+@require_channel
+@require_permission(RAT)
+@command("epic")
+async def cmd_case_management_epic(ctx: Context):
+    if len(ctx.words) < 3:
+        await ctx.reply("Usage: !epic <Client Name|Board Index> <Description>")
+        return
 
-# TODO: !grab
+    # Pass case to validator, return a case if found or None
+    rescue = _validate(ctx, ctx.words[1])
+
+    if not rescue:
+        await ctx.reply("No case with that name or number.")
+        return
+
+    if rescue.epic:
+        await ctx.reply(f"{rescue.client}'s case is already considered an epic tale.")
+        return
+
+    new_epic = Epic(uuid=rescue.api_id, notes=ctx.words_eol[2], rescue=rescue)
+    async with ctx.bot.board.modify_rescue(rescue) as case:
+        case.epic.append(new_epic)
+        await ctx.reply(f"{case.client}'s rescue has been marked as an "
+                        f"EPIC tale by {ctx.user.nickname}!")
+        await ctx.reply(f"Description: {new_epic.notes}")
+
+
 @require_channel
 @require_permission(RAT)
 @command("grab")
@@ -355,8 +379,6 @@ async def cmd_case_management_ps(ctx: Context):
         await ctx.reply(f"{case.client}'s platform set to Playstation.")
 
 
-# TODO: !pwn
-
 @require_channel()
 @require_permission(RAT)
 @command("quote")
@@ -396,7 +418,6 @@ async def cmd_case_management_quoteid(ctx: Context):
     # TODO: Remove NYI Message when API capability is ready.
     await ctx.reply("Use !quote.  API is not available in offline mode.")
     return
-
 
     if len(ctx.words) != 2:
         await ctx.reply("Usage: !quoteid <API ID>")
@@ -514,7 +535,7 @@ async def cmd_case_management_title(ctx: Context):
         await ctx.reply(f"{case.client}'s rescue title set to {ctx.words_eol[2]!r}")
 
 
-# TODO: !unassign
+
 @require_channel
 @require_permission(RAT)
 @command("unassign", "rm", "remove", "standdown")
@@ -538,13 +559,12 @@ async def cmd_case_management_assign(ctx: Context):
 
     async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
         removed_rats = []
-        for i, rat in enumerate(rat_list):
-            if rat.casefold() in case.rats:
-                del case.rats[i]
-                removed_rats.append(rat)
+        for each in rat_list:
+            case.remove_rat(each.casefold())
+            removed_rats.append(each)
 
-    removed_rats_str = ' ,'.join(removed_rats)
-    await ctx.reply(f"{removed_rats_str} are directed to stand down. (Unassigned from case)")
+        removed_rats_str = " ,".join(removed_rats)
+        await ctx.reply(f"{removed_rats_str} are directed to stand down. (Unassigned from case)")
 
 
 @require_channel
