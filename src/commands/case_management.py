@@ -9,25 +9,21 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import datetime
+import re
+import uuid
 from datetime import timezone
+from typing import Optional
+
 import humanfriendly
 
-import uuid
-import re
-from loguru import logger
-
-from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.epic import Epic
-from src.packages.permissions.permissions import require_permission, RAT, TECHRAT, OVERSEER, ADMIN,\
-    require_channel
+from src.packages.permissions.permissions import require_permission, RAT, OVERSEER, require_channel
 from src.packages.quotation.rat_quotation import Quotation
-from src.packages.utils import Platforms, Status, Formatting
-from src.packages.rescue import Rescue
 from src.packages.rat import Rat
-from src.packages.utils import ratlib
-from typing import Optional
+from src.packages.rescue import Rescue
+from src.packages.utils import Platforms, Status
 
 _TIME_RE = re.compile('(\d+)[: ](\d+)')
 
@@ -219,6 +215,13 @@ async def cmd_case_management_delete(ctx: Context):
 @require_permission(RAT)
 @command("epic")
 async def cmd_case_management_epic(ctx: Context):
+    # This command may be depreciated, and not used.  It's left in only as an artifact, or
+    # if that changes.
+    await ctx.reply("This command is no longer in use.  "
+                    "Please visit https://fuelrats.com/epic/nominate to nominate an epic rescue.")
+    return
+    # End Depreciation warning
+
     if len(ctx.words) < 3:
         await ctx.reply("Usage: !epic <Client Name|Board Index> <Description>")
         return
@@ -512,7 +515,7 @@ async def cmd_case_management(ctx: Context):
         return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.system = ctx.words_eol[3]
+        case.system = ctx.words_eol[2]
         await ctx.reply(f"{case.client}'s system set to {ctx.words_eol[2]!r}")
 
 
@@ -585,5 +588,3 @@ async def cmd_case_management_xb(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.platform = Platforms.PC
         await ctx.reply(f"{case.client}'s platform set to XB.")
-
-

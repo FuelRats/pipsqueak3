@@ -10,5 +10,6 @@ See LICENSE.md
 """
 from . import debug
 from . import case_management
+from . import deletion_management
 
 __all__ = ["debug"]
