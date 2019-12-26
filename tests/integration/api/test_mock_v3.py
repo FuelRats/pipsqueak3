@@ -4,7 +4,7 @@ import pytest
 
 from src.packages.rescue import Rescue
 
-pytestmark = [pytest.mark.fuelrats_api, pytest.mark.asyncio, pytest.mark.integration]
+pytestmark = [pytest.mark.api_mock_v3, pytest.mark.asyncio, pytest.mark.integration]
 
 
 async def test_get_rescue(mock_fuelrats_api_fx, ):

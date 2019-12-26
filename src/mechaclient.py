@@ -62,7 +62,7 @@ async def _on_invite(ctx: Context):
 
 class MechaClient(Client, MessageHistoryClient):
     """
-    MechaSqueak v3
+    MechaSqueak v3_tests
     """
 
     __version__ = "3.0a"

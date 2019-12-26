@@ -57,7 +57,7 @@ from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from tests.fixtures.mock_callables import CallableMock, AsyncCallableMock
 from src.packages.database import DatabaseManager
 from src.packages.fact_manager.fact import Fact
-from src.packages.fuelrats_api.mockup import MockupAPI
+from src.packages.fuelrats_api.mockup.mockup import MockupAPI
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),

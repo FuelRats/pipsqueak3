@@ -1,0 +1,243 @@
+{
+    "jsonapi": {
+        "version": "1.0",
+        "meta": {
+            "apiVersion": "3.0"
+        }
+    },
+    "meta": {
+        "apiVersion": "3.0",
+        "rateLimitTotal": 3600,
+        "rateLimitRemaining": 3599,
+        "rateLimitReset": "2019-12-26T22:00:00.000Z"
+    },
+    "links": {},
+    "data": [
+        {
+            "type": "nicknames",
+            "id": 21,
+            "attributes": {
+                "lastQuit": "Read error",
+                "lastRealHost": "orion@ip68-4-100-226.oc.oc.cox.net",
+                "lastRealName": "realname",
+                "lastSeen": "2019-12-22T08:16:14.000Z",
+                "lastUserMask": "orion@Clk-843AB8F8.oc.oc.cox.net",
+                "display": "unknown",
+                "nick": "unknown",
+                "createdAt": "2019-12-22T08:13:02.000Z",
+                "updatedAt": null,
+                "vhost": null,
+                "email": "unknown@fuelrats.com",
+                "score": 1
+            },
+            "relationships": {
+                "user": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/nicknames/21/relationships/user",
+                        "related": "https://dev.api.fuelrats.com/nicknames/21/user"
+                    },
+                    "data": {
+                        "type": "users",
+                        "id": "793be7be-c6b5-4160-b7aa-2c6663ffe382"
+                    }
+                },
+                "rat": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/nicknames/21/relationships/rat",
+                        "related": "https://dev.api.fuelrats.com/nicknames/21/rat"
+                    },
+                    "data": null
+                }
+            },
+            "links": {
+                "self": "https://dev.api.fuelrats.com/nicknames/21"
+            }
+        }
+    ],
+    "included": [
+        {
+            "type": "users",
+            "id": "793be7be-c6b5-4160-b7aa-2c6663ffe382",
+            "attributes": {
+                "data": {},
+                "email": "unknown@fuelrats.com",
+                "status": "active",
+                "suspended": null,
+                "frontierId": null,
+                "image": false,
+                "createdAt": "2019-12-15T23:00:00.000Z",
+                "updatedAt": "2019-12-15T23:00:00.000Z"
+            },
+            "relationships": {
+                "rats": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/relationships/rats",
+                        "related": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/rats"
+                    },
+                    "data": null
+                },
+                "displayRat": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/relationships/displayRat",
+                        "related": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/displayRat"
+                    },
+                    "data": null
+                },
+                "groups": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/relationships/groups",
+                        "related": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/groups"
+                    },
+                    "data": null
+                },
+                "clients": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/relationships/clients",
+                        "related": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/clients"
+                    },
+                    "data": null
+                }
+            },
+            "links": {
+                "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382"
+            }
+        },
+        {
+            "type": "rats",
+            "id": "c23e014a-8a07-4f7c-99bf-357e0e7a8a8b",
+            "attributes": {
+                "name": "theunkn0wn1",
+                "data": {},
+                "platform": "pc",
+                "frontierId": null,
+                "createdAt": "2019-12-15T23:00:00.000Z",
+                "updatedAt": "2019-12-15T23:00:00.000Z"
+            },
+            "relationships": {
+                "user": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/relationships/user",
+                        "related": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/user"
+                    },
+                    "data": {
+                        "type": "users",
+                        "id": "793be7be-c6b5-4160-b7aa-2c6663ffe382"
+                    }
+                },
+                "ships": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/relationships/ships",
+                        "related": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/ships"
+                    },
+                    "data": []
+                }
+            },
+            "links": {
+                "self": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b"
+            }
+        },
+        {
+            "type": "groups",
+            "id": "netadmin",
+            "attributes": {
+                "vhost": "netadmin.fuelrats.com",
+                "withoutPrefix": true,
+                "priority": 100,
+                "permissions": [
+                    "users.read",
+                    "users.write",
+                    "shps.write",
+                    "rescues.write",
+                    "rats.write",
+                    "groups.read",
+                    "groups.write",
+                    "epics.write",
+                    "decals.read",
+                    "decals.write",
+                    "clients.write",
+                    "nicknames.read",
+                    "nicknames.write"
+                ],
+                "createdAt": "2017-07-08T22:00:00.000Z",
+                "updatedAt": "2017-07-08T22:00:00.000Z"
+            },
+            "relationships": {},
+            "links": {
+                "self": "https://dev.api.fuelrats.com/groups/netadmin"
+            }
+        },
+        {
+            "type": "groups",
+            "id": "rat",
+            "attributes": {
+                "vhost": "rat.fuelrats.com",
+                "withoutPrefix": false,
+                "priority": 10,
+                "permissions": [],
+                "createdAt": "2017-07-08T22:00:00.000Z",
+                "updatedAt": "2017-07-08T22:00:00.000Z"
+            },
+            "relationships": {},
+            "links": {
+                "self": "https://dev.api.fuelrats.com/groups/rat"
+            }
+        },
+        {
+            "type": "groups",
+            "id": "verified",
+            "attributes": {
+                "vhost": "recruit.fuelrats.com",
+                "withoutPrefix": false,
+                "priority": 0,
+                "permissions": [
+                    "users.read.me",
+                    "users.write.me",
+                    "ships.read",
+                    "ships.write.me",
+                    "rescues.read",
+                    "rescues.write.me",
+                    "rats.read",
+                    "rats.write.me",
+                    "groups.read.me",
+                    "groups.write.me",
+                    "epics.read",
+                    "epics.write.me",
+                    "decals.read.me",
+                    "clients.read",
+                    "nicknames.read.me",
+                    "nicknames.write.me"
+                ],
+                "createdAt": "2017-07-08T22:00:00.000Z",
+                "updatedAt": "2017-07-08T22:00:00.000Z"
+            },
+            "relationships": {},
+            "links": {
+                "self": "https://dev.api.fuelrats.com/groups/verified"
+            }
+        },
+        {
+            "type": "clients",
+            "id": "245fbf7d-9dfd-414c-afeb-4057a7909cd2",
+            "attributes": {
+                "name": "MechaSqueak",
+                "redirectUri": null,
+                "namespaces": [],
+                "firstParty": false,
+                "createdAt": "2019-12-15T23:00:00.000Z",
+                "updatedAt": "2019-12-15T23:00:00.000Z"
+            },
+            "relationships": {
+                "user": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/clients/245fbf7d-9dfd-414c-afeb-4057a7909cd2/relationships/user",
+                        "related": "https://dev.api.fuelrats.com/clients/245fbf7d-9dfd-414c-afeb-4057a7909cd2/user"
+                    },
+                    "data": null
+                }
+            },
+            "links": {
+                "self": "https://dev.api.fuelrats.com/clients/245fbf7d-9dfd-414c-afeb-4057a7909cd2"
+            }
+        }
+    ]
+}
