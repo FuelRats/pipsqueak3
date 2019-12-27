@@ -1,23 +1,7 @@
 from .links_converter import LinksConverter
+from .relationship_converter import RelationshipConveter
 from .. import ApiConverter
 from .._dataclasses.nicknames import Nicknames, NicknamesAttributes, NicknamesRelationships
-from .._dataclasses.relationships import RelationshipData, Relationship
-
-
-class RelationshipConveter(ApiConverter[Relationship]):
-
-    @classmethod
-    def from_api(cls, data):
-        result = {}
-        for key, obj in data.items():
-            links = LinksConverter.from_api(obj['links'])
-            data = obj['data']
-            result[key] = Relationship(
-                links=links,
-                data=RelationshipData(**data) if data else None
-            )
-
-        return result
 
 
 class NicknameConverter(ApiConverter[Nicknames]):
