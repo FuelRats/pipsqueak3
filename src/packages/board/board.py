@@ -22,7 +22,7 @@ from loguru import logger
 
 from src.config import CONFIG_MARKER
 from ..fuelrats_api import FuelratsApiABC
-from ..fuelrats_api.v3.mockup import ApiError
+from src.packages.fuelrats_api.mockup import ApiError
 from ..rescue import Rescue
 
 cycle_at = 15
