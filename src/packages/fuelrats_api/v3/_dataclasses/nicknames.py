@@ -10,20 +10,21 @@ from .relationships import Relationship
 
 @attr.dataclass
 class NicknamesAttributes:
-    lastQuit: str
-    lastRealHost: str
+    lastQuit: str = attr.ib(validator=attr.validators.instance_of(str))
+    lastRealHost: str = attr.ib(validator=attr.validators.instance_of(str))
     lastSeen: datetime = attr.ib(converter=dateutil.parser.parse)
-    lastRealName: str
-    lastUserMask: str
-    display: str
-    nick: str
+    lastRealName: str = attr.ib(validator=attr.validators.instance_of(str))
+    lastUserMask: str = attr.ib(validator=attr.validators.instance_of(str))
+    display: str = attr.ib(validator=attr.validators.instance_of(str))
+    nick: str = attr.ib(validator=attr.validators.instance_of(str))
     createdAt: datetime = attr.ib(converter=dateutil.parser.parse)
     updatedAt: typing.Optional[datetime] = attr.ib(
         converter=attr.converters.optional(dateutil.parser.parse)
     )
-    vhost: str
-    email: str
-    score: int
+    vhost: typing.Optional[str] = attr.ib(
+        validator=attr.validators.optional(attr.validators.instance_of(str)))
+    email: str = attr.ib(validator=attr.validators.instance_of(str))
+    score: int = attr.ib(validator=attr.validators.instance_of(int))
     """ edit distance from API match """
 
 
