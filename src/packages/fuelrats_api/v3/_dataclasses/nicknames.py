@@ -22,7 +22,8 @@ class NicknamesAttributes:
         converter=attr.converters.optional(dateutil.parser.parse)
     )
     vhost: typing.Optional[str] = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(str)))
+        validator=attr.validators.optional(attr.validators.instance_of(str))
+    )
     email: str = attr.ib(validator=attr.validators.instance_of(str))
     score: int = attr.ib(validator=attr.validators.instance_of(int))
     """ edit distance from API match """
@@ -30,12 +31,8 @@ class NicknamesAttributes:
 
 @attr.dataclass
 class NicknamesRelationships:
-    user: Relationship = attr.ib(
-        validator=attr.validators.instance_of(Relationship)
-    )
-    rat: Relationship = attr.ib(
-        validator=attr.validators.instance_of(Relationship)
-    )
+    user: Relationship = attr.ib(validator=attr.validators.instance_of(Relationship))
+    rat: Relationship = attr.ib(validator=attr.validators.instance_of(Relationship))
 
 
 @attr.dataclass
@@ -51,7 +48,7 @@ class Nicknames:
         validator=attr.validators.deep_mapping(
             key_validator=attr.validators.instance_of(str),
             value_validator=attr.validators.instance_of(Link),
-            mapping_validator=attr.validators.instance_of(dict)
+            mapping_validator=attr.validators.instance_of(dict),
         )
     )
     type: str = "nicknames"

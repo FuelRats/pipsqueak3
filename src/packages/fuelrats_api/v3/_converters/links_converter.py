@@ -5,6 +5,7 @@ from .._dataclasses.links import Links
 
 class LinkCoverter(ApiConverter[Link]):
     """ An individual JSONAPI link object """
+
     @classmethod
     def from_api(cls, data):
         # https://jsonapi.org/format/#document-links
@@ -17,6 +18,7 @@ class LinkCoverter(ApiConverter[Link]):
 
 class LinksConverter(ApiConverter[Links]):
     """ Converts a link object member list """
+
     # https://jsonapi.org/format/#document-links
     @classmethod
     def from_api(cls, data):
