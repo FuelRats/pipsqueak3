@@ -10,8 +10,8 @@ from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from src.packages.rescue.internaldata import InternalData as RescueData
 from src.packages.utils import Platforms
-from .._converter import ApiConverter, _DTYPE
-from ...mark_for_deletion import MarkForDeletion
+from src.packages.fuelrats_api._converter import ApiConverter, _DTYPE
+from src.packages.mark_for_deletion import MarkForDeletion
 
 
 class MarkForDeleteConverter(ApiConverter[MarkForDeletion]):

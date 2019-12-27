@@ -9,7 +9,7 @@ from loguru import logger
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from ._converters import RatConverter, RescueConverter
-from .._base import FuelratsApiABC
+from src.packages.fuelrats_api._base import FuelratsApiABC
 
 
 class ApiError(RuntimeError):
