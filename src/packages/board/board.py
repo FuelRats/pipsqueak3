@@ -137,6 +137,11 @@ class RatBoard(abc.Mapping):
 
         super(RatBoard, self).__init__()
 
+    @property
+    def recently_closed(self) -> typing.Deque[Rescue]:
+        """ Recently closed rescues """
+        return self._recently_closed
+
     async def on_online(self):
         logger.info("Rescue board online.")
         self._offline = False
