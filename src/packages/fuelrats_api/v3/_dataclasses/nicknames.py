@@ -4,6 +4,7 @@ from datetime import datetime
 import attr
 import dateutil.parser
 
+from .links import Links
 from .relationships import Relationship
 
 
@@ -28,19 +29,24 @@ class NicknamesAttributes:
 
 @attr.dataclass
 class NicknamesRelationships:
-    user: Relationship
-    rat: Relationship
-
-
-@attr.dataclass
-class NicknamesLinks:
-    self_: str
+    user: Relationship = attr.ib(
+        validator=attr.validators.instance_of(Relationship)
+    )
+    rat: Relationship = attr.ib(
+        validator=attr.validators.instance_of(Relationship)
+    )
 
 
 @attr.dataclass
 class Nicknames:
     id: int
-    attributes: NicknamesAttributes
-    relationships: NicknamesRelationships
-    links: NicknamesLinks
+    attributes: NicknamesAttributes = attr.ib(
+        validator=attr.validators.instance_of(NicknamesAttributes)
+    )
+    relationships: NicknamesRelationships = attr.ib(
+        validator=attr.validators.instance_of(NicknamesRelationships)
+    )
+    links: Links = attr.ib(
+        validator=attr.validators.instance_of(dict)
+    )
     type: str = "nicknames"

@@ -19,3 +19,7 @@ def test_parse():
     payload = json.loads(raw)
 
     nickname = nickname_converter.NicknameConverter.from_api(payload['data'][0])
+    assert nickname.id == 21
+    assert nickname.attributes.vhost is None
+    assert nickname.attributes.nick == "unknown"
+    assert nickname.relationships.rat.links
