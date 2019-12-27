@@ -23,6 +23,8 @@ prometheus_client = "^0.7.1"
 prometheus_async = "^19.2.0"
 pyparsing = "^2.4.7"
 graypy = "^2.1.0"
+python-dateutil = "^2.8.1"
+simplejson = "^3.17.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
@@ -32,7 +34,8 @@ pylint = "*"
 pytest-httpserver = "*"
 codecov = "*"
 pycodestyle = "*"
-hypothesis = "^5.8.0"
+ipython = "^7.10.2"
+black = "^19.10b0"
 
 
 [build-system]
