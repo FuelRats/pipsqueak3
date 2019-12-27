@@ -4,7 +4,7 @@ from datetime import datetime
 import attr
 import dateutil.parser
 
-from .links import Links
+from .links import Links, Link
 from .relationships import Relationship
 
 
@@ -47,6 +47,10 @@ class Nicknames:
         validator=attr.validators.instance_of(NicknamesRelationships)
     )
     links: Links = attr.ib(
-        validator=attr.validators.instance_of(dict)
+        validator=attr.validators.deep_mapping(
+            key_validator=attr.validators.instance_of(str),
+            value_validator=attr.validators.instance_of(Link),
+            mapping_validator=attr.validators.instance_of(dict)
+        )
     )
     type: str = "nicknames"

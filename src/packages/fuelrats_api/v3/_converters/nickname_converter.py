@@ -5,9 +5,14 @@ from .._dataclasses.nicknames import Nicknames, NicknamesAttributes, NicknamesRe
 
 
 class NicknameConverter(ApiConverter[Nicknames]):
+    """
+    Converts a "nicknames" type
+    """
     @classmethod
     def from_api(cls, data):
         _type = data['type']
+        if _type != "nicknames":
+            raise ValueError(f"wrong data type {_type!r}!")
         _id = data['id']
         relationships = RelationshipConveter.from_api(data['relationships'])
         attributes = NicknamesAttributes(**data['attributes'])
