@@ -11,6 +11,7 @@ See LICENSE.md
 """
 from __future__ import annotations
 
+import collections
 import itertools
 import typing
 from asyncio import Lock
@@ -83,20 +84,25 @@ class RatBoard(abc.Mapping):
     """
     The Rat Board
     """
-    __slots__ = ["_storage_by_uuid",
-                 "_storage_by_client",
-                 "_handler",
-                 "_storage_by_index",
-                 "_index_counter",
-                 "_offline",
-                 "_modification_lock",
-                 "__weakref__"
-                 ]
+    __slots__ = [
+        "_storage_by_uuid",
+        "_storage_by_client",
+        "_handler",
+        "_storage_by_index",
+        "_index_counter",
+        "_offline",
+        "_modification_lock",
+        "_recently_closed",
+        "_offline_rescue_storage",
+        "__weakref__"
+    ]
 
     def __init__(
             self,
             api_handler: typing.Optional[FuelratsApiABC] = None,
-            offline: bool = True):
+            offline: bool = True,
+            max_recently_closed=5,
+    ):
         self._handler: typing.Optional[FuelratsApiABC] = api_handler
         """
         fuelrats.com API handler
@@ -124,13 +130,19 @@ class RatBoard(abc.Mapping):
         Modification lock to prevent concurrent modification of the board.
         """
 
+        self._recently_closed: typing.Deque[Rescue] = collections.deque(maxlen=max_recently_closed)
+        """ Recently closed rescue deck """
+        self._offline_rescue_storage: typing.Deque[Rescue] = collections.deque()
+        """ Holds closed cases that couldn't be pushed to the API (probably due to offline mode) """
+
         super(RatBoard, self).__init__()
 
     async def on_online(self):
         logger.info("Rescue board online.")
         self._offline = False
-        # TODO get API version from remote and log it
-        # TODO emit canned offline events to API
+        logger.info("emitting {} cached rescues to the API...", len(self._offline_rescue_storage))
+        for rescue in self._offline_rescue_storage:
+            await self._handler.update_rescue(rescue)
 
     async def on_offline(self):
         logger.warning("Rescue board now offline.")
@@ -327,9 +339,13 @@ class RatBoard(abc.Mapping):
         """ removes a rescue from active tracking """
         if isinstance(target, Rescue):
             target = target.board_index
+
+        case = self[target]
+        self._recently_closed.append(case)
+
         logger.trace("Acquiring modification lock...")
         with self._modification_lock:
             logger.trace("Acquired modification lock.")
-            # TODO: add to internal deck in offline mode so we can push to the API when we eventually
             del self[target]
         logger.trace("Released modification lock.")
+        # TODO: emit API call
