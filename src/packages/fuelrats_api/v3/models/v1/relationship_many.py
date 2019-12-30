@@ -2,7 +2,7 @@ import typing
 
 import attr
 
-from src.packages.fuelrats_api.v3._dataclasses.jsonapi.resource import Resource
+from src.packages.fuelrats_api.v3.models.jsonapi.resource import Resource
 
 
 @attr.dataclass
