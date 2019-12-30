@@ -4,7 +4,8 @@ from datetime import datetime
 import attr
 import dateutil.parser
 
-from .links import Links, Link
+from src.packages.fuelrats_api.v3._dataclasses.jsonapi import Link
+from src.packages.fuelrats_api.v3._dataclasses.jsonapi.link import Links
 from .relationships import Relationship
 
 

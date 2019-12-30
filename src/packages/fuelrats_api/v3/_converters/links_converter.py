@@ -1,6 +1,5 @@
 from .. import ApiConverter
-from .._dataclasses.link import Link
-from .._dataclasses.links import Links
+from src.packages.fuelrats_api.v3._dataclasses.jsonapi.link import Link, Links
 
 
 class LinkCoverter(ApiConverter[Link]):
