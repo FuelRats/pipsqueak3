@@ -1,7 +1,7 @@
 """
 starter_systems.py - Verification function to attempt to detect if the reported system is permit-locked to Pilot's Federation and thus requires a starter account to assist
 
-Copyright (c) 2019 The Fuel Rat Mischief,
+Copyright (c) 2020 The Fuel Rat Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.

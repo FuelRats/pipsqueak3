@@ -1,7 +1,7 @@
 """
-test_autocorrect.py - Tests for the system auto-correction methods.
+test_startersystems.py - Tests for starter system detection function
 
-Copyright (c) 2019 The Fuel Rats Mischief,
+Copyright (c) 2020 The Fuel Rats Mischief,
 All rights reserved.
 
 Licensed under the BSD 3-Clause License.
