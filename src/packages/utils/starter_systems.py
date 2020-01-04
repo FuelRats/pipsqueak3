@@ -17,10 +17,10 @@ This module is built on top of the Pydle system.
 def isStarterSystem(system: str) -> bool:
     """
     Take a system name and attempt to match it to a known list of permit-locked starter systems
-    Autocorrecting beyond case normalization is not attempted as all known locked starter systems 
+    Autocorrecting beyond case normalization is not attempted as all known locked starter systems
         are not procedurally named
-    List of permit-locked starter systems taken from 
-        https://elite-dangerous.fandom.com/wiki/Pilots%27_Federation_District 
+    List of permit-locked starter systems taken from
+        https://elite-dangerous.fandom.com/wiki/Pilots%27_Federation_District
         and last updated 2020-01-04
 
     Args:
@@ -30,8 +30,8 @@ def isStarterSystem(system: str) -> bool:
         bool: True if the system name matches a known permit-locked starter system, False otherwise
     """
 
-    listOfStarterSystems = ['AZOTH', 'DROMI', 'LIA FAIL', 'MATET', 'ORNA', 'OTEGINE', 'SHARUR', 
-        'TARNKAPPE', 'TYET', 'WOLFSEGEN']
+    listOfStarterSystems = ['AZOTH', 'DROMI', 'LIA FAIL', 'MATET', 'ORNA', 'OTEGINE', 'SHARUR',
+                            'TARNKAPPE', 'TYET', 'WOLFSEGEN']
 
     system = system.upper()
 
