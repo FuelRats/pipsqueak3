@@ -7,7 +7,7 @@ This project is a complete rewrite and replacement for mechas2's codebase, writt
 Please note that while some organization members have direct write access, all code additions are **REQUIRED** to be peer reviewed.
 
 ## Getting Started
-
+0. Check with the mecha3 team lead prior starting work on a feature/change. 
 1. Fork the [pipsqueak3](https://github.com/fuelrats/pipsqueak3) repository.
 2. Checkout `develop` branch
 3. Create a feature branch (See 'Feature Branches')
