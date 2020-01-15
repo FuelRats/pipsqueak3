@@ -194,7 +194,7 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            pip install 'poetry==1.0.0'
+            pip install 'poetry~=1.0'
             poetry add pylint-exit>=1.1.0
             poetry install --no-root
 
