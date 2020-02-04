@@ -37,3 +37,7 @@ class FuelratsApiABC(abc.ABC):
     @abc.abstractmethod
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
         ...
+
+    @abc.abstractmethod
+    async def get_nickname(self, key: str, fuzzy=False):
+        ...
