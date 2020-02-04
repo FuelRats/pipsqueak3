@@ -58,7 +58,7 @@ class Nickname(Resource):
     type: typing.ClassVar[str] = "nicknames"
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data) -> Nickname:
         return cls(
             id=data['id'],
             attributes=NicknameAttributes(**data['attributes']),
