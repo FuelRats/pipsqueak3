@@ -21,6 +21,9 @@ class MessageHistoryClient(RFC1459Support):
 
         return await super().on_message(target, by, message)
 
-    def get_last_message(self, channel: str, user: str):
+    def get_last_message(self, channel: str, user: str) -> typing.Optional[str]:
+        """
+        Fetches the last thing a specified user said in a specified channel the bot could see.
+        """
         users = self.__channel_history.get(channel, {})
         return users.get(user)
