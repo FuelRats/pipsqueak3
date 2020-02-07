@@ -13,7 +13,7 @@ class MessageHistoryClient(RFC1459Support):
         super().__init__(nickname, fallback_nicknames, username, realname, eventloop, **kwargs)
         self.__channel_history: typing.Dict[str, typing.Dict[str, str]] = {}
 
-    async def on_message(self, target, by, message):
+    async def on_message(self, target: str, by: str, message: str):
         # ensure target exists in tracking
         if target not in self.__channel_history:
             self.__channel_history[target] = {}
