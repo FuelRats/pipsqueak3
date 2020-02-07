@@ -25,6 +25,7 @@ from src.packages.graceful_errors import graceful_errors
 from src.packages.utils import sanitize
 from .features.message_history import MessageHistoryClient
 
+
 class MechaClient(Client, MessageHistoryClient):
     """
     MechaSqueak v3
