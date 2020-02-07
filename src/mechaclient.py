@@ -23,9 +23,9 @@ from src.packages.fact_manager.fact_manager import FactManager
 from src.packages.galaxy import Galaxy
 from src.packages.graceful_errors import graceful_errors
 from src.packages.utils import sanitize
+from .features.message_history import MessageHistoryClient
 
-
-class MechaClient(Client):
+class MechaClient(Client, MessageHistoryClient):
     """
     MechaSqueak v3
     """
@@ -78,6 +78,7 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
+        await super(MechaClient, self).on_message(channel, user, message)
         logger.debug(f"{channel}: <{user}> {message}")
 
         if user == self._config['irc']['nickname']:
