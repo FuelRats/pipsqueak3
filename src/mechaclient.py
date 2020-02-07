@@ -79,7 +79,7 @@ class MechaClient(Client, MessageHistoryClient):
         :param message: message body
         :return:
         """
-        await super(MechaClient, self).on_message(channel, user, message)
+        await super().on_message(channel, user, message)
         logger.debug(f"{channel}: <{user}> {message}")
 
         if user == self._config['irc']['nickname']:
