@@ -211,7 +211,7 @@ def color(text: str, text_color: Colors, bg_color: Optional[Colors] = None) -> s
     if not isinstance(text_color, Colors):
         raise TypeError("Expected a Colors enum, got {type(text_color)}")
     if isinstance(bg_color, Colors):
-        return f'{Formatting.FORMAT_COLOR.value}{text_color.value}{bg_color}{text}' \
+        return f'{Formatting.FORMAT_COLOR.value}{text_color.value}{bg_color.value}{text}' \
             f'{Formatting.FORMAT_COLOR.value}'
 
     return f'{Formatting.FORMAT_COLOR.value}{text_color.value}{text}{Formatting.FORMAT_COLOR.value}'
