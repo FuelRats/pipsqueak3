@@ -10,23 +10,15 @@ See LICENSE.md
 """
 
 import asyncio
-import datetime
-import re
 import uuid
-from datetime import timezone
 from typing import Optional
 
-import humanfriendly
-
-from src.packages.commands import command
-from src.packages.context.context import Context
-from src.packages.epic import Epic
-from src.packages.permissions.permissions import require_permission, RAT, OVERSEER, require_channel
-from src.packages.mark_for_deletion import MarkForDeletion
-from src.packages.quotation.rat_quotation import Quotation
-from src.packages.rat import Rat
-from src.packages.rescue import Rescue
-from src.packages.utils import Platforms, Status
+from ..packages.commands import command
+from ..packages.context.context import Context
+from ..packages.mark_for_deletion import MarkForDeletion
+from ..packages.permissions.permissions import require_permission, RAT, OVERSEER, require_channel
+from ..packages.rescue import Rescue
+from ..packages.utils import Status
 
 
 # User input validation helper
