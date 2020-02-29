@@ -506,13 +506,12 @@ async def cmd_case_management(ctx: Context):
 @command("sys", "loc", "location")
 async def cmd_case_management(ctx: Context):
     if len(ctx.words) < 3:
-        await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
+        return await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
 
     rescue = _validate(ctx, ctx.words[1])
 
     if not rescue:
-        await ctx.reply("No case with that name or number.")
-        return
+        return await ctx.reply("No case with that name or number.")
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.system = ctx.words_eol[2]
