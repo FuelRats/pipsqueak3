@@ -257,7 +257,7 @@ async def cmd_case_management_grab(ctx: Context):
     rescue = _validate(ctx, ctx.words[1])
 
     if not rescue:
-        case = await ctx.bot.board.create_rescue(client = ctx.words[1])
+        case = await ctx.bot.board.create_rescue(client=ctx.words[1])
         async with ctx.bot.board.modify_rescue(case) as case:
             case.add_quote()
         return
@@ -409,9 +409,10 @@ async def cmd_case_management_quote(ctx: Context):
 
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
-            quote_timestamp = humanfriendly.format_timespan((datetime.datetime.now(tz=timezone.utc)
-                                                             - quote.updated_at),
-                                                            detailed=False, max_units=2) + " ago"
+            delta = humanfriendly.format_timespan((datetime.datetime.now(tz=timezone.utc)
+                                                   - quote.updated_at),
+                                                  detailed=False, max_units=2)
+            quote_timestamp = f"{delta} ago"
             await ctx.reply(f'[{i}][{quote.author} ({quote_timestamp})] {quote.message}')
 
 
