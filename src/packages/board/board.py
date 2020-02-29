@@ -235,7 +235,7 @@ class RatBoard(abc.Mapping):
         # Purge it key by key.
         del self._storage_by_uuid[target.api_id]
         del self._storage_by_index[target.board_index]
-        if target.client:
+        if target.client and target.client.casefold() in self._storage_by_client:
             del self._storage_by_client[target.client.casefold()]
 
     @asynccontextmanager
