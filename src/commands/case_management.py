@@ -505,7 +505,7 @@ async def cmd_case_management(ctx: Context):
 @command("sys", "loc", "location")
 async def cmd_case_management(ctx: Context):
     if len(ctx.words) < 3:
-        await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
+        return await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
 
     rescue = _validate(ctx, ctx.words[1])
 
