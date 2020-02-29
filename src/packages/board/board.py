@@ -328,7 +328,7 @@ class RatBoard(abc.Mapping):
         if isinstance(target, Rescue):
             target = target.board_index
         logger.trace("Acquiring modification lock...")
-        with self._modification_lock:
+        async with self._modification_lock:
             logger.trace("Acquired modification lock.")
             # TODO: add to internal deck in offline mode so we can push to the API when we eventually
             del self[target]
