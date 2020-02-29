@@ -825,7 +825,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
 
         if show_assigned_rats:
             buffer.write(' Assigned Rats:')
-            buffer.write(', '.join([rat.name for rat in self.rats]))
+            buffer.write(', '.join([rat.name for rat in self.rats.values()]))
+            buffer.write("\n Unidentified Rats: ")
+            buffer.write(", ".join(self.unidentified_rats))
 
         # convert buffer back to string, and return that
         return buffer.getvalue()
