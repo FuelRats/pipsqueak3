@@ -544,15 +544,13 @@ async def cmd_case_management_title(ctx: Context):
 @command("unassign", "rm", "remove", "standdown")
 async def cmd_case_management_assign(ctx: Context):
     if len(ctx.words) < 2:
-        await ctx.reply("Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
-        return
+        return await ctx.reply("Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
 
     # Pass case to validator, return a case if found or None
     rescue = _validate(ctx, ctx.words[1])
 
     if not rescue:
-        await ctx.reply("No case with that name or number.")
-        return
+        return await ctx.reply("No case with that name or number.")
 
     # Get rats from input command
     rat_list = ctx.words_eol[2].split()
@@ -567,7 +565,7 @@ async def cmd_case_management_assign(ctx: Context):
             removed_rats.append(each)
 
         removed_rats_str = " ,".join(removed_rats)
-        await ctx.reply(f"{removed_rats_str} are directed to stand down. (Unassigned from case)")
+        return await ctx.reply(f"Removed from {rescue_client}'s case: {removed_rats_str}")
 
 
 @require_channel
