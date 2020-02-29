@@ -139,7 +139,7 @@ async def cmd_case_management_clear(ctx: Context):
             # TODO: Add paperwork call link here
 
     # FIXME: Deleting case from the board, as we don't have a proper method yet.
-    del ctx.bot.board[rescue.board_index]
+    await ctx.bot.board.remove_rescue(rescue)
 
     await ctx.reply(f"Case {case.client} was cleared!")
 
