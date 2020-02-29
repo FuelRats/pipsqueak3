@@ -146,8 +146,8 @@ class RatBoard(abc.Mapping):
         logger.info("Rescue board online.")
         self._offline = False
         logger.info("emitting {} cached rescues to the API...", len(self._offline_rescue_storage))
-        for rescue in self._offline_rescue_storage:
-            await self._handler.update_rescue(rescue)
+        while self._offline_rescue_storage:
+            await self._handler.update_rescue(self._offline_rescue_storage.popleft())
 
     async def on_offline(self):
         logger.warning("Rescue board now offline.")
