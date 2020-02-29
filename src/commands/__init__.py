@@ -11,5 +11,6 @@ See LICENSE.md
 from . import debug
 from . import case_management
 from . import deletion_management
+from . import starsystems
 
-__all__ = ["debug", "case_management", "deletion_management"]
+__all__ = ["debug", "case_management", "deletion_management", "starsystems"]
