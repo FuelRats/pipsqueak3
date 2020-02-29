@@ -16,14 +16,14 @@ from typing import Optional
 
 import humanfriendly
 
-from src.packages.commands import command
-from src.packages.context.context import Context
-from src.packages.epic import Epic
-from src.packages.permissions.permissions import require_permission, RAT, OVERSEER, require_channel
-from src.packages.quotation.rat_quotation import Quotation
-from src.packages.rat import Rat
-from src.packages.rescue import Rescue
-from src.packages.utils import Platforms, Status
+from ..packages.commands import command
+from ..packages.context.context import Context
+from ..packages.epic import Epic
+from ..packages.permissions.permissions import require_permission, RAT, OVERSEER, require_channel
+from ..packages.quotation.rat_quotation import Quotation
+from ..packages.rat import Rat
+from ..packages.rescue import Rescue
+from ..packages.utils import Platforms, Status
 
 _TIME_RE = re.compile(r'(\d+)[: ](\d+)')
 
@@ -101,10 +101,10 @@ async def cmd_case_management_assign(ctx: Context):
 
     async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
         for name in rat_list:
-                await case.add_rat(Rat(name=name, uuid=None))
+            await case.add_rat(Rat(name=name, uuid=None))
 
-                if name in case.unidentified_rats:
-                    await ctx.reply(f"Warning: {name!r} is NOT identified.")
+            if name in case.unidentified_rats:
+                await ctx.reply(f"Warning: {name!r} is NOT identified.")
 
     await ctx.reply(f'{rescue_client}: Please add the following rat(s) to your friends list:'
                     f' {", ".join(str(rat) for rat in rat_list)}')
@@ -298,7 +298,7 @@ async def cmd_case_management_inject(ctx: Context):
             for keyword in ctx.words_eol[2].split():
                 if keyword in {item.value for item in Platforms}:
                     case.platform = Platforms[keyword]
-                if keyword.casefold() == "cr" or "code red" in keyword.casefold()\
+                if keyword.casefold() == "cr" or "code red" in keyword.casefold() \
                         or _TIME_RE.match(ctx.words_eol[2]):
                     case.code_red = True
 
@@ -537,7 +537,6 @@ async def cmd_case_management_title(ctx: Context):
         await ctx.reply(f"{case.client}'s rescue title set to {ctx.words_eol[2]!r}")
 
 
-
 @require_channel
 @require_permission(RAT)
 @command("unassign", "rm", "remove", "standdown")
@@ -574,7 +573,7 @@ async def cmd_case_management_assign(ctx: Context):
 @command("xb")
 async def cmd_case_management_xb(ctx: Context):
     if len(ctx.words) < 2:
-        await ctx.reply("Usage: !pc <Client Name|Board Index>")
+        await ctx.reply("Usage: !xb <Client Name|Board Index>")
         return
 
     # Pass case to validator, return a case if found or None
