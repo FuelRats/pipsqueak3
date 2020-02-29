@@ -114,7 +114,7 @@ async def cmd_case_management_assign(ctx: Context):
 @require_permission(RAT)
 @command("clear", "close")
 async def cmd_case_management_clear(ctx: Context):
-    if len(ctx.words) > 2:
+    if len(ctx.words) < 2:
         await ctx.reply("Usage: !clear <Client Name|Board Index> [First Limpet Sender]")
         return
 
@@ -127,6 +127,7 @@ async def cmd_case_management_clear(ctx: Context):
     else:
         first_limpet = ""
 
+
     if not rescue:
         await ctx.reply("No case with that name or number.")
         return
@@ -138,9 +139,7 @@ async def cmd_case_management_clear(ctx: Context):
             case.first_limpet = first_limpet
             # TODO: Add paperwork call link here
 
-    # FIXME: Deleting case from the board, as we don't have a proper method yet.
-    del ctx.bot.board[rescue.board_index]
-
+    await ctx.bot.board.remove_rescue(rescue)
     await ctx.reply(f"Case {case.client} was cleared!")
 
 
