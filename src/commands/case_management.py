@@ -260,18 +260,22 @@ async def cmd_case_management_grab(ctx: Context):
 
     # Pass case to validator, return a case if found or None
     rescue = _validate(ctx, ctx.words[1])
+    last_message = ctx.bot.last_user_message.get(rescue.client.casefold() if rescue else ctx.words[1])
+    if not last_message:
+        return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
 
     if not rescue:
         case = await ctx.bot.board.create_rescue(client=ctx.words[1])
         async with ctx.bot.board.modify_rescue(case) as case:
-            case.add_quote()
-        return
+            case.add_quote(last_message)
+
+        return await ctx.reply(f"{case.client}'s case opened with {last_message!r}")
 
     if ctx.words[1].casefold() in ctx.bot.last_user_message:
         last_message = ctx.bot.last_user_message[ctx.words[1]]
     elif int(ctx.words[1]) in ctx.bot.board:
         if rescue.client.casefold() in ctx.bot.last_user_message:
-            last_message = ctx.bot.last_user_message[rescue.client.casefold()]
+            last_message = last_message
         else:
             await ctx.reply("Nothing to grab from that client.")
             return
@@ -492,6 +496,9 @@ async def cmd_case_management(ctx: Context):
         return
 
     if len(ctx.words_eol[1].split()) > 3:
+        if quote_id > len(rescue.quotes):
+            # no such quote, bail out
+            return await ctx.reply(f"no such quote by id {quote_id}")
         new_quote = Quotation(message=ctx.words_eol[2],
                               last_author=ctx.user.nickname,
                               author=rescue.quotes[quote_id].author,
