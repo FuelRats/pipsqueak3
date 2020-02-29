@@ -40,38 +40,6 @@ class Galaxy:
         """
         cls._config = data
 
-    LANDMARK_SYSTEMS = {
-        'beagle point': StarSystem(
-            name='BEAGLE POINT',
-            position=Vector(-1111.5625, -134.21875, 65269.75),
-            spectral_class='K'
-        ),
-        'colonia': StarSystem(
-            name='COLONIA',
-            position=Vector(-9530.5, -910.28125, 19808.125),
-            spectral_class='F'
-        ),
-        'fuelum': StarSystem(
-            name='FUELUM',
-            position=Vector(52, -52.65625, 49.8125),
-            spectral_class='K'
-        ),
-        'rodentia': StarSystem(
-            name='RODENTIA',
-            position=Vector(-9530.53125, -907.25, 19787.375),
-            spectral_class='M'
-        ),
-        'sagittarius a*': StarSystem(
-            name='SAGITTARIUS A*',
-            position=Vector(25.21875, -20.90625, 25899.96875),
-            spectral_class=None
-        ),
-        'sol': StarSystem(
-            name='SOL',
-            position=Vector.zero(),
-            spectral_class='G'
-        )
-    }
     MAX_PLOT_DISTANCE = 20000
 
     MAX_RETRIES = 3
@@ -83,25 +51,43 @@ class Galaxy:
     def __init__(self, url: str = None):
         self.url = url or self._config['system_api']['url']
 
-    async def find_system_by_name(self, name: str) -> typing.Optional[StarSystem]:
+    async def find_system_by_name(self,
+                                  name: str,
+                                  full_details: bool = False) -> typing.Optional[StarSystem]:
         """
         Finds a single system by its name and return its StarSystem object
 
         Args:
             name (str): The name of the system to search for.
+            full_details (bool): Specify whether to simply find the correct system name
+                or to retrieve all relevant details about a system (coordinates, spectral class,
+                etc.)
 
         Returns:
             A ``StarSystem`` object representing the found system, or ``None`` if none was found.
         """
 
-        if name.casefold() in self.LANDMARK_SYSTEMS:
-            return self.LANDMARK_SYSTEMS[name.casefold()]
+        data = await self._call("search", {"name": name, "limit": 1})
+        if 'data' in data and data['data'] and data['data'][0]['name'].casefold() == name.casefold():
+            if full_details:
+                return await self.find_system_by_id(data['data'][0]['id'])
+            else:
+                return StarSystem(name=data['data'][0]['name'])
 
-        data = await self._call("api/systems", {"filter[name:eq]": name.upper()})
-        result_count = data['meta']['results']['available']
-        if result_count > 0:
-            system_id = data['data'][0]['id']
-            sys = data['data'][0]['attributes']
+    async def find_system_by_id(self, system_id: int) -> typing.Optional[StarSystem]:
+        """
+        Finds a single system by its ID and returns its StarSystem object.
+
+        Args:
+            system_id (int): The ID of the system to search for.
+
+        Returns:
+            A ``StarSystem`` object representing the found system, or ``None`` if none was found.
+        """
+
+        data = await self._call(f"api/systems/{system_id}")
+        if 'data' in data and data['data']:
+            sys = data['data']['attributes']
             main_star = await self._find_main_star(system_id)
             sys['spectral_class'] = main_star['spectral_class'] if main_star is not None else None
             return StarSystem(position=Vector(**sys['coords']),
@@ -129,10 +115,11 @@ class Galaxy:
                 result['spectral_class'] = star['attributes']['subType'][0]
                 return result
 
-    async def find_nearest_landmark(self, system: StarSystem) -> typing.Tuple[StarSystem, float]:
+    async def find_nearest_landmark(self,
+                                    system: StarSystem
+                                    ) -> typing.Optional[typing.Tuple[StarSystem, float]]:
         """
-        Find the nearest "landmark" system to the one provided. A list of landmark systems
-        can be found in Galaxy.LANDMARK_SYSTEMS.
+        Find the nearest "landmark" system to the one provided.
 
         Args:
             system (StarSystem): The system to center the search around.
@@ -140,156 +127,30 @@ class Galaxy:
         Returns:
             A tuple containing the landmark StarSystem closest to the one provided, and a float
             value indicating the distance between the two.
+            May return None in the case of an API failure.
         """
 
-        if system.name.casefold() in self.LANDMARK_SYSTEMS:
-            return (system, 0)
-
-        closest_system = None
-        closest_distance = -1
-        for landmark in self.LANDMARK_SYSTEMS.values():
-            distance = system.distance(landmark)
-            if closest_distance == -1 or distance < closest_distance:
-                closest_distance = round(distance, 2)
-                closest_system = landmark
-
-        if closest_system is None:
-            # Something's gone terribly wrong, likely the LANDMARK_SYSTEMS dict is empty.
-            raise RuntimeError(f"Could not find a closest landmark match for '{system.name}'!")
-
-        return (closest_system, closest_distance)
+        data = await self._call("landmark", {"name": system.name})
+        if 'landmarks' in data and data['landmarks']:
+            landmark = await self.find_system_by_name(data['landmarks'][0]['name'])
+            return (landmark, round(data['landmarks'][0]['distance'], 2))
 
     async def search_systems_by_name(self, name: str) -> typing.Optional[typing.List[str]]:
         """
-        Perform a fuzzy (Soundex) search for star systems on the name
-        given to us.
+        Perform a fuzzy search for star systems on the name given to us.
 
         Args:
             name (str): The system name to search for.
 
         Returns:
-            A list of up to 10 system names that closest match ``name``, or ``None`` if
+            A list of up to 5 system names that closest match ``name``, or ``None`` if
             none could be found.
         """
 
-        matches = await self._call("search",
-                                   {"name": name.upper(),
-                                    "type": "dmeta",
-                                    "limit": "5"})
+        matches = await self._call("mecha", {"name": name.upper()})
         # Check to ensure the data set is not missing or empty.
-        if matches['data']:
+        if 'data' in matches and matches['data']:
             return [match['name'] for match in matches['data']]
-
-    async def plot_waypoint_route(self,
-                                  start: str,
-                                  end: str,
-                                  interval: int = MAX_PLOT_DISTANCE) -> typing.List[str]:
-        """
-        Plot a route of waypoints between two faraway systems. Distance between
-        waypoints should not exceed "interval" light-years.
-
-        Args:
-            start (str): The system in which to begin our journey.
-            end (str): The system which we're travelling towards.
-            interval (int): The maximum distance between two waypoints, in light-years.
-
-        Returns:
-            A list of system names representing the route, starting with the start system and
-            ending with the end system.
-
-        Raises:
-            ValueError: If either the start or end system cannot be found.
-        """
-
-        start_system = await self.find_system_by_name(start)
-        end_system = await self.find_system_by_name(end)
-        if start_system is None or end_system is None:
-            raise ValueError("Invalid endpoints provided for the route!")
-        # Because our "nearest system" calculations will be
-        # calculated based off a cubic search, give us some wiggle room
-        # because the corners of the cube will have a higher distance
-        # than expected.
-        interval *= 0.98
-
-        route = [start_system]
-        remaining_distance = start_system.distance(end_system)
-        # To find our waypoint route:
-        # Start in the starting system.
-        next_system = start_system
-        # Until we're less than 1 interval's distance away...
-        while remaining_distance > interval:
-            # Travel in the direction of our end system and find our next waypoint system.
-            next_system = await self._furthest_between(next_system,
-                                                       end_system,
-                                                       interval)
-            # Add the newest waypoint to our route...
-            route.append(next_system)
-            # And update the remaining distance to our goal.
-            remaining_distance = next_system.distance(end_system)
-        route.append(end_system)
-        return [waypoint.name for waypoint in route]
-
-    async def _furthest_between(self,
-                                start: StarSystem,
-                                end: StarSystem,
-                                distance: int) -> typing.Optional[StarSystem]:
-        """
-        Finds the furthest star from away from "start" and towards "end",
-        with a limitation of no more than "distance" light-years.
-
-        Args:
-            start (StarSystem): The system to begin our journey in.
-            end (StarSystem): The system which we want to head towards.
-            distance (int): The maximum distance we can travel towards the end system.
-
-        Returns:
-            A ``StarSystem`` object representing the nearest star found after travelling
-            ``distance`` light years from the start system towards the end system.
-
-            Returns None if no system was found after travelling.
-        """
-
-        # Calculate the direction of travel required to go from ``start`` to ``end``.
-        normal = (end.position - start.position).normal()
-        # Travel in that direction for ``distance`` light years.
-        new_position = start.position + (normal * distance)
-        nearest = await self._find_nearest_systems(new_position.x,
-                                                   new_position.y,
-                                                   new_position.z)
-        # Check to ensure the data set is not missing or empty.
-        if nearest:
-            return await self.find_system_by_name(nearest[0])
-
-    async def _find_nearest_systems(self,  # pylint: disable=invalid-name
-                                    x: float,
-                                    y: float,
-                                    z: float,
-                                    limit: int = 10,
-                                    cubesize: int = 50) -> typing.Optional[typing.List[str]]:
-        """
-        Given a set of galactic coordinates, find the closest star systems.
-
-        Args:
-
-            x (float): The galactic X coordinate to center the search on.
-            y (float): The galactic Y coordinate to center the search on.
-            z (float): The galactic Z coordinate to center the search on.
-            limit (int): The maximum number of nearest systems to return.
-
-        Returns:
-            A ``list`` of ``StarSystem`` objects representing the nearest star systems, up to
-            ``limit`` entries, or ``None`` if no nearby sysems could be found.
-        """
-
-        nearest = await self._call("nearest",
-                                   {"x": x,
-                                    "y": y,
-                                    "z": z,
-                                    "aggressive": "1",
-                                    "limit": limit,
-                                    "cubesize": cubesize})
-        if nearest['data']:
-            return [neighbor['name'] for neighbor in nearest['data']]
 
     async def _retry_delay(self, current_retry: int) -> None:
         """
