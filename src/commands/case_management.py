@@ -9,13 +9,18 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 import datetime
+import functools
+import io
+import itertools
 import re
+import typing
 import uuid
 from datetime import timezone
-from typing import Optional
 
 import humanfriendly
+from loguru import logger
 
+from ._list_flags import ListFlags
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.epic import Epic
@@ -29,7 +34,7 @@ _TIME_RE = re.compile(r'(\d+)[: ](\d+)')
 
 
 # User input validation helper
-def _validate(ctx: Context, validate: str) -> Optional[Rescue]:
+def _validate(ctx: Context, validate: str) -> typing.Optional[Rescue]:
     try:
         if validate not in ctx.bot.board:
             rescue = ctx.bot.board[int(ctx.words[1])]
@@ -586,3 +591,126 @@ async def cmd_case_management_xb(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.platform = Platforms.PC
         await ctx.reply(f"{case.client}'s platform set to XB.")
+
+
+def remainder(words: typing.Iterable[str]) -> str:
+    return " ".join(words)
+
+
+@command("list")
+async def cmd_list(ctx: Context):
+    """
+    Implementation of !list
+
+        Supported parameters:
+        -i: Also show inactive (but still open) cases.
+        -r: Show assigned rats
+        -u: Show only cases with no assigned rats
+        -@: Show full case IDs.  (LONG)
+
+    Args:
+        ctx:
+
+    """
+    _, *words = ctx.words
+
+    flags = ListFlags()
+    platform_filter = None
+
+    # plain invocation
+    if len(words) == 0:
+        ...  # use above defaults (done this way so else can be used below as an error state)
+
+    # arguments invocation
+    elif len(words) == 1 or len(words) == 2:
+        flags_set = False
+        platform_filter_set = False
+
+        for word in words:  # type: str
+            if word.startswith('-'):
+                if flags_set:
+                    raise RuntimeError("invalid usage")  # FIXME: usage warning to user
+                flags = ListFlags.from_word(word)
+                flags_set = True
+            else:
+                # platform or bust
+                if platform_filter_set:
+                    raise RuntimeError("invalid usage")  # FIXME: usage error
+
+                try:
+                    platform_filter = Platforms[word.upper()]
+                except KeyError:
+                    return await ctx.reply(f"unrecognized platform '{word.upper()}'")
+
+    else:
+        raise RuntimeError  # FIXME: usage error
+    logger.debug(f"flags set:= {flags} \t platform_filter := {platform_filter}")
+    active_rescues: typing.List[Rescue] = []
+    inactive_rescues: typing.List[Rescue] = []
+
+    rescue_filter = functools.partial(_rescue_filter, flags, platform_filter)
+
+    # for each rescue that doesn't matches the filter
+    for rescue in itertools.filterfalse(rescue_filter, iter(ctx.bot.board.values())):  # type: Rescue
+        # put it in the right list
+        if rescue.active:
+            active_rescues.append(rescue)
+        else:
+            inactive_rescues.append(rescue)
+    format_specifiers = "c"
+    if flags.show_assigned_rats:
+        format_specifiers += 'r'
+    if flags.show_uuids:
+        format_specifiers += '@'
+
+    if not active_rescues:
+        await ctx.reply("No active rescues.")
+    else:
+
+        output = _list_rescue(active_rescues, format_specifiers)
+        if output:
+            await ctx.reply(output)
+    if flags.show_inactive:
+        if not inactive_rescues:
+            return await ctx.reply("No inactive rescues.")
+
+        output = _list_rescue(inactive_rescues, format_specifiers)
+        if output:
+            await ctx.reply(output)
+
+
+def _list_rescue(rescue_collection, format_specifiers):
+    buffer = io.StringIO()
+    buffer.write(f"{len(rescue_collection):3} active cases. ")
+    for rescue in rescue_collection:
+        buffer.write(format(rescue, format_specifiers))
+        buffer.write('\n')
+    output = buffer.getvalue()
+    return output.rstrip('\n')
+
+
+def _rescue_filter(flags: ListFlags,
+                   platform_filter: typing.Optional[Platforms],
+                   rescue: Rescue) -> bool:
+    """
+    determine whether the `rescue` object is one we care about
+
+    Args:
+        rescue:
+
+    Returns:
+
+    """
+    filters = []
+
+    if flags.filter_unassigned_rescues:
+        # return whether any rats are assigned
+        # either properly or via unidentified rats
+        filters.append(bool(rescue.rats) or bool(rescue.unidentified_rats))
+
+    # use the active bool on rescue if we don't want inactives, otherwise True
+    filters.append(rescue.active if not flags.show_inactive else True)
+
+    if platform_filter:  # if we rae filtering on platform
+        filters.append(rescue.platform is platform_filter)
+    return not all(filters)

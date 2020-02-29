@@ -12,11 +12,13 @@ This module is built on top of the Pydle system.
 """
 from contextlib import contextmanager
 from datetime import datetime
+from io import StringIO
 from typing import Union, Optional, List, TYPE_CHECKING, Dict
 from uuid import UUID, uuid4
 
 from loguru import logger
 
+from src.packages.utils import Colors, color, bold
 from ..epic import Epic
 from ..mark_for_deletion import MarkForDeletion
 from ..quotation import Quotation
@@ -783,3 +785,47 @@ class Rescue:  # pylint: disable=too-many-public-methods
     # TODO: to/from json
     # TODO: track changes
     # TODO: helper method for adding / editing quotes
+
+    def __format__(self, format_spec):
+        """
+        'c' gives the thing colour
+        'a' gives rat assignments
+        'u' gives uuids
+
+        order of format specifiers is NOT sensitive but IS case sensitive!
+        """
+
+        coloured = 'c' in format_spec
+        show_assigned_rats = 'r' in format_spec
+        show_uuid = '@' in format_spec
+
+        buffer = StringIO()
+        buffer.write(f"[{self.board_index}")
+
+        buffer.write(f"@{self.api_id}] " if show_uuid else '] ')
+        buffer.write(F"{self.client} ")
+
+        if self.code_red:
+            base = '(CR) '
+            if coloured:
+                buffer.write(bold(color(base, Colors.RED)))
+            else:
+                buffer.write(base)
+
+        if self.platform:
+            base = self.platform.name
+
+            if coloured:
+                if self.platform is Platforms.XB:
+                    buffer.write(color(base, Colors.GREEN))
+                elif self.platform is Platforms.PS:
+                    buffer.write(color(base, Colors.BLUE))
+                else:
+                    buffer.write(base)
+
+        if show_assigned_rats:
+            buffer.write(' Assigned Rats:')
+            buffer.write(', '.join([rat.name for rat in self.rats]))
+
+        # convert buffer back to string, and return that
+        return buffer.getvalue()

@@ -296,7 +296,10 @@ def test_dbm_fx() -> DatabaseManager:
 
     A DATABASE CONFIGURATION AND CONNECTION IS REQUIRED FOR THESE TESTS.
     """
-    database = DatabaseManager()
+    try:
+        database = DatabaseManager()
+    except psycopg2.DatabaseError:
+        pytest.xfail("unable to instantiate database object, these tests cannot pass")
     return database
 
 
