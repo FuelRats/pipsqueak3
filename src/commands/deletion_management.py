@@ -73,6 +73,8 @@ async def del_management_md(ctx: Context):
         case.status = Status.CLOSED
         await ctx.reply(f"{case.client}'s case has been closed and added to the MFD list.")
 
+    await ctx.bot.board.remove_rescue(rescue)
+
 
 @require_channel
 @require_permission(OVERSEER)
@@ -82,13 +84,10 @@ async def del_management_mdlist(ctx: Context):
 
     for rescue in ctx.bot.board.values():
         if rescue.marked_for_deletion.marked:
-            await ctx.reply(f"[@{rescue.api_id}] {rescue.client} {rescue.platform.value} "
-                            f"Reason: {rescue.marked_for_deletion.reason}, "
-                            f"Reporter: {rescue.marked_for_deletion.reporter}")
+            await ctx.reply(
+                f"[@{rescue.api_id}] {rescue.client} {rescue.platform.value if rescue.platform else ''} "
+                f"Reason: {rescue.marked_for_deletion.reason}, "
+                f"Reporter: {rescue.marked_for_deletion.reporter}")
             await asyncio.sleep(delay=0.5)
 
     await ctx.reply("(End of Marked for Deletion list)")
-
-
-
-
