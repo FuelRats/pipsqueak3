@@ -257,7 +257,8 @@ async def cmd_case_management_grab(ctx: Context):
     rescue = _validate(ctx, ctx.words[1])
 
     if not rescue:
-        async with ctx.bot.board.create_rescue() as case:
+        case = await ctx.bot.board.create_rescue(client = ctx.words[1])
+        async with ctx.bot.board.modify_rescue(case) as case:
             case.add_quote()
         return
 
