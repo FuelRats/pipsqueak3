@@ -11,11 +11,11 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from src.config import setup
-from src.packages.cli_manager import cli_manager
-from src.packages.commands import command
-from src.packages.context import Context
-from src.packages.permissions import require_channel, require_permission, TECHRAT
+from ..config import setup
+from ..packages.cli_manager import cli_manager
+from ..packages.commands import command
+from ..packages.context import Context
+from ..packages.permissions import require_channel, require_permission, TECHRAT
 from loguru import logger
 
 
