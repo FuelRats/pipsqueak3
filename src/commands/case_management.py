@@ -25,7 +25,7 @@ from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from src.packages.utils import Platforms, Status
 
-_TIME_RE = re.compile('(\d+)[: ](\d+)')
+_TIME_RE = re.compile(r'(\d+)[: ](\d+)')
 
 
 # User input validation helper
