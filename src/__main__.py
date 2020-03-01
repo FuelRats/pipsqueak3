@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 
 """
 import asyncio
+
 from loguru import logger
 
 # noinspection PyUnresolvedReferences
@@ -20,6 +21,8 @@ from src import commands  # pylint: disable=unused-import
 from src.config import setup
 from src.mechaclient import MechaClient
 from src.packages import cli_manager
+# noinspection PyUnresolvedReferences
+from src.packages import ratmama  # pylint: disable=unused-import
 from src.packages.commands import command
 from src.packages.context import Context
 from src.packages.permissions import require_permission, RAT
