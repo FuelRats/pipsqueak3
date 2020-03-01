@@ -16,6 +16,7 @@ from loguru import logger
 from typing import Callable, Any
 
 from src.packages.rules.rules import get_rule, clear_rules
+from ..ratmama.ratmama_parser import  handle_ratmama_announcement
 
 # set the logger for rat_command
 
@@ -75,6 +76,9 @@ async def trigger(ctx) -> Any:
             logger.debug(
                 f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} "
                 f"found.")
+
+    if ctx.words_eol[0].startswith("Incoming Client:"):
+        command_fun = handle_ratmama_announcement
 
     if command_fun:
         return await command_fun(ctx, *extra_args)
