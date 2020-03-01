@@ -67,7 +67,11 @@ class Galaxy:
             A ``StarSystem`` object representing the found system, or ``None`` if none was found.
         """
 
-        data = await self._call("api/systems", {"filter[name:ilike]": name, "sort": "name", "limit": 1})
+        data = await self._call("api/systems", {
+            "filter[name:ilike]": name,
+            "sort": "name",
+            "limit": 1
+        })
         print(data)
         if 'data' in data and data['data']:
             if full_details:
