@@ -331,7 +331,7 @@ async def cmd_case_management_inject(ctx: Context):
 @require_permission(RAT)
 @command("ircnick", "nick", "nickname")
 async def cmd_case_management_ircnick(ctx: Context):
-    if len(ctx.words) < 2:
+    if len(ctx.words) < 3:
         await ctx.reply("Usage: !ircnick <Client Name|Board Index> <New Client Name>")
         return
 
