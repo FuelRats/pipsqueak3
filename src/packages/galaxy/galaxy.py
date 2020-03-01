@@ -128,10 +128,15 @@ class Galaxy:
         Returns:
             A tuple containing the landmark StarSystem closest to the one provided, and a float
             value indicating the distance between the two.
-            May return None in the case of an API failure.
+            May return None if the provided system is not found, or
+            in the case of an API failure.
         """
 
-        data = await self._call("landmark", {"name": system.name})
+        found_system = await self.find_system_by_name(system.name)
+        if found_system is None:
+            return None
+
+        data = await self._call("landmark", {"name": found_system.name})
         if 'landmarks' in data and data['landmarks']:
             landmark = await self.find_system_by_name(data['landmarks'][0]['name'])
             return (landmark, round(data['landmarks'][0]['distance'], 2))
