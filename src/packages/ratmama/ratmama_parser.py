@@ -20,7 +20,6 @@ from ..rescue import Rescue
 from ..rules import rule
 from ..utils import Platforms
 
-
 _config: Dict = {}
 
 
@@ -72,7 +71,7 @@ RATMAMA_REGEX = re.compile(r"""(?x)
 """)
 
 
-@rule(r"^\s*Incoming Client:", case_sensitive=False, full_message=False, prefixless=True,
+@rule(r"^Incoming Client:", case_sensitive=False, full_message=False, prefixless=True,
       pass_match=False)
 async def handle_ratmama_announcement(ctx: Context) -> None:
     """
@@ -131,10 +130,9 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             logger.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
 
         # no case for that name, we have to make our own
-        rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,
+        rescue = await ctx.bot.board.create_rescue(client=client_name, system=system_name, irc_nickname=nickname,
                                 code_red=not o2_status, lang_id=lang_code, platform=platform)
 
-        await ctx.bot.board.append(rescue, overwrite=False)
         index = ctx.bot.board[client_name].board_index
         await ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
                         f"Reported System: {system_name} (distance to be implemented) - "
@@ -165,11 +163,10 @@ async def handle_ratsignal(ctx: Context) -> None:
     # the ratsignal is nothing we are interested anymore
     message = re.sub("ratsignal", "", message, flags=re.I)
 
-    for rescue in ctx.bot.board.values():
-        if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
-            await ctx.reply(f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
-                            f" someone will help you soon!")
-            return
+    if ctx.user.nickname.casefold() in ctx.bot.board:
+        await ctx.reply(f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
+                        f" someone will help you soon!")
+        return
 
     sep: Optional[str] = None
     if ',' in message:
@@ -182,9 +179,10 @@ async def handle_ratsignal(ctx: Context) -> None:
         sep = '-'
 
     if not sep:
-        await ctx.bot.board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
-        index = ctx.bot.board[ctx.user.nickname]
-        await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
+        rescue = await  ctx.bot.board.create_rescue(irc_nickname=ctx.user.nickname,
+                                                    client=ctx.user.nickname)
+        await ctx.reply(
+            f"Case #{rescue.board_index} created for {ctx.user.nickname}, please set details")
         return
 
     system: str = None
@@ -207,15 +205,14 @@ async def handle_ratsignal(ctx: Context) -> None:
         else:
             system = part
 
-    rescue = Rescue(
+    rescue = await ctx.bot.board.create_rescue(
         client=ctx.user.nickname,
         system=system,
         irc_nickname=ctx.user.nickname,
         code_red=code_red,
         platform=platform
     )
-    await ctx.bot.board.append(rescue)
-    await ctx.reply(f"Case created for {ctx.user.nickname}"
-                    f" on {platform.name} in {system}. "
+    await ctx.reply(f"Case created for {rescue.client}"
+                    f" on {rescue.platform.name} in {rescue.system}. "
                     f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
-                    f"- {platform.name.upper()}_SIGNAL")
+                    f"- {rescue.platform.name.upper()}_SIGNAL")
