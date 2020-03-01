@@ -596,7 +596,7 @@ async def cmd_case_management_xb(ctx: Context):
         return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.platform = Platforms.PC
+        case.platform = Platforms.XB
         await ctx.reply(f"{case.client}'s platform set to XB.")
 
 
