@@ -67,12 +67,13 @@ class Galaxy:
             A ``StarSystem`` object representing the found system, or ``None`` if none was found.
         """
 
-        data = await self._call("search", {"name": name, "limit": 1})
-        if 'data' in data and data['data'] and data['data'][0]['name'].casefold() == name.casefold():
+        data = await self._call("api/systems", {"filter[name:ilike]": name, "sort": "name", "limit": 1})
+        print(data)
+        if 'data' in data and data['data']:
             if full_details:
                 return await self.find_system_by_id(data['data'][0]['id'])
             else:
-                return StarSystem(name=data['data'][0]['name'])
+                return StarSystem(name=data['data'][0]['attributes']['name'])
 
     async def find_system_by_id(self, system_id: int) -> typing.Optional[StarSystem]:
         """
@@ -107,7 +108,7 @@ class Galaxy:
             If the system given cannot be found, returns None.
         """
 
-        stars = await self._call("api/stars", {"filter[systemId:eq]": system_id})
+        stars = await self._call("api/stars", {"filter[systemId64:eq]": system_id})
         for star in stars['data']:
             if star['attributes']['isMainStar']:
                 result = star['attributes']
