@@ -259,8 +259,8 @@ async def cmd_case_management_grab(ctx: Context):
         return
 
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
-    last_message = ctx.bot.last_user_message.get(rescue.client.casefold() if rescue else ctx.words[1])
+    rescue = _validate(ctx, ctx.words[1].casefold())
+    last_message = ctx.bot.last_user_message.get(rescue.client.casefold() if rescue else ctx.words[1].casefold())
     if not last_message:
         return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
 

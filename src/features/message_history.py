@@ -14,6 +14,7 @@ class MessageHistoryClient(RFC1459Support):
         self.__channel_history: typing.Dict[str, typing.Dict[str, str]] = {}
 
     async def on_message(self, target: str, by: str, message: str):
+        target = target.casefold()
         # ensure target exists in tracking
         if target not in self.__channel_history:
             self.__channel_history[target] = {}
