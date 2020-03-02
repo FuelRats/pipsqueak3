@@ -13,7 +13,7 @@ See LICENSE.md
 import asyncio
 import json
 import typing
-from html import escape
+from urllib.parse import urlencode
 
 import aiohttp
 
@@ -72,7 +72,7 @@ class Galaxy:
             "sort": "name",
             "limit": 1
         })
-        print(data)
+
         if 'data' in data and data['data']:
             if full_details:
                 return await self.find_system_by_id(data['data'][0]['id'])
@@ -186,8 +186,8 @@ class Galaxy:
         base_url = self.url
         param_string = ""
         if params:
-            param_string = '&'.join(
-                [f"{key}={escape(str(value))}" for key, value in params.items()]
+            param_string = urlencode(
+                [(key, value) for key, value in params.items()]
             )
         url = f"{base_url}{endpoint}?{param_string}"
         for retry in range(self.MAX_RETRIES):
