@@ -15,10 +15,10 @@ async def cmd_search(ctx: Context):
 @permissions.require_permission([permissions.RAT])
 @command("landmark-near")
 async def cmd_landmark_near(ctx: Context):
-    if len(ctx.words) != 2:
+    if len(ctx.words) < 2:
         return await ctx.reply("Usage: landmark near <system>")
 
-    system_name = ctx.words[1]
+    system_name = ctx.words_eol[1]
     logger.trace("searching for system {}", system_name)
     found = await ctx.bot.galaxy.find_system_by_name(system_name)
     if not found:
