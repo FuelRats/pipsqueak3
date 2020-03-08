@@ -136,13 +136,9 @@ class Galaxy:
             in the case of an API failure.
         """
 
-        found_system = await self.find_system_by_name(system.name)
-        if found_system is None:
-            return None
-
-        data = await self._call("landmark", {"name": found_system.name})
+        data = await self._call("landmark", {"name": system.name})
         if 'landmarks' in data and data['landmarks']:
-            landmark = await self.find_system_by_name(data['landmarks'][0]['name'])
+            landmark = StarSystem(name=data['landmarks'][0]['name'])
             return (landmark, round(data['landmarks'][0]['distance'], 2))
 
     async def search_systems_by_name(self, name: str) -> typing.Optional[typing.List[str]]:
