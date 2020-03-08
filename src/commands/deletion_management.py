@@ -43,7 +43,7 @@ def _validate(ctx: Context, validate: str) -> Optional[Rescue]:
 @require_permission(RAT)
 @command("md", "mdadd")
 async def del_management_md(ctx: Context):
-    if len(ctx.words) < 2:
+    if len(ctx.words) <= 2:
         await ctx.reply("Usage: !md <Client Name|Board Index> <Reason for Deletion>")
         return
 
@@ -55,13 +55,13 @@ async def del_management_md(ctx: Context):
         return
 
     if not rescue.marked_for_deletion.marked:
-        new_MFD = MarkForDeletion(marked=True, reporter=ctx.user.nickname, reason=ctx.words_eol[2])
+        new_mfd = MarkForDeletion(marked=True, reporter=ctx.user.nickname, reason=ctx.words_eol[2])
     else:
         await ctx.reply(f"{rescue.client}'s case is already marked for deletion.")
         return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.marked_for_deletion = new_MFD
+        case.marked_for_deletion = new_mfd
         case.status = Status.CLOSED
         await ctx.reply(f"{case.client}'s case has been closed and added to the MFD list.")
 
