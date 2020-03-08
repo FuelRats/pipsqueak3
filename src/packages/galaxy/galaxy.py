@@ -13,7 +13,7 @@ See LICENSE.md
 import asyncio
 import json
 import typing
-from html import escape
+from urllib.parse import urlencode
 
 import aiohttp
 
@@ -67,12 +67,17 @@ class Galaxy:
             A ``StarSystem`` object representing the found system, or ``None`` if none was found.
         """
 
-        data = await self._call("search", {"name": name, "limit": 1})
-        if 'data' in data and data['data'] and data['data'][0]['name'].casefold() == name.casefold():
+        data = await self._call("api/systems", {
+            "filter[name:ilike]": name,
+            "sort": "name",
+            "limit": 1
+        })
+
+        if 'data' in data and data['data']:
             if full_details:
                 return await self.find_system_by_id(data['data'][0]['id'])
             else:
-                return StarSystem(name=data['data'][0]['name'])
+                return StarSystem(name=data['data'][0]['attributes']['name'])
 
     async def find_system_by_id(self, system_id: int) -> typing.Optional[StarSystem]:
         """
@@ -107,7 +112,7 @@ class Galaxy:
             If the system given cannot be found, returns None.
         """
 
-        stars = await self._call("api/stars", {"filter[systemId:eq]": system_id})
+        stars = await self._call("api/stars", {"filter[systemId64:eq]": system_id})
         for star in stars['data']:
             if star['attributes']['isMainStar']:
                 result = star['attributes']
@@ -127,10 +132,15 @@ class Galaxy:
         Returns:
             A tuple containing the landmark StarSystem closest to the one provided, and a float
             value indicating the distance between the two.
-            May return None in the case of an API failure.
+            May return None if the provided system is not found, or
+            in the case of an API failure.
         """
 
-        data = await self._call("landmark", {"name": system.name})
+        found_system = await self.find_system_by_name(system.name)
+        if found_system is None:
+            return None
+
+        data = await self._call("landmark", {"name": found_system.name})
         if 'landmarks' in data and data['landmarks']:
             landmark = await self.find_system_by_name(data['landmarks'][0]['name'])
             return (landmark, round(data['landmarks'][0]['distance'], 2))
@@ -176,8 +186,8 @@ class Galaxy:
         base_url = self.url
         param_string = ""
         if params:
-            param_string = '&'.join(
-                [f"{key}={escape(str(value))}" for key, value in params.items()]
+            param_string = urlencode(
+                [(key, value) for key, value in params.items()]
             )
         url = f"{base_url}{endpoint}?{param_string}"
         for retry in range(self.MAX_RETRIES):
