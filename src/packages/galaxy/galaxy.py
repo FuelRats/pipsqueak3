@@ -16,12 +16,13 @@ import typing
 from urllib.parse import urlencode
 
 import aiohttp
+from async_lru import alru_cache
+from loguru import logger
 
 from src.config import CONFIG_MARKER
 from .star_system import StarSystem
 from ..utils import Vector
-from loguru import logger
-from async_lru import alru_cache
+
 
 class Galaxy:
     """
