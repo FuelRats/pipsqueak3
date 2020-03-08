@@ -20,7 +20,8 @@ import aiohttp
 from src.config import CONFIG_MARKER
 from .star_system import StarSystem
 from ..utils import Vector
-
+from loguru import logger
+from async_lru import alru_cache
 
 class Galaxy:
     """
@@ -51,6 +52,7 @@ class Galaxy:
     def __init__(self, url: str = None):
         self.url = url or self._config['system_api']['url']
 
+    @alru_cache()
     async def find_system_by_name(self,
                                   name: str,
                                   full_details: bool = False) -> typing.Optional[StarSystem]:
@@ -79,6 +81,7 @@ class Galaxy:
             else:
                 return StarSystem(name=data['data'][0]['attributes']['name'])
 
+    @alru_cache()
     async def find_system_by_id(self, system_id: int) -> typing.Optional[StarSystem]:
         """
         Finds a single system by its ID and returns its StarSystem object.
@@ -190,8 +193,11 @@ class Galaxy:
             try:
                 async with aiohttp.ClientSession(raise_for_status=True,
                                                  timeout=self.TIMEOUT) as session:
+                    logger.debug("CALL < {} >", url)
                     async with session.get(url) as response:
-                        return json.loads(await response.text())
+                        data = json.loads(await response.text())
+                        logger.trace("done with call")
+                        return data
             except aiohttp.ClientError:
                 # If we've used our last retry, re-raise the offending exception.
                 if retry == (self.MAX_RETRIES - 1):
