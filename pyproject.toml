@@ -18,6 +18,7 @@ psycopg2-binary = "*"
 toml = "*"
 loguru = "*"
 pluggy = "*"
+async_lru = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
