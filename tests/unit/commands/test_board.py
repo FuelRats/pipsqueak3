@@ -25,4 +25,11 @@ async def test_assign_unidentified(rescue_sop_fx, bot_fx, names):
                                      message=f"!assign {rescue_sop_fx.board_index} {' '.join(names)}")
     await case_management.cmd_case_management_assign(ctx)
     for name in names:
-        assert name in rescue_sop_fx.unidentified_rats
+        assert name in rescue_sop_fx.unidentified_rats, "failed to assign unidentified rats"
+
+    # verify unassign behavior while we are here (less duplication than a distinct test)
+    ctx = await Context.from_message(bot=bot_fx, channel="#unkn0wndev", sender="some_ov",
+                                     message=f"!unassign {rescue_sop_fx.board_index} {' '.join(names)}")
+    await case_management.cmd_case_management_unassign(ctx)
+    for name in names:
+        assert name not in rescue_sop_fx.unidentified_rats, "failed to unassign unidentified rats"
