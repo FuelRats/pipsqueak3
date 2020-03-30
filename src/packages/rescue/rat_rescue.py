@@ -96,7 +96,6 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._irc_nick: str = irc_nickname
         self._unidentified_rats = unidentified_rats if unidentified_rats else {}
         self._system: str = system.upper() if system else None
-        self._active: bool = active
         self._quotes: list = quotes if quotes else []
         self._epic: List[Epic] = epic if epic is not None else []
         self._code_red: bool = code_red
@@ -109,6 +108,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._lang_id = lang_id
         self._status = status
         self._hash = None
+        self.active: bool = active
 
     def __eq__(self, other) -> bool:
         """
