@@ -75,6 +75,9 @@ class MechaClient(Client, MessageHistoryClient):
     #
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
+    async def on_invite(self, channel, by):
+        logger.info(f"invited to channel {channel!r} by user {by!r}")
+        return await self.join(channel)
 
     async def on_message(self, channel, user, message: str):
         """
