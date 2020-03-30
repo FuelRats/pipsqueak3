@@ -105,6 +105,7 @@ async def cmd_case_management_assign(ctx: Context):
     rescue_client = rescue.irc_nickname if rescue.irc_nickname else rescue.client
 
     async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
+        logger.debug("assigning {!r} to case {}", rat_list, rescue.board_index)
         for name in rat_list:
             await case.add_rat(Rat(name=name, uuid=None))
 
@@ -564,7 +565,7 @@ async def cmd_case_management_title(ctx: Context):
 @require_channel
 @require_permission(RAT)
 @command("unassign", "rm", "remove", "standdown")
-async def cmd_case_management_assign(ctx: Context):
+async def cmd_case_management_unassign(ctx: Context):
     if len(ctx.words) < 2:
         return await ctx.reply("Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
 
