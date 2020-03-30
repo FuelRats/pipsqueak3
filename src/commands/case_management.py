@@ -87,7 +87,7 @@ async def cmd_case_management_active(ctx: Context):
 @require_permission(RAT)
 @command("assign", "add", "go")
 async def cmd_case_management_assign(ctx: Context):
-    if len(ctx.words) < 2:
+    if len(ctx.words) <= 2:
         await ctx.reply("Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
         return
 
@@ -119,7 +119,7 @@ async def cmd_case_management_assign(ctx: Context):
 @require_permission(RAT)
 @command("clear", "close")
 async def cmd_case_management_clear(ctx: Context):
-    if len(ctx.words) > 2:
+    if len(ctx.words) < 2:
         await ctx.reply("Usage: !clear <Client Name|Board Index> [First Limpet Sender]")
         return
 
@@ -136,11 +136,21 @@ async def cmd_case_management_clear(ctx: Context):
         await ctx.reply("No case with that name or number.")
         return
 
+    if not rescue.system:
+        return await ctx.reply("Cannot comply: system not set.")
+    if not rescue.platform:
+        return await ctx.reply("Cannot comply: platform not set.")
+    if first_limpet:
+        if first_limpet in rescue.unidentified_rats:
+            return await ctx.reply(f"Cannot comply: {first_limpet!r}  is unidentified.")
+
+        if first_limpet not in rescue.rats:
+            return await ctx.reply(f"Cannot comply: {first_limpet!r} is not assigned to this rescue")
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.active = False
         case.status = Status.CLOSED
         if first_limpet:
-            case.first_limpet = first_limpet
+            case.first_limpet = rescue.rats[first_limpet].uuid
             # TODO: Add paperwork call link here
 
     # FIXME: Deleting case from the board, as we don't have a proper method yet.
