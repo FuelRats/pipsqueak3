@@ -424,7 +424,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             raise ValueError(f"expected bool, got type {type(value)}")
 
     @property
-    def quotes(self) -> list:
+    def quotes(self) -> List[Quotation]:
         """
         Contains all the quotes associated with this Rescue object.
 

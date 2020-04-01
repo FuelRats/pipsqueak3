@@ -208,14 +208,14 @@ async def cmd_case_management_codered(ctx: Context):
 @command("delete")
 async def cmd_case_management_delete(ctx: Context):
     if len(ctx.words) < 2:
-        await ctx.reply("Usage: !delete <Database ID>")
+        await ctx.reply("Usage: !delete <API ID>")
         return
 
     # Validate we have UUID:
     try:
         requested_case = uuid.UUID(ctx.words[1])
     except ValueError:
-        await ctx.reply("Invalid Database ID.")
+        await ctx.reply("Invalid API ID.")
         return
     else:
         rescue = ctx.bot.board.get(requested_case)
@@ -224,7 +224,7 @@ async def cmd_case_management_delete(ctx: Context):
 
         await ctx.reply(f"Deleted case with id {str(rescue.api_id)} - THIS IS NOT REVERTIBLE!")
         # FIXME: Add proper method to delete a case from the board
-        del ctx.bot.board[requested_case]
+        await ctx.bot.board.remove_rescue(rescue)
 
 
 @require_channel
@@ -283,7 +283,7 @@ async def cmd_case_management_grab(ctx: Context):
         return await ctx.reply(f"{case.client}'s case opened with {last_message!r}")
 
     if ctx.words[1].casefold() in ctx.bot.last_user_message:
-        last_message = ctx.bot.last_user_message[ctx.words[1]]
+        last_message = ctx.bot.last_user_message[ctx.words[1].casefold()]
     elif int(ctx.words[1]) in ctx.bot.board:
         if rescue.client.casefold() in ctx.bot.last_user_message:
             last_message = last_message
