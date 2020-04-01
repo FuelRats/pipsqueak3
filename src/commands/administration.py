@@ -46,4 +46,5 @@ async def cmd_rehash(context: Context):
 
 @command("version")
 async def cmd_version(ctx: Context):
+    # FIXME pull from pyproject.toml somehow?
     return await ctx.reply(f"{ctx.bot.__version__}")

@@ -112,7 +112,7 @@ def rat_good_fx(request) -> Rat:
     Testing fixture containing good and registered rats
     """
     params = request.param
-    rat = Rat(params[2], name=params[0], platform=params[1])
+    rat = Rat(uuid=params[2], name=params[0], platform=params[1])
     RatCache().append(rat)
     return rat
 
