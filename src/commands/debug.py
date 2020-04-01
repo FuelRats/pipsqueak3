@@ -17,6 +17,7 @@ from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
 from src.packages.utils import Platforms, Status
+
 from loguru import logger
 import humanfriendly
 from datetime import datetime, timezone
@@ -125,3 +126,15 @@ async def cmd_uptime(context: Context):
                                               detailed=False, max_units=2) + " ago"
     await context.reply(f'This instance was connected on '
                         f'{context.bot.start_time.strftime("%b %d %H:%M:%S UTC")} ({timestamp})')
+
+
+@command("cake")
+@require_permission(TECHRAT)
+async def cmd_cake(context: Context):
+    await context.reply("🎂🎂🎂")  # cake
+
+
+@command("snickers")
+@require_permission(TECHRAT)
+async def cmd_cake(context: Context):
+    await context.reply("🍫")  # snickers
