@@ -319,8 +319,8 @@ async def cmd_case_management_inject(ctx: Context):
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
             for keyword in ctx.words_eol[2].split():
-                if keyword in {item.value for item in Platforms}:
-                    case.platform = Platforms[keyword]
+                if keyword.upper() in {item.value for item in Platforms}:
+                    case.platform = Platforms[keyword.upper()]
                 if keyword.casefold() == "cr" or "code red" in keyword.casefold() \
                         or _TIME_RE.match(ctx.words_eol[2]):
                     case.code_red = True
@@ -368,7 +368,7 @@ async def cmd_case_management_ircnick(ctx: Context):
 @require_channel
 @require_permission(RAT)
 @command("pc", "ps", "xb")
-async def cmd_case_management_pc(ctx: Context):
+async def cmd_case_management_system(ctx: Context):
     if len(ctx.words) < 2:
         await ctx.reply("Usage: !pc <Client Name|Board Index>")
         return
@@ -382,7 +382,7 @@ async def cmd_case_management_pc(ctx: Context):
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.platform = getattr(Platforms, ctx.words[0].upper())
-        await ctx.reply(f"{case.client}'s platform set to PC.")
+        await ctx.reply(f"{case.client}'s platform set to {case.platform.value}.")
 
 
 @require_channel()
@@ -565,13 +565,16 @@ async def cmd_case_management_unassign(ctx: Context):
 
     async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
         removed_rats = []
+        case: Rescue
         for each in rat_list:
+            target = each.casefold()
+            if target not in case.unidentified_rats and  target not in case.rats:
+                return await ctx.reply(f"Cannot comply: {target!r}. (Please check your spelling)")
             case.remove_rat(each.casefold())
             removed_rats.append(each)
 
         removed_rats_str = " ,".join(removed_rats)
         return await ctx.reply(f"Removed from {rescue_client}'s case: {removed_rats_str}")
-
 
 
 def remainder(words: typing.Iterable[str]) -> str:
