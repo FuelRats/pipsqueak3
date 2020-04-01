@@ -271,7 +271,8 @@ async def cmd_case_management_grab(ctx: Context):
 
     # Pass case to validator, return a case if found or None
     rescue = _validate(ctx, ctx.words[1].casefold())
-    last_message = ctx.bot.last_user_message.get(rescue.client.casefold() if rescue else ctx.words[1].casefold())
+    last_message = ctx.bot.last_user_message.get(
+        rescue.client.casefold() if rescue else ctx.words[1].casefold())
     if not last_message:
         return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
 
@@ -365,7 +366,7 @@ async def cmd_case_management_ircnick(ctx: Context):
 
 @require_channel
 @require_permission(RAT)
-@command("pc")
+@command("pc", "ps", "xb")
 async def cmd_case_management_pc(ctx: Context):
     if len(ctx.words) < 2:
         await ctx.reply("Usage: !pc <Client Name|Board Index>")
@@ -379,28 +380,8 @@ async def cmd_case_management_pc(ctx: Context):
         return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.platform = Platforms.PC
+        case.platform = getattr(Platforms, ctx.words[0].upper())
         await ctx.reply(f"{case.client}'s platform set to PC.")
-
-
-@require_channel
-@require_permission(RAT)
-@command("ps")
-async def cmd_case_management_ps(ctx: Context):
-    if len(ctx.words) < 2:
-        await ctx.reply("Usage: !ps <Client Name|Board Index>")
-        return
-
-    # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
-
-    if not rescue:
-        await ctx.reply("No case with that name or number.")
-        return
-
-    async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.platform = Platforms.PS
-        await ctx.reply(f"{case.client}'s platform set to Playstation.")
 
 
 @require_channel()
@@ -590,25 +571,6 @@ async def cmd_case_management_unassign(ctx: Context):
         removed_rats_str = " ,".join(removed_rats)
         return await ctx.reply(f"Removed from {rescue_client}'s case: {removed_rats_str}")
 
-
-@require_channel
-@require_permission(RAT)
-@command("xb")
-async def cmd_case_management_xb(ctx: Context):
-    if len(ctx.words) < 2:
-        await ctx.reply("Usage: !xb <Client Name|Board Index>")
-        return
-
-    # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
-
-    if not rescue:
-        await ctx.reply("No case with that name or number.")
-        return
-
-    async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.platform = Platforms.XB
-        await ctx.reply(f"{case.client}'s platform set to XB.")
 
 
 def remainder(words: typing.Iterable[str]) -> str:

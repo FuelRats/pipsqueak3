@@ -167,3 +167,13 @@ async def test_grab_create(bot_fx, random_string_fx):
     rescue = bot_fx.board[client]
     assert rescue is not None, "rescue failed to be created"
     assert rescue.client == client, "client field on rescue failed to be set"
+
+
+@pytest.mark.parametrize("platform_str", ("pc", "xb", "ps"))
+async def test_platform(bot_fx, rescue_sop_fx, platform_str):
+    await bot_fx.board.append(rescue_sop_fx)
+    ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov",
+                                     f"!{platform_str} {rescue_sop_fx.client}")
+    await trigger(ctx)
+
+    assert rescue_sop_fx.platform is getattr(Platforms, platform_str.upper())
