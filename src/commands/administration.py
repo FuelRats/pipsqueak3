@@ -17,6 +17,9 @@ from ..packages.commands import command
 from ..packages.context import Context
 from ..packages.permissions import require_channel, require_permission, TECHRAT
 from loguru import logger
+import src
+from importlib import resources
+import toml
 
 
 @command("rehash")
@@ -39,3 +42,8 @@ async def cmd_rehash(context: Context):
     else:
         # no errors, respond status OK with the first octet of the hash.
         await context.reply(f"rehashing completed successfully. ({resulting_hash[:8]}) ")
+
+
+@command("version")
+async def cmd_version(ctx: Context):
+    return await ctx.reply(f"{ctx.bot.__version__}")
