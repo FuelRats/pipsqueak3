@@ -107,9 +107,10 @@ async def cmd_case_management_assign(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
         logger.debug("assigning {!r} to case {}", rat_list, rescue.board_index)
         for name in rat_list:
-            await case.add_rat(Rat(name=name, uuid=None))
+            rat = Rat(name=name, uuid=None)
+            await case.add_rat(rat)
 
-            if name in case.unidentified_rats:
+            if rat.name in case.unidentified_rats:
                 await ctx.reply(f"Warning: {name!r} is NOT identified.")
 
     await ctx.reply(f'{rescue_client}: Please add the following rat(s) to your friends list:'
@@ -661,7 +662,7 @@ async def cmd_list(ctx: Context):
 
 def _list_rescue(rescue_collection, format_specifiers):
     buffer = io.StringIO()
-    buffer.write(f"{len(rescue_collection):3} active cases. ")
+    buffer.write(f"{len(rescue_collection)} active cases. ")
     for rescue in rescue_collection:
         buffer.write(format(rescue, format_specifiers))
         buffer.write('\n')

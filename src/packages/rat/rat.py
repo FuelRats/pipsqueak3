@@ -46,7 +46,7 @@ class Rat:
         # set our properties
         self._platform = platform
         self._uuid = uuid
-        self._name = name
+        self._name = name.casefold()
         self._hash = None
 
     def __eq__(self, other: 'Rat') -> bool:
