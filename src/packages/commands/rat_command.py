@@ -16,7 +16,8 @@ from loguru import logger
 from typing import Callable, Any
 
 from src.packages.rules.rules import get_rule, clear_rules
-from ..ratmama.ratmama_parser import  handle_ratmama_announcement
+from ..ratmama.ratmama_parser import handle_ratmama_announcement
+
 
 # set the logger for rat_command
 
@@ -112,17 +113,6 @@ def _register(func, names: list or str) -> bool:
             _registered_commands.update(formed_dict)
 
     return True
-
-
-def _flush() -> None:
-    """
-    Flushes registered commands
-    Probably useless outside testing...
-    """
-
-    # again this feels ugly but they are module-level now...
-    _registered_commands.clear()
-    clear_rules()
 
 
 def command(*aliases):

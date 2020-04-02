@@ -23,23 +23,18 @@ from src.packages.permissions import permissions
 from src.packages.permissions import require_permission, require_channel, require_dm, Permission
 
 
-@pytest.fixture
-def Setup_fx(bot_fx):
-    """Sets up the test environment"""
-    Commands._flush()
-
 
 @pytest.fixture
-def restricted_command_fx(async_callable_fx, Setup_fx):
+def restricted_command_fx(async_callable_fx):
     restricted = require_permission(permissions.OVERSEER)(async_callable_fx)
 
     Commands.command("restricted")(restricted)
-    return async_callable_fx
+    yield  async_callable_fx
+    del Commands._registered_commands["restricted"]
 
 
 @pytest.mark.unit
 @pytest.mark.permissions
-@pytest.mark.usefixtures("Setup_fx")
 class TestPermissions(object):
 
     def test_permission_greater(self):

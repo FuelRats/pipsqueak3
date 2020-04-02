@@ -39,3 +39,11 @@ class Rat:
         validator=attr.validators.optional(attr.validators.instance_of(Platforms)),
         default=None,
     )
+
+    @property
+    def unidentified(self):
+        return self.uuid is None
+
+    @property
+    def identified(self):
+        return not self.unidentified
