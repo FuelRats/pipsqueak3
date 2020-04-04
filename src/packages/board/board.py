@@ -197,12 +197,17 @@ class RatBoard(abc.Mapping):
         """
         Append a rescue to ourselves
 
+        If the rescue doesn't have a board index, it will be assigned one.
+
         Args:
             rescue (Rescue): object to append
             overwrite(bool): overwrite existing cases
     """
         logger.trace("acquiring modification lock...")
         async with self._modification_lock:
+            # ensure the rescue has a board index, because if this is null it breaks all the things.
+            if rescue.board_index is None:
+                rescue.board_index = self.free_case_number
             logger.trace("acquired modification lock.")
             if (rescue.api_id in self or rescue.board_index in self) and not overwrite:
                 raise ValueError("Attempted to append a rescue that already exists to the board")

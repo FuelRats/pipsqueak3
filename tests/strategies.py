@@ -27,6 +27,6 @@ rescues = strategies.builds(
     platform=platforms,
     active=strategies.booleans(),
     code_red=strategies.booleans(),
-    board_index=strategies.integers(min_value=1)
+    board_index=strategies.one_of(strategies.integers(min_value=1), strategies.none())
 )
 """ Strategy for generating rescues """
