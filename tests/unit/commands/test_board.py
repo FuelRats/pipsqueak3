@@ -236,10 +236,7 @@ async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms)
 )
 async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms, client: str,
                                      payload: str):
-    hypothesis.assume(sanitize(client) not in bot_fx.board)  # new rescue
-    hypothesis.assume(sanitize(client))  # no client = no inject
-    hypothesis.assume(client.isprintable())
-    hypothesis.assume(payload.isprintable())
+    hypothesis.assume(client not in bot_fx.board)  # new rescue
     starting_rescue_count = len(bot_fx.board)
     await bot_fx.on_message("#ratchat", "some_ov",
                             f"!inject {client} {platform.value} {'cr' if cr_state else ''} {payload}",
@@ -250,8 +247,9 @@ async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms
         hypothesis.assume("updated with" not in message)
     assert len(bot_fx.board) == starting_rescue_count + 1
     assert "case opened" in message
-    try:
-        await bot_fx.board.remove_rescue(sanitize(client))
-        bot_fx.sent_messages.clear()
-    except Exception as exc:
-        pytest.fail("something went horribly wrong")
+    if cr_state:
+        assert "cr" in message
+    assert client.casefold() in message
+    # cleanup steps since Hypothesis reuses fixtures
+    await bot_fx.board.remove_rescue(sanitize(client))
+    bot_fx.sent_messages.clear()
