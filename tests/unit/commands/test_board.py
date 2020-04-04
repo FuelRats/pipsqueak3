@@ -202,7 +202,6 @@ async def test_quote(bot_fx, rescue_sop_fx, cr_state: bool):
 def _test_quote_header(cr_state, message, rescue):
     assert f"{rescue.board_index}" in message, "case number missing"
     assert rescue.client.casefold() in message, "client name missing"
-    assert f"{rescue.api_id}" in message, "rescue uuid missing"
     assert rescue.platform.value.casefold() in message, "platform missing"
     assert "none" not in message, "somethings null thats not supposed to be"
     if rescue.irc_nickname == rescue.client:
@@ -214,17 +213,22 @@ def _test_quote_header(cr_state, message, rescue):
 @pytest.mark.parametrize("cr_state", (True, False))
 @pytest.mark.parametrize("platform", (Platforms.PC, Platforms.XB, Platforms.PS))
 async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms):
-    inject_ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov", "!inject subject PC sol")
+    inject_ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov",
+                                            f"!inject subject PC sol {'cr' if cr_state else ''}")
     # inject a case into existance
     await trigger(inject_ctx)
     rescue = bot_fx.board["subject"]
 
     ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov", f"!quote {rescue.board_index}")
     await trigger(ctx)
-    bot_fx.sent_messages.pop(0)  # don't care about the first line, its inject's job
     message = bot_fx.sent_messages.pop(0)["message"].casefold()
-
     _test_quote_header(cr_state, message, rescue)
+    if cr_state:
+        message = bot_fx.sent_messages.pop(0)["message"].casefold()
+        assert "code red!" in message, "cr message missing!"
+    message = bot_fx.sent_messages.pop(0)["message"].casefold()
+    assert f"{rescue.api_id}" in message, "rescue uuid missing"
+    assert F"{rescue.board_index}" in message, "incorrect / missing board index"
 
 
 @pytest.mark.hypothesis
