@@ -1,16 +1,15 @@
 from uuid import uuid4
 
-import pytest
 import hypothesis
+import pytest
 from hypothesis import strategies
+
+from src.packages.commands.rat_command import trigger
 from src.packages.context import Context
-from src.commands import case_management
-from src.commands.case_management import _validate
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from src.packages.utils import Platforms, sanitize
-from src.packages.commands.rat_command import trigger
-from src.packages.utils.ratlib import strip_name
+from tests.strategies import valid_text, valid_word
 
 pytestmark = [pytest.mark.unit, pytest.mark.commands, pytest.mark.asyncio]
 
@@ -231,8 +230,8 @@ async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms)
 @pytest.mark.hypothesis
 @hypothesis.given(
     cr_state=strategies.booleans(),
-    client=strategies.text(),
-    payload=strategies.text(),
+    client=valid_word,
+    payload=valid_text,
     platform=strategies.sampled_from([Platforms.PC, Platforms.XB, Platforms.PS]),
 )
 async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms, client: str,
