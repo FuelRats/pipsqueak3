@@ -834,3 +834,26 @@ class Rescue:  # pylint: disable=too-many-public-methods
 
         # convert buffer back to string, and return that
         return buffer.getvalue()
+
+    def __repr__(self):
+        return F"Rescue(" \
+               F"uuid={self.api_id!r}, " \
+               F"client={self.client!r}, " \
+               F"system={self.system!r}, " \
+               F"irc_nickname={self.irc_nickname!r}, " \
+               F"board={self.rat_board!r}, " \
+               F"created_at={self.created_at!r}, " \
+               F"updated_at={self.updated_at!r}, " \
+               F"unidentified_rats={self.unidentified_rats!r}, " \
+               F"active={self.active!r}, " \
+               F"quotes={self.quotes!r}, " \
+               F"epic={self.epic!r}, " \
+               F"title={self.title!r}, " \
+               F"first_limpet={self.first_limpet!r}, " \
+               F"board_index={self.board_index!r}, " \
+               F"mark_for_deletion={self.marked_for_deletion!r}, " \
+               F"lang_id={self.lang_id!r}, " \
+               F"rats={self.rats!r}, " \
+               F"status={self.status!r}, " \
+               F"code_red={self.code_red!r}, " \
+               F"platform={self.platform!r}"
