@@ -9,7 +9,7 @@ from src.packages.context import Context
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from src.packages.utils import Platforms, sanitize
-from tests.strategies import valid_text, valid_word
+from tests import strategies as custom_strategies
 
 pytestmark = [pytest.mark.unit, pytest.mark.commands, pytest.mark.asyncio]
 
@@ -234,8 +234,8 @@ async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms)
 @pytest.mark.hypothesis
 @hypothesis.given(
     cr_state=strategies.booleans(),
-    client=valid_word,
-    payload=valid_text,
+    client=custom_strategies.valid_word,
+    payload=custom_strategies.valid_text,
     platform=strategies.sampled_from([Platforms.PC, Platforms.XB, Platforms.PS]),
 )
 async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms, client: str,
@@ -248,7 +248,6 @@ async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms
     message = ""
     while "case opened" not in message and bot_fx.sent_messages:
         message = bot_fx.sent_messages.pop(0)["message"].casefold()
-        hypothesis.assume("updated with" not in message)
     assert len(bot_fx.board) == starting_rescue_count + 1
     assert "case opened" in message
     if cr_state:
@@ -257,3 +256,54 @@ async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms
     # cleanup steps since Hypothesis reuses fixtures
     await bot_fx.board.remove_rescue(sanitize(client))
     bot_fx.sent_messages.clear()
+
+
+@pytest.mark.asyncio
+async def test_sub_replace(bot_fx, rescue_sop_fx, random_string_fx):
+    rescue_sop_fx.add_quote("i like pizza", "somebody")
+    await bot_fx.board.append(rescue_sop_fx)
+    initial_quote_count = len(rescue_sop_fx.quotes)
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!sub {rescue_sop_fx.irc_nickname} 0 {random_string_fx}")
+    try:
+        await trigger(context)
+    except:
+        pytest.fail("exception occured")
+    assert len(rescue_sop_fx.quotes) == initial_quote_count, "quote added / deleted unexpectedly"
+
+
+@pytest.mark.asyncio
+async def test_sub_replace(bot_fx, rescue_sop_fx):
+    rescue_sop_fx.add_quote("i like pizza", "somebody")
+    await bot_fx.board.append(rescue_sop_fx)
+    initial_quote_count = len(rescue_sop_fx.quotes)
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!sub {rescue_sop_fx.irc_nickname} 0")
+    await trigger(context)
+    assert len(rescue_sop_fx.quotes) == initial_quote_count - 1, "quote added / deleted unexpectedly"
+
+
+@pytest.mark.asyncio
+@pytest.mark.hypothesis
+@hypothesis.given(
+    initial_content=custom_strategies.valid_text,
+    new_content=custom_strategies.valid_text,
+    author=custom_strategies.valid_word,
+    rescue=custom_strategies.rescues
+)
+async def test_sub_replace_hypothesis(bot_fx, rescue, initial_content: str, new_content: str,
+                                      author: str):
+    rescue.quotes.clear()
+    # ensure a quote exists
+    rescue.add_quote(initial_content, author)
+    await bot_fx.board.append(rescue, overwrite=True)
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!sub {rescue.irc_nickname} 0 {new_content}")
+
+    await trigger(context)
+    assert rescue.quotes, "quote deleted!"
+    assert rescue.quotes[0].message == new_content, "content changed to something unexpected"
+
+    await bot_fx.board.remove_rescue(rescue)

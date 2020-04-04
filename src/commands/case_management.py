@@ -327,7 +327,7 @@ async def cmd_case_management_inject(ctx: Context):
                     case.code_red = True
 
             await ctx.reply(f"{case.client}'s case opened with: "
-                            f"{ctx.words_eol[1]}  (Case {case.board_index})")
+                            f"{ctx.words_eol[2]}  (Case {case.board_index})")
 
             if case.code_red:
                 await ctx.reply(f"Code Red! {case.client} is on Emergency Oxygen!")
@@ -470,7 +470,7 @@ async def cmd_case_management_reopen(ctx: Context):
 @command("sub")
 async def cmd_case_management(ctx: Context):
     if len(ctx.words) < 3:
-        await ctx.reply("Usage: !sub <Client Name|Board Index> <Quote Number> [New Text]")
+        return await ctx.reply("Usage: !sub <Client Name|Board Index> <Quote Number> [New Text]")
 
     rescue = _validate(ctx, ctx.words[1])
 
@@ -488,11 +488,11 @@ async def cmd_case_management(ctx: Context):
         await ctx.reply(f"Invalid quote index for case #{rescue.board_index}")
         return
 
-    if len(ctx.words_eol[1].split()) > 3:
+    if len(ctx.words_eol[1].split()) >= 3:
         if quote_id > len(rescue.quotes):
             # no such quote, bail out
             return await ctx.reply(f"no such quote by id {quote_id}")
-        new_quote = Quotation(message=ctx.words_eol[2],
+        new_quote = Quotation(message=ctx.words_eol[3],
                               last_author=ctx.user.nickname,
                               author=rescue.quotes[quote_id].author,
                               created_at=rescue.quotes[quote_id].created_at,
@@ -548,7 +548,7 @@ async def cmd_case_management_title(ctx: Context):
 @require_permission(RAT)
 @command("unassign", "rm", "remove", "standdown")
 async def cmd_case_management_unassign(ctx: Context):
-    if len(ctx.words) < 2:
+    if len(ctx.words) < 3:
         return await ctx.reply("Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
 
     # Pass case to validator, return a case if found or None
@@ -573,7 +573,7 @@ async def cmd_case_management_unassign(ctx: Context):
             case.remove_rat(each.casefold())
             removed_rats.append(each)
 
-        removed_rats_str = " ,".join(removed_rats)
+        removed_rats_str = ", ".join(removed_rats)
         return await ctx.reply(f"Removed from {rescue_client}'s case: {removed_rats_str}")
 
 

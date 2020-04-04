@@ -125,3 +125,5 @@ def test_split_hypothesis(data: str):
 
     for word in words_out:
         assert not any(char.isspace() for char in word)
+
+    assert len(words_out) == data.count(" ") + 1, "failed to tokenize words as expected"
