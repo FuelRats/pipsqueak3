@@ -13,6 +13,10 @@ See LICENSE.md
 import pytest
 
 from src.packages.context.context import Context, _split_message
+import hypothesis
+from hypothesis import strategies
+import itertools
+from ..strategies import valid_text
 
 pytestmark = [pytest.mark.unit, pytest.mark.context]
 
@@ -110,3 +114,14 @@ def test_split_message(payload, words, words_eol):
     out_words, out_eol = _split_message(payload)
     assert out_eol == words_eol, "words EOL did not match expected output!"
     assert out_words == words, "words did not match expected output!@"
+
+
+@pytest.mark.hypothesis
+@hypothesis.given(
+    data=valid_text
+)
+def test_split_hypothesis(data: str):
+    words_out, words_eol = _split_message(data)
+
+    for word in words_out:
+        assert not any(char.isspace() for char in word)

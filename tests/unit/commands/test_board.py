@@ -1,13 +1,16 @@
 from uuid import uuid4
 
 import pytest
-
+import hypothesis
+from hypothesis import strategies
 from src.packages.context import Context
 from src.commands import case_management
+from src.commands.case_management import _validate
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
-from src.packages.utils import Platforms
+from src.packages.utils import Platforms, sanitize
 from src.packages.commands.rat_command import trigger
+from src.packages.utils.ratlib import strip_name
 
 pytestmark = [pytest.mark.unit, pytest.mark.commands, pytest.mark.asyncio]
 
@@ -66,7 +69,7 @@ async def test_clear_invalid(bot_fx):
     # neither rescue nor platform are set
     assert rescue.board_index in bot_fx.board, "unexpectedly cleared rescue"
     assert bot_fx.sent_messages, "bot failed to reply to user"
-    message = bot_fx.sent_messages.pop()["message"].casefold()
+    message = bot_fx.sent_messages.pop(0)["message"].casefold()
     assert "cannot comply" in message, "failed to give correct error message"
     async with bot_fx.board.modify_rescue(rescue) as case:
         case: Rescue
@@ -76,7 +79,7 @@ async def test_clear_invalid(bot_fx):
 
     await trigger(ctx)
     assert rescue.board_index in bot_fx.board, "unexpectedly cleared rescue"
-    message = bot_fx.sent_messages.pop()["message"].casefold()
+    message = bot_fx.sent_messages.pop(0)["message"].casefold()
     assert "cannot comply" in message, "failed to bail out"
     assert "platform" in message, "failed to give correct error message"
 
@@ -92,7 +95,7 @@ async def test_clear_invalid(bot_fx):
 
     await trigger(ctx)
     assert rescue.board_index in bot_fx.board, "unexpectedly cleared rescue"
-    message = bot_fx.sent_messages.pop()["message"].casefold()
+    message = bot_fx.sent_messages.pop(0)["message"].casefold()
     assert "cannot comply" in message, "failed to bail out"
     assert "unidentified" in message, "failed to give correct error message"
 
@@ -105,7 +108,7 @@ async def test_cmd_cmdr(bot_fx, rescue_sop_fx):
 
     await trigger(ctx)
     assert rescue_sop_fx.client == "squidface", "failed to assign commander"
-    message = bot_fx.sent_messages.pop()["message"].casefold()
+    message = bot_fx.sent_messages.pop(0)["message"].casefold()
     assert "is now" in message and "squidface" in message
 
 
@@ -136,7 +139,7 @@ async def test_grab_no_recent(bot_fx, rat_board_fx):
     ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov", f"!grab {target}")
     await trigger(ctx)
     assert len(bot_fx.board) == starting_rescue_len, "case was unexpectedly created."
-    message = bot_fx.sent_messages.pop()["message"].casefold()
+    message = bot_fx.sent_messages.pop(0)["message"].casefold()
 
     assert "cannot comply" in message, "emitted message did not contain a soft error"
 
@@ -180,3 +183,76 @@ async def test_platform(bot_fx, rescue_sop_fx, platform_str):
     assert rescue_sop_fx.platform is getattr(
         Platforms, platform_str.upper()
     ), "failed to update system"
+
+
+@pytest.mark.parametrize("cr_state", (True, False))
+async def test_quote(bot_fx, rescue_sop_fx, cr_state: bool):
+    rescue_sop_fx.code_red = cr_state
+    await bot_fx.board.append(rescue_sop_fx)
+
+    ctx = await Context.from_message(
+        bot_fx, "#ratchat", "some_ov", f"!quote {rescue_sop_fx.board_index}"
+    )
+
+    await trigger(ctx)
+
+    message = bot_fx.sent_messages.pop(0)["message"].casefold()
+    _test_quote_header(cr_state, message, rescue_sop_fx)
+
+
+def _test_quote_header(cr_state, message, rescue):
+    assert f"{rescue.board_index}" in message, "case number missing"
+    assert rescue.client.casefold() in message, "client name missing"
+    assert f"{rescue.api_id}" in message, "rescue uuid missing"
+    assert rescue.platform.value.casefold() in message, "platform missing"
+    assert "none" not in message, "somethings null thats not supposed to be"
+    if rescue.irc_nickname == rescue.client:
+        assert "irc nickname" not in message, "irc nickname incorrectly rendered"
+    if cr_state:
+        assert "cr" in message, "code red state missing"
+
+
+@pytest.mark.parametrize("cr_state", (True, False))
+@pytest.mark.parametrize("platform", (Platforms.PC, Platforms.XB, Platforms.PS))
+async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms):
+    inject_ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov", "!inject subject PC sol")
+    # inject a case into existance
+    await trigger(inject_ctx)
+    rescue = bot_fx.board["subject"]
+
+    ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov", f"!quote {rescue.board_index}")
+    await trigger(ctx)
+    bot_fx.sent_messages.pop(0)  # don't care about the first line, its inject's job
+    message = bot_fx.sent_messages.pop(0)["message"].casefold()
+
+    _test_quote_header(cr_state, message, rescue)
+
+
+@pytest.mark.hypothesis
+@hypothesis.given(
+    cr_state=strategies.booleans(),
+    client=strategies.text(),
+    payload=strategies.text(),
+    platform=strategies.sampled_from([Platforms.PC, Platforms.XB, Platforms.PS]),
+)
+async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms, client: str,
+                                     payload: str):
+    hypothesis.assume(sanitize(client) not in bot_fx.board)  # new rescue
+    hypothesis.assume(sanitize(client))  # no client = no inject
+    hypothesis.assume(client.isprintable())
+    hypothesis.assume(payload.isprintable())
+    starting_rescue_count = len(bot_fx.board)
+    await bot_fx.on_message("#ratchat", "some_ov",
+                            f"!inject {client} {platform.value} {'cr' if cr_state else ''} {payload}",
+                            )
+    message = ""
+    while "case opened" not in message and bot_fx.sent_messages:
+        message = bot_fx.sent_messages.pop(0)["message"].casefold()
+        hypothesis.assume("updated with" not in message)
+    assert len(bot_fx.board) == starting_rescue_count + 1
+    assert "case opened" in message
+    try:
+        await bot_fx.board.remove_rescue(sanitize(client))
+        bot_fx.sent_messages.clear()
+    except Exception as exc:
+        pytest.fail("something went horribly wrong")

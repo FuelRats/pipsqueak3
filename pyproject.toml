@@ -28,6 +28,7 @@ pylint = "*"
 pytest-httpserver = "*"
 codecov = "*"
 pycodestyle = "*"
+hypothesis = "^5.8.0"
 
 
 [build-system]
