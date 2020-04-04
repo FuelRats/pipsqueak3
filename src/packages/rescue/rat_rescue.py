@@ -18,12 +18,11 @@ from uuid import UUID, uuid4
 
 from loguru import logger
 
-from src.packages.utils import Colors, color, bold
 from ..epic import Epic
 from ..mark_for_deletion import MarkForDeletion
 from ..quotation import Quotation
 from ..rat import Rat
-from ..utils import Platforms, Status
+from ..utils import Platforms, Status, Colors, color, bold
 
 if TYPE_CHECKING:
     from ..board import RatBoard
@@ -93,7 +92,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._updated_at: datetime = updated_at if updated_at else datetime.utcnow()
         self._api_id: UUID = uuid if uuid else uuid4()
         self._client: str = client
-        self._irc_nick: str = irc_nickname
+        self._irc_nick: str = irc_nickname if irc_nickname else client
         self._unidentified_rats = unidentified_rats if unidentified_rats else {}
         self._system: str = system.upper() if system else None
         self._quotes: list = quotes if quotes else []
@@ -803,9 +802,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
         buffer.write(f"[{self.board_index}")
 
         buffer.write(f"@{self.api_id}] " if show_uuid else '] ')
-        buffer.write(F"{self.client}'s case ")
+        buffer.write(F"{self.client}'s case, ")
         if self.irc_nickname != self.client and self.irc_nickname is not None:
-            buffer.write(f"irc nick: {self.irc_nickname!r} ")
+            buffer.write(f"IRC Nick: {self.irc_nickname!r}, ")
 
         if self.code_red:
             base = '(CR '
@@ -824,7 +823,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
                     buffer.write(color(base, Colors.LIGHT_BLUE))
             else:
                 buffer.write(base)
-        buffer.write(')')
+
+        if self.code_red:
+            buffer.write(')')
         if show_assigned_rats:
             buffer.write(' Assigned Rats:')
             buffer.write(', '.join([rat.name for rat in self.rats.values()]))

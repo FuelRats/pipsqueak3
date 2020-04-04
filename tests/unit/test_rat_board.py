@@ -106,7 +106,7 @@ async def test_free_case_rollover_no_free(rat_board_fx, random_string_fx):
 
 
 @pytest.mark.asyncio
-async def test_modify_rescue_client(rescues_fx, rat_board_fx, random_string_fx):
+async def test_modify_rescue_irc_nick(rescues_fx, rat_board_fx, random_string_fx):
     """
     Verifies the board behaves correctly when the client name is changed
     """
@@ -114,7 +114,7 @@ async def test_modify_rescue_client(rescues_fx, rat_board_fx, random_string_fx):
     await rat_board_fx.append(rescues_fx)
 
     async with rat_board_fx.modify_rescue(rescues_fx) as rescue:
-        rescue.client = random_string_fx
+        rescue.irc_nickname = random_string_fx
 
     assert old_client not in rat_board_fx, "bad index still in board"
     assert random_string_fx in rat_board_fx, "new client name not in board"

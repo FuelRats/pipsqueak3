@@ -209,8 +209,8 @@ class RatBoard(abc.Mapping):
             self._storage_by_uuid[rescue.api_id] = rescue
             self._storage_by_index[rescue.board_index] = rescue
 
-            if rescue.client:
-                self._storage_by_client[rescue.client.casefold()] = rescue
+            if rescue.irc_nickname:
+                self._storage_by_client[rescue.irc_nickname.casefold()] = rescue
         logger.trace("released modification lock.")
 
     @property
@@ -235,8 +235,8 @@ class RatBoard(abc.Mapping):
         # Purge it key by key.
         del self._storage_by_uuid[target.api_id]
         del self._storage_by_index[target.board_index]
-        if target.client and target.client.casefold() in self._storage_by_client:
-            del self._storage_by_client[target.client.casefold()]
+        if target.irc_nickname and target.irc_nickname.casefold() in self._storage_by_client:
+            del self._storage_by_client[target.irc_nickname.casefold()]
 
     @asynccontextmanager
     async def modify_rescue(self, key: BoardKey) -> Rescue:
