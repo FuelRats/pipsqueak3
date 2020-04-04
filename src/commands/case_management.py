@@ -314,6 +314,7 @@ async def cmd_case_management_inject(ctx: Context):
     rescue = _validate(ctx, ctx.words[1])
 
     if not rescue:
+        logger.debug("creating rescue for {!r}", ctx.words[1])
         rescue = await ctx.bot.board.create_rescue(client=ctx.words[1])
         async with ctx.bot.board.modify_rescue(rescue) as case:
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
@@ -402,8 +403,7 @@ async def cmd_case_management_quote(ctx: Context):
 
     created_timestamp = rescue.updated_at.strftime("%b %d %H:%M:%S UTC")
 
-    header = f"{rescue.client}'s case {rescue.board_index} at " \
-             f"{rescue.system if rescue.system else 'an unspecified system'}, " \
+    header = f"{rescue}, " \
              f"updated {created_timestamp}  " \
              f"@{rescue.api_id}"
 

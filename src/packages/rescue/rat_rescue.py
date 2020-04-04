@@ -790,7 +790,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         'c' gives the thing colour
         'a' gives rat assignments
-        'u' gives uuids
+        '@' gives uuids
 
         order of format specifiers is NOT sensitive but IS case sensitive!
         """
@@ -803,10 +803,12 @@ class Rescue:  # pylint: disable=too-many-public-methods
         buffer.write(f"[{self.board_index}")
 
         buffer.write(f"@{self.api_id}] " if show_uuid else '] ')
-        buffer.write(F"{self.client} ")
+        buffer.write(F"{self.client}'s case ")
+        if self.irc_nickname != self.client and self.irc_nickname is not None:
+            buffer.write(f"irc nick: {self.irc_nickname!r} ")
 
         if self.code_red:
-            base = '(CR) '
+            base = '(CR '
             if coloured:
                 buffer.write(bold(color(base, Colors.RED)))
             else:
@@ -820,9 +822,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
                     buffer.write(color(base, Colors.GREEN))
                 elif self.platform is Platforms.PS:
                     buffer.write(color(base, Colors.LIGHT_BLUE))
-                else:
-                    buffer.write(base)
-
+            else:
+                buffer.write(base)
+        buffer.write(')')
         if show_assigned_rats:
             buffer.write(' Assigned Rats:')
             buffer.write(', '.join([rat.name for rat in self.rats.values()]))
