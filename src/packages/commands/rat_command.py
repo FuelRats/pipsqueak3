@@ -114,6 +114,7 @@ async def handle_fact(context: Context):
         logger.debug("no such fact name={!r} lang={!r}", fact, lang)
         return False
 
+    logger.debug("fact exists, retrieving and returning!")
     fact = await context.bot.fact_manager.find(fact, lang)
     await context.reply(fact.message)
     return True
