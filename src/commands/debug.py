@@ -138,3 +138,19 @@ async def cmd_cake(context: Context):
 @require_permission(TECHRAT)
 async def cmd_cake(context: Context):
     await context.reply("🍫")  # snickers
+
+
+@command("get_fact")
+@require_permission(TECHRAT)
+async def cmd_debug_get_fact(context: Context):
+    if len(context.words_eol) <= 3:
+        return await context.reply("usage !get_fact <name> <platform>")
+    _, name, lang = context.words
+    result = await context.bot.fact_manager.exists(name, lang)
+    if not result:
+        return await context.reply(f"unable to find fact by name {name!r} with lang {lang!r}")
+
+    fact = await context.bot.fact_manager.find(name, lang)
+    if fact is None:
+        return await context.reply("fact was somehow null here! (this is an error!)")
+    return await context.reply(fact.message)

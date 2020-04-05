@@ -230,7 +230,6 @@ class FactManager(DatabaseManager):
         # Build SQL Object for our query
         query = sql.SQL(f"SELECT name, lang, message, aliases, author, edited, editedby, mfd from "
                         f"{self._fact_table} where name=%s AND lang=%s")
-
         # await our raw result from query
         try:
             rows = await self.query(query, (name, lang))

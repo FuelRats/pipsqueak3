@@ -53,8 +53,3 @@ async def cmd_version(ctx: Context):
     except metadata.PackageNotFoundError:
         return await ctx.reply("version ?.?.? (dirty)")
 
-
-@command("pcfr")
-async def cmd_temp_pcfr(context: Context):
-    fact = await context.bot.fact_manager.find("fr", "en")
-    return await context.reply(fact.message)
