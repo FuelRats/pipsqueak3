@@ -15,6 +15,8 @@ This module is built on top of the Pydle system.
 from loguru import logger
 from typing import Callable, Any
 
+from psycopg2._psycopg import OperationalError
+
 from src.packages.rules.rules import get_rule, clear_rules
 from ..context import Context
 from ..ratmama.ratmama_parser import handle_ratmama_announcement
@@ -88,7 +90,7 @@ async def trigger(ctx) -> Any:
     # neither a rule nor a command, possibly a fact
     result = False
     if ctx.prefixed:
-        result = handle_fact(ctx)
+        result = await handle_fact(ctx)
     if not result:
         logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
 
@@ -106,16 +108,19 @@ async def handle_fact(context: Context):
     else:
         fact = raw
         lang = None
+    try:
+        # don't do anything if the fact doesn't exist
+        if not await context.bot.fact_manager.exists(fact, lang):
+            logger.debug("no such fact name={!r} lang={!r}", fact, lang)
+            return False
 
-    # don't do anything if the fact doesn't exist
-    if not await context.bot.fact_manager.exists(fact, lang):
-        logger.debug("no such fact name={!r} lang={!r}", fact, lang)
+        logger.debug("fact exists, retrieving and returning!")
+        fact = await context.bot.fact_manager.find(fact, lang)
+        await context.reply(fact.message)
+        return True
+    except OperationalError:
+        logger.error("failed to fetch fact")
         return False
-
-    logger.debug("fact exists, retrieving and returning!")
-    fact = await context.bot.fact_manager.find(fact, lang)
-    await context.reply(fact.message)
-    return True
 
 
 def _register(func, names: list or str) -> bool:
