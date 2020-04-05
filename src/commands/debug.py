@@ -143,7 +143,7 @@ async def cmd_cake(context: Context):
 @command("get_fact")
 @require_permission(TECHRAT)
 async def cmd_debug_get_fact(context: Context):
-    if len(context.words_eol) <= 3:
+    if len(context.words_eol) != 3:
         return await context.reply("usage !get_fact <name> <platform>")
     _, name, lang = context.words
     result = await context.bot.fact_manager.exists(name, lang)
