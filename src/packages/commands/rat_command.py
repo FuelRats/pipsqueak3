@@ -107,7 +107,7 @@ async def handle_fact(context: Context):
         fact, lang, *_ = raw.split("-")
     else:
         fact = raw
-        lang = None
+        lang = 'en'
     try:
         # don't do anything if the fact doesn't exist
         if not await context.bot.fact_manager.exists(fact, lang):
