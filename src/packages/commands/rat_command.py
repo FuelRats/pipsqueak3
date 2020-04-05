@@ -86,7 +86,7 @@ async def trigger(ctx) -> Any:
         return await command_fun(ctx, *extra_args)
 
     # neither a rule nor a command, possibly a fact
-    if not handle_fact(ctx):
+    if not await handle_fact(ctx):
         logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
 
 
