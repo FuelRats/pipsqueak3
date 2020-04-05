@@ -135,7 +135,7 @@ class MechaClient(Client, MessageHistoryClient):
         This is initialized in a lazy way to increase overall startup speed.
         """
         if not self._fact_manager:
-            self._fact_manager = FactManager()  # Instantiate Global Fact Manager
+            self._fact_manager = FactManager(fact_table="converted_facts")  # Instantiate Global Fact Manager
         return self._fact_manager
 
     @fact_manager.setter

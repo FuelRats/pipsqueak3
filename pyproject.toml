@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipsqueak3"
-version = "0.0.0"
+version = "3.0.0b1"
 description = "Mechasqueak3"
 authors = ["Joshua Salzedo <thHunkn0WNd@gmail.com>"]
 license = "BSD-3-Clause"

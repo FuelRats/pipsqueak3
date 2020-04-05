@@ -17,6 +17,7 @@ from ..packages.commands import command
 from ..packages.context import Context
 from ..packages.permissions import require_channel, require_permission, TECHRAT
 from loguru import logger
+from importlib import metadata
 import src
 from importlib import resources
 import toml
@@ -47,4 +48,13 @@ async def cmd_rehash(context: Context):
 @command("version")
 async def cmd_version(ctx: Context):
     # FIXME pull from pyproject.toml somehow?
-    return await ctx.reply(f"{ctx.bot.__version__}")
+    try:
+        return await ctx.reply(metadata.version("pipsqueak3"))
+    except metadata.PackageNotFoundError:
+        return await ctx.reply("version ?.?.? (dirty)")
+
+
+@command("pcfr")
+async def cmd_temp_pcfr(context: Context):
+    fact = await context.bot.fact_manager.find("fr", "en")
+    return await context.reply(fact.message)

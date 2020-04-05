@@ -856,4 +856,4 @@ class Rescue:  # pylint: disable=too-many-public-methods
                F"rats={self.rats!r}, " \
                F"status={self.status!r}, " \
                F"code_red={self.code_red!r}, " \
-               F"platform={self.platform!r}"
+               F"platform={self.platform!r})"
