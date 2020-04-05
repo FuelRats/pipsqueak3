@@ -98,6 +98,7 @@ async def handle_fact(context: Context):
 
     # check if we even have enough words
     if len(context.words) < 2:
+        logger.debug("too few words for a fact")
         return False
 
     raw = context.words[2]
@@ -110,6 +111,7 @@ async def handle_fact(context: Context):
 
     # don't do anything if the fact doesn't exist
     if not await context.bot.fact_manager.exists(fact, lang):
+        logger.debug("no such fact name={!r} lang={!r}", fact, lang)
         return False
 
     fact = await context.bot.fact_manager.find(fact, lang)
