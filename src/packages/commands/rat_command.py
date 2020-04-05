@@ -16,6 +16,7 @@ from loguru import logger
 from typing import Callable, Any
 
 from src.packages.rules.rules import get_rule, clear_rules
+from ..context import Context
 from ..ratmama.ratmama_parser import handle_ratmama_announcement
 
 
@@ -84,7 +85,36 @@ async def trigger(ctx) -> Any:
     if command_fun:
         return await command_fun(ctx, *extra_args)
 
-    logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
+    # neither a rule nor a command, possibly a fact
+    if not handle_fact(ctx):
+        logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
+
+
+async def handle_fact(context: Context):
+    """
+    Handles potential facts
+    """
+    logger.trace("entering fact handler")
+
+    # check if we even have enough words
+    if len(context.words) < 2:
+        return False
+
+    raw = context.words[2]
+    logger.debug("checking {!r} for facts...", raw)
+    if "-" in raw:
+        fact, lang, *_ = raw.split("-")
+    else:
+        fact = raw
+        lang = None
+
+    # don't do anything if the fact doesn't exist
+    if not await context.bot.fact_manager.exists(fact, lang):
+        return False
+
+    fact = await context.bot.fact_manager.find(fact, lang)
+    await context.reply(fact.message)
+    return True
 
 
 def _register(func, names: list or str) -> bool:
