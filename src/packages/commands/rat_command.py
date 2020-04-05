@@ -86,7 +86,10 @@ async def trigger(ctx) -> Any:
         return await command_fun(ctx, *extra_args)
 
     # neither a rule nor a command, possibly a fact
-    if not await handle_fact(ctx):
+    result = False
+    if ctx.prefixed:
+        result = handle_fact(ctx)
+    if not result:
         logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
 
 
@@ -96,12 +99,7 @@ async def handle_fact(context: Context):
     """
     logger.trace("entering fact handler")
 
-    # check if we even have enough words
-    if len(context.words) < 2:
-        logger.debug("too few words for a fact")
-        return False
-
-    raw = context.words[2]
+    raw = context.words[0]
     logger.debug("checking {!r} for facts...", raw)
     if "-" in raw:
         fact, lang, *_ = raw.split("-")
