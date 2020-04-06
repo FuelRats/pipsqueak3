@@ -24,13 +24,18 @@ from ._list_flags import ListFlags
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.epic import Epic
-from ..packages.permissions.permissions import require_permission, RAT, OVERSEER, require_channel
+from ..packages.permissions.permissions import (
+    require_permission,
+    RAT,
+    OVERSEER,
+    require_channel,
+)
 from ..packages.quotation.rat_quotation import Quotation
 from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status
 
-_TIME_RE = re.compile(r'(\d+)[: ](\d+)')
+_TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 
 
 # User input validation helper
@@ -80,7 +85,9 @@ async def cmd_case_management_active(ctx: Context):
     # We either have a valid case or we've left the method at this point.
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.active = not case.active
-        await ctx.reply(f'{case.client}\'s case is now {"Active" if case.active else "Inactive"}.')
+        await ctx.reply(
+            f'{case.client}\'s case is now {"Active" if case.active else "Inactive"}.'
+        )
 
 
 @require_channel
@@ -88,7 +95,9 @@ async def cmd_case_management_active(ctx: Context):
 @command("assign", "add", "go")
 async def cmd_case_management_assign(ctx: Context):
     if len(ctx.words) <= 2:
-        await ctx.reply("Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
+        await ctx.reply(
+            "Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>"
+        )
         return
 
     # Pass case to validator, return a case if found or None
@@ -113,8 +122,10 @@ async def cmd_case_management_assign(ctx: Context):
             if rat.name in case.unidentified_rats:
                 await ctx.reply(f"Warning: {name!r} is NOT identified.")
 
-    await ctx.reply(f'{rescue_client}: Please add the following rat(s) to your friends list:'
-                    f' {", ".join(str(rat) for rat in rat_list)}')
+    await ctx.reply(
+        f"{rescue_client}: Please add the following rat(s) to your friends list:"
+        f' {", ".join(str(rat) for rat in rat_list)}'
+    )
 
 
 @require_channel
@@ -147,7 +158,9 @@ async def cmd_case_management_clear(ctx: Context):
             return await ctx.reply(f"Cannot comply: {first_limpet!r}  is unidentified.")
 
         if first_limpet not in rescue.rats:
-            return await ctx.reply(f"Cannot comply: {first_limpet!r} is not assigned to this rescue")
+            return await ctx.reply(
+                f"Cannot comply: {first_limpet!r} is not assigned to this rescue"
+            )
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.active = False
         case.status = Status.CLOSED
@@ -222,7 +235,9 @@ async def cmd_case_management_delete(ctx: Context):
         # TODO: if the case is not present on the board, present the request to the API
         #  and delete that case.
 
-        await ctx.reply(f"Deleted case with id {str(rescue.api_id)} - THIS IS NOT REVERTIBLE!")
+        await ctx.reply(
+            f"Deleted case with id {str(rescue.api_id)} - THIS IS NOT REVERTIBLE!"
+        )
         # FIXME: Add proper method to delete a case from the board
         await ctx.bot.board.remove_rescue(rescue)
 
@@ -233,8 +248,10 @@ async def cmd_case_management_delete(ctx: Context):
 async def cmd_case_management_epic(ctx: Context):
     # This command may be depreciated, and not used.  It's left in only as an artifact, or
     # if that changes.
-    await ctx.reply("This command is no longer in use.  "
-                    "Please visit https://fuelrats.com/epic/nominate to nominate an epic rescue.")
+    await ctx.reply(
+        "This command is no longer in use.  "
+        "Please visit https://fuelrats.com/epic/nominate to nominate an epic rescue."
+    )
     return
     # End Depreciation warning
 
@@ -256,8 +273,10 @@ async def cmd_case_management_epic(ctx: Context):
     new_epic = Epic(uuid=rescue.api_id, notes=ctx.words_eol[2], rescue=rescue)
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.epic.append(new_epic)
-        await ctx.reply(f"{case.client}'s rescue has been marked as an "
-                        f"EPIC tale by {ctx.user.nickname}!")
+        await ctx.reply(
+            f"{case.client}'s rescue has been marked as an "
+            f"EPIC tale by {ctx.user.nickname}!"
+        )
         await ctx.reply(f"Description: {new_epic.notes}")
 
 
@@ -272,9 +291,12 @@ async def cmd_case_management_grab(ctx: Context):
     # Pass case to validator, return a case if found or None
     rescue = _validate(ctx, ctx.words[1].casefold())
     last_message = ctx.bot.last_user_message.get(
-        rescue.client.casefold() if rescue else ctx.words[1].casefold())
+        rescue.client.casefold() if rescue else ctx.words[1].casefold()
+    )
     if not last_message:
-        return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
+        return await ctx.reply(
+            f"Cannot comply: {ctx.words[1]} has not spoken recently."
+        )
 
     if not rescue:
         case = await ctx.bot.board.create_rescue(client=ctx.words[1])
@@ -297,8 +319,10 @@ async def cmd_case_management_grab(ctx: Context):
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.add_quote(last_message, ctx.words[1].casefold())
-        await ctx.reply(f"{case.client}'s case updated with "
-                        f"{last_message!r} (Case {case.board_index})")
+        await ctx.reply(
+            f"{case.client}'s case updated with "
+            f"{last_message!r} (Case {case.board_index})"
+        )
 
 
 @require_channel
@@ -321,12 +345,17 @@ async def cmd_case_management_inject(ctx: Context):
             for keyword in ctx.words_eol[2].split():
                 if keyword.upper() in {item.value for item in Platforms}:
                     case.platform = Platforms[keyword.upper()]
-                if keyword.casefold() == "cr" or "code red" in keyword.casefold() \
-                        or _TIME_RE.match(ctx.words_eol[2]):
+                if (
+                    keyword.casefold() == "cr"
+                    or "code red" in keyword.casefold()
+                    or _TIME_RE.match(ctx.words_eol[2])
+                ):
                     case.code_red = True
 
-            await ctx.reply(f"{case.client}'s case opened with: "
-                            f"{ctx.words_eol[2]}  (Case {case.board_index})")
+            await ctx.reply(
+                f"{case.client}'s case opened with: "
+                f"{ctx.words_eol[2]}  (Case {case.board_index})"
+            )
 
             if case.code_red:
                 await ctx.reply(f"Code Red! {case.client} is on Emergency Oxygen!")
@@ -336,8 +365,10 @@ async def cmd_case_management_inject(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
-    await ctx.reply(f"{case.client}'s case updated with: "
-                    f"'{ctx.words_eol[2]}' (Case {case.board_index})")
+    await ctx.reply(
+        f"{case.client}'s case updated with: "
+        f"'{ctx.words_eol[2]}' (Case {case.board_index})"
+    )
 
 
 @require_channel
@@ -402,19 +433,21 @@ async def cmd_case_management_quote(ctx: Context):
 
     created_timestamp = rescue.updated_at.strftime("%b %d %H:%M:%S UTC")
 
-    header = f"{rescue}, " \
-             f"updated {created_timestamp}  " \
-             f"@{rescue.api_id}"
+    header = f"{rescue}, " f"updated {created_timestamp}  " f"@{rescue.api_id}"
 
     await ctx.reply(header)
 
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
-            delta = humanfriendly.format_timespan((datetime.datetime.now(tz=timezone.utc)
-                                                   - quote.updated_at),
-                                                  detailed=False, max_units=2)
+            delta = humanfriendly.format_timespan(
+                (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                detailed=False,
+                max_units=2,
+            )
             quote_timestamp = f"{delta} ago"
-            await ctx.reply(f'[{i}][{quote.author} ({quote_timestamp})] {quote.message}')
+            await ctx.reply(
+                f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}"
+            )
 
 
 @require_channel()
@@ -440,19 +473,28 @@ async def cmd_case_management_quoteid(ctx: Context):
 
     created_timestamp = rescue.updated_at.strftime("%b %d %H:%M:%S UTC")
 
-    header = f"{rescue.client}'s case {rescue.board_index} at " \
-             f"{rescue.system if rescue.system else 'an unspecified system'}, " \
-             f"updated {created_timestamp}  " \
-             f"@{rescue.api_id}"
+    header = (
+        f"{rescue.client}'s case {rescue.board_index} at "
+        f"{rescue.system if rescue.system else 'an unspecified system'}, "
+        f"updated {created_timestamp}  "
+        f"@{rescue.api_id}"
+    )
 
     await ctx.reply(header)
 
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
-            quote_timestamp = humanfriendly.format_timespan((datetime.datetime.now(tz=timezone.utc)
-                                                             - quote.updated_at),
-                                                            detailed=False, max_units=2) + " ago"
-            await ctx.reply(f'[{i}][{quote.author} ({quote_timestamp})] {quote.message}')
+            quote_timestamp = (
+                humanfriendly.format_timespan(
+                    (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                    detailed=False,
+                    max_units=2,
+                )
+                + " ago"
+            )
+            await ctx.reply(
+                f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}"
+            )
 
 
 @require_channel()
@@ -469,7 +511,9 @@ async def cmd_case_management_reopen(ctx: Context):
 @command("sub")
 async def cmd_case_management(ctx: Context):
     if len(ctx.words) < 3:
-        return await ctx.reply("Usage: !sub <Client Name|Board Index> <Quote Number> [New Text]")
+        return await ctx.reply(
+            "Usage: !sub <Client Name|Board Index> <Quote Number> [New Text]"
+        )
 
     rescue = _validate(ctx, ctx.words[1])
 
@@ -491,11 +535,13 @@ async def cmd_case_management(ctx: Context):
         if quote_id > len(rescue.quotes):
             # no such quote, bail out
             return await ctx.reply(f"no such quote by id {quote_id}")
-        new_quote = Quotation(message=ctx.words_eol[3],
-                              last_author=ctx.user.nickname,
-                              author=rescue.quotes[quote_id].author,
-                              created_at=rescue.quotes[quote_id].created_at,
-                              updated_at=datetime.datetime.now(timezone.utc))
+        new_quote = Quotation(
+            message=ctx.words_eol[3],
+            last_author=ctx.user.nickname,
+            author=rescue.quotes[quote_id].author,
+            created_at=rescue.quotes[quote_id].created_at,
+            updated_at=datetime.datetime.now(timezone.utc),
+        )
 
         async with ctx.bot.board.modify_rescue(rescue) as case:
             case.quotes[quote_id] = new_quote
@@ -548,7 +594,9 @@ async def cmd_case_management_title(ctx: Context):
 @command("unassign", "rm", "remove", "standdown")
 async def cmd_case_management_unassign(ctx: Context):
     if len(ctx.words) < 3:
-        return await ctx.reply("Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
+        return await ctx.reply(
+            "Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>"
+        )
 
     # Pass case to validator, return a case if found or None
     rescue = _validate(ctx, ctx.words[1])
@@ -567,13 +615,17 @@ async def cmd_case_management_unassign(ctx: Context):
         case: Rescue
         for each in rat_list:
             target = each.casefold()
-            if target not in case.unidentified_rats and  target not in case.rats:
-                return await ctx.reply(f"Cannot comply: {target!r}. (Please check your spelling)")
+            if target not in case.unidentified_rats and target not in case.rats:
+                return await ctx.reply(
+                    f"Cannot comply: {target!r}. (Please check your spelling)"
+                )
             case.remove_rat(each.casefold())
             removed_rats.append(each)
 
         removed_rats_str = ", ".join(removed_rats)
-        return await ctx.reply(f"Removed from {rescue_client}'s case: {removed_rats_str}")
+        return await ctx.reply(
+            f"Removed from {rescue_client}'s case: {removed_rats_str}"
+        )
 
 
 def remainder(words: typing.Iterable[str]) -> str:
@@ -610,7 +662,7 @@ async def cmd_list(ctx: Context):
         platform_filter_set = False
 
         for word in words:  # type: str
-            if word.startswith('-'):
+            if word.startswith("-"):
                 if flags_set:
                     raise RuntimeError("invalid usage")  # FIXME: usage warning to user
                 flags = ListFlags.from_word(word)
@@ -634,7 +686,9 @@ async def cmd_list(ctx: Context):
     rescue_filter = functools.partial(_rescue_filter, flags, platform_filter)
 
     # for each rescue that doesn't matches the filter
-    for rescue in itertools.filterfalse(rescue_filter, iter(ctx.bot.board.values())):  # type: Rescue
+    for rescue in itertools.filterfalse(
+        rescue_filter, iter(ctx.bot.board.values())
+    ):  # type: Rescue
         # put it in the right list
         if rescue.active:
             active_rescues.append(rescue)
@@ -642,9 +696,9 @@ async def cmd_list(ctx: Context):
             inactive_rescues.append(rescue)
     format_specifiers = "c"
     if flags.show_assigned_rats:
-        format_specifiers += 'r'
+        format_specifiers += "r"
     if flags.show_uuids:
-        format_specifiers += '@'
+        format_specifiers += "@"
 
     if not active_rescues:
         await ctx.reply("No active rescues.")
@@ -667,14 +721,14 @@ def _list_rescue(rescue_collection, format_specifiers):
     buffer.write(f"{len(rescue_collection)} active cases. ")
     for rescue in rescue_collection:
         buffer.write(format(rescue, format_specifiers))
-        buffer.write('\n')
+        buffer.write("\n")
     output = buffer.getvalue()
-    return output.rstrip('\n')
+    return output.rstrip("\n")
 
 
-def _rescue_filter(flags: ListFlags,
-                   platform_filter: typing.Optional[Platforms],
-                   rescue: Rescue) -> bool:
+def _rescue_filter(
+    flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
+) -> bool:
     """
     determine whether the `rescue` object is one we care about
 

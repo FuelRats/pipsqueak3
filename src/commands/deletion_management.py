@@ -16,7 +16,12 @@ from typing import Optional
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.mark_for_deletion import MarkForDeletion
-from ..packages.permissions.permissions import require_permission, RAT, OVERSEER, require_channel
+from ..packages.permissions.permissions import (
+    require_permission,
+    RAT,
+    OVERSEER,
+    require_channel,
+)
 from ..packages.rescue import Rescue
 from ..packages.utils import Status
 
@@ -55,7 +60,9 @@ async def del_management_md(ctx: Context):
         return
 
     if not rescue.marked_for_deletion.marked:
-        new_mfd = MarkForDeletion(marked=True, reporter=ctx.user.nickname, reason=ctx.words_eol[2])
+        new_mfd = MarkForDeletion(
+            marked=True, reporter=ctx.user.nickname, reason=ctx.words_eol[2]
+        )
     else:
         await ctx.reply(f"{rescue.client}'s case is already marked for deletion.")
         return
@@ -63,7 +70,9 @@ async def del_management_md(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.marked_for_deletion = new_mfd
         case.status = Status.CLOSED
-        await ctx.reply(f"{case.client}'s case has been closed and added to the MFD list.")
+        await ctx.reply(
+            f"{case.client}'s case has been closed and added to the MFD list."
+        )
 
     await ctx.bot.board.remove_rescue(rescue)
 
@@ -79,7 +88,8 @@ async def del_management_mdlist(ctx: Context):
             await ctx.reply(
                 f"[@{rescue.api_id}] {rescue.client} {rescue.platform.value if rescue.platform else ''} "
                 f"Reason: {rescue.marked_for_deletion.reason}, "
-                f"Reporter: {rescue.marked_for_deletion.reporter}")
+                f"Reporter: {rescue.marked_for_deletion.reporter}"
+            )
             await asyncio.sleep(delay=0.5)
 
     await ctx.reply("(End of Marked for Deletion list)")

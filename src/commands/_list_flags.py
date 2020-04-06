@@ -6,6 +6,7 @@ class ListFlags:
     """
     Flags used by the !list command, includes a parser.
     """
+
     show_inactive: bool = False
     filter_unassigned_rescues: bool = False
     show_assigned_rats: bool = False
@@ -40,4 +41,6 @@ class ListFlags:
         """
         show API UUIDs
         """
-        return cls(show_inactive, filter_unassigned_rescues, show_assigned_rats, show_uuids)
+        return cls(
+            show_inactive, filter_unassigned_rescues, show_assigned_rats, show_uuids
+        )

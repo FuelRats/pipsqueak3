@@ -3,6 +3,7 @@ from ..packages.commands import command
 from ..packages import permissions
 from loguru import logger
 
+
 @permissions.require_permission(permissions.RAT)
 @command("search")
 async def cmd_search(ctx: Context):
@@ -22,7 +23,9 @@ async def cmd_landmark_near(ctx: Context):
     logger.trace("searching for system {}", system_name)
     found = await ctx.bot.galaxy.find_system_by_name(system_name)
     if not found:
-        return await ctx.reply(f"{system_name} was not found in The Fuel Rats System Database.")
+        return await ctx.reply(
+            f"{system_name} was not found in The Fuel Rats System Database."
+        )
 
     logger.debug("found system {}, acquiring nearest landmark...", found)
     nearest_landmark = await ctx.bot.galaxy.find_nearest_landmark(found)
