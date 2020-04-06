@@ -174,7 +174,8 @@ class DatabaseManager:
             connection.set_client_encoding('utf-8')
             # Create cursor, and execute the query.
             with connection.cursor() as cursor:
-                logger.debug("executing query {}", query)
+                if __debug__:
+                    logger.debug("executing query {}", query)  # noinspection PyUnreachableCode
                 cursor.execute(query, values)
                 # Check if cursor.description is NONE - meaning no results returned.
                 if cursor.description:
