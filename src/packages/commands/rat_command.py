@@ -15,7 +15,7 @@ This module is built on top of the Pydle system.
 from loguru import logger
 from typing import Callable, Any
 
-from psycopg2._psycopg import OperationalError
+import psycopg2
 
 from src.packages.rules.rules import get_rule, clear_rules
 from ..context import Context
@@ -118,8 +118,8 @@ async def handle_fact(context: Context):
         fact = await context.bot.fact_manager.find(fact, lang)
         await context.reply(fact.message)
         return True
-    except OperationalError:
-        logger.error("failed to fetch fact")
+    except psycopg2.Error:
+        logger.exception("failed to fetch fact")
         return False
 
 
