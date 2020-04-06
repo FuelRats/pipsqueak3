@@ -20,8 +20,12 @@ from ..rescue import Rescue
 from ..rules import rule
 from ..utils import Platforms
 
-_config: Dict = {}
 
+class _RatmammaConfig(TypedDict):
+    trigger_keyword: str
+
+
+_config: _RatmammaConfig = {"trigger_keyword": ""}
 
 @CONFIG_MARKER
 def rehash_handler(data: Dict):
@@ -135,7 +139,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
                                                    code_red=not o2_status, lang_id=lang_code,
                                                    platform=platform)
         platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
-        await ctx.reply(f"RATSIGNAL - CMDR {rescue.client} - "
+        await ctx.reply(f"DRILLSIGNAL - CMDR {rescue.client} - "
                         f"Reported System: {rescue.system} (distance to be implemented) - "
                         f"Platform: {rescue.platform.value if rescue.platform else ''} - "
                         f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
