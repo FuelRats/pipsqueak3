@@ -36,6 +36,10 @@ from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
+"""
+Regex matcher used to find a time within a string. Used to determine
+if a newly-submitted case is code red or not.
+"""
 
 
 # User input validation helper
