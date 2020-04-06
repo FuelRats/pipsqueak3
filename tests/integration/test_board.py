@@ -13,7 +13,6 @@ async def test_create_rescue(board_online_fx, rescue_plain_fx):
     rescue = await  board_online_fx.create_rescue(
         "UNIT_TEST", "ki", "UNIT_TEST", status=Status.OPEN, platform=Platforms.PC
     )
-    ...
 
     rescue_plain_fx._api_id = rescue.api_id
     rescue_plain_fx.board_index = rescue.board_index
