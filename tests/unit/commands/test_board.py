@@ -1,3 +1,4 @@
+import typing
 from uuid import uuid4
 
 import hypothesis
@@ -291,7 +292,7 @@ async def test_sub_replace(bot_fx, rescue_sop_fx):
     initial_content=custom_strategies.valid_text,
     new_content=custom_strategies.valid_text,
     author=custom_strategies.valid_word,
-    rescue=custom_strategies.rescues
+    rescue=custom_strategies.rescue
 )
 async def test_sub_replace_hypothesis(bot_fx, rescue, initial_content: str, new_content: str,
                                       author: str):
@@ -307,3 +308,36 @@ async def test_sub_replace_hypothesis(bot_fx, rescue, initial_content: str, new_
     assert rescue.quotes[0].message == new_content, "content changed to something unexpected"
 
     await bot_fx.board.remove_rescue(rescue)
+
+
+@pytest.mark.asyncio
+@pytest.mark.hypothesis
+@hypothesis.given(
+    random_rescues=custom_strategies.rescues(min_size=2, max_size=20),
+    system=custom_strategies.valid_word,
+    platform=custom_strategies.platform
+)
+async def test_close_hypothesis(bot_fx, random_rescues: typing.List[Rescue],
+                                system: str, platform: Platforms):
+    bot_fx.board._storage_by_index.clear()
+    bot_fx.board._storage_by_client.clear()
+    bot_fx.board._storage_by_uuid.clear()
+
+    # pull the last rescue off the generated rescues and use it as our target
+    target_rescue = random_rescues.pop()
+    target_rescue.system = system
+    target_rescue.platform = platform
+    # append a bunch of unrelated rescues to the board to ensure no side effects
+    for unrelated in random_rescues:
+        await bot_fx.board.append(unrelated)
+    hypothesis.assume(target_rescue.irc_nickname not in bot_fx.board)
+
+    # append the rescue we intend to close'
+    await bot_fx.board.append(target_rescue)
+
+    ctx = await Context.from_message(bot_fx, "#fuelrats", "some_ov",
+                                     f"!clear {target_rescue.board_index}")
+    await trigger(ctx)
+
+    assert target_rescue.irc_nickname not in bot_fx.board, "failed to remove target rescue"
+    assert len(bot_fx.board) == len(random_rescues)
