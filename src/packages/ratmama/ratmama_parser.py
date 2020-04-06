@@ -130,6 +130,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
         if platform_name.casefold() in ("pc", "ps", "xb"):
             platform = Platforms[platform_name.upper()]
+        elif platform_name.casefold() == "ps4":
+            platform = Platforms.PS
         else:
             logger.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
 
