@@ -41,6 +41,4 @@ class ListFlags:
         """
         show API UUIDs
         """
-        return cls(
-            show_inactive, filter_unassigned_rescues, show_assigned_rats, show_uuids
-        )
+        return cls(show_inactive, filter_unassigned_rescues, show_assigned_rats, show_uuids)

@@ -49,9 +49,7 @@ async def cmd_debug_userinfo(context: Context):
     A debug command for getting information about a user.
     """
 
-    await context.reply(
-        f"triggering user is {context.user.nickname}, {context.user.hostname}"
-    )
+    await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
     await context.reply(f"user identifed?: {context.user.identified}")
 
 
@@ -93,17 +91,11 @@ async def cmd_debug_lastmessage(context: Context):
 @require_permission(TECHRAT)
 async def cmd_create_debug_case(context: Context):
     debug_rescue = await context.bot.board.create_rescue(
-        client="Shatt",
-        system="HIP 21991",
-        platform=Platforms.PC,
-        active=True,
-        status=Status.OPEN,
+        client="Shatt", system="HIP 21991", platform=Platforms.PC, active=True, status=Status.OPEN,
     )
 
     await context.reply(f"Created Debug Case as case #{debug_rescue.board_index}!")
-    await context.reply(
-        f"Client: {debug_rescue.client}    System: {debug_rescue.system}"
-    )
+    await context.reply(f"Client: {debug_rescue.client}    System: {debug_rescue.system}")
     await context.reply(f"API ID: {debug_rescue.api_id}")
 
 
@@ -121,9 +113,7 @@ async def cmd_create_debug_case(context: Context):
     )
 
     await context.reply(f"Created Debug Case as case #{debug_rescue.board_index}!")
-    await context.reply(
-        f"Client: {debug_rescue.client}    System: {debug_rescue.system}"
-    )
+    await context.reply(f"Client: {debug_rescue.client}    System: {debug_rescue.system}")
 
 
 @command("debug-eol")
@@ -139,9 +129,7 @@ async def cmd_words_eol(context: Context):
 async def cmd_uptime(context: Context):
     timestamp = (
         humanfriendly.format_timespan(
-            (datetime.now(tz=timezone.utc) - context.bot.start_time),
-            detailed=False,
-            max_units=2,
+            (datetime.now(tz=timezone.utc) - context.bot.start_time), detailed=False, max_units=2,
         )
         + " ago"
     )
@@ -171,9 +159,7 @@ async def cmd_debug_get_fact(context: Context):
     _, name, lang = context.words
     result = await context.bot.fact_manager.exists(name, lang)
     if not result:
-        return await context.reply(
-            f"unable to find fact by name {name!r} with lang {lang!r}"
-        )
+        return await context.reply(f"unable to find fact by name {name!r} with lang {lang!r}")
 
     fact = await context.bot.fact_manager.find(name, lang)
     if fact is None:

@@ -60,9 +60,7 @@ async def del_management_md(ctx: Context):
         return
 
     if not rescue.marked_for_deletion.marked:
-        new_mfd = MarkForDeletion(
-            marked=True, reporter=ctx.user.nickname, reason=ctx.words_eol[2]
-        )
+        new_mfd = MarkForDeletion(marked=True, reporter=ctx.user.nickname, reason=ctx.words_eol[2])
     else:
         await ctx.reply(f"{rescue.client}'s case is already marked for deletion.")
         return
@@ -70,9 +68,7 @@ async def del_management_md(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.marked_for_deletion = new_mfd
         case.status = Status.CLOSED
-        await ctx.reply(
-            f"{case.client}'s case has been closed and added to the MFD list."
-        )
+        await ctx.reply(f"{case.client}'s case has been closed and added to the MFD list.")
 
     await ctx.bot.board.remove_rescue(rescue)
 

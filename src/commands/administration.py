@@ -38,15 +38,11 @@ async def cmd_rehash(context: Context):
         logger.exception("failed to rehash configuration.")
         # if you have access to mecha's configuration file, you have access to its logs.
         # no need to defer this to the top-level exception handler.
-        await context.reply(
-            f"unable to rehash configuration file see logfile for details."
-        )
+        await context.reply(f"unable to rehash configuration file see logfile for details.")
 
     else:
         # no errors, respond status OK with the first octet of the hash.
-        await context.reply(
-            f"rehashing completed successfully. ({resulting_hash[:8]}) "
-        )
+        await context.reply(f"rehashing completed successfully. ({resulting_hash[:8]}) ")
 
 
 @command("version")
