@@ -13,7 +13,7 @@ See LICENSE.md
 
 import re
 from loguru import logger
-from typing import Optional, Dict
+from typing import Optional, Dict, TypedDict
 from src.config import CONFIG_MARKER
 from ..context import Context
 from ..rescue import Rescue
@@ -130,16 +130,17 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             logger.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
 
         # no case for that name, we have to make our own
-        rescue = await ctx.bot.board.create_rescue(client=client_name, system=system_name, irc_nickname=nickname,
-                                code_red=not o2_status, lang_id=lang_code, platform=platform)
-
-        index = ctx.bot.board[client_name].board_index
-        await ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
-                        f"Reported System: {system_name} (distance to be implemented) - "
-                        f"Platform: {platform_name} - "
-                        f"O2: {'OK' if o2_status else 'NOT OK'} - "
+        rescue = await ctx.bot.board.create_rescue(client=client_name, system=system_name,
+                                                   irc_nickname=nickname,
+                                                   code_red=not o2_status, lang_id=lang_code,
+                                                   platform=platform)
+        platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
+        await ctx.reply(f"RATSIGNAL - CMDR {rescue.client} - "
+                        f"Reported System: {rescue.system} (distance to be implemented) - "
+                        f"Platform: {rescue.platform.value if rescue.platform else ''} - "
+                        f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
                         f"Language: {result.group('full_language')}"
-                        f" (Case #{index}) ({platform_name.upper()}_SIGNAL)"
+                        f" (Case #{rescue.board_index}) {platform_signal}"
                         )
 
 

@@ -46,7 +46,6 @@ async def test_announcer_parse(bot_fx,
     """
 
     context = await Context.from_message(bot_fx, "#unit_test", "some_announcer", announcement)
-    monkeypatch.setattr(context, "reply", async_callable_fx)
 
     await ratmama.handle_ratmama_announcement(context)
 
@@ -59,8 +58,8 @@ async def test_announcer_parse(bot_fx,
 
     index = rescue.board_index
     signal = signal.format(str(index))
-    assert async_callable_fx.was_called_with(signal)
-
+    message = bot_fx.sent_messages.pop(0)["message"]
+    assert message.casefold() == signal.casefold()
 
 async def test_announcer_invalid_platform(bot_fx, async_callable_fx, monkeypatch):
     """
