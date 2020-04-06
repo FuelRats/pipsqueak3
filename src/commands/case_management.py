@@ -298,7 +298,8 @@ async def cmd_case_management_grab(ctx: Context):
         last_message = ctx.bot.last_user_message[ctx.words[1].casefold()]
     elif int(ctx.words[1]) in ctx.bot.board:
         if rescue.client.casefold() in ctx.bot.last_user_message:
-            last_message = last_message
+            last_message = ctx.bot.last_user_message[rescue.client.casefold()]
+
         else:
             await ctx.reply("Nothing to grab from that client.")
             return
