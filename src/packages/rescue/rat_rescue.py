@@ -821,6 +821,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
                     buffer.write(color(base, Colors.GREEN))
                 elif self.platform is Platforms.PS:
                     buffer.write(color(base, Colors.LIGHT_BLUE))
+                else:
+                    buffer.write(base)
             else:
                 buffer.write(base)
 

@@ -385,7 +385,8 @@ async def cmd_case_management_ircnick(ctx: Context):
 
     if new_name.casefold() != rescue.client.casefold():
         await ctx.reply(
-            f"Caution: IRC Nickname {new_name!r}does not match CMDR Name {rescue.client.casefold()!r}."
+            f"Caution: IRC Nickname {new_name!r} does not match "
+            f"CMDR Name {rescue.client.casefold()!r}."
         )
 
 
