@@ -161,7 +161,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         )
 
 
-@rule(r"\bratsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
+@rule(r"\bdrillsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
 async def handle_ratsignal(ctx: Context) -> None:
     """
     Tries to extract as much details as possible from a self-issued ratsignal and appends
