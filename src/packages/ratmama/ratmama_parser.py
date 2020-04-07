@@ -21,11 +21,11 @@ from ..rules import rule
 from ..utils import Platforms
 
 
-class _RatmammaConfig(TypedDict):
+class _RatmamaConfig(TypedDict):
     trigger_keyword: str
 
 
-_config: _RatmammaConfig = {"trigger_keyword": ""}
+_config: _RatmamaConfig = {"trigger_keyword": ""}
 
 @CONFIG_MARKER
 def rehash_handler(data: Dict):
