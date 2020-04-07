@@ -82,7 +82,8 @@ async def del_management_mdlist(ctx: Context):
     for rescue in ctx.bot.board.values():
         if rescue.marked_for_deletion.marked:
             await ctx.reply(
-                f"[@{rescue.api_id}] {rescue.client} {rescue.platform.value if rescue.platform else ''} "
+                f"[@{rescue.api_id}] {rescue.client} "
+                f"{rescue.platform.value if rescue.platform else ''} "
                 f"Reason: {rescue.marked_for_deletion.reason}, "
                 f"Reporter: {rescue.marked_for_deletion.reporter}"
             )
