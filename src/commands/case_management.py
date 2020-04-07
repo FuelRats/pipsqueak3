@@ -132,7 +132,7 @@ async def cmd_case_management_assign(ctx: Context):
 @require_permission(RAT)
 @command("clear", "close")
 async def cmd_case_management_clear(ctx: Context):
-    if len(ctx.words) < 2:
+    if len(ctx.words) < 2 or len(ctx.words) > 3:
         await ctx.reply("Usage: !clear <Client Name|Board Index> [First Limpet Sender]")
         return
 
