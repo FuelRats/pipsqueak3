@@ -70,9 +70,6 @@ def rescues(min_size: int, max_size: int):
                                 lambda case: case.irc_nickname, lambda case: case.board_index,
                                 lambda case: case.client))
 
-
-""" A list of rescues """
-
 rat = strategies.builds(
     _Rat,
     uuid=strategies.uuids(version=4),
