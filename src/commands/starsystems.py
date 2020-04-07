@@ -13,8 +13,6 @@ async def cmd_search(ctx: Context):
     return await ctx.reply(f"{results!r}")
 
 
-@permissions.require_permission([permissions.RAT])
-@command("landmark-near")
 async def cmd_landmark_near(ctx: Context):
     if len(ctx.words) < 2:
         return await ctx.reply("Usage: landmark near <system>")
@@ -28,3 +26,10 @@ async def cmd_landmark_near(ctx: Context):
     logger.debug("found system {}, acquiring nearest landmark...", found)
     nearest_landmark = await ctx.bot.galaxy.find_nearest_landmark(found)
     return await ctx.reply(f"{nearest_landmark}")
+
+
+@permissions.require_permission([permissions.RAT])
+@command("landmark")
+async def cmd_landmark(ctx: Context):
+    if len(ctx.words) < 2:
+        return await ctx.reply("Valid subcommands: 'near'")

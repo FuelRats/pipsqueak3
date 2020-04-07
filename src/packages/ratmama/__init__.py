@@ -8,10 +8,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-__all__ = [
-    "handle_ratmama_announcement",
-    "handle_ratsignal"
-]
+__all__ = ["handle_ratmama_announcement", "handle_ratsignal"]
 from src.config import PLUGIN_MANAGER
 from .ratmama_parser import handle_ratmama_announcement, handle_ratsignal
 from . import ratmama_parser as _parser

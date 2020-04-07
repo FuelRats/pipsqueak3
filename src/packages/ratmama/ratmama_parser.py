@@ -27,6 +27,7 @@ class _RatmamaConfig(TypedDict):
 
 _config: _RatmamaConfig = {"trigger_keyword": ""}
 
+
 @CONFIG_MARKER
 def rehash_handler(data: Dict):
     """
@@ -39,7 +40,8 @@ def rehash_handler(data: Dict):
     _config.update(data)
 
 
-RATMAMA_REGEX = re.compile(r"""(?x)
+RATMAMA_REGEX = re.compile(
+    r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
@@ -72,11 +74,13 @@ RATMAMA_REGEX = re.compile(r"""(?x)
     )                                    # End of the main capture group
     \s*                                  # Handle any possible trailing whitespace
     $                                    # End of pattern
-""")
+"""
+)
 
 
-@rule(r"^Incoming Client:", case_sensitive=False, full_message=False, prefixless=True,
-      pass_match=False)
+@rule(
+    r"^Incoming Client:", case_sensitive=False, full_message=False, prefixless=True, pass_match=False
+)
 async def handle_ratmama_announcement(ctx: Context) -> None:
     """
     Handles the Announcement made by RatMama.
@@ -91,7 +95,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     """
 
     if ctx.user.nickname.casefold() not in (
-            nick.casefold() for nick in _config["ratsignal_parser"]["announcer_nicks"]
+        nick.casefold() for nick in _config["ratsignal_parser"]["announcer_nicks"]
     ):
         return
 
@@ -105,7 +109,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     nickname: Optional[str] = result.group("nick")
 
     exist_rescue: Optional[Rescue] = ctx.bot.board[
-        client_name] if client_name in ctx.bot.board else None
+        client_name
+    ] if client_name in ctx.bot.board else None
 
     if exist_rescue:
         # we got a case already!
@@ -119,8 +124,9 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             diff_response += "Platform changed! "
 
         if not o2_status != exist_rescue.code_red:
-            diff_response += "O2 Status changed!" if o2_status else \
-                "O2 Status changed, it is now CODE RED!"
+            diff_response += (
+                "O2 Status changed!" if o2_status else "O2 Status changed, it is now CODE RED!"
+            )
 
         if diff_response:
             await ctx.reply(diff_response)
@@ -136,18 +142,23 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             logger.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
 
         # no case for that name, we have to make our own
-        rescue = await ctx.bot.board.create_rescue(client=client_name, system=system_name,
-                                                   irc_nickname=nickname,
-                                                   code_red=not o2_status, lang_id=lang_code,
-                                                   platform=platform)
+        rescue = await ctx.bot.board.create_rescue(
+            client=client_name,
+            system=system_name,
+            irc_nickname=nickname,
+            code_red=not o2_status,
+            lang_id=lang_code,
+            platform=platform,
+        )
         platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
-        await ctx.reply(f"DRILLSIGNAL - CMDR {rescue.client} - "
-                        f"Reported System: {rescue.system} (distance to be implemented) - "
-                        f"Platform: {rescue.platform.value if rescue.platform else ''} - "
-                        f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
-                        f"Language: {result.group('full_language')}"
-                        f" (Case #{rescue.board_index}) {platform_signal}"
-                        )
+        await ctx.reply(
+            f"DRILLSIGNAL - CMDR {rescue.client} - "
+            f"Reported System: {rescue.system} (distance to be implemented) - "
+            f"Platform: {rescue.platform.value if rescue.platform else ''} - "
+            f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
+            f"Language: {result.group('full_language')}"
+            f" (Case #{rescue.board_index}) {platform_signal}"
+        )
 
 
 @rule(r"\bratsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
@@ -171,25 +182,29 @@ async def handle_ratsignal(ctx: Context) -> None:
     message = re.sub("ratsignal", "", message, flags=re.I)
 
     if ctx.user.nickname.casefold() in ctx.bot.board:
-        await ctx.reply(f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
-                        f" someone will help you soon!")
+        await ctx.reply(
+            f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
+            f" someone will help you soon!"
+        )
         return
 
     sep: Optional[str] = None
-    if ',' in message:
-        sep = ','
-    elif ';' in message:
-        sep = ';'
-    elif '|' in message:
-        sep = '|'
-    elif '-' in message:
-        sep = '-'
+    if "," in message:
+        sep = ","
+    elif ";" in message:
+        sep = ";"
+    elif "|" in message:
+        sep = "|"
+    elif "-" in message:
+        sep = "-"
 
     if not sep:
-        rescue = await  ctx.bot.board.create_rescue(irc_nickname=ctx.user.nickname,
-                                                    client=ctx.user.nickname)
+        rescue = await ctx.bot.board.create_rescue(
+            irc_nickname=ctx.user.nickname, client=ctx.user.nickname
+        )
         await ctx.reply(
-            f"Case #{rescue.board_index} created for {ctx.user.nickname}, please set details")
+            f"Case #{rescue.board_index} created for {ctx.user.nickname}, please set details"
+        )
         return
 
     system: str = None
@@ -217,9 +232,11 @@ async def handle_ratsignal(ctx: Context) -> None:
         system=system,
         irc_nickname=ctx.user.nickname,
         code_red=code_red,
-        platform=platform
+        platform=platform,
     )
-    await ctx.reply(f"Case created for {rescue.client}"
-                    f" on {rescue.platform.name} in {rescue.system}. "
-                    f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
-                    f"- {rescue.platform.name.upper()}_SIGNAL")
+    await ctx.reply(
+        f"Case created for {rescue.client}"
+        f" on {rescue.platform.name} in {rescue.system}. "
+        f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
+        f"- {rescue.platform.name.upper()}_SIGNAL"
+    )
