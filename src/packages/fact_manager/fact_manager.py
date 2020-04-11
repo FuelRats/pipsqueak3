@@ -13,10 +13,12 @@ See LICENSE.md
 """
 import datetime
 import psycopg2
+import typing
 from psycopg2 import sql
 from loguru import logger
 from .fact import Fact
 from ..database import DatabaseManager
+from src.config import CONFIG_MARKER
 
 
 class FactManager(DatabaseManager):
@@ -31,16 +33,32 @@ class FactManager(DatabaseManager):
     Returns:
         Nothing
     """
+    _config: typing.ClassVar[typing.Dict]
 
-    def __init__(self, fact_table="fact2", fact_log="fact_transaction"):
-        if not isinstance(fact_table, str):
-            raise TypeError("fact table must be a string.")
+    @classmethod
+    @CONFIG_MARKER
+    def rehash_handler(cls, data: typing.Dict):
+        """
+        Apply new configuration data
 
-        if not isinstance(fact_log, str):
-            raise TypeError("fact log must be a string.")
+        Args:
+            data (typing.Dict): new configuration data to apply.
 
-        self._fact_table = fact_table
-        self._fact_log = fact_log
+        """
+        cls._config = data
+
+    def __init__(self, fact_table=None, fact_log=None):
+
+        # Pull table names from config file
+        self._fact_table = fact_table if fact_table else self._config['database']['fact_table']
+        self._fact_log = fact_log if fact_log else self._config['database']['fact_log']
+
+        # Validate passed or configured table names
+        if not isinstance(self._fact_table, str):
+            raise TypeError("Fact table name must be a string")
+
+        if not isinstance(self._fact_log, str):
+            raise TypeError("Fact log table name must be a string")
 
         # Proclaim loudly into the void that we are loaded.
         super().__init__()

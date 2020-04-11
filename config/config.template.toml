@@ -1,29 +1,38 @@
 [irc]
-nickname = "Mechasqueak3[BOT]"
+nickname = "Mechasqueak3-tests[BOT]"
+server = "localhost"
 port = 6697
 tls = true
 channels = [ "#unkn0wndev",]
 
+[authentication]
+method = "PLAIN"
+
 [logging]
-base_logger = "mecha"
-log_file = "logs/mechasqueak.log"
+base_logger = "testmecha"
+log_file = "logs/unit_tests.log"
 
 [database]
+host = "localhost"
+port = 5432
+dbname = "mecha3"
+username = "mecha3"
+password = "mecha3"
+fact_table = "fact"
+fact_log = "fact_transaction"
 
 [commands]
 prefix = "!"
 
 [api]
 online_mode = false
+url = "http://localhost/"
 
 [system_api]
-url = "https://system.api.url/api"
+url = "http://localhost/"
 
 [ratsignal_parser]
-announcer_nicks = [ "ratmama[bot]",]
-
-[authentication]
-method = "PLAIN"
+announcer_nicks = [ "RatMama[Bot]", "some_announcer", 'unknown' ]
 
 [authentication.plain]
 username = ""
@@ -55,3 +64,4 @@ level = 4
 
 [board]
 cycle_at = 15
+api_url = "https://api.thehellisthis.com"
