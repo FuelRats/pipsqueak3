@@ -14,7 +14,7 @@ See LICENSE.md
 import datetime
 import psycopg2
 import typing
-from psycopg2 import sql
+from psycopg2 import sql, pool
 from loguru import logger
 from .fact import Fact
 from ..database import DatabaseManager
@@ -199,10 +199,19 @@ class FactManager(DatabaseManager):
 
         try:
             result = await self.query(query, (name, lang))
-        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
-            # Check for offline database, or issues with the query.
-            logger.exception(f"Could not establish existence of {name}-{lang}")
-            raise error
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError, psycopg2.pool.PoolError) as error:
+            # Check for offline database
+            if isinstance(error, psycopg2.pool.PoolError):
+                logger.exception("Database offline or connection pool exhausted.", backtrace=True)
+                raise
+            # Check for bad query
+            if isinstance(error, psycopg2.ProgrammingError):
+                logger.exception("Invalid query passed to fact finder.", backtrace=True)
+                raise
+            # Check for integrity violation
+            if isinstance(error, psycopg2.DatabaseError):
+                logger.exception("Database Access issue - verify fact table.", backtrace=True)
+                raise
 
         # We are only getting a single integer as a response, so we can unpack it by index.
         # it will always return a single integer.
