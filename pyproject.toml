@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipsqueak3"
-version = "3.0.0b4"
+version = "3.0.0b5"
 description = "Mechasqueak3"
 authors = ["Joshua Salzedo <thHunkn0WNd@gmail.com>"]
 license = "BSD-3-Clause"
@@ -19,6 +19,7 @@ toml = "*"
 loguru = "*"
 pluggy = "*"
 async_lru = "^1.0.2"
+prometheus_client = "^0.7.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
