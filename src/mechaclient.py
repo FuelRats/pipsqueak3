@@ -102,6 +102,10 @@ class MechaClient(Client, MessageHistoryClient):
         try:
             self._last_user_message[user.casefold()] = sanitized_message  # Store sanitized message
             ctx = await Context.from_message(self, channel, user, sanitized_message)
+            if not ctx.words:
+                logger.trace("ignoring empty message")
+                return
+
             await trigger(ctx)
 
         # Disable pylint's complaint here, as a broad catch is exactly what we want.
