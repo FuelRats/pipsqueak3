@@ -140,7 +140,7 @@ class MechaClient(Client, MessageHistoryClient):
         """
         if not self._fact_manager:
             # Instantiate Global Fact Manager
-            self._fact_manager = FactManager(fact_table="converted_facts")
+            self._fact_manager = FactManager()
         return self._fact_manager
 
     @fact_manager.setter

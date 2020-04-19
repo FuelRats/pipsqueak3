@@ -144,6 +144,21 @@ class DatabaseManager:
             logger.exception("Unable to connect to database!")
             raise error
 
+    async def is_connected(self) -> bool:
+        """
+        Private method.  Verifies the isolation level as an alternative to an actual query to check if the connection
+        is still alive and valid.
+        """
+        try:
+            with self._dbpool.getconn() as connection:
+                heartbeat = connection.isolation_level
+                self._dbpool.putconn(connection)
+        except psycopg2.OperationalError:
+            logger.warning("Potential Connectivity issues with database!")
+            return False
+
+        return True
+
     async def query(self,
                     query: sql.SQL,
                     values: typing.Union[typing.Tuple, typing.Dict]) -> typing.List:
