@@ -20,12 +20,8 @@ WORKDIR /mechasqueak
 COPY ./poetry.lock ./
 COPY ./pyproject.toml ./
 
-
-# install poetry
-RUN pip install poetry
-
-
 # Copy the current directory contents into the container at /mechasqueak
 ADD . /mechasqueak
 
+# PEP517 install
 RUN pip install /mechasqueak
