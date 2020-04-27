@@ -18,7 +18,8 @@ port = 5432
 dbname = "circle_test"
 username = "postgres"
 password = "mecha"
-tablename = "fact2"
+fact_table = "fact2"
+fact_log = "fact_log"
 
 [commands]
 prefix = "!"

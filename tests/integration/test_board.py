@@ -6,6 +6,7 @@ pytestmark = [pytest.mark.fuelrats_api, pytest.mark.asyncio, pytest.mark.integra
 
 
 async def test_create_rescue(board_online_fx, rescue_plain_fx):
+    pytest.xfail("TODO: mock component")
     """ verifies a case can be created via the online board"""
     # return Rescue(uuid4(), "UNIT_TEST", "ki", "UNIT_TEST", board_index=42, status=Status.OPEN,
     #               platform=Platforms.PC)
