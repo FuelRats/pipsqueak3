@@ -25,6 +25,7 @@ import pytest
 from src.config import CONFIG_MARKER, PLUGIN_MANAGER, setup_logging, setup
 from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
+
 # Set argv to keep cli arguments meant for pytest from polluting our things
 sys.argv = ["test",
             "--config-file", "testing.toml",
@@ -369,6 +370,7 @@ def configuration_fx() -> Dict:
 @pytest.fixture
 def mock_fuelrats_api_fx():
     # TODO pull from configuration system
+    pytest.xfail("FIXME deprecated API ")
     return MockupAPI(url=r'http://api.thehellisthis.com:6543/api')
 
 
