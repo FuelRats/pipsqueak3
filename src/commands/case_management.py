@@ -340,10 +340,11 @@ async def cmd_case_management_inject(ctx: Context):
                     case.platform = Platforms[keyword.upper()]
                 if (
                     keyword.casefold() == "cr"
-                    or "code red" in keyword.casefold()
                     or _TIME_RE.match(ctx.words_eol[2])
                 ):
                     case.code_red = True
+            if "code red" in ctx.words_eol[2]:
+                case.code_red = True
 
             await ctx.reply(
                 f"{case.client}'s case opened with: " f"{ctx.words_eol[2]}  (Case {case.board_index})"
