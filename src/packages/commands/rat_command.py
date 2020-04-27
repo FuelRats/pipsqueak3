@@ -110,12 +110,12 @@ async def handle_fact(context: Context):
         lang = 'en'
     try:
         # don't do anything if the fact doesn't exist
-        if not await context.bot.fact_manager.exists(fact.casefold(), lang):
+        if not await context.bot.fact_manager.exists(fact.casefold(), lang.casefold()):
             logger.debug("no such fact name={!r} lang={!r}", fact, lang)
             return False
 
         logger.debug("fact exists, retrieving and returning!")
-        fact = await context.bot.fact_manager.find(fact.casefold(), lang)
+        fact = await context.bot.fact_manager.find(fact.casefold(), lang.casefold())
         await context.reply(fact.message)
         return True
     except psycopg2.Error:
