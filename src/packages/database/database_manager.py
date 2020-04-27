@@ -144,8 +144,8 @@ class DatabaseManager:
 
     async def is_connected(self) -> bool:
         """
-        Private method.  Verifies the isolation level as an alternative to an actual query to check if the connection
-        is still alive and valid.
+        Private method.  Verifies the isolation level as an alternative to
+        an actual query to check if the connection is still alive and valid.
         """
         try:
             with self._dbpool.getconn() as connection:
