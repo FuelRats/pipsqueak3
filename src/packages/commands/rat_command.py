@@ -101,7 +101,7 @@ async def handle_fact(context: Context):
     """
     logger.trace("entering fact handler")
 
-    raw = context.words[0]
+    raw, *users = context.words
     logger.debug("checking {!r} for facts...", raw)
     if "-" in raw:
         fact, lang, *_ = raw.split("-")
@@ -116,7 +116,7 @@ async def handle_fact(context: Context):
 
         logger.debug("fact exists, retrieving and returning!")
         fact = await context.bot.fact_manager.find(fact.casefold(), lang.casefold())
-        await context.reply(fact.message)
+        await context.reply(f"{' '.join(users)} : {fact.message}")
         return True
     except psycopg2.Error:
         logger.exception("failed to fetch fact")
