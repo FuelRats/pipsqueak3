@@ -8,6 +8,7 @@
 #       Mechasqueak:    docker-compose up mechasqueak
 #       Drillsqueak:    docker-compose up drillsqueak
 #       development:    docker-compose up mecha3-dev
+#       shell (for docker attach, debugging):          docker-compose up shell
 #
 #     please note that these builds require a configuration file external to git, a template
 #       configuration file is provided.
@@ -37,7 +38,27 @@ services:
 
     build: .
     image: mecha3
-    command: "pipenv run pytest"
+    command: ["python", "-m", "pytest"]
+
+  shell:
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /mechasqueak/logs/
+
+      - type: bind
+        source: ./config
+        target: /mechasqueak/config/
+
+      - type: bind
+        source: ./certs
+        target: /mechasqueak/certs/
+
+    build: .
+    image: mecha3
+    command: ["/bin/bash"]
+    stdin_open: true
+    tty: true
 
   mecha3-dev:
     volumes:
@@ -54,7 +75,7 @@ services:
         target: /mechasqueak/certs/
     build: .
     image: mecha3
-    command: ["pipenv","run","python","main.py","--config", "develop.json"]
+    command: ["python","-m","src", "--config", "develop.toml"]
 
   drillsqueak:
     volumes:

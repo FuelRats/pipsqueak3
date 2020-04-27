@@ -10,7 +10,7 @@ This project is under active development.  As such, features may be added or rem
 SPARK is currently **incomplete**.
 
 ## Requirements
-* Python 3.7
+* Python 3.8
 * PostgreSQL
 * Pydle >= 0.9.1
 

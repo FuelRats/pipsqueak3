@@ -13,20 +13,27 @@
 
 
 # Use an official Python runtime as a parent image
-FROM python:3.6.6-alpine
+FROM python:3.8.2-buster
 # Set the working directory to /mechasqueak
 WORKDIR /mechasqueak
 
-COPY ./Pipfile ./
-COPY ./Pipfile.lock ./
+COPY ./poetry.lock ./
+COPY ./pyproject.toml ./
+
 # fetch git, as we will need it.
-RUN apk add --no-cache git
+RUN apt install git
 
-# install pipenv
-RUN pip install pipenv
+# install poetry
+RUN pip install poetry
 
-# Install any needed packages specified in requirements.txt
-RUN pipenv install -d
+# TEMPFIX: open bug with poetry in a docker container (https://github.com/python-poetry/poetry/issues/1899)
+# The following commands work around this bug and install faster using pip
+RUN poetry config virtualenvs.create false \
+                && poetry export --without-hashes -f requirements.txt --dev \
+                |  poetry run pip install -r /dev/stdin \
+                && poetry debug
+COPY . ./
+RUN poetry install --no-interaction
 
 # Copy the current directory contents into the container at /mechasqueak
 ADD . /mechasqueak
