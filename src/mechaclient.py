@@ -11,6 +11,8 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+import functools
+
 from loguru import logger
 from uuid import uuid4
 
@@ -60,6 +62,7 @@ class MechaClient(Client, MessageHistoryClient):
         self._config = mecha_config if mecha_config else {}
         self._galaxy = None
         self._start_time = datetime.now(tz=timezone.utc)
+        self._on_invite = require_permission(TECHRAT)(functools.partial(self._on_invite))
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -85,11 +88,11 @@ class MechaClient(Client, MessageHistoryClient):
         # create context from message, tie the channel to the sender
         # (this ensures access-denys get sent to the right place)
         ctx = await Context.from_message(self, sender=by, channel=by, message=channel)
+        logger.debug("invited to channel, context is {}", ctx)
+
         return await self._on_invite(ctx)
 
-    @require_permission(TECHRAT)
     async def _on_invite(self, ctx):
-        logger.debug("invited to channel, context is {}", ctx)
         await self.join(ctx.words[0])
 
     async def on_message(self, channel, user, message: str):
