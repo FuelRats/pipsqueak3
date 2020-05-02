@@ -15,18 +15,23 @@ from loguru import logger
 from uuid import uuid4
 
 from pydle import Client
-
-from src.packages.board import RatBoard
-from src.packages.commands import trigger
-from src.packages.context.context import Context
-from src.packages.fact_manager.fact_manager import FactManager
-from src.packages.galaxy import Galaxy
-from src.packages.graceful_errors import graceful_errors
-from src.packages.utils import sanitize
+from .packages.board import RatBoard
+from .packages.commands import trigger
+from .packages.permissions import require_permission, TECHRAT
+from .packages.context.context import Context
+from .packages.fact_manager.fact_manager import FactManager
+from .packages.galaxy import Galaxy
+from .packages.graceful_errors import graceful_errors
+from .packages.utils import sanitize
 from .features.message_history import MessageHistoryClient
 
 from typing import Dict
 from datetime import datetime, timezone
+
+
+@require_permission(TECHRAT)
+async def _on_invite(ctx: Context):
+    await ctx.bot.join(ctx.channel)
 
 
 class MechaClient(Client, MessageHistoryClient):
@@ -49,7 +54,8 @@ class MechaClient(Client, MessageHistoryClient):
         """
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._fact_manager = None  # Instantiate Global Fact Manager
-        self._last_user_message: Dict[str, str] = {}  # Holds last message from user, by irc nick
+        self._last_user_message: Dict[
+            str, str] = {}  # Holds last message from user, by irc nick
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config if mecha_config else {}
@@ -77,7 +83,14 @@ class MechaClient(Client, MessageHistoryClient):
     #     super().on_join(channel, user)
     async def on_invite(self, channel, by):
         logger.info(f"invited to channel {channel!r} by user {by!r}")
-        return await self.join(channel)
+        # create context from message, tie the channel to the sender
+        # (this ensures access-denys get sent to the right place)
+        ctx = await Context.from_message(self, sender=by, channel=by, message=channel)
+        return await self._on_invite(ctx)
+
+    @require_permission(TECHRAT)
+    async def _on_invite(self, ctx):
+        await self.join(ctx.words[0])
 
     async def on_message(self, channel, user, message: str):
         """
@@ -100,8 +113,10 @@ class MechaClient(Client, MessageHistoryClient):
         sanitized_message = sanitize(message)
         logger.debug(f"Sanitized {sanitized_message}, Original: {message}")
         try:
-            self._last_user_message[user.casefold()] = sanitized_message  # Store sanitized message
-            ctx = await Context.from_message(self, channel, user, sanitized_message)
+            self._last_user_message[
+                user.casefold()] = sanitized_message  # Store sanitized message
+            ctx = await Context.from_message(self, channel, user,
+                                             sanitized_message)
             if not ctx.words:
                 logger.trace("ignoring empty message")
                 return
@@ -122,7 +137,8 @@ class MechaClient(Client, MessageHistoryClient):
         Handle an IRC 396 message. This message is sent upon successful application of a host mask
         via usermode +x.
         """
-        logger.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
+        logger.info(
+            f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
 
     @property
     def rat_cache(self) -> object:
