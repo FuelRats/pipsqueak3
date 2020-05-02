@@ -89,6 +89,7 @@ class MechaClient(Client, MessageHistoryClient):
 
     @require_permission(TECHRAT)
     async def _on_invite(self, ctx):
+        logger.debug("invited to channel, context is {}", ctx)
         await self.join(ctx.words[0])
 
     async def on_message(self, channel, user, message: str):
