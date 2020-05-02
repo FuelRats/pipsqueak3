@@ -54,8 +54,7 @@ class MechaClient(Client, MessageHistoryClient):
         """
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._fact_manager = None  # Instantiate Global Fact Manager
-        self._last_user_message: Dict[
-            str, str] = {}  # Holds last message from user, by irc nick
+        self._last_user_message: Dict[str, str] = {}  # Holds last message from user, by irc nick
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config if mecha_config else {}
@@ -103,7 +102,7 @@ class MechaClient(Client, MessageHistoryClient):
         await super().on_message(channel, user, message)
         logger.debug(f"{channel}: <{user}> {message}")
 
-        if user == self._config['irc']['nickname']:
+        if user == self._config["irc"]["nickname"]:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             logger.debug(f"Ignored {message} (anti-loop)")
@@ -113,10 +112,8 @@ class MechaClient(Client, MessageHistoryClient):
         sanitized_message = sanitize(message)
         logger.debug(f"Sanitized {sanitized_message}, Original: {message}")
         try:
-            self._last_user_message[
-                user.casefold()] = sanitized_message  # Store sanitized message
-            ctx = await Context.from_message(self, channel, user,
-                                             sanitized_message)
+            self._last_user_message[user.casefold()] = sanitized_message  # Store sanitized message
+            ctx = await Context.from_message(self, channel, user, sanitized_message)
             if not ctx.words:
                 logger.trace("ignoring empty message")
                 return
@@ -137,8 +134,7 @@ class MechaClient(Client, MessageHistoryClient):
         Handle an IRC 396 message. This message is sent upon successful application of a host mask
         via usermode +x.
         """
-        logger.info(
-            f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
+        logger.info(f"{message.params[0]}@{message.params[1]} {message.params[2]}.")
 
     @property
     def rat_cache(self) -> object:
