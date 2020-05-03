@@ -110,7 +110,7 @@ def test_singleton_indirect_inheritance():
 @pytest.mark.parametrize("expected_color", (Colors.RED, Colors.BLUE, Colors.BLACK, Colors.GREEN))
 def test_color_single_color(expected_color, random_string_fx):
     test_string = random_string_fx
-    assert f"{Formatting.FORMAT_COLOR.value}{expected_color}{test_string}" \
+    assert f"{Formatting.FORMAT_COLOR.value}{expected_color.value}{test_string}" \
            f"{Formatting.FORMAT_COLOR.value}" == color(test_string, expected_color)
 
 
@@ -121,7 +121,7 @@ def test_color_single_color(expected_color, random_string_fx):
                         ))
 def test_color_background_color(random_string_fx, expected_color, expected_bg_color):
     test_string = random_string_fx
-    assert f"{Formatting.FORMAT_COLOR.value}{expected_color},{expected_bg_color}{test_string}" \
+    assert f"{Formatting.FORMAT_COLOR.value}{expected_color.value}{expected_bg_color.value}{test_string}" \
            f"{Formatting.FORMAT_COLOR.value}" == color(test_string,
                                                        expected_color,
                                                        expected_bg_color)

@@ -23,12 +23,12 @@ pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio
 @pytest.mark.parametrize("announcement, signal, cmdr, system, platform, code_red", [
     ("Incoming Client: SomeClient - System: Fuelum - Platform: PC - O2: OK"
      " - Language: English (en-US)",
-     "RATSIGNAL - CMDR SomeClient - Reported System: Fuelum (distance to be implemented)"
+     "DRILLSIGNAL - CMDR SomeClient - Reported System: Fuelum (distance to be implemented)"
      " - Platform: PC - O2: OK - Language: English (en-US) (Case #{}) (PC_SIGNAL)",
      "SomeClient", "FUELUM", Platforms.PC, False),
     ("Incoming Client: SomeOtherClient - System: LHS 3447 - Platform: XB"
      " - O2: NOT OK - Language: German (de-DE)",
-     "RATSIGNAL - CMDR SomeOtherClient - Reported System: LHS 3447 (distance to be implemented)"
+     "DRILLSIGNAL - CMDR SomeOtherClient - Reported System: LHS 3447 (distance to be implemented)"
      " - Platform: XB - O2: NOT OK - Language: German (de-DE) (Case #{}) (XB_SIGNAL)",
      "SomeOtherClient", "LHS 3447", Platforms.XB, True)
 ])
@@ -46,7 +46,6 @@ async def test_announcer_parse(bot_fx,
     """
 
     context = await Context.from_message(bot_fx, "#unit_test", "some_announcer", announcement)
-    monkeypatch.setattr(context, "reply", async_callable_fx)
 
     await ratmama.handle_ratmama_announcement(context)
 
@@ -59,8 +58,8 @@ async def test_announcer_parse(bot_fx,
 
     index = rescue.board_index
     signal = signal.format(str(index))
-    assert async_callable_fx.was_called_with(signal)
-
+    message = bot_fx.sent_messages.pop(0)["message"]
+    assert message.casefold() == signal.casefold()
 
 async def test_announcer_invalid_platform(bot_fx, async_callable_fx, monkeypatch):
     """

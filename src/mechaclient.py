@@ -11,19 +11,29 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+import functools
+
 from loguru import logger
 from uuid import uuid4
 
 from pydle import Client
-
-from src.packages.board import RatBoard
-from src.packages.commands import trigger
-from src.packages.context.context import Context
-from src.packages.fact_manager.fact_manager import FactManager
-from src.packages.galaxy import Galaxy
-from src.packages.graceful_errors import graceful_errors
-from src.packages.utils import sanitize
+from .packages.board import RatBoard
+from .packages.commands import trigger
+from .packages.permissions import require_permission, TECHRAT
+from .packages.context.context import Context
+from .packages.fact_manager.fact_manager import FactManager
+from .packages.galaxy import Galaxy
+from .packages.graceful_errors import graceful_errors
+from .packages.utils import sanitize
 from .features.message_history import MessageHistoryClient
+
+from typing import Dict
+from datetime import datetime, timezone
+
+
+@require_permission(TECHRAT)
+async def _on_invite(ctx: Context):
+    await ctx.bot.join(ctx.channel)
 
 
 class MechaClient(Client, MessageHistoryClient):
@@ -46,10 +56,13 @@ class MechaClient(Client, MessageHistoryClient):
         """
         self._api_handler = None  # TODO: replace with handler init once it exists
         self._fact_manager = None  # Instantiate Global Fact Manager
+        self._last_user_message: Dict[str, str] = {}  # Holds last message from user, by irc nick
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config if mecha_config else {}
         self._galaxy = None
+        self._start_time = datetime.now(tz=timezone.utc)
+        self._on_invite = require_permission(TECHRAT)(functools.partial(self._on_invite))
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -70,6 +83,17 @@ class MechaClient(Client, MessageHistoryClient):
     #
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
+    async def on_invite(self, channel, by):
+        logger.info(f"invited to channel {channel!r} by user {by!r}")
+        # create context from message, tie the channel to the sender
+        # (this ensures access-denys get sent to the right place)
+        ctx = await Context.from_message(self, sender=by, channel=by, message=channel)
+        logger.debug("invited to channel, context is {}", ctx)
+
+        return await self._on_invite(ctx)
+
+    async def _on_invite(self, ctx):
+        await self.join(ctx.words[0])
 
     async def on_message(self, channel, user, message: str):
         """
@@ -82,7 +106,7 @@ class MechaClient(Client, MessageHistoryClient):
         await super().on_message(channel, user, message)
         logger.debug(f"{channel}: <{user}> {message}")
 
-        if user == self._config['irc']['nickname']:
+        if user == self._config["irc"]["nickname"]:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             logger.debug(f"Ignored {message} (anti-loop)")
@@ -92,7 +116,12 @@ class MechaClient(Client, MessageHistoryClient):
         sanitized_message = sanitize(message)
         logger.debug(f"Sanitized {sanitized_message}, Original: {message}")
         try:
+            self._last_user_message[user.casefold()] = sanitized_message  # Store sanitized message
             ctx = await Context.from_message(self, channel, user, sanitized_message)
+            if not ctx.words:
+                logger.trace("ignoring empty message")
+                return
+
             await trigger(ctx)
 
         # Disable pylint's complaint here, as a broad catch is exactly what we want.
@@ -126,7 +155,8 @@ class MechaClient(Client, MessageHistoryClient):
         This is initialized in a lazy way to increase overall startup speed.
         """
         if not self._fact_manager:
-            self._fact_manager = FactManager()  # Instantiate Global Fact Manager
+            # Instantiate Global Fact Manager
+            self._fact_manager = FactManager()
         return self._fact_manager
 
     @fact_manager.setter
@@ -215,3 +245,11 @@ class MechaClient(Client, MessageHistoryClient):
         logger.warning("Galaxy deleted!")
         del self._galaxy
         self._galaxy = None
+
+    @property
+    def last_user_message(self) -> Dict[str, str]:
+        return self._last_user_message
+
+    @property
+    def start_time(self) -> datetime:
+        return self._start_time

@@ -22,16 +22,9 @@ from src.packages.commands.rat_command import NameCollisionException
 from src.packages.context.context import Context
 
 
-@pytest.fixture
-def Setup_fx(bot_fx):
-    """Sets up the test environment"""
-    Commands._flush()
-    Commands.bot = bot_fx
-
 
 @pytest.mark.unit
 @pytest.mark.commands
-@pytest.mark.usefixtures("Setup_fx")
 class TestRatCommand(object):
     @pytest.mark.asyncio
     async def test_invalid_command(self):
@@ -61,13 +54,14 @@ class TestRatCommand(object):
             async def foo():
                 pass
 
+        del Commands._registered_commands[alias.casefold()]
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     async def test_call_command(self, alias, bot_fx, configuration_fx):
         """
         Verifiy that found commands can be invoked via Commands.Trigger()
         """
-        Commands._flush()
 
         trigger_alias = f"{configuration_fx['commands']['prefix']}{alias}"
 
@@ -82,6 +76,8 @@ class TestRatCommand(object):
 
         assert 'unit_test' == out_sender
         assert "#unittest" == out_channel
+
+        del Commands._registered_commands[alias.casefold()]
 
     @pytest.mark.parametrize("garbage", [12, None, "str"])
     def test_register_non_callable(self, garbage):
@@ -100,7 +96,6 @@ class TestRatCommand(object):
         """
         Verify`Commands.command` decorator can handle string registrations
         """
-        Commands._flush()
 
         # bunch of commands to test
 
@@ -110,6 +105,8 @@ class TestRatCommand(object):
             return bot, channel, sender
 
         assert alias.lower() in Commands._registered_commands.keys()
+
+        del Commands._registered_commands[alias.casefold()]
 
     @pytest.mark.asyncio
     async def test_command_decorator_list(self):
@@ -123,6 +120,9 @@ class TestRatCommand(object):
         for name in aliases:
             assert name.lower() in Commands._registered_commands.keys()
 
+        for name in aliases:
+            del Commands._registered_commands[name.casefold()]
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize("name", ("unit_test[BOT]", "some_recruit", "some_ov"))
     @pytest.mark.parametrize("trigger_message", ["salad Baton", "Crunchy Cheddar", "POTATOES!",
@@ -133,7 +133,8 @@ class TestRatCommand(object):
             - because someone had the bright idea of casting ALL words to lower...
             (that would break things)
         """
-        Commands._flush()
+        if name in Commands._registered_commands:
+            del Commands._registered_commands[name.casefold()]
         ftrigger = f"!{name} {trigger_message}"
         words = [name] + trigger_message.split(" ")
 
@@ -144,3 +145,5 @@ class TestRatCommand(object):
 
         ctx = await Context.from_message(bot_fx, "#unit_test", "unit_test", ftrigger)
         await Commands.trigger(ctx)
+
+        del Commands._registered_commands[name.casefold()]

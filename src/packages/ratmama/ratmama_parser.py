@@ -13,7 +13,7 @@ See LICENSE.md
 
 import re
 from loguru import logger
-from typing import Optional, Dict
+from typing import Optional, Dict, TypedDict
 from src.config import CONFIG_MARKER
 from ..context import Context
 from ..rescue import Rescue
@@ -21,7 +21,11 @@ from ..rules import rule
 from ..utils import Platforms
 
 
-_config: Dict = {}
+class _RatmamaConfig(TypedDict):
+    trigger_keyword: str
+
+
+_config: _RatmamaConfig = {"trigger_keyword": ""}
 
 
 @CONFIG_MARKER
@@ -36,7 +40,8 @@ def rehash_handler(data: Dict):
     _config.update(data)
 
 
-RATMAMA_REGEX = re.compile(r"""(?x)
+RATMAMA_REGEX = re.compile(
+    r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.
     # Saved at https://regex101.com/r/jhKtQD/1
     \s*                                  # Handle any possible leading whitespace
@@ -69,11 +74,13 @@ RATMAMA_REGEX = re.compile(r"""(?x)
     )                                    # End of the main capture group
     \s*                                  # Handle any possible trailing whitespace
     $                                    # End of pattern
-""")
+"""
+)
 
 
-@rule(r"^\s*Incoming Client:", case_sensitive=False, full_message=False, prefixless=True,
-      pass_match=False)
+@rule(
+    r"^Incoming Client:", case_sensitive=False, full_message=False, prefixless=True, pass_match=False
+)
 async def handle_ratmama_announcement(ctx: Context) -> None:
     """
     Handles the Announcement made by RatMama.
@@ -88,7 +95,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     """
 
     if ctx.user.nickname.casefold() not in (
-            nick.casefold() for nick in _config["ratsignal_parser"]["announcer_nicks"]
+        nick.casefold() for nick in _config["ratsignal_parser"]["announcer_nicks"]
     ):
         return
 
@@ -102,7 +109,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     nickname: Optional[str] = result.group("nick")
 
     exist_rescue: Optional[Rescue] = ctx.bot.board[
-        client_name] if client_name in ctx.bot.board else None
+        client_name
+    ] if client_name in ctx.bot.board else None
 
     if exist_rescue:
         # we got a case already!
@@ -116,8 +124,9 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             diff_response += "Platform changed! "
 
         if not o2_status != exist_rescue.code_red:
-            diff_response += "O2 Status changed!" if o2_status else \
-                "O2 Status changed, it is now CODE RED!"
+            diff_response += (
+                "O2 Status changed!" if o2_status else "O2 Status changed, it is now CODE RED!"
+            )
 
         if diff_response:
             await ctx.reply(diff_response)
@@ -127,25 +136,32 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
         if platform_name.casefold() in ("pc", "ps", "xb"):
             platform = Platforms[platform_name.upper()]
+        elif platform_name.casefold() == "ps4":
+            platform = Platforms.PS
         else:
             logger.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
 
         # no case for that name, we have to make our own
-        rescue: Rescue = Rescue(client=client_name, system=system_name, irc_nickname=nickname,
-                                code_red=not o2_status, lang_id=lang_code, platform=platform)
+        rescue = await ctx.bot.board.create_rescue(
+            client=client_name,
+            system=system_name,
+            irc_nickname=nickname,
+            code_red=not o2_status,
+            lang_id=lang_code,
+            platform=platform,
+        )
+        platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
+        await ctx.reply(
+            f"DRILLSIGNAL - CMDR {rescue.client} - "
+            f"Reported System: {rescue.system} (distance to be implemented) - "
+            f"Platform: {rescue.platform.value if rescue.platform else ''} - "
+            f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
+            f"Language: {result.group('full_language')}"
+            f" (Case #{rescue.board_index}) {platform_signal}"
+        )
 
-        await ctx.bot.board.append(rescue, overwrite=False)
-        index = ctx.bot.board[client_name].board_index
-        await ctx.reply(f"RATSIGNAL - CMDR {client_name} - "
-                        f"Reported System: {system_name} (distance to be implemented) - "
-                        f"Platform: {platform_name} - "
-                        f"O2: {'OK' if o2_status else 'NOT OK'} - "
-                        f"Language: {result.group('full_language')}"
-                        f" (Case #{index}) ({platform_name.upper()}_SIGNAL)"
-                        )
 
-
-@rule(r"\bratsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
+@rule(r"\bdrillsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
 async def handle_ratsignal(ctx: Context) -> None:
     """
     Tries to extract as much details as possible from a self-issued ratsignal and appends
@@ -165,26 +181,30 @@ async def handle_ratsignal(ctx: Context) -> None:
     # the ratsignal is nothing we are interested anymore
     message = re.sub("ratsignal", "", message, flags=re.I)
 
-    for rescue in ctx.bot.board.values():
-        if rescue.irc_nickname.casefold() == ctx.user.nickname.casefold():
-            await ctx.reply(f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
-                            f" someone will help you soon!")
-            return
+    if ctx.user.nickname.casefold() in ctx.bot.board:
+        await ctx.reply(
+            f"{ctx.user.nickname}: You already sent a Signal! Please stand by,"
+            f" someone will help you soon!"
+        )
+        return
 
     sep: Optional[str] = None
-    if ',' in message:
-        sep = ','
-    elif ';' in message:
-        sep = ';'
-    elif '|' in message:
-        sep = '|'
-    elif '-' in message:
-        sep = '-'
+    if "," in message:
+        sep = ","
+    elif ";" in message:
+        sep = ";"
+    elif "|" in message:
+        sep = "|"
+    elif "-" in message:
+        sep = "-"
 
     if not sep:
-        await ctx.bot.board.append(Rescue(irc_nickname=ctx.user.nickname, client=ctx.user.nickname))
-        index = ctx.bot.board[ctx.user.nickname]
-        await ctx.reply(f"Case #{index} created for {ctx.user.nickname}, please set details")
+        rescue = await ctx.bot.board.create_rescue(
+            irc_nickname=ctx.user.nickname, client=ctx.user.nickname
+        )
+        await ctx.reply(
+            f"Case #{rescue.board_index} created for {ctx.user.nickname}, please set details"
+        )
         return
 
     system: str = None
@@ -207,15 +227,16 @@ async def handle_ratsignal(ctx: Context) -> None:
         else:
             system = part
 
-    rescue = Rescue(
+    rescue = await ctx.bot.board.create_rescue(
         client=ctx.user.nickname,
         system=system,
         irc_nickname=ctx.user.nickname,
         code_red=code_red,
-        platform=platform
+        platform=platform,
     )
-    await ctx.bot.board.append(rescue)
-    await ctx.reply(f"Case created for {ctx.user.nickname}"
-                    f" on {platform.name} in {system}. "
-                    f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
-                    f"- {platform.name.upper()}_SIGNAL")
+    await ctx.reply(
+        f"Case created for {rescue.client}"
+        f" on {rescue.platform.name} in {rescue.system}. "
+        f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
+        f"- {rescue.platform.name.upper()}_SIGNAL"
+    )

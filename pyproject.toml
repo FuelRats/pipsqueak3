@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pipsqueak3"
-version = "0.0.0"
+version = "3.0.1b2"
 description = "Mechasqueak3"
 authors = ["Joshua Salzedo <thHunkn0WNd@gmail.com>"]
 license = "BSD-3-Clause"
@@ -28,6 +28,7 @@ pylint = "*"
 pytest-httpserver = "*"
 codecov = "*"
 pycodestyle = "*"
+hypothesis = "^5.8.0"
 
 
 [build-system]

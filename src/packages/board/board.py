@@ -13,14 +13,17 @@ from __future__ import annotations
 
 import itertools
 import typing
+from asyncio import Lock
 from collections import abc
 from contextlib import asynccontextmanager
 from uuid import UUID
+
 from loguru import logger
 
-from src.packages.rescue import Rescue
-
 from src.config import CONFIG_MARKER
+from ..fuelrats_api import FuelratsApiABC
+from ..fuelrats_api.v3.mockup import ApiError
+from ..rescue import Rescue
 
 cycle_at = 15
 """
@@ -30,7 +33,14 @@ Notes:
     mecha will still count beyond this value unrestricted, but will attempt
     to keep assigned case numbers below this value whenever possible.
 """
+
+api_url = ""
+"""
+Fuelrats API location
+"""
+
 _KEY_TYPE = typing.Union[str, int, UUID]  # pylint: disable=invalid-name
+BoardKey = typing.TypeVar("BoardKey", _KEY_TYPE, Rescue)
 
 
 @CONFIG_MARKER
@@ -50,6 +60,9 @@ def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
 
     if data['board']['cycle_at'] <= 0:
         raise ValueError("constraint cycle_at must be non-zero and positive")
+
+    if data['board']['api_url'] == "":
+        raise ValueError("constraint api_url must not be empty.")
 
 
 # noinspection PyUnusedLocal
@@ -74,10 +87,17 @@ class RatBoard(abc.Mapping):
                  "_storage_by_client",
                  "_handler",
                  "_storage_by_index",
-                 "_index_counter"]
+                 "_index_counter",
+                 "_offline",
+                 "_modification_lock",
+                 "__weakref__"
+                 ]
 
-    def __init__(self, api_handler=None):
-        self._handler = api_handler
+    def __init__(
+            self,
+            api_handler: typing.Optional[FuelratsApiABC] = None,
+            offline: bool = True):
+        self._handler: typing.Optional[FuelratsApiABC] = api_handler
         """
         fuelrats.com API handler
         """
@@ -97,10 +117,28 @@ class RatBoard(abc.Mapping):
         """
         Internal counter for tracking used indexes
         """
+        self._offline = offline
+
+        self._modification_lock = Lock()
+        """
+        Modification lock to prevent concurrent modification of the board.
+        """
+
+        super(RatBoard, self).__init__()
+
+    async def on_online(self):
+        logger.info("Rescue board online.")
+        self._offline = False
+        # TODO get API version from remote and log it
+        # TODO emit canned offline events to API
+
+    async def on_offline(self):
+        logger.warning("Rescue board now offline.")
+        self._offline = True
 
     def __getitem__(self, key: _KEY_TYPE) -> Rescue:
         if isinstance(key, str):
-            return self._storage_by_client[key]
+            return self._storage_by_client[key.casefold()]
 
         if isinstance(key, UUID):
             return self._storage_by_uuid[key]
@@ -155,65 +193,58 @@ class RatBoard(abc.Mapping):
         # return the next index from the magic
         return next_free
 
-    def __contains__(self, key: _KEY_TYPE) -> bool:
-        return (key in self._storage_by_client or
-                key in self._storage_by_uuid or
-                key in self._storage_by_index
-                )
-
-    def __delitem__(self, key: _KEY_TYPE):
-        # get the target
-        target = self[key]
-
-        # and purge it key by key
-        del self._storage_by_uuid[target.api_id]
-        del self._storage_by_index[target.board_index]
-        if target.client:
-            del self._storage_by_client[target.client]
-
-    @asynccontextmanager
-    async def create_rescue(self, *args, ovewrite=False, **kwargs) -> Rescue:
-        """
-        Context manager that creates a rescue on the board for use
-
-        automatically assigns
-
-        Args:
-            pass through to :class:Rescue 's constructor
-
-            *args (): args to pass to :class:`Rescue` 's constructor
-            overwite(bool): overwrite existing rescues
-            **kwargs (): keyword arguments to pass to Rescue's constructor
-
-        Yields:
-            created rescue object
-        """
-
-        rescue = Rescue(*args, board_index=self.free_case_number, **kwargs)
-        yield rescue
-        # then append it to ourselves
-        await self.append(rescue, overwrite=ovewrite)
-
     async def append(self, rescue: Rescue, overwrite: bool = False) -> None:
         """
         Append a rescue to ourselves
 
-
+        If the rescue doesn't have a board index, it will be assigned one.
 
         Args:
             rescue (Rescue): object to append
             overwrite(bool): overwrite existing cases
     """
-        if (rescue.api_id in self or rescue.board_index in self) and not overwrite:
-            raise ValueError("Attempted to append a rescue that already exists to the board")
-        self._storage_by_uuid[rescue.api_id] = rescue
-        self._storage_by_index[rescue.board_index] = rescue
+        logger.trace("acquiring modification lock...")
+        async with self._modification_lock:
+            # ensure the rescue has a board index, because if this is null it breaks all the things.
+            if rescue.board_index is None:
+                rescue.board_index = self.free_case_number
+            logger.trace("acquired modification lock.")
+            if (rescue.api_id in self or rescue.board_index in self) and not overwrite:
+                raise ValueError("Attempted to append a rescue that already exists to the board")
+            self._storage_by_uuid[rescue.api_id] = rescue
+            self._storage_by_index[rescue.board_index] = rescue
 
-        if rescue.client:
-            self._storage_by_client[rescue.client] = rescue
+            if rescue.irc_nickname:
+                self._storage_by_client[rescue.irc_nickname.casefold()] = rescue
+        logger.trace("released modification lock.")
+
+    @property
+    def online(self):
+        """ is this module in online mode """
+        return not self._offline and self._handler is not None
+
+    def __contains__(self, key: _KEY_TYPE) -> bool:
+        if isinstance(key, str):
+            return key.casefold() in self._storage_by_client
+        if isinstance(key, UUID):
+            return key in self._storage_by_uuid
+        return key in self._storage_by_index
+
+    def __delitem__(self, key: _KEY_TYPE):
+        # Sanity check.
+        if not self._modification_lock.locked():
+            raise RuntimeError("attempted to delete a rescue without acquiring the lock first!")
+        # Get the target.
+        target = self[key]
+
+        # Purge it key by key.
+        del self._storage_by_uuid[target.api_id]
+        del self._storage_by_index[target.board_index]
+        if target.irc_nickname and target.irc_nickname.casefold() in self._storage_by_client:
+            del self._storage_by_client[target.irc_nickname.casefold()]
 
     @asynccontextmanager
-    async def modify_rescue(self, key: _KEY_TYPE) -> Rescue:
+    async def modify_rescue(self, key: BoardKey) -> Rescue:
         """
         Context manager to modify a Rescue
 
@@ -223,17 +254,87 @@ class RatBoard(abc.Mapping):
         Yields:
             Rescue: rescue to modify based on its `key`
         """
+        logger.trace("acquiring modification lock...")
+        async with self._modification_lock:
+            logger.trace("acquired modification lock.")
+            if isinstance(key, Rescue):
+                key = key.board_index
 
-        target = self[key]
+            target = self[key]
 
-        # most tracked attributes may be modified in here, so we pop the rescue
-        # from tracking and append it after
+            # most tracked attributes may be modified in here, so we pop the rescue
+            # from tracking and append it after
 
-        del self[key]
+            del self[key]
+
+            self._modification_lock.release()
+            try:
+                # Yield so the caller can modify the rescue
+                yield target
+
+            finally:
+                # we need to be sure to re-append the rescue upon completion
+                # (so errors don't drop cases)
+                await self.append(target)
+                # append will reacquire the lock, so don;t reacquire it ourselves (damn no rlocks),
+                # but the context manger is gunna freak out if we don't re-acquire it though.
+                await self._modification_lock.acquire()
+
+            # If we are in online mode, emit update event to API.
+            if self.online:
+                logger.trace("updating API...")
+                await self._handler.update_rescue(target)
+
+        logger.trace("released modification lock.")
+
+    async def create_rescue(self, *args, ovewrite=False, **kwargs) -> Rescue:
+        """
+        Creates a rescue, in online mode this will perform creation actions against the API.
+        In the event of API error, the rescue will still be created locally, though an exception
+        raised.
+
+        Args:
+            pass through to :class:Rescue 's constructor
+
+            *args (): args to pass to :class:`Rescue` 's constructor
+            overwite(bool): overwrite existing rescues
+            **kwargs (): keyword arguments to pass to Rescue's constructor
+
+        Returns:
+            created rescue object
+
+        Raises:
+            ApiError: Something went wrong in API creation, rescue has been created locally.
+        """
+        index = self.free_case_number
+        rescue = Rescue(*args, board_index=index, **kwargs)
 
         try:
-            yield target
+            if not self.online:
+                logger.warning("creating case in offline mode...")
+            else:
+                logger.trace("creating rescue on API...")
+                rescue = await self._handler.create_rescue(rescue)
+
+        except ApiError:
+            logger.exception("unable to create rescue on API!")
+            # Emit upstream so the caller knows something went wrong
+            raise
+
         finally:
-            # we need to be sure to re-append the rescue upon completion
-            # (so errors don't drop cases)
-            await self.append(target)
+            rescue.board_index = index
+            # Always append it to ourselves, regardless of API errors
+            await self.append(rescue, overwrite=ovewrite)
+
+        return rescue
+
+    async def remove_rescue(self, target: BoardKey):
+        """ removes a rescue from active tracking """
+        if isinstance(target, Rescue):
+            target = target.board_index
+        logger.trace("Acquiring modification lock...")
+        async with self._modification_lock:
+            logger.trace("Acquired modification lock.")
+            # TODO: add to internal deck in offline mode so we can push to the API when we eventually
+            del self[target]
+        logger.trace("Released modification lock.")

@@ -15,12 +15,10 @@ coverage:
         threshold: "5%"
         base: auto
         # advanced
-        branches: null
         if_no_uploads: error
         if_not_found: success
         if_ci_failed: error
         only_pulls: false
-        flags: unittest
         paths: all
 parsers:
   gcov:
@@ -33,4 +31,4 @@ parsers:
 comment:
   layout: "reach, diff, flags, files"
   behavior: once
-  require_changes: no  # if true: only post the comment if coverage changes
+  require_changes: false  # if true: only post the comment if coverage changes

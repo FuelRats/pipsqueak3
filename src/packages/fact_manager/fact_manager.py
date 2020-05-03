@@ -13,10 +13,12 @@ See LICENSE.md
 """
 import datetime
 import psycopg2
-from psycopg2 import sql
+import typing
+from psycopg2 import sql, pool
 from loguru import logger
 from .fact import Fact
 from ..database import DatabaseManager
+from src.config import CONFIG_MARKER
 
 
 class FactManager(DatabaseManager):
@@ -31,16 +33,32 @@ class FactManager(DatabaseManager):
     Returns:
         Nothing
     """
+    _config: typing.ClassVar[typing.Dict]
 
-    def __init__(self, fact_table="fact2", fact_log="fact_transaction"):
-        if not isinstance(fact_table, str):
-            raise TypeError("fact table must be a string.")
+    @classmethod
+    @CONFIG_MARKER
+    def rehash_handler(cls, data: typing.Dict):
+        """
+        Apply new configuration data
 
-        if not isinstance(fact_log, str):
-            raise TypeError("fact log must be a string.")
+        Args:
+            data (typing.Dict): new configuration data to apply.
 
-        self._fact_table = fact_table
-        self._fact_log = fact_log
+        """
+        cls._config = data
+
+    def __init__(self, fact_table=None, fact_log=None):
+
+        # Pull table names from config file
+        self._fact_table = fact_table if fact_table else self._config['database']['fact_table']
+        self._fact_log = fact_log if fact_log else self._config['database']['fact_log']
+
+        # Validate passed or configured table names
+        if not isinstance(self._fact_table, str):
+            raise TypeError("Fact table name must be a string")
+
+        if not isinstance(self._fact_log, str):
+            raise TypeError("Fact log table name must be a string")
 
         # Proclaim loudly into the void that we are loaded.
         super().__init__()
@@ -181,10 +199,19 @@ class FactManager(DatabaseManager):
 
         try:
             result = await self.query(query, (name, lang))
-        except (psycopg2.ProgrammingError, psycopg2.DatabaseError) as error:
-            # Check for offline database, or issues with the query.
-            logger.exception(f"Could not establish existence of {name}-{lang}")
-            raise error
+        except (psycopg2.ProgrammingError, psycopg2.DatabaseError, psycopg2.pool.PoolError) as error:
+            # Check for offline database
+            if isinstance(error, psycopg2.pool.PoolError):
+                logger.exception("Database offline or connection pool exhausted.", backtrace=True)
+                raise
+            # Check for bad query
+            if isinstance(error, psycopg2.ProgrammingError):
+                logger.exception("Invalid query passed to fact finder.", backtrace=True)
+                raise
+            # Check for integrity violation
+            if isinstance(error, psycopg2.DatabaseError):
+                logger.exception("Database Access issue - verify fact table.", backtrace=True)
+                raise
 
         # We are only getting a single integer as a response, so we can unpack it by index.
         # it will always return a single integer.
@@ -230,7 +257,6 @@ class FactManager(DatabaseManager):
         # Build SQL Object for our query
         query = sql.SQL(f"SELECT name, lang, message, aliases, author, edited, editedby, mfd from "
                         f"{self._fact_table} where name=%s AND lang=%s")
-
         # await our raw result from query
         try:
             rows = await self.query(query, (name, lang))

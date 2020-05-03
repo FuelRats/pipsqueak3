@@ -11,12 +11,16 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from src.config import setup
-from src.packages.cli_manager import cli_manager
-from src.packages.commands import command
-from src.packages.context import Context
-from src.packages.permissions import require_channel, require_permission, TECHRAT
+from ..config import setup
+from ..packages.cli_manager import cli_manager
+from ..packages.commands import command
+from ..packages.context import Context
+from ..packages.permissions import require_channel, require_permission, TECHRAT
 from loguru import logger
+from importlib import metadata
+import src
+from importlib import resources
+import toml
 
 
 @command("rehash")
@@ -39,3 +43,12 @@ async def cmd_rehash(context: Context):
     else:
         # no errors, respond status OK with the first octet of the hash.
         await context.reply(f"rehashing completed successfully. ({resulting_hash[:8]}) ")
+
+
+@command("version")
+async def cmd_version(ctx: Context):
+    # FIXME pull from pyproject.toml somehow?
+    try:
+        return await ctx.reply(metadata.version("pipsqueak3"))
+    except metadata.PackageNotFoundError:
+        return await ctx.reply("version ?.?.? (dirty)")

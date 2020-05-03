@@ -15,7 +15,12 @@ This module is built on top of the Pydle system.
 from loguru import logger
 from typing import Callable, Any
 
+import psycopg2
+
 from src.packages.rules.rules import get_rule, clear_rules
+from ..context import Context
+from ..ratmama.ratmama_parser import handle_ratmama_announcement
+
 
 # set the logger for rat_command
 
@@ -76,10 +81,46 @@ async def trigger(ctx) -> Any:
                 f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} "
                 f"found.")
 
+    if ctx.words_eol[0].startswith("Incoming Client:"):
+        command_fun = handle_ratmama_announcement
+
     if command_fun:
         return await command_fun(ctx, *extra_args)
 
-    logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
+    # neither a rule nor a command, possibly a fact
+    result = False
+    if ctx.prefixed:
+        result = await handle_fact(ctx)
+    if not result:
+        logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
+
+
+async def handle_fact(context: Context):
+    """
+    Handles potential facts
+    """
+    logger.trace("entering fact handler")
+
+    raw, *users = context.words
+    logger.debug("checking {!r} for facts...", raw)
+    if "-" in raw:
+        fact, lang, *_ = raw.split("-")
+    else:
+        fact = raw
+        lang = 'en'
+    try:
+        # don't do anything if the fact doesn't exist
+        if not await context.bot.fact_manager.exists(fact.casefold(), lang.casefold()):
+            logger.debug("no such fact name={!r} lang={!r}", fact, lang)
+            return False
+
+        logger.debug("fact exists, retrieving and returning!")
+        fact = await context.bot.fact_manager.find(fact.casefold(), lang.casefold())
+        await context.reply(f"{' '.join(users)} : {fact.message}")
+        return True
+    except psycopg2.Error:
+        logger.exception("failed to fetch fact")
+        return False
 
 
 def _register(func, names: list or str) -> bool:
@@ -108,17 +149,6 @@ def _register(func, names: list or str) -> bool:
             _registered_commands.update(formed_dict)
 
     return True
-
-
-def _flush() -> None:
-    """
-    Flushes registered commands
-    Probably useless outside testing...
-    """
-
-    # again this feels ugly but they are module-level now...
-    _registered_commands.clear()
-    clear_rules()
 
 
 def command(*aliases):

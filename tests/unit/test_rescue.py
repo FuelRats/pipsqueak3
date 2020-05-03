@@ -31,6 +31,7 @@ def test_rescue_defaults():
 
     Rescue()
 
+
 @pytest.mark.parametrize("expected_client", ['DeadBeef', 'Commander_Test', '11Alpha1',
                                              'Xxx22K1ng2xxX'])
 def test_verify_rescue_client(rescue_plain_fx, expected_client):
@@ -102,7 +103,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
     Verify Rescue.updated_at raises TypeError if given incorrect value,
     or is set to a date in the past.
     """
-    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1,)
+    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1, )
 
     # Set to a string time
     with pytest.raises(TypeError):
@@ -113,9 +114,23 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
         rescue_sop_fx.updated_at = datetime(1990, 1, 1, 1, 1, 1)
 
 
-@pytest.mark.parametrize("expected_rats", [['Joeblow', 'TinyTim', 'White Sheets'],
-                                           ['Azel4st', 'Aero_Chamber', 'YoMama_27'],
-                                           ['UnitTestingSucks', 'PytestPwns', 'yUnoComplain']])
+@pytest.mark.parametrize("expected_rats", [
+    {
+        'Joeblow': Rat(name='Joeblow', uuid=uuid4()),
+        'TinyTim': Rat(name='TinyTim', uuid=uuid4()),
+        'WhiteSheets': Rat(name='WhiteSheets', uuid=uuid4())
+    },
+    {
+        'Azel4st': Rat(name='Azel4st', uuid=uuid4()),
+        'Aero_Chamber': Rat(name='Aero_Chamber', uuid=uuid4()),
+        'YoMama_27': Rat(name='YoMama_27', uuid=uuid4())
+    },
+    {
+        'UnitTestingSucks': Rat(name='UnitTestingSucks', uuid=uuid4()),
+        'PytestPwns': Rat(name='PytestPwns', uuid=uuid4()),
+        'yUnoComplain': Rat(name='yUnoComplain', uuid=uuid4())
+    }
+])
 def test_unidentified_rats_list(rescue_plain_fx, expected_rats):
     """
     Verifies a list of unidentified rats is set, and returned.
@@ -127,7 +142,8 @@ def test_unidentified_rats_list(rescue_plain_fx, expected_rats):
     Either a returned set or a false assertion will fail this test.
     """
     rescue_plain_fx.unidentified_rats = expected_rats
-    assert set(expected_rats).intersection(rescue_plain_fx.unidentified_rats)
+    expected_casefolded_rats = {rat.name.casefold(): rat for rat in expected_rats.values()}
+    assert rescue_plain_fx.unidentified_rats == expected_casefolded_rats
 
 
 def test_rescue_defaults_to_active(rescue_sop_fx):
@@ -145,7 +161,7 @@ def test_rescue_rat_setter_typeerror(rescue_sop_fx):
     This is NOT the proper way to modify rats in production, use Rescue.add_rat.
     """
     # Set without error, expected type
-    rescue_sop_fx.rats = ['SomeRat', 'AnotherRat', 'NeedsTail']
+    rescue_sop_fx.rats = {}
 
     with pytest.raises(TypeError):
         rescue_sop_fx.rats = 'Some Rat Another Rat Needs My Tail'
@@ -334,13 +350,13 @@ def test_platform_raises_type_error(rescue_sop_fx):
 
 
 @pytest.mark.asyncio
-async def test_add_rats_bad_id(rat_no_id_fx, rescue_sop_fx):
+async def test_add_unidentified_rat(rat_no_id_fx, rescue_sop_fx):
     """
     Verifies attempting to add a rat that does not have a API id fails as expected
     """
-    with pytest.raises(ValueError, match="Assigned rat does not have a known API ID"):
-        await rescue_sop_fx.add_rat(rat=rat_no_id_fx)
-        assert rat_no_id_fx not in rescue_sop_fx.rats
+    await rescue_sop_fx.add_rat(rat=rat_no_id_fx)
+    assert rat_no_id_fx not in rescue_sop_fx.rats, "rat treated as identified"
+    assert rat_no_id_fx.name.casefold() in rescue_sop_fx.unidentified_rats, "rat failed to end up unidentified"
 
 
 @pytest.mark.asyncio
@@ -353,16 +369,7 @@ async def test_add_rats_ok(rat_good_fx, rescue_sop_fx):
     """
     # rescue_sop_fx:Rescue
     await rescue_sop_fx.add_rat(rat=rat_good_fx)
-    assert rat_good_fx in rescue_sop_fx.rats
-
-
-@pytest.mark.asyncio
-async def test_add_rat_from_cache(rat_good_fx: Rat, rescue_sop_fx: Rescue):
-    """
-    Verifies rat added from cache matches rat object in Rescue
-    """
-    await rescue_sop_fx.add_rat(rat_good_fx.name)
-    assert rat_good_fx == rescue_sop_fx.rats[0]
+    assert rat_good_fx.name.casefold() in rescue_sop_fx.rats
 
 
 @pytest.mark.parametrize("garbage", [(None), (42), (-2.2), (uuid4())])
@@ -427,7 +434,7 @@ def test_set_unidentified_rats_garbage_in_list(rescue_plain_fx: Rescue):
     illegal values
     """
     garbage = [12, -42.2, None]
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         rescue_plain_fx.unidentified_rats = garbage
 
 
@@ -437,36 +444,6 @@ def test_set_unidentified_rats_incorrect_type(rescue_plain_fx: Rescue):
     """
     with pytest.raises(TypeError):
         rescue_plain_fx.unidentified_rats = 'Snozzberry, Wonka, Doc'
-
-
-@pytest.mark.parametrize("reason,reporter,marked", [
-    ([], 42.2, -1),
-    (-2.1, {"Potato"}, None),
-    ([], 42, "md reason"),
-    (True, -42.2, uuid4())
-])
-def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or None,
-                                           marked: bool, rescue_sop_fx: Rescue):
-    """
-    Verifies setting the mark for deletion property succeeds when the data is valid
-
-        Args:
-            rescue_sop_fx (): plain rescue fixture
-            reason (str): md reason
-            reporter(str) md reporter
-    """
-    with pytest.raises(TypeError):
-        rescue_sop_fx.marked_for_deletion.reason = reason
-
-    with pytest.raises(TypeError):
-        rescue_sop_fx.marked_for_deletion.reporter = reporter
-
-    with pytest.raises(TypeError):
-        rescue_sop_fx.marked_for_deletion.marked = marked
-
-    assert rescue_sop_fx.marked_for_deletion.marked is False
-    assert rescue_sop_fx.marked_for_deletion.reason != reason
-    assert rescue_sop_fx.marked_for_deletion.reporter != reporter
 
 
 @pytest.mark.parametrize("garbage", [None, 42, -2.2, []])
@@ -495,70 +472,7 @@ async def test_add_rat_by_rat_object(uuid: UUID, name: str, rescue_plain_fx: Res
 
     await result_rescue.add_rat(rat=rat)
 
-    assert rat in result_rescue.rats
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("uuid,name", [(uuid4(), "foo"), (uuid4(), "bar"), (uuid4(), "potato")])
-async def test_add_rat_by_uuid(uuid: UUID, name: str, rescue_plain_fx: Rescue, rat_cache_fx):
-    """
-    Verifies `Rescue.add_rat` can add a rat given a guid and a name
-    """
-
-    await rescue_plain_fx.add_rat(name=name, guid=uuid)
-
-    assert name in rat_cache_fx.by_name
-
-
-@pytest.mark.asyncio
-async def test_add_rat_returns_rat_by_object(rat_good_fx: Rat, rescue_plain_fx: Rescue):
-    """
-    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid Rat object
-    """
-    result = await rescue_plain_fx.add_rat(rat=rat_good_fx)
-
-    assert result is rat_good_fx
-
-
-@pytest.mark.asyncio
-async def test_add_rat_returns_rat_by_name(rat_cache_fx, rescue_plain_fx: Rescue, rat_good_fx: Rat):
-    """
-    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid name of a rat
-    """
-    # add our test rat to the cache so add_rat can find it
-    rat_cache_fx.by_name[rat_good_fx.name] = rat_good_fx
-
-    result = await rescue_plain_fx.add_rat(name=rat_good_fx.name)
-
-    assert result is rat_good_fx
-
-
-@pytest.mark.asyncio
-async def test_add_rat_returns_rat_by_uuid(rat_cache_fx, rescue_plain_fx: Rescue, rat_good_fx: Rat):
-    """
-    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid UUID of a rat
-    """
-    # add our test rat to the cache so add_rat can find it
-    rat_cache_fx.by_uuid[rat_good_fx.uuid] = rat_good_fx
-
-    result = await rescue_plain_fx.add_rat(guid=rat_good_fx.uuid)
-
-    assert result is rat_good_fx
-
-
-@pytest.mark.asyncio
-async def test_add_rat_returns_rat_by_uuid_string(rat_cache_fx,
-                                                  rescue_plain_fx: Rescue,
-                                                  rat_good_fx: Rat):
-    """
-    Verifies `Rescue.add_rat` returns a proper `Rat` object when given a valid UUID string of a rat
-    """
-    # add our test rat to the cache so add_rat can find it
-    rat_cache_fx.by_uuid[rat_good_fx.uuid] = rat_good_fx
-
-    result = await rescue_plain_fx.add_rat(guid=str(rat_good_fx.uuid))
-
-    assert result is rat_good_fx
+    assert rat.name.casefold() in result_rescue.rats
 
 
 def test_eq_none(rescue_plain_fx: Rescue):
@@ -597,15 +511,19 @@ def test_mark_delete_invalid(rescue_sop_fx: Rescue):
     """
     Verify what happens when garbage gets thrown at `rescue.mark`
     """
+    original = rescue_sop_fx.marked_for_deletion
+
     with pytest.raises(TypeError):
         rescue_sop_fx.mark_delete(None, "sna")
 
-        with pytest.raises(TypeError):
-            rescue_sop_fx.mark_delete("sna", None)
+    with pytest.raises(TypeError):
+        rescue_sop_fx.mark_delete("sna", None)
 
-        with pytest.raises(ValueError):
-            rescue_sop_fx.mark_delete("unit_test", "")
-            
+    with pytest.raises(TypeError):
+        rescue_sop_fx.mark_delete("unit_test", "")
+
+    assert rescue_sop_fx.marked_for_deletion is original
+
 
 def test_mark_for_deletion_unset(rescue_sop_fx: Rescue):
     """
@@ -719,3 +637,23 @@ def test_rescue_code_red_setter(rescue_sop_fx):
 
     with pytest.raises(TypeError):
         rescue_sop_fx.code_red = 'Yes'
+
+
+@pytest.mark.asyncio
+async def test_unassign_identified_rat(rescue_sop_fx, rat_good_fx):
+    await rescue_sop_fx.add_rat(rat=rat_good_fx)
+
+    # remove the rat by object
+    rescue_sop_fx.remove_rat(rat=rat_good_fx)
+    assert not rescue_sop_fx.rats, "failed to remove rat"
+
+
+@pytest.mark.asyncio
+async def test_unassign_unidentified(rescue_sop_fx, rat_no_id_fx):
+    await rescue_sop_fx.add_rat(rat_no_id_fx)
+
+    assert rescue_sop_fx.unidentified_rats, "unidentified rat not appended!"
+
+    rescue_sop_fx.remove_rat(rat=rat_no_id_fx.name)
+
+    assert rescue_sop_fx.unidentified_rats == {}, "failed to remove unidentified rat"

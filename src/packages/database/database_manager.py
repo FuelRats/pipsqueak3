@@ -75,7 +75,7 @@ class DatabaseManager:
             data(typing.Dict): configuration object
         """
 
-        module_config = data['database']
+        module_config = data["database"]
 
         # Require all values to be set
         for setting in module_config.values():
@@ -83,70 +83,83 @@ class DatabaseManager:
                 raise ValueError(f"[database]{setting} is required for instantiation but was empty")
 
         # Host
-        if not isinstance(module_config['host'], str):
+        if not isinstance(module_config["host"], str):
             raise ValueError("[database]host must be a string.")
 
         # Port
-        if not isinstance(module_config['port'], int):
+        if not isinstance(module_config["port"], int):
             raise ValueError("[database]port must be an integer.")
 
         # Database Name
-        if not isinstance(module_config['dbname'], str):
+        if not isinstance(module_config["dbname"], str):
             raise ValueError("[database]database name must be a string.")
 
         # Database Username
-        if not isinstance(module_config['username'], str):
+        if not isinstance(module_config["username"], str):
             raise ValueError("[database]database username must be a string.")
 
         # Database Password
-        if not isinstance(module_config['password'], str):
+        if not isinstance(module_config["password"], str):
             raise ValueError("[database]database password must be a string")
 
-    def __init__(self,
-                 dbhost=None,
-                 dbport=None,
-                 dbname=None,
-                 dbuser=None,
-                 dbpassword=None
-                 ):
+    def __init__(self, dbhost=None, dbport=None, dbname=None, dbuser=None, dbpassword=None):
 
         if not hasattr(self, "_initialized"):
             self._initialized = True
 
             # Utilize function arguments if they are provided,
             # otherwise retrieve from config file and use those values.
-            self._dbhost = dbhost if dbhost is not None else self._config['database'].get('host')
+            self._dbhost = dbhost if dbhost is not None else self._config["database"].get("host")
             assert self._dbhost
 
-            self._dbport = dbport if dbhost is not None else self._config['database'].get('port')
+            self._dbport = dbport if dbhost is not None else self._config["database"].get("port")
             assert self._dbport
 
-            self._dbname = dbname if dbname is not None else self._config['database'].get('dbname')
+            self._dbname = dbname if dbname is not None else self._config["database"].get("dbname")
             assert self._dbname
 
-            self._dbuser = dbuser if dbuser is not None else self._config['database'].get(
-                'username')
+            self._dbuser = dbuser if dbuser is not None else self._config["database"].get("username")
             assert self._dbuser
 
-            self._dbpass = dbpassword if dbpassword is not None else \
-                self._config['database'].get('password')
+            self._dbpass = (
+                dbpassword if dbpassword is not None else self._config["database"].get("password")
+            )
             assert self._dbpass
 
         # Create Database Connections Pool
         try:
-            self._dbpool = psycopg2.pool.SimpleConnectionPool(5, 10, host=self._dbhost,
-                                                              port=self._dbport,
-                                                              dbname=self._dbname,
-                                                              user=self._dbuser,
-                                                              password=self._dbpass)
+            self._dbpool = psycopg2.pool.SimpleConnectionPool(
+                5,
+                10,
+                host=self._dbhost,
+                port=self._dbport,
+                dbname=self._dbname,
+                user=self._dbuser,
+                password=self._dbpass,
+            )
 
         except psycopg2.DatabaseError as error:
             logger.exception("Unable to connect to database!")
             raise error
 
-    async def query(self,
-                    query: sql.SQL,
-                    values: typing.Union[typing.Tuple, typing.Dict]) -> typing.List:
+    async def is_connected(self) -> bool:
+        """
+        Private method.  Verifies the isolation level as an alternative to
+        an actual query to check if the connection is still alive and valid.
+        """
+        try:
+            with self._dbpool.getconn() as connection:
+                heartbeat = connection.isolation_level
+                self._dbpool.putconn(connection)
+        except psycopg2.OperationalError:
+            logger.warning("Potential Connectivity issues with database!")
+            return False
+
+        return True
+
+    async def query(
+        self, query: sql.SQL, values: typing.Union[typing.Tuple, typing.Dict]
+    ) -> typing.List:
         """
         Send a query to the connected database.  Pulls a connection from the pool and creates
         a cursor, executing the composed query with the values.
@@ -171,9 +184,11 @@ class DatabaseManager:
             # If we could set these at connection time, we would,
             # but they must be set outside the pool.
             connection.autocommit = True
-            connection.set_client_encoding('utf-8')
+            connection.set_client_encoding("utf-8")
             # Create cursor, and execute the query.
             with connection.cursor() as cursor:
+                if __debug__:
+                    logger.debug("executing query {}", query)  # noinspection PyUnreachableCode
                 cursor.execute(query, values)
                 # Check if cursor.description is NONE - meaning no results returned.
                 if cursor.description:

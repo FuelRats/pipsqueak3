@@ -36,13 +36,7 @@ def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or
             reporter(str) md reporter
     """
     with pytest.raises(TypeError):
-        mark_for_deletion_fx.reason = reason
-
-    with pytest.raises(TypeError):
-        mark_for_deletion_fx.reporter = reporter
-
-    with pytest.raises(TypeError):
-        mark_for_deletion_fx.marked = marked
+        MarkForDeletion(reason, reporter, marked)
 
     assert isinstance(mark_for_deletion_fx.marked, bool)
     assert mark_for_deletion_fx.reason != reason
@@ -54,8 +48,8 @@ def test_mark_for_deletion_setter_bad_data(reason: str or None, reporter: str or
                                                      "cannonFodder"),
                                                     (True, "whats this button do?", "unit_test")])
 def test_eq(marked: bool, reason: Optional[str], reporter: Optional[str]):
-    md_a = MarkForDeletion(marked, reporter, reason)
-    md_b = MarkForDeletion(marked, reporter, reason)
+    md_a = MarkForDeletion(marked=marked, reporter=reporter, reason=reason)
+    md_b = MarkForDeletion(marked=marked, reporter=reporter, reason=reason)
     assert md_a == md_b
 
 
@@ -71,10 +65,10 @@ def test_eq_garbage(garbage, mark_for_deletion_fx):
 ])
 def test_ne(data_a, data_b):
     marked_a, reason_a, reporter_a = data_a
-    md_a = MarkForDeletion(marked_a, reporter_a, reason_a)
+    md_a = MarkForDeletion(marked=marked_a, reporter=reporter_a, reason=reason_a)
 
     marked_b, reason_b, reporter_b = data_b
-    md_b = MarkForDeletion(marked_b, reporter_b, reason_b)
+    md_b = MarkForDeletion(marked=marked_b, reporter=reporter_b, reason=reason_b)
     assert md_a != md_b
 
 

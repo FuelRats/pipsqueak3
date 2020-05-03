@@ -9,33 +9,6 @@ from src.packages.utils import Platforms
 @pytest.mark.unit
 @pytest.mark.rat
 class TestRatsPyTest(object):
-    @pytest.mark.parametrize("platform", [
-        Platforms.XB,
-        Platforms.PC,
-        Platforms.PS,
-        None
-    ])
-    def test_rat_platforms(self, platform: Platforms, rat_good_fx):
-        rat_good_fx.platform = platform
-        assert rat_good_fx.platform == platform
-
-    @pytest.mark.parametrize("garbage", [
-        -12,
-        (None,),
-        [],
-        {}
-    ])
-    def test_platform_garbage(self, garbage):
-        """
-        Verifies a TypeError is raised when attempting to set Rat.platform to garbage
-
-        Args:
-            garbage ():
-        """
-        my_rat = Rat(None, "potato", Platforms.PC)
-        with pytest.raises(TypeError):
-            my_rat.platform = garbage
-
     @pytest.mark.asyncio
     @pytest.mark.parametrize("garbage", [22.1, -42, 42, 0, False, True])
     async def test_find_rat_by_name_bad_type(self, garbage, rat_cache_fx):
@@ -89,40 +62,10 @@ class TestRatsPyTest(object):
     def test_constructor_cache(self, rat_cache_fx):
         """Verifies constructor behavior with a cache present"""
         uuid = uuid4()
-        rat = Rat(uuid, "unit_test[BOT]", Platforms.PC)
+        rat = Rat(uuid, "unit_test[bot]", Platforms.PC)
         rat_cache_fx.append(rat)
         assert Platforms.PC == rat.platform
         assert uuid == rat.uuid
-        assert "unit_test[BOT]" == rat.name
+        assert "unit_test[bot]" == rat.name
 
         assert rat.name in rat_cache_fx.by_name
-
-    @pytest.mark.parametrize("name", ["snafu", "h0tSh0t99", "clu3l3ss_3xpl0rer99"])
-    def test_name_valid(self, name, rat_good_fx: Rat):
-        rat_good_fx.name = name
-        assert name == rat_good_fx.name
-
-    @pytest.mark.parametrize("garbage", [-1, 4.2, None, ()])
-    def test_name_garbage(self, garbage, rat_good_fx):
-        with pytest.raises(TypeError):
-            rat_good_fx.name = garbage
-
-    def test_uuid_strings_invalid(self, rat_good_fx: Rat, random_string_fx):
-        with pytest.raises(ValueError):
-            rat_good_fx.uuid = random_string_fx
-
-    @pytest.mark.parametrize("uuid_str", ["beeffeed-feed-bad-beef0-00000000beef",
-                                          "faff1222-dead-fee-d4412-111111111111"])
-    def test_uuid_strings_valid(self, uuid_str: str, rat_good_fx):
-        rat_good_fx.uuid = uuid_str
-        assert rat_good_fx.uuid == UUID(uuid_str)
-
-    @pytest.mark.parametrize("uuid", [uuid4(), uuid4(), uuid4()])
-    def test_uuid_uuids(self, uuid: UUID, rat_good_fx):
-        rat_good_fx.uuid = uuid
-        assert uuid == rat_good_fx.uuid
-
-    @pytest.mark.parametrize("garbage", [-1, 4.2, None, ()])
-    def test_uuid_garbage(self, garbage, rat_good_fx):
-        with pytest.raises(TypeError):
-            rat_good_fx.uuid = garbage
