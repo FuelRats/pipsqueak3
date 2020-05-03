@@ -116,7 +116,7 @@ async def handle_fact(context: Context):
 
     fact = result.name
     lang = result.lang if result.lang else 'en'
-    users = result.subjects
+    users = result.subjects.asList()
     try:
         # don't do anything if the fact doesn't exist
         if not await context.bot.fact_manager.exists(fact.casefold(), lang.casefold()):
