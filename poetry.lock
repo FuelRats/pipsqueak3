@@ -303,7 +303,7 @@ isort = ">=4.2.5,<5"
 mccabe = ">=0.6,<0.7"
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Python parsing module"
 name = "pyparsing"
 optional = false
@@ -492,7 +492,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "4010c2edb8be035ddd2fa1e0a44cd82417bdd5bfd7f1ffeb9a9a4acd67fab33c"
+content-hash = "41df09921ced42c948ffbedc5deb36a288fe023fde7dc7b7f33dac3c47d25f7e"
 python-versions = ">=3.8"
 
 [metadata.files]
