@@ -20,6 +20,8 @@ import psycopg2
 from src.packages.rules.rules import get_rule, clear_rules
 from ..context import Context
 from ..ratmama.ratmama_parser import handle_ratmama_announcement
+import pyparsing
+from pyparsing import Word, Suppress, Group, alphanums, alphas, ZeroOrMore
 
 
 # set the logger for rat_command
@@ -100,14 +102,21 @@ async def handle_fact(context: Context):
     Handles potential facts
     """
     logger.trace("entering fact handler")
+    pattern = (
+            Word(alphanums).setResultsName("name")
+            + pyparsing.Optional(Suppress('-') + Word(alphas).setResultsName("lang"))
+            + ZeroOrMore(Word(alphanums + '_[]|?.<>{}-=')).setResultsName("subjects")
+    )
+    logger.debug("parsing {!r} for facts...", context.words_eol[0])
+    try:
+        result = pattern.parseString(context.words_eol[0])
+    except pyparsing.ParseException:
+        logger.debug("failed to parse {!r} as a fact", context.words_eol[0])
+        return
 
-    raw, *users = context.words
-    logger.debug("checking {!r} for facts...", raw)
-    if "-" in raw:
-        fact, lang, *_ = raw.split("-")
-    else:
-        fact = raw
-        lang = 'en'
+    fact = result.name
+    lang = result.lang if result.lang else 'en'
+    users = result.subjects.asList() if result.subjects else []
     try:
         # don't do anything if the fact doesn't exist
         if not await context.bot.fact_manager.exists(fact.casefold(), lang.casefold()):
@@ -116,7 +125,7 @@ async def handle_fact(context: Context):
 
         logger.debug("fact exists, retrieving and returning!")
         fact = await context.bot.fact_manager.find(fact.casefold(), lang.casefold())
-        await context.reply(f"{' '.join(users)} : {fact.message}")
+        await context.reply(f"{' ,'.join(users)}{': ' if users else ''}{fact.message}")
         return True
     except psycopg2.Error:
         logger.exception("failed to fetch fact")
