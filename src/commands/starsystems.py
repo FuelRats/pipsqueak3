@@ -32,13 +32,22 @@ async def cmd_landmark_near(ctx: Context):
 
 @permissions.require_permission([permissions.RAT])
 @command("landmark")
+@logger.catch(level="DEBUG")
 async def cmd_landmark(ctx: Context):
     keyword = pyparsing.oneOf("near", asKeyword=True).setResultsName(
         "subcommand")
     remainder = pyparsing.Word(pyparsing.alphanums + '- ').setResultsName(
         "system")
 
-    pattern = pyparsing.Suppress(ctx.PREFIX) + pyparsing.Suppress(
+    pattern = pyparsing.Suppress(
         "landmark") + keyword + remainder
-    if len(ctx.words) < 2:
-        return await ctx.reply("Valid subcommands: 'near'")
+    try:
+        logger.debug("attempting to parse landmark query {!r}",
+                     ctx.words_eol[0])
+        result = pattern.parseString(ctx.words_eol[0].casefold())
+    except pyparsing.ParseException:
+        logger.exception("failed parse", level="DEBUG")
+        return await ctx.reply("Usage: `landmark near <system>")
+    logger.debug("successfully parsed landmark query, result {!r}", result)
+    await ctx.reply(
+        f"OK. subcommand was {result.subcommand!r} and the system is {result.system!r}")
