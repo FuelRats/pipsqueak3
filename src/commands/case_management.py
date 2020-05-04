@@ -34,6 +34,8 @@ from ..packages.quotation.rat_quotation import Quotation
 from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status
+import pyparsing
+from ..packages.parsing_rules import irc_name, case_number
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
@@ -46,12 +48,12 @@ if a newly-submitted case is code red or not.
 def _validate(ctx: Context, validate: str) -> typing.Optional[Rescue]:
     try:
         if validate not in ctx.bot.board:
-            rescue = ctx.bot.board[int(ctx.words[1])]
+            rescue = ctx.bot.board[int(validate)]
         else:
-            rescue = ctx.bot.board.get(ctx.words[1])
+            rescue = ctx.bot.board.get(validate)
     except (KeyError, ValueError):
         try:
-            force_uuid = uuid.UUID(ctx.words[1])
+            force_uuid = uuid.UUID(validate)
         except ValueError:
             return None
         else:
@@ -96,19 +98,24 @@ async def cmd_case_management_active(ctx: Context):
 @require_permission(RAT)
 @command("assign", "add", "go")
 async def cmd_case_management_assign(ctx: Context):
-    if len(ctx.words) <= 2:
+    subject_clause = (case_number | irc_name).setResultsName("subject")
+    rat_clause = pyparsing.OneOrMore(irc_name).setResultsName('rats')
+    pattern = pyparsing.oneOf("assign add go", asKeyword=True) + subject_clause + rat_clause
+
+    if not pattern.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
         return
+    tokens = pattern.parseString(ctx.words_eol[0])
 
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
         return
 
     # Get rats from input command
-    rat_list = ctx.words_eol[2].split()
+    rat_list = tokens.rats
 
     # Get client's IRC nick, otherwise use client name as entered
     rescue_client = rescue.irc_nickname if rescue.irc_nickname else rescue.client
@@ -339,8 +346,8 @@ async def cmd_case_management_inject(ctx: Context):
                 if keyword.upper() in {item.value for item in Platforms}:
                     case.platform = Platforms[keyword.upper()]
                 if (
-                    keyword.casefold() == "cr"
-                    or _TIME_RE.match(ctx.words_eol[2])
+                        keyword.casefold() == "cr"
+                        or _TIME_RE.match(ctx.words_eol[2])
                 ):
                     case.code_red = True
             if "code red" in ctx.words_eol[2]:
@@ -478,12 +485,12 @@ async def cmd_case_management_quoteid(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             quote_timestamp = (
-                humanfriendly.format_timespan(
-                    (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
-                    detailed=False,
-                    max_units=2,
-                )
-                + " ago"
+                    humanfriendly.format_timespan(
+                        (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                        detailed=False,
+                        max_units=2,
+                    )
+                    + " ago"
             )
             await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
 
@@ -708,7 +715,7 @@ def _list_rescue(rescue_collection, format_specifiers):
 
 
 def _rescue_filter(
-    flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
+        flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
 ) -> bool:
     """
     determine whether the `rescue` object is one we care about
