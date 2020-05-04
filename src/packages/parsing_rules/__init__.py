@@ -1,5 +1,6 @@
-import pyparsing
 from uuid import UUID
+
+import pyparsing
 
 """
 Matches a valid IRC nickname. 
@@ -9,7 +10,7 @@ irc_name = pyparsing.Word(initChars=pyparsing.alphas, bodyChars=pyparsing.alphan
 
 """ matches a well formed UUID4"""
 api_id = pyparsing.Word(initChars='@', bodyChars=pyparsing.hexnums + '-', min=36, max=37)
-num_word = pyparsing.Word(pyparsing.nums)
+
 """Matches a case number"""
 case_number = (
     # may lead with 'case'
@@ -18,3 +19,9 @@ case_number = (
         + pyparsing.Word(pyparsing.nums).setParseAction(lambda token: int(token[0]))
 
 )
+
+"""Matches any valid rescue identifier, converting matches to their corresponding types. """
+rescue_identifier = irc_name | case_number
+
+""" Suppresses the first word in the string. """
+suppress_first_word = pyparsing.Word(pyparsing.printables).suppress()

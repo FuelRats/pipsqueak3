@@ -35,7 +35,7 @@ from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status
 import pyparsing
-from ..packages.parsing_rules import irc_name, case_number
+from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
@@ -43,27 +43,31 @@ Regex matcher used to find a time within a string. Used to determine
 if a newly-submitted case is code red or not.
 """
 ASSIGN_PATTERN = (
-    pyparsing.oneOf("assign add go", asKeyword=True)
-    + (case_number | irc_name).setResultsName("subject")
+    suppress_first_word
+    + (rescue_identifier).setResultsName("subject")
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
+ACTIVE_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+)
+CLEAR_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + pyparsing.Optional(irc_name).setResultsName("first_limpet")
+)
+CMDR_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + irc_name.setResultsName("new_cmdr")
+)
+GRAB_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + pyparsing.OneOrMore(
+    pyparsing.Word(pyparsing.printables)).setParseAction(" ".join()).setResultsName("")
+)
 
-# User input validation helper
-def _validate(ctx: Context, validate: str) -> typing.Optional[Rescue]:
-    try:
-        if validate not in ctx.bot.board:
-            rescue = ctx.bot.board[int(validate)]
-        else:
-            rescue = ctx.bot.board.get(validate)
-    except (KeyError, ValueError):
-        try:
-            force_uuid = uuid.UUID(validate)
-        except ValueError:
-            return None
-        else:
-            rescue = ctx.bot.board.get(force_uuid)
-
-    return rescue
 
 
 @require_channel
@@ -81,12 +85,11 @@ async def cmd_case_management_active(ctx: Context):
     Channel Only: YES
     Permission: Rat
     """
-    if len(ctx.words) != 2:
+    if not ACTIVE_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !active <Client Name|Case Number>")
         return
-
-    # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    tokens = ACTIVE_PATTERN.parseString(ctx.words_eol[0])
+    rescue = ctx.bot.board.get(tokens.subject)
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -140,18 +143,14 @@ async def cmd_case_management_assign(ctx: Context):
 @require_permission(RAT)
 @command("clear", "close")
 async def cmd_case_management_clear(ctx: Context):
-    if len(ctx.words) < 2 or len(ctx.words) > 3:
+    if not CLEAR_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !clear <Client Name|Board Index> [First Limpet Sender]")
         return
-
+    tokens = CLEAR_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board.get(tokens.subject)
 
-    # Only set First Limpet if it was specified.
-    if len(ctx.words) == 3:
-        first_limpet = ctx.words[2]
-    else:
-        first_limpet = ""
+    first_limpet = tokens.first_limpet
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -183,32 +182,38 @@ async def cmd_case_management_clear(ctx: Context):
 @require_permission(RAT)
 @command("cmdr", "commander")
 async def cmd_case_management_cmdr(ctx: Context):
-    if len(ctx.words) < 2:
+    if not CMDR_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !cmdr <Client Name|Board Index> <CMDR name>")
         return
-
+    tokens = CMDR_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board.get(tokens.subject)
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
         return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.client = ctx.words[2]
+        case.client = tokens.new_cmdr
         await ctx.reply(f"Client for {case.board_index} is now CMDR {case.client}")
 
+CODE_RED_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+)
 
 @require_channel
 @require_channel(RAT)
 @command("codered", "casered", "cr")
 async def cmd_case_management_codered(ctx: Context):
-    if len(ctx.words) < 2:
+    if not CODE_RED_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !codered <Client Name|Board Index>")
         return
 
+    tokens = CODE_RED_PATTERN.parseString(ctx.words_eol[0])
+
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = tokens.subject
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -287,12 +292,12 @@ async def cmd_case_management_epic(ctx: Context):
 @require_permission(RAT)
 @command("grab")
 async def cmd_case_management_grab(ctx: Context):
-    if len(ctx.words) != 2:
+    if not GRAB_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !grab <Client Name>")
         return
-
+    tokens = GRAB_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1].casefold())
+    rescue = ctx.bot.board.get(tokens.subject)
     last_message = ctx.bot.last_user_message.get(
         rescue.client.casefold() if rescue else ctx.words[1].casefold()
     )
@@ -325,7 +330,11 @@ async def cmd_case_management_grab(ctx: Context):
             f"{case.client}'s case updated with " f"{last_message!r} (Case {case.board_index})"
         )
 
-
+INJECT_PATTERN = (
+    suppress_first_word
+    + rescue_identifier
+    # FIXME pull rest of body
+)
 @require_channel
 @require_permission(RAT)
 @command("inject")
