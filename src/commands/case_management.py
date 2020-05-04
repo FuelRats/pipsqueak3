@@ -42,7 +42,11 @@ _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 Regex matcher used to find a time within a string. Used to determine
 if a newly-submitted case is code red or not.
 """
-
+ASSIGN_PATTERN = (
+    pyparsing.oneOf("assign add go", asKeyword=True)
+    + (case_number | irc_name).setResultsName("subject")
+    + pyparsing.OneOrMore(irc_name).setResultsName("rats")
+)
 
 # User input validation helper
 def _validate(ctx: Context, validate: str) -> typing.Optional[Rescue]:
@@ -98,14 +102,11 @@ async def cmd_case_management_active(ctx: Context):
 @require_permission(RAT)
 @command("assign", "add", "go")
 async def cmd_case_management_assign(ctx: Context):
-    subject_clause = (case_number | irc_name).setResultsName("subject")
-    rat_clause = pyparsing.OneOrMore(irc_name).setResultsName('rats')
-    pattern = pyparsing.oneOf("assign add go", asKeyword=True) + subject_clause + rat_clause
 
-    if not pattern.matches(ctx.words_eol[0]):
+    if not ASSIGN_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
         return
-    tokens = pattern.parseString(ctx.words_eol[0])
+    tokens = ASSIGN_PATTERN.parseString(ctx.words_eol[0])
     logger.debug("parsed assign tokens::{}", tokens)
     # Pass case to validator, return a case if found or None
     rescue = ctx.bot.board.get(tokens.subject[0])
@@ -345,10 +346,7 @@ async def cmd_case_management_inject(ctx: Context):
             for keyword in ctx.words_eol[2].split():
                 if keyword.upper() in {item.value for item in Platforms}:
                     case.platform = Platforms[keyword.upper()]
-                if (
-                        keyword.casefold() == "cr"
-                        or _TIME_RE.match(ctx.words_eol[2])
-                ):
+                if keyword.casefold() == "cr" or _TIME_RE.match(ctx.words_eol[2]):
                     case.code_red = True
             if "code red" in ctx.words_eol[2]:
                 case.code_red = True
@@ -485,12 +483,12 @@ async def cmd_case_management_quoteid(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             quote_timestamp = (
-                    humanfriendly.format_timespan(
-                        (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
-                        detailed=False,
-                        max_units=2,
-                    )
-                    + " ago"
+                humanfriendly.format_timespan(
+                    (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                    detailed=False,
+                    max_units=2,
+                )
+                + " ago"
             )
             await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
 
@@ -715,7 +713,7 @@ def _list_rescue(rescue_collection, format_specifiers):
 
 
 def _rescue_filter(
-        flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
+    flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
 ) -> bool:
     """
     determine whether the `rescue` object is one we care about
