@@ -13,9 +13,8 @@ num_word = pyparsing.Word(pyparsing.nums)
 """Matches a case number"""
 case_number = (
     # may lead with 'case'
-        pyparsing.Optional(pyparsing.CaselessLiteral("case").suppress())
-        + api_id.setParseAction(lambda token: UUID(token[0][1:]))
-        | pyparsing.Optional(pyparsing.oneOf("c #", caseless=True).suppress())
+        api_id.setParseAction(lambda token: UUID(token[0][1:]))
+        | pyparsing.Optional(pyparsing.Literal('#').suppress())
         + pyparsing.Word(pyparsing.nums).setParseAction(lambda token: int(token[0]))
 
 )
