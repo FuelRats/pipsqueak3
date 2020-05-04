@@ -106,7 +106,7 @@ async def cmd_case_management_assign(ctx: Context):
         await ctx.reply("Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
         return
     tokens = pattern.parseString(ctx.words_eol[0])
-
+    logger.debug("parsed assign tokens::{}", tokens)
     # Pass case to validator, return a case if found or None
     rescue = ctx.bot.board.get(tokens.subject[0])
 
