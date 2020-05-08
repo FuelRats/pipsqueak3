@@ -35,7 +35,7 @@ from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status
 import pyparsing
-from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word
+from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word, timer
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
@@ -67,7 +67,6 @@ GRAB_PATTERN = (
     + pyparsing.OneOrMore(
     pyparsing.Word(pyparsing.printables)).setParseAction(" ".join()).setResultsName("")
 )
-
 
 
 @require_channel
@@ -332,23 +331,25 @@ async def cmd_case_management_grab(ctx: Context):
 
 INJECT_PATTERN = (
     suppress_first_word
-    + rescue_identifier
-    # FIXME pull rest of body
+    + rescue_identifier.setResultsName("subject")
+    & pyparsing.Optional(pyparsing.CaselessLiteral("cr")).setResultsName("code_red")
+    & pyparsing.Optional(timer("timer"))
+    # | pyparsing.ZeroOrMore(pyparsing.Word(pyparsing.printables)).setResultsName("remainder")
 )
 @require_channel
 @require_permission(RAT)
 @command("inject")
 async def cmd_case_management_inject(ctx: Context):
-    if len(ctx.words) < 3:
+    if not INJECT_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !inject <Client Name|Board Index> <Text to Add>")
         return
-
+    tokens = INJECT_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board[tokens.subject]
 
     if not rescue:
-        logger.debug("creating rescue for {!r}", ctx.words[1])
-        rescue = await ctx.bot.board.create_rescue(client=ctx.words[1])
+        logger.debug("creating rescue for {!r}", tokens.subject)
+        rescue = await ctx.bot.board.create_rescue(client=tokens.subject)
         async with ctx.bot.board.modify_rescue(rescue) as case:
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 

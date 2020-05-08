@@ -25,3 +25,6 @@ rescue_identifier = irc_name | case_number
 
 """ Suppresses the first word in the string. """
 suppress_first_word = pyparsing.Word(pyparsing.printables).suppress()
+
+""" matches something that looks like a timer. `d:d` """
+timer = pyparsing.Word(pyparsing.nums) + ':' + pyparsing.Word(pyparsing.nums) + pyparsing.WordEnd()
