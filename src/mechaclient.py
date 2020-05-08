@@ -87,6 +87,7 @@ class MechaClient(Client, MessageHistoryClient):
         self._galaxy = None
         self._start_time = datetime.now(tz=timezone.utc)
         self._on_invite = require_permission(TECHRAT)(functools.partial(self._on_invite))
+        TRACKED_MESSAGES.set_function(lambda: len(self._last_user_message))
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -276,7 +277,6 @@ class MechaClient(Client, MessageHistoryClient):
 
     @property
     def last_user_message(self) -> Dict[str, str]:
-        TRACKED_MESSAGES.set(len(self._last_user_message))
         return self._last_user_message
 
     @property
