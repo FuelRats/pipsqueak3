@@ -29,6 +29,30 @@ from .features.message_history import MessageHistoryClient
 
 from typing import Dict
 from datetime import datetime, timezone
+import prometheus_client
+from prometheus_async.aio import time as aio_time
+
+ON_MESSAGE_TIME = prometheus_client.Summary(
+    name="on_message",
+    namespace="client",
+    documentation="time in on_message",
+    unit="seconds"
+)
+TRACKED_MESSAGES = prometheus_client.Gauge(
+    namespace="client",
+    name="tracked_messages",
+    documentation="number of last messages tracked"
+)
+IGNORED_MESSAGES = prometheus_client.Counter(
+    name="ignored_messages",
+    namespace="client",
+    documentation="messages ignored by the client."
+)
+ERRORS = prometheus_client.Counter(
+    name="errors",
+    namespace="client",
+    documentation="errors detected during message handling"
+)
 
 
 @require_permission(TECHRAT)
@@ -95,6 +119,7 @@ class MechaClient(Client, MessageHistoryClient):
     async def _on_invite(self, ctx):
         await self.join(ctx.words[0])
 
+    @aio_time(ON_MESSAGE_TIME)
     async def on_message(self, channel, user, message: str):
         """
         Triggered when a message is received
@@ -110,6 +135,7 @@ class MechaClient(Client, MessageHistoryClient):
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             logger.debug(f"Ignored {message} (anti-loop)")
+            IGNORED_MESSAGES.inc()
             return None
         # await command execution
         # sanitize input string headed to command executor
@@ -120,12 +146,14 @@ class MechaClient(Client, MessageHistoryClient):
             ctx = await Context.from_message(self, channel, user, sanitized_message)
             if not ctx.words:
                 logger.trace("ignoring empty message")
+                IGNORED_MESSAGES.inc()
                 return
 
             await trigger(ctx)
 
         # Disable pylint's complaint here, as a broad catch is exactly what we want.
         except Exception as ex:  # pylint: disable=broad-except
+            ERRORS.inc()
             ex_uuid = uuid4()
             logger.exception(ex_uuid)
             error_message = graceful_errors.make_graceful(ex, ex_uuid)
@@ -248,6 +276,7 @@ class MechaClient(Client, MessageHistoryClient):
 
     @property
     def last_user_message(self) -> Dict[str, str]:
+        TRACKED_MESSAGES.set(len(self._last_user_message))
         return self._last_user_message
 
     @property

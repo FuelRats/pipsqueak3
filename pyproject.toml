@@ -19,6 +19,8 @@ toml = "*"
 loguru = "*"
 pluggy = "*"
 async_lru = "^1.0.2"
+prometheus_client = "^0.7.1"
+prometheus_async = "^19.2.0"
 pyparsing = "^2.4.7"
 
 [tool.poetry.dev-dependencies]

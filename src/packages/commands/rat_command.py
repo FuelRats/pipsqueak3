@@ -22,6 +22,32 @@ from ..context import Context
 from ..ratmama.ratmama_parser import handle_ratmama_announcement
 import pyparsing
 from pyparsing import Word, Suppress, Group, alphanums, alphas, ZeroOrMore
+import prometheus_client
+from prometheus_async.aio import time as aio_time
+
+TRIGGER_TIME = prometheus_client.Summary(
+    namespace="commands",
+    name="trigger",
+    unit="seconds",
+    documentation="time spent in trigger"
+)
+TRIGGER_MISS = prometheus_client.Counter(
+    namespace="commands",
+    name="trigger_miss",
+    documentation="total times trigger couldn't handle a message"
+)
+COMMAND_TIME = prometheus_client.Summary(
+    namespace="commands",
+    name="in_command",
+    unit="seconds",
+    documentation="time spent triggering commands"
+)
+FACT_TIME = prometheus_client.Summary(
+    namespace="commands",
+    name="in_fact",
+    unit="seconds",
+    documentation="time spent triggering facts"
+)
 
 
 # set the logger for rat_command
@@ -48,6 +74,7 @@ class NameCollisionException(CommandException):
 _registered_commands = {}  # pylint: disable=invalid-name
 
 
+@aio_time(TRIGGER_TIME)
 async def trigger(ctx) -> Any:
     """
 
@@ -94,9 +121,11 @@ async def trigger(ctx) -> Any:
     if ctx.prefixed:
         result = await handle_fact(ctx)
     if not result:
+        TRIGGER_MISS.inc()
         logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
 
 
+@aio_time(FACT_TIME)
 async def handle_fact(context: Context):
     """
     Handles potential facts

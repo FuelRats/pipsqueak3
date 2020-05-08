@@ -241,6 +241,37 @@ dev = ["pre-commit", "tox"]
 
 [[package]]
 category = "main"
+description = "Async helpers for prometheus_client."
+name = "prometheus-async"
+optional = false
+python-versions = ">=2.7, !=3.0, !=3.1, !=3.2, !=3.3, !=3.4"
+version = "19.2.0"
+
+[package.dependencies]
+prometheus-client = ">=0.0.18"
+wrapt = "*"
+
+[package.extras]
+aiohttp = ["aiohttp (>=3)"]
+consul = ["aiohttp (>=3)"]
+dev = ["aiohttp (>=3)", "twisted", "aiohttp", "sphinx", "sphinxcontrib-asyncio", "coverage", "pytest (<4.1)", "pytest-twisted", "pre-commit", "pytest-asyncio"]
+docs = ["aiohttp", "sphinx", "sphinxcontrib-asyncio", "twisted"]
+tests = ["coverage", "pytest (<4.1)", "pytest-asyncio"]
+twisted = ["twisted"]
+
+[[package]]
+category = "main"
+description = "Python client for the Prometheus monitoring system."
+name = "prometheus-client"
+optional = false
+python-versions = "*"
+version = "0.7.1"
+
+[package.extras]
+twisted = ["twisted"]
+
+[[package]]
+category = "main"
 description = "psycopg2 - Python-PostgreSQL Database Adapter"
 name = "psycopg2-binary"
 optional = false
@@ -303,7 +334,7 @@ isort = ">=4.2.5,<5"
 mccabe = ">=0.6,<0.7"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Python parsing module"
 name = "pyparsing"
 optional = false
@@ -472,7 +503,7 @@ version = "1.0.1"
 dev = ["pytest (>=4.6.2)", "black (>=19.3b0)"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "Module for decorators, wrappers and monkey patching."
 name = "wrapt"
 optional = false
@@ -492,7 +523,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "41df09921ced42c948ffbedc5deb36a288fe023fde7dc7b7f33dac3c47d25f7e"
+content-hash = "30f61aa876f239e11760c18ed68075518c365a39375fe23bb42bc600b373a189"
 python-versions = ">=3.8"
 
 [metadata.files]
@@ -664,6 +695,13 @@ packaging = [
 pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
+]
+prometheus-async = [
+    {file = "prometheus_async-19.2.0-py2.py3-none-any.whl", hash = "sha256:227f516e5bf98a0dc602348381e182358f8b2ed24a8db05e8e34d9cf027bab83"},
+    {file = "prometheus_async-19.2.0.tar.gz", hash = "sha256:3cc68d1f39e9bbf16dbd0b51103d87671b3cbd1d75a72cda472cd9a35cc9d0d2"},
+]
+prometheus-client = [
+    {file = "prometheus_client-0.7.1.tar.gz", hash = "sha256:71cd24a2b3eb335cb800c7159f423df1bd4dcd5171b234be15e3f31ec9f622da"},
 ]
 psycopg2-binary = [
     {file = "psycopg2-binary-2.8.5.tar.gz", hash = "sha256:ccdc6a87f32b491129ada4b87a43b1895cf2c20fdb7f98ad979647506ffc41b6"},
