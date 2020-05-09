@@ -25,7 +25,7 @@ from pyparsing import Word, Suppress, Group, alphanums, alphas, ZeroOrMore
 import prometheus_client
 from prometheus_async.aio import time as aio_time
 
-TRIGGER_TIME = prometheus_client.Summary(
+TRIGGER_TIME = prometheus_client.Histogram(
     namespace="commands",
     name="trigger",
     unit="seconds",
@@ -36,13 +36,13 @@ TRIGGER_MISS = prometheus_client.Counter(
     name="trigger_miss",
     documentation="total times trigger couldn't handle a message"
 )
-COMMAND_TIME = prometheus_client.Summary(
+COMMAND_TIME = prometheus_client.Histogram(
     namespace="commands",
     name="in_command",
     unit="seconds",
     documentation="time spent triggering commands"
 )
-FACT_TIME = prometheus_client.Summary(
+FACT_TIME = prometheus_client.Histogram(
     namespace="commands",
     name="in_fact",
     unit="seconds",

@@ -32,7 +32,7 @@ from datetime import datetime, timezone
 import prometheus_client
 from prometheus_async.aio import time as aio_time
 
-ON_MESSAGE_TIME = prometheus_client.Summary(
+ON_MESSAGE_TIME = prometheus_client.Histogram(
     name="on_message",
     namespace="client",
     documentation="time in on_message",
