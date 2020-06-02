@@ -369,7 +369,7 @@ async def cmd_case_management_inject(ctx: Context):
     # Pass case to validator, return a case if found or None
     rescue = ctx.bot.board.get(tokens.subject[0])
 
-    if not rescue:
+    if not rescue and not isinstance(tokens.subject[0], int):
         logger.debug("creating rescue for {!r}", tokens.subject[0])
         rescue = await ctx.bot.board.create_rescue(client=tokens.subject[0])
         async with ctx.bot.board.modify_rescue(rescue) as case:
@@ -552,6 +552,8 @@ async def cmd_case_management(ctx: Context):
     if quote_id > len(rescue.quotes):
         await ctx.reply(f"Invalid quote index for case #{rescue.board_index}")
         return
+
+    logger.debug("quote_id:={}, remainder:={}", quote_id, tokens.remainder)
 
     if tokens.remainder:
         if quote_id > len(rescue.quotes):

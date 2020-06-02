@@ -235,17 +235,19 @@ async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms)
 @pytest.mark.hypothesis
 @hypothesis.given(
     cr_state=strategies.booleans(),
-    client=custom_strategies.valid_word,
+    client=custom_strategies.valid_irc_name,
     payload=custom_strategies.valid_text,
     platform=strategies.sampled_from([Platforms.PC, Platforms.XB, Platforms.PS]),
 )
 async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms, client: str,
                                      payload: str):
     hypothesis.assume(client not in bot_fx.board)  # new rescue
+    bot_fx.sent_messages.clear()  # hypothesis cleanup.
     starting_rescue_count = len(bot_fx.board)
     await bot_fx.on_message("#ratchat", "some_ov",
                             f"!inject {client} {platform.value} {'cr' if cr_state else ''} {payload}",
                             )
+    assert client in bot_fx.board, "rescue not created / incorrectly created"
     message = ""
     while "case opened" not in message and bot_fx.sent_messages:
         message = bot_fx.sent_messages.pop(0)["message"].casefold()
@@ -312,6 +314,8 @@ async def test_sub_replace_hypothesis(bot_fx, rescue, initial_content: str, new_
 
 @pytest.mark.asyncio
 @pytest.mark.hypothesis
+# apparently `rescues` filters too much and it appears unavoidable...
+@hypothesis.settings(suppress_health_check=[hypothesis.HealthCheck.filter_too_much])
 @hypothesis.given(
     random_rescues=custom_strategies.rescues(min_size=2, max_size=20),
     system=custom_strategies.valid_word,
@@ -330,7 +334,6 @@ async def test_close_hypothesis(bot_fx, random_rescues: typing.List[Rescue],
     # append a bunch of unrelated rescues to the board to ensure no side effects
     for unrelated in random_rescues:
         await bot_fx.board.append(unrelated)
-    hypothesis.assume(target_rescue.irc_nickname not in bot_fx.board)
 
     # append the rescue we intend to close'
     await bot_fx.board.append(target_rescue)

@@ -6,7 +6,7 @@ import pyparsing
 Matches a valid IRC nickname. 
 Token MUST start with a letter but MAY contain numerics and some special chars
 """
-irc_name = pyparsing.Word(initChars=pyparsing.alphas, bodyChars=pyparsing.alphanums + "[]{}|:-_<>")
+irc_name = pyparsing.Word(initChars=pyparsing.alphas, bodyChars=pyparsing.alphanums + "[]{}|:-_<>\\/")
 
 """ matches a well formed UUID4"""
 api_id = pyparsing.Word(initChars='@', bodyChars=pyparsing.hexnums + '-', min=36, max=37)

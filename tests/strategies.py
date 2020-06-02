@@ -43,10 +43,11 @@ a list of valid words
 Shrinks towards smaller lists and smaller words.
 """
 _irc_nick_letters = strategies.characters(
-    whitelist_characters=f"{string.ascii_letters}{string.digits}" + r"\`_[]{}",
+    whitelist_characters=f"{string.ascii_letters}{string.digits}" + r"\/_[]{}",
     whitelist_categories=())
 valid_irc_name = strategies.text(alphabet=_irc_nick_letters, min_size=3).filter(
-    lambda word: not word[0].isnumeric())
+    lambda word: not word[0].isnumeric()).filter(
+    lambda word: not word.startswith(('\\', '_', '[', ']', '{', '}', '/')))
 platform = strategies.sampled_from([_Platforms.PS, _Platforms.PC, _Platforms.XB])
 """ Some platform """
 rescue = strategies.builds(
@@ -69,7 +70,6 @@ def rescues(min_size: int, max_size: int):
                             unique_by=(
                                 lambda case: case.irc_nickname, lambda case: case.board_index,
                                 lambda case: case.client))
-
 rat = strategies.builds(
     _Rat,
     uuid=strategies.uuids(version=4),
