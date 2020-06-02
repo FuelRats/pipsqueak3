@@ -85,7 +85,7 @@ async def start():
 
 # entry point
 if __name__ == "__main__":
-    prometheus_client.start_http_server(8080, "localhost")
+    prometheus_client.start_http_server(6820, "localhost")
     LOOP = asyncio.get_event_loop()
     LOOP.run_until_complete(start())
     LOOP.run_forever()
