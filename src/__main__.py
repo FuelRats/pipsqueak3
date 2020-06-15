@@ -27,6 +27,15 @@ from src.packages.commands import command
 from src.packages.context import Context
 from src.packages.permissions import require_permission, RAT
 
+import prometheus_client
+
+TIME_IN_PING = prometheus_client.Summary(
+    name="ping",
+    documentation="Time spent in the ping command",
+    namespace="command",
+    unit="seconds"
+)
+
 
 @require_permission(RAT)
 @command("ping")
@@ -35,9 +44,10 @@ async def cmd_ping(context: Context):
     Pongs a ping. lets see if the bots alive (command decorator testing)
     :param context: `Context` object for the command call.
     """
-    logger.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
-                   f"'{context.user.nickname}'")
-    await context.reply(f"{context.user.nickname} pong!")
+    with TIME_IN_PING.time():
+        logger.warning(f"cmd_ping triggered on channel '{context.channel}' for user "
+                       f"'{context.user.nickname}'")
+        await context.reply(f"{context.user.nickname} pong!")
 
 
 async def start():
@@ -75,6 +85,7 @@ async def start():
 
 # entry point
 if __name__ == "__main__":
+    prometheus_client.start_http_server(6820, "localhost")
     LOOP = asyncio.get_event_loop()
     LOOP.run_until_complete(start())
     LOOP.run_forever()

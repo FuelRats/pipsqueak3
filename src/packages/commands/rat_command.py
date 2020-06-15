@@ -12,16 +12,52 @@ This module is built on top of the Pydle system.
 
 """
 
-from loguru import logger
-from typing import Callable, Any
+import typing
+from typing import Any, Callable, Tuple
 
+import attr
+import prometheus_client
 import psycopg2
+import pyparsing
+from loguru import logger
+from prometheus_async.aio import time as aio_time
+from pyparsing import Word, Suppress, alphanums, alphas, ZeroOrMore
 
-from src.packages.rules.rules import get_rule, clear_rules
+from src.packages.permissions import Permission
+from src.packages.rules.rules import get_rule
 from ..context import Context
 from ..ratmama.ratmama_parser import handle_ratmama_announcement
-import pyparsing
-from pyparsing import Word, Suppress, Group, alphanums, alphas, ZeroOrMore
+
+TRIGGER_TIME = prometheus_client.Histogram(
+    namespace="commands",
+    name="trigger",
+    unit="seconds",
+    documentation="time spent in trigger"
+)
+TRIGGER_MISS = prometheus_client.Counter(
+    namespace="commands",
+    name="trigger_miss",
+    documentation="total times trigger couldn't handle a message"
+)
+COMMAND_TIME = prometheus_client.Histogram(
+    namespace="commands",
+    name="in_command",
+    unit="seconds",
+    documentation="time spent triggering commands"
+)
+FACT_TIME = prometheus_client.Histogram(
+    namespace="commands",
+    name="in_fact",
+    unit="seconds",
+    documentation="time spent triggering facts"
+)
+TIME_IN_COMMAND = prometheus_client.Histogram(
+    namespace="commands",
+    name="time_in",
+    unit="seconds",
+    documentation="time spent triggering commands",
+    labelnames=['command']
+)
 
 
 # set the logger for rat_command
@@ -48,6 +84,35 @@ class NameCollisionException(CommandException):
 _registered_commands = {}  # pylint: disable=invalid-name
 
 
+def truthy_validator(inst, attribute, value):
+    if not value:
+        raise ValueError(value)
+
+
+@attr.dataclass
+class Command:
+    underlying: typing.Callable = attr.ib(validator=attr.validators.is_callable())
+
+    aliases: typing.Tuple[str] = attr.ib(validator=attr.validators.and_(attr.validators.deep_iterable(
+        member_validator=attr.validators.instance_of(str),
+        iterable_validator=attr.validators.instance_of(tuple)),
+        truthy_validator
+    ), )
+    require_permission: typing.Optional[Permission] = attr.ib(
+        validator=attr.validators.optional(attr.validators.instance_of(Permission)),
+        default=None
+    )
+    require_channel: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
+    require_direct_message: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
+    func: typing.Optional[typing.Callable] = attr.ib(default=None)
+
+    async def __call__(self, *args, **kwargs):
+        # TODO: pre-execution hooks would go here
+        with TIME_IN_COMMAND.labels(command=self.aliases[0]).time():
+            return await self.underlying(*args, **kwargs)
+
+
+@aio_time(TRIGGER_TIME)
 async def trigger(ctx) -> Any:
     """
 
@@ -94,9 +159,11 @@ async def trigger(ctx) -> Any:
     if ctx.prefixed:
         result = await handle_fact(ctx)
     if not result:
+        TRIGGER_MISS.inc()
         logger.debug(f"Ignoring message '{ctx.words_eol[0]}'. Not a command or rule.")
 
 
+@aio_time(FACT_TIME)
 async def handle_fact(context: Context):
     """
     Handles potential facts
@@ -132,7 +199,7 @@ async def handle_fact(context: Context):
         return False
 
 
-def _register(func, names: list or str) -> bool:
+def _register(func, names: typing.Union[typing.Iterable[str], str]) -> bool:
     """
     Register a new command
     :param func: function
@@ -160,7 +227,7 @@ def _register(func, names: list or str) -> bool:
     return True
 
 
-def command(*aliases):
+def command(*aliases: str, **kwargs):
     """
     Registers a command by aliases
 
@@ -180,7 +247,9 @@ def command(*aliases):
             Callable: *func*, unmodified.
         """
         logger.debug(f"Registering command aliases: {aliases}...")
-        if not _register(func, aliases):
+
+        cmd = Command(underlying=func, aliases=aliases, **kwargs)
+        if not _register(cmd, aliases):
             raise InvalidCommandException("unable to register commands.")
         logger.debug(f"Registration of {aliases} completed.")
 

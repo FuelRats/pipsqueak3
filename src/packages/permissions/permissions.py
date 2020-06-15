@@ -18,6 +18,13 @@ from typing import Any, Union, Callable, Dict, Set
 
 from src.config import CONFIG_MARKER
 from ..context import Context
+import prometheus_client
+from prometheus_async.aio import time as aio_time
+
+REQUIRE_PERMISSION_TIME = prometheus_client.Summary("permissions_require_permissions_seconds",
+                                                    "time in require_permission")
+REQUIRE_CHANNEL_TIME = prometheus_client.Summary("permissions_require_channel_seconds",
+                                                 "time in require_channel")
 
 
 @CONFIG_MARKER
@@ -289,7 +296,7 @@ def require_permission(permission: Permission,
 
             await context.reply(override_message if override_message else permission.denied_message)
 
-        return guarded
+        return aio_time(REQUIRE_PERMISSION_TIME)(guarded)
 
     return real_decorator
 
