@@ -472,7 +472,7 @@ async def cmd_case_management_quote(ctx: Context):
 
     created_timestamp = rescue.updated_at.strftime("%b %d %H:%M:%S UTC")
 
-    header = f"{rescue}, " f"updated {created_timestamp}  " f"@{rescue.api_id}"
+    header = f"{rescue:s@r}, updated {created_timestamp}"
 
     await ctx.reply(header)
 

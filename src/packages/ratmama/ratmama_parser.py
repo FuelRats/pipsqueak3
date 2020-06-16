@@ -14,14 +14,12 @@ See LICENSE.md
 import re
 from loguru import logger
 from typing import Optional, Dict, TypedDict
-import pyparsing
 from src.config import CONFIG_MARKER
 from ..context import Context
 from ..rescue import Rescue
 from ..rules import rule
 from ..user import User
 from ..utils import Platforms
-from .. import parsing_rules
 
 
 class _RatmamaConfig(TypedDict):
@@ -173,13 +171,6 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         )
 
 
-MANUAL_SIGNAL_PATTERN = (
-    parsing_rules.suppress_first_word
-    + pyparsing.Optional(parsing_rules.platform.setResultsName("platform"))
-    + pyparsing.restOfLine.setResultsName("remainder")
-)
-
-
 @rule(r"\bdrillsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
 async def handle_ratsignal(ctx: Context) -> None:
     """
@@ -196,7 +187,9 @@ async def handle_ratsignal(ctx: Context) -> None:
 
     """
 
-    message: str = ctx.words_eol[1]
+    message: str = ctx.words_eol[0]
+    # the ratsignal is nothing we are interested anymore
+    message = re.sub("ratsignal", "", message, flags=re.I)
 
     if ctx.user.nickname.casefold() in ctx.bot.board:
         await ctx.reply(
@@ -205,30 +198,22 @@ async def handle_ratsignal(ctx: Context) -> None:
         )
         return
 
+    sep: Optional[str] = None
+    if "," in message:
+        sep = ","
+    elif ";" in message:
+        sep = ";"
+    elif "|" in message:
+        sep = "|"
+    elif "-" in message:
+        sep = "-"
+
     if not sep:
-        rescue = await ctx.bot.board.create_rescue(
-            irc_nickname=ctx.user.nickname, client=ctx.user.nickname
-        )
-        await ctx.reply(
-            f"Case #{rescue.board_index} created for {ctx.user.nickname}, please set details"
-        )
-        return
+        sep = " "
 
-    tokens = MANUAL_SIGNAL_PATTERN.parseString(ctx.words_eol[0])
-    logger.debug("parsed manual signal, tokens: {}", tokens)
-    system: str = tokens.remainder
-    # couldn't get this one to parse correctly...
-    code_red: bool = "cr" in ctx.words_eol[0].casefold() or "o2 ok" not in ctx.words_eol[0].casefold()
+    system: str = None
+    code_red: bool = False
     platform: Platforms = None
-
-    # some translation required
-    if tokens.pc:
-        platform = Platforms.PC
-    elif tokens.xb:
-        platform = Platforms.XB
-    elif tokens.ps:
-        platform = Platforms.PS
-
     for part in message.split(sep):
         part = part.strip()
         if part.casefold() in ("pc",):
@@ -241,10 +226,21 @@ async def handle_ratsignal(ctx: Context) -> None:
             platform = Platforms["XB"]
 
         elif "o2" in part.casefold():
-            code_red = "o2 ok" not in part.casefold()
+            code_red = "o2 ok" not in message.casefold()
 
         else:
             system = part
+
+    if system and "signal" in system.lower():
+        logger.error("erroneous case data generated! falling back to spatch...")
+        logger.debug("erroneous system: {!r}", system)
+        rescue = await ctx.bot.board.create_rescue(
+            irc_nickname=ctx.user.nickname, client=ctx.user.nickname
+        )
+        await ctx.reply(
+            f"Case #{rescue.board_index} created for {ctx.user.nickname!r}, Dispatch please set details"
+        )
+        return
 
     rescue = await ctx.bot.board.create_rescue(
         client=ctx.user.nickname,
@@ -253,9 +249,10 @@ async def handle_ratsignal(ctx: Context) -> None:
         code_red=code_red,
         platform=platform,
     )
+    platform_signal = f"{rescue.platform.name.upper()}_SIGNAL" if rescue.platform else _config['trigger_keyword']
     await ctx.reply(
         f"Case created for {rescue.client}"
-        f" on {rescue.platform.name} in {rescue.system}. "
+        f" on {rescue.platform.name if rescue.platform else '<unknown platform>'} in {rescue.system}. "
         f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
-        f"- {rescue.platform.name.upper()}_SIGNAL"
+        f"- {platform_signal}"  # FIXME signal not rendering...
     )
