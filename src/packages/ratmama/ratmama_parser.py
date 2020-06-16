@@ -114,7 +114,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     if exist_rescue:
         # we got a case already!
-        await ctx.reply(f"{client_name} has reconnected! Case #{exist_rescue.board_index}")
+        await ctx.reply(f"{client_name} has reconnected! Case #{exist_rescue.board_index} "
+                        f"(RETURN_SIGNAL)")
         # now let's make it more visible if stuff changed
         diff_response = ""
         if system_name.casefold() != exist_rescue.system.casefold():

@@ -96,7 +96,7 @@ async def test_announcer_reconnect(bot_fx, async_callable_fx, monkeypatch):
     rescue = context.bot.board["SomeClient"]
     index = rescue.board_index
 
-    assert async_callable_fx.was_called_with(f"SomeClient has reconnected! Case #{index}")
+    assert async_callable_fx.was_called_with(f"SomeClient has reconnected! Case #{index} (RETURN_SIGNAL)")
 
 
 async def test_announcer_reconnect_with_changes(bot_fx, async_callable_fx, monkeypatch):
