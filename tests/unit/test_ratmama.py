@@ -30,7 +30,21 @@ pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio
      " - O2: NOT OK - Language: German (de-DE)",
      "DRILLSIGNAL - CMDR SomeOtherClient - Reported System: LHS 3447 (distance to be implemented)"
      " - Platform: XB - O2: NOT OK - Language: German (de-DE) (Case #{}) (XB_SIGNAL)",
-     "SomeOtherClient", "LHS 3447", Platforms.XB, True)
+     "SomeOtherClient", "LHS 3447", Platforms.XB, True),
+    
+    # These two tests specifically target an edge case where we accidentally create two cases 
+    # if there's a client named R@signal or Drillsignal
+    ("Incoming Client: Ratsignal - System: LHS 3447 - Platform: XB"
+     " - O2: OK - Language: English (en-US)",
+     "DRILLSIGNAL - CMDR Ratsignal - Reported System: LHS 3447 (distance to be implemented)"
+     " - Platform: XB - O2: OK - Language: English (en-US) (Case #{}) (XB_SIGNAL)",
+     "Ratsignal", "LHS 3447", Platforms.XB, False),
+    ("Incoming Client: Drillsignal - System: LHS 3447 - Platform: PS"
+     " - O2: NOT OK - Language: English (en-US)",
+     "DRILLSIGNAL - CMDR Drillsignal - Reported System: LHS 3447 (distance to be implemented)"
+     " - Platform: PS - O2: NOT OK - Language: English (en-US) (Case #{}) (PS_SIGNAL)",
+     "Drillsignal", "LHS 3447", Platforms.PS, True),
+
 ])
 async def test_announcer_parse(bot_fx,
                                async_callable_fx,
@@ -48,6 +62,14 @@ async def test_announcer_parse(bot_fx,
     context = await Context.from_message(bot_fx, "#unit_test", "some_announcer", announcement)
 
     await ratmama.handle_ratmama_announcement(context)
+
+    # Testing for the edge case referenced above.  We should not create a case
+    # for the announcer account when it announces.
+    # This is done as an error handler because of the way super.__getitem__ is
+    # implemented in RatBoard.__getitem__
+    with pytest.raises(KeyError):
+        announcer_rescue = context.bot.board["some_announcer", str]
+        assert announcer_rescue is None
 
     rescue = context.bot.board[cmdr]
     assert rescue is not None
