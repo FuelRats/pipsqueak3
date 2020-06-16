@@ -46,7 +46,7 @@ docker-compose run mechasqueak
 > ## NOTE:
 > on top of pip you must have installed `poetry`, this guide assumes this fact.
 
-> If you are not using pipenv, please see [pyproject.toml](pyproject.toml) for the list of required libraries. 
+> If you are not using poetry, please see [pyproject.toml](pyproject.toml) for the list of required libraries. 
  You will need to install these libraries manually.
 
 1. Clone the repository from the ``master`` branch, or for bleeding edge, use ``develop``.  Please keep in mind, Develop changes frequently and may be broken.
