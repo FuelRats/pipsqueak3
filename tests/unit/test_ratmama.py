@@ -65,11 +65,7 @@ async def test_announcer_parse(bot_fx,
 
     # Testing for the edge case referenced above.  We should not create a case
     # for the announcer account when it announces.
-    # This is done as an error handler because of the way super.__getitem__ is
-    # implemented in RatBoard.__getitem__
-    with pytest.raises(KeyError):
-        announcer_rescue = context.bot.board["some_announcer", str]
-        assert announcer_rescue is None
+    assert "some_announcer" not in context.bot.board
 
     rescue = context.bot.board[cmdr]
     assert rescue is not None
