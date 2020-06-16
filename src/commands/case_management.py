@@ -48,6 +48,7 @@ ASSIGN_PATTERN = (
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 ACTIVE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
+
 CLEAR_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
@@ -58,13 +59,16 @@ CMDR_PATTERN = (
     + rescue_identifier.setResultsName("subject")
     + irc_name.setResultsName("new_cmdr")
 )
+
 GRAB_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
+
 IRC_NICK_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
     + irc_name.setResultsName("new_nick")
 )
 JUST_RESCUE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
+
 SUB_CMD_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
@@ -73,6 +77,7 @@ SUB_CMD_PATTERN = (
     .setResultsName("quote_id")
     + pyparsing.restOfLine.setResultsName("remainder")
 )
+
 SYS_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
@@ -86,6 +91,17 @@ UNASSIGN_PATTERN = (
     + rescue_identifier.setResultsName("subject")
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
+
+INJECT_PATTERN = suppress_first_word + rescue_identifier.setResultsName(
+    "subject"
+) & pyparsing.Optional(pyparsing.CaselessLiteral("cr")).setResultsName(
+    "code_red"
+) + pyparsing.Optional(
+    timer("timer")
+) + pyparsing.restOfLine.setResultsName(
+    "remainder"
+)
+
 
 
 @require_channel
@@ -347,15 +363,6 @@ async def cmd_case_management_grab(ctx: Context):
         )
 
 
-INJECT_PATTERN = suppress_first_word + rescue_identifier.setResultsName(
-    "subject"
-) & pyparsing.Optional(pyparsing.CaselessLiteral("cr")).setResultsName(
-    "code_red"
-) + pyparsing.Optional(
-    timer("timer")
-) + pyparsing.restOfLine.setResultsName(
-    "remainder"
-)
 
 
 @require_channel
@@ -435,7 +442,7 @@ async def cmd_case_management_ircnick(ctx: Context):
 @command("pc", "ps", "xb")
 async def cmd_case_management_system(ctx: Context):
     if not JUST_RESCUE_PATTERN.matches(ctx.words_eol[0]):
-        return await ctx.reply("Usage: !pc <Client Name|Board Index>")
+        return await ctx.reply("Usage: !<pc|ps|xb> <Client Name|Board Index>")
     tokens = JUST_RESCUE_PATTERN.parseString(ctx.words_eol[0])
     rescue = ctx.bot.board.get(tokens.subject[0])
 
