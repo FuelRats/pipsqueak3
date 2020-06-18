@@ -87,6 +87,9 @@ async def test_announcer_parse(bot_fx,
         signal = signal.format(str(index))
         message = bot_fx.sent_messages.pop(0)["message"]
         assert message.casefold() == signal.casefold()
+    else:
+        assert bot_fx.sent_messages.pop(0)["message"] == \
+               "Signal attempted to create rescue for a service. Dispatch: please inject this case."
 
 
 async def test_announcer_invalid_platform(bot_fx, async_callable_fx, monkeypatch):
@@ -216,8 +219,6 @@ async def test_manual_signal_service_account(
         "#unit_test",
         "unit_test",
         "Ratsignal some_service")
-
-    monkeypatch.setattr(context, "reply", async_callable_fx)
 
     await ratmama.handle_ratsignal(context)
 

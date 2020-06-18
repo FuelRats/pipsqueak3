@@ -111,13 +111,11 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     client = await User.from_pydle(ctx.bot, client_name)
 
-    if client is not None:
-        client_hostname = client.hostname
-
-        if client_hostname in (
+    if client is not None and client.hostname in (
                 "services.fuelrats.com",
                 "bot.fuelrats.com"):
-            return
+        return await ctx.reply("Signal attempted to create rescue for a service. "
+                               "Dispatch: please inject this case.")
 
     exist_rescue: Optional[Rescue] = ctx.bot.board[
         client_name
