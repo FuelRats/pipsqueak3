@@ -30,7 +30,27 @@ pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio
      " - O2: NOT OK - Language: German (de-DE)",
      "DRILLSIGNAL - CMDR SomeOtherClient - Reported System: LHS 3447 (distance to be implemented)"
      " - Platform: XB - O2: NOT OK - Language: German (de-DE) (Case #{}) (XB_SIGNAL)",
-     "SomeOtherClient", "LHS 3447", Platforms.XB, True)
+     "SomeOtherClient", "LHS 3447", Platforms.XB, True),
+    
+    # These three tests specifically target an edge case where we accidentally create two cases
+    # if there's a client named R@signal or Drillsignal
+    ("Incoming Client: Ratsignal - System: LHS 3447 - Platform: XB"
+     " - O2: OK - Language: English (en-US)",
+     "DRILLSIGNAL - CMDR Ratsignal - Reported System: LHS 3447 (distance to be implemented)"
+     " - Platform: XB - O2: OK - Language: English (en-US) (Case #{}) (XB_SIGNAL)",
+     "Ratsignal", "LHS 3447", Platforms.XB, False),
+    ("Incoming Client: Drillsignal - System: LHS 3447 - Platform: PS"
+     " - O2: NOT OK - Language: English (en-US)",
+     "DRILLSIGNAL - CMDR Drillsignal - Reported System: LHS 3447 (distance to be implemented)"
+     " - Platform: PS - O2: NOT OK - Language: English (en-US) (Case #{}) (PS_SIGNAL)",
+     "Drillsignal", "LHS 3447", Platforms.PS, True),
+
+    # This is also an edge case, attempting to create a rescue for a service.
+    ("Incoming Client: some_service - System: LHS 3447 - Platform: PS"
+     " - O2: NOT OK - Language: English (en-US)",
+     "DRILLSIGNAL - CMDR some_service - Reported System: LHS 3447 (distance to be implemented)"
+     " - Platform: PS - O2: NOT OK - Language: English (en-US) (Case #{}) (PS_SIGNAL)",
+     "some_service", "LHS 3447", Platforms.PS, True)
 ])
 async def test_announcer_parse(bot_fx,
                                async_callable_fx,
@@ -49,17 +69,28 @@ async def test_announcer_parse(bot_fx,
 
     await ratmama.handle_ratmama_announcement(context)
 
-    rescue = context.bot.board[cmdr]
-    assert rescue is not None
-    assert rescue.client == cmdr
-    assert rescue.system == system
-    assert rescue.platform == platform
-    assert rescue.code_red == code_red
+    # Testing for the edge case referenced above.  We should not create a case
+    # for the announcer, bot, or service account
+    assert "some_announcer" not in context.bot.board
+    assert "some_service" not in context.bot.board
 
-    index = rescue.board_index
-    signal = signal.format(str(index))
-    message = bot_fx.sent_messages.pop(0)["message"]
-    assert message.casefold() == signal.casefold()
+    # We can't very well check for something we don't expect!
+    if "some_service" != cmdr:
+        rescue = context.bot.board[cmdr]
+        assert rescue is not None
+        assert rescue.client == cmdr
+        assert rescue.system == system
+        assert rescue.platform == platform
+        assert rescue.code_red == code_red
+
+        index = rescue.board_index
+        signal = signal.format(str(index))
+        message = bot_fx.sent_messages.pop(0)["message"]
+        assert message.casefold() == signal.casefold()
+    else:
+        assert bot_fx.sent_messages.pop(0)["message"] == \
+               "Signal attempted to create rescue for a service. Dispatch: please inject this case."
+
 
 async def test_announcer_invalid_platform(bot_fx, async_callable_fx, monkeypatch):
     """
@@ -176,6 +207,22 @@ async def test_manual_signal(bot_fx,
     assert rescue.platform == platform
     assert rescue.system == system
     assert rescue.code_red == code_red
+
+
+async def test_manual_signal_service_account(
+        bot_fx,
+        async_callable_fx,
+        monkeypatch):
+
+    context = await Context.from_message(
+        bot_fx,
+        "#unit_test",
+        "unit_test",
+        "Ratsignal some_service")
+
+    await ratmama.handle_ratsignal(context)
+
+    assert "some_service" not in context.bot.board
 
 
 async def test_manual_signal_duplicate(bot_fx, async_callable_fx, monkeypatch):

@@ -18,6 +18,7 @@ from src.config import CONFIG_MARKER
 from ..context import Context
 from ..rescue import Rescue
 from ..rules import rule
+from ..user import User
 from ..utils import Platforms
 
 
@@ -107,6 +108,14 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     o2_status: bool = result.group("o2") == "OK"  # false is CR
     lang_code: str = result.group("language_code")
     nickname: Optional[str] = result.group("nick")
+
+    client = await User.from_pydle(ctx.bot, client_name)
+
+    if client is not None and client.hostname in (
+                "services.fuelrats.com",
+                "bot.fuelrats.com"):
+        return await ctx.reply("Signal attempted to create rescue for a service. "
+                               "Dispatch: please inject this case.")
 
     exist_rescue: Optional[Rescue] = ctx.bot.board[
         client_name

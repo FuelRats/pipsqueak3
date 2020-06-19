@@ -83,6 +83,16 @@ class MockBot(MechaClient):
                 "account": "some_announcer",
                 "identified": True,
                 "realname": "RatMama"
+            },
+            "some_service": {
+                "nickname": "some_service",
+                "username": " Service",
+                "hostname": "services.fuelrats.com",
+                "away": False,
+                "away_message": None,
+                "account": " some_service",
+                "identified": True,
+                "realname": "White_Sheets"
             }
         }
 
