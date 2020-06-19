@@ -115,7 +115,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     """
 
     if ctx.user.nickname.casefold() not in (
-        nick.casefold() for nick in _config["ratsignal_parser"]["announcer_nicks"]
+        nick.casefold() for nick in _config.announcer_nicks
     ):
         return
 
@@ -267,9 +267,7 @@ async def handle_ratsignal(ctx: Context) -> None:
         platform=platform,
     )
     platform_signal = (
-        f"{rescue.platform.name.upper()}_SIGNAL" if rescue.platform else _config["ratsignal_parser"][
-            "trigger_keyword"]
-    )
+        f"{rescue.platform.name.upper()}_SIGNAL" if rescue.platform else _config.trigger_keyword    )
     await ctx.reply(
         f"Case created for {rescue.client}"
         f" on {rescue.platform.name if rescue.platform else '<unknown platform>'} in {rescue.system}. "
