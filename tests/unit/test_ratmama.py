@@ -152,8 +152,8 @@ async def test_announcer_reconnect_with_changes(bot_fx, async_callable_fx, monke
     await ratmama.handle_ratmama_announcement(context)
     await ratmama.handle_ratmama_announcement(context2)
 
-    assert async_callable_fx.was_called_with("System changed! Platform changed!"
-                                             " O2 Status changed, it is now CODE RED!")
+    assert async_callable_fx.was_called_with('Case #0 system, platform, O2 Status changed, '
+                                             'it is now CODE RED! O2 Status changed, it is now CODE RED!')
 
 
 async def test_announce_from_invalid_user(bot_fx, async_callable_fx, monkeypatch):

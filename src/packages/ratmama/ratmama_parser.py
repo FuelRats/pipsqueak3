@@ -158,7 +158,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         if not o2_status != exist_rescue.code_red:
             msg = "O2 Status changed!" if o2_status else "O2 Status changed, it is now CODE RED!"
             changed.append(msg)
-            await ctx.reply(f"{message}{','.join(changed)} {msg}")
+            await ctx.reply(f"{message}{', '.join(changed)} {msg}")
         return
 
     platform = None
