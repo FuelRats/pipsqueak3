@@ -57,7 +57,7 @@ CLEAR_PATTERN = (
 CMDR_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
-    + irc_name.setResultsName("new_cmdr")
+    + pyparsing.restOfLine.setResultsName("new_cmdr")
 )
 
 GRAB_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -227,7 +227,7 @@ async def cmd_case_management_cmdr(ctx: Context):
         return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.client = tokens.new_cmdr
+        case.client = tokens.new_cmdr.strip()
         await ctx.reply(f"Client for {case.board_index} is now CMDR {case.client}")
 
 
