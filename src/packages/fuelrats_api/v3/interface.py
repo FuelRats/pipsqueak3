@@ -48,14 +48,13 @@ class ApiV300Rest(FuelratsApiABC):
     async def find_nickname(self, key: str) -> Nickname:
         logger.trace("creating API session...")
         async with aiohttp.ClientSession(
-                raise_for_status=True,
-                timeout=aiohttp.ClientTimeout(total=5.0),
-                headers={
-                    "authorization": self.config.authorization} if self.config.authorization else {},
+            raise_for_status=True,
+            timeout=aiohttp.ClientTimeout(total=5.0),
+            headers={"authorization": self.config.authorization} if self.config.authorization else {},
         ) as session:
             logger.trace(f"requesting nick={key!r}")
             async with session.request(
-                    method="GET", url=f"{self.config.uri}/nicknames?nick={key}"
+                method="GET", url=f"{self.config.uri}/nicknames?nick={key}"
             ) as response:
                 data = await response.json()
                 logger.trace("got response, decoding")
@@ -134,8 +133,8 @@ class ApiV300WSS(FuelratsApiABC):
         """
         logger.info("creating new socket connection....")
         async with websockets.connect(
-                uri=f"{self.config.uri}?bearer={self.config.authorization}",
-                subprotocols=('FR-JSONAPI-WS',)
+            uri=f"{self.config.uri}?bearer={self.config.authorization}",
+            subprotocols=("FR-JSONAPI-WS",),
         ) as soc:
             logger.info("created.")
             self.connection = Connection(socket=soc)
@@ -158,11 +157,10 @@ class ApiV300WSS(FuelratsApiABC):
         pass
 
     async def _get_nicknames(self, key: str) -> Response:
-        work = Request(endpoint=["nicknames", "search"], query={"nick": key}, )
+        work = Request(endpoint=["nicknames", "search"], query={"nick": key},)
         # TODO: offline check
         logger.info(f"querying nickname {key}")
         return await self.connection.execute(work)
 
-
-    async def get_rats_from_nickname(self, key:str) -> List[Rat]:
+    async def get_rats_from_nickname(self, key: str) -> List[Rat]:
         ...
