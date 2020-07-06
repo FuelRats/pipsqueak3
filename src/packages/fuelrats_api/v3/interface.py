@@ -10,7 +10,8 @@ from ...rat import Rat
 from ...rescue import Rescue
 from prometheus_client import Histogram
 from loguru import logger
-
+import websockets
+import asyncio
 NICKNAME_TIME = Histogram(
     namespace="api",
     name="fetching_nicknames",
@@ -35,6 +36,9 @@ class ApiV300Rest(FuelratsApiABC):
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
         pass
 
+    def _call(self, query:str) -> asyncio.Future:
+        ...
+
     async def find_nickname(self, key: str) -> Nickname:
         logger.trace("creating API session...")
         async with aiohttp.ClientSession(
@@ -53,3 +57,4 @@ class ApiV300Rest(FuelratsApiABC):
                     f"retrieved nickname object {nickname.id!r} - {nickname.attributes.nick!r}"
                 )
                 return nickname
+
