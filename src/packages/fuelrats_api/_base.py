@@ -13,12 +13,21 @@ if typing.TYPE_CHECKING:
     from ._converter import ApiConverter
 
 
-@attr.s
+@attr.dataclass
+class ApiConfig:
+    online_mode: bool = attr.ib(validator=attr.validators.instance_of(bool))
+    uri: str = attr.ib(validator=attr.validators.instance_of(str))
+    authorization: Optional[str] = attr.ib(
+        validator=attr.validators.optional(attr.validators.instance_of(str))
+    )
+
+
+@attr.dataclass(eq=False)
 class FuelratsApiABC(abc.ABC):
     rat_converter: ApiConverter[Rat]
     rescue_converter: ApiConverter[Rescue]
-    url: str = attr.ib(default="https://localhost:80/api", validator=attr.validators.instance_of(str))
-    authorization: Optional[str] = attr.ib(default=None)
+    config: ApiConfig
+    __slots__ = ["rat_converter", "rescue_converter", "config"]
 
     @abc.abstractmethod
     async def get_rescues(self) -> typing.List[Rescue]:

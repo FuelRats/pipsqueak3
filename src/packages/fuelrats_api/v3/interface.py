@@ -1,17 +1,22 @@
+import asyncio
 import typing
+from typing import Optional
 from uuid import UUID
 
 import aiohttp
 import attr
-import json
+import websockets
+from loguru import logger
+from prometheus_client import Histogram
+
 from .models.v1.nickname import Nickname
-from .._base import FuelratsApiABC
+from .websocket.client import Connection
+from .websocket.protocol import Request
+from .._base import FuelratsApiABC, ApiConfig
 from ...rat import Rat
 from ...rescue import Rescue
-from prometheus_client import Histogram
-from loguru import logger
-import websockets
-import asyncio
+from ....config import CONFIG_MARKER, PLUGIN_MANAGER
+
 NICKNAME_TIME = Histogram(
     namespace="api",
     name="fetching_nicknames",
@@ -36,7 +41,7 @@ class ApiV300Rest(FuelratsApiABC):
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
         pass
 
-    def _call(self, query:str) -> asyncio.Future:
+    def _call(self, query: str) -> asyncio.Future:
         ...
 
     async def find_nickname(self, key: str) -> Nickname:
@@ -44,11 +49,11 @@ class ApiV300Rest(FuelratsApiABC):
         async with aiohttp.ClientSession(
             raise_for_status=True,
             timeout=aiohttp.ClientTimeout(total=5.0),
-            headers={"authorization": self.authorization} if self.authorization else {},
+            headers={"authorization": self.config.authorization} if self.config.authorization else {},
         ) as session:
             logger.trace(f"requesting nick={key!r}")
             async with session.request(
-                method="GET", url=f"{self.url}/nicknames?nick={key}"
+                method="GET", url=f"{self.config.uri}/nicknames?nick={key}"
             ) as response:
                 data = await response.json()
                 logger.trace("got response, decoding")
@@ -58,3 +63,96 @@ class ApiV300Rest(FuelratsApiABC):
                 )
                 return nickname
 
+
+@attr.dataclass(eq=False)
+class ApiV300WSS(FuelratsApiABC):
+    connection: Optional[Connection] = attr.ib(default=None)
+    """ underlying websocket """
+    def __attrs_post_init__(self):
+        PLUGIN_MANAGER.register(self)
+
+    @CONFIG_MARKER
+    def rehash_handler(self, data: typing.Dict):
+        """
+        Apply new configuration data
+
+        Args:
+            data (typing.Dict): new configuration data to apply.
+
+        """
+        # grab original for comparison
+        original = self.config
+        new_configuration = ApiConfig(**data["api"])
+
+        # apply new configuration
+        self.config = new_configuration
+
+        # If we don't have a connection (startup rehash) OR the configuration changed.
+        if not self.connection or original != new_configuration:
+            logger.info("New API configuration detected, applying changes...")
+            # TODO: handle pending futures prior to shutdown
+            self.connection.shutdown.set()
+
+            # abandon the existing connection, it shut shut itself down as the shutdown event is set.
+            self.connection = None
+            # only create a new connection
+            if self.config.online_mode:
+                # spawn new worker task
+                asyncio.create_task(self.run_task())
+        else:
+            logger.info("API handler took no action on rehash, nothing to change!")
+
+    @CONFIG_MARKER
+    def validate_config(self, data: typing.Dict):  # pylint: disable=unused-argument
+        """
+        Validate new configuration data.
+
+        Args:
+            data (typing.Dict): new configuration data  to validate
+
+        Raises:
+            ValueError:  config section failed to validate.
+            KeyError:  config section failed to validate.
+        """
+        relevant = data["api"]
+        # attempt to construct api configuration; if this succeeds the config is acceptable.
+        ApiConfig(**relevant)
+
+    async def run_task(self):
+        """
+        create and run
+        the
+        websocket, spawn
+        AS
+        A
+        TASK
+        """
+        async with websockets.connect(
+            uri=f"{self.config.uri}?bearer={self.config.authorization}"
+        ) as soc:
+            self.connection = Connection(socket=soc)
+            await self.connection.shutdown
+
+    async def get_rescues(self) -> typing.List[Rescue]:
+        pass
+
+    async def get_rescue(self, key: UUID) -> typing.Optional[Rescue]:
+        pass
+
+    async def create_rescue(self, rescue: Rescue) -> Rescue:
+        pass
+
+    async def update_rescue(self, rescue: Rescue) -> None:
+        pass
+
+    async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
+        pass
+
+    async def get_nickname(self, key: str) -> Nickname:
+        work = Request(endpoint="nickname", query={"nick": key},)
+        # TODO: offline check
+        logger.info(f"querying nickname {key}")
+        response = await self.connection.execute(work)
+        logger.debug("got response {!r}", response)
+
+    ...

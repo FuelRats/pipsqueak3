@@ -6,6 +6,7 @@ from typing import Dict, Any
 import attr
 import asyncio
 
+
 def state_factory() -> str:
     """ small factory to generate uuid4s as strings to stuff into a query state object """
     return f"{uuid.uuid4()}"
@@ -24,7 +25,7 @@ class Request:
     Request query information object, corresponding to the url query parameters you would send 
     in an HTTP request.
     """
-    body: Dict[Any, Any] = attr.ib(validator=attr.validators.instance_of(dict))
+    body: Dict[Any, Any] = attr.ib(validator=attr.validators.instance_of(dict), factory=dict)
     """
     The body data of the message, corresponding to the information you would have in the body of an 
     HTTP request.
@@ -39,12 +40,7 @@ class Request:
     def serialize(self) -> str:
         """ serializes this request into the form the websocket expects"""
 
-        frame = [
-            self.state,
-            self.endpoint,
-            self.query,
-            self.body
-        ]
+        frame = [self.state, self.endpoint, self.query, self.body]
         return json.dumps(frame)
 
 
@@ -66,4 +62,3 @@ class Response:
             Response object
         """
         return cls(*json.loads(raw))
-
