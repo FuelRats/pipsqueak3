@@ -74,4 +74,4 @@ async def cmd_get_nickname(context:Context):
     await context.reply("fetching....")
     result = await  context.bot.api_handler.get_nickname("ClappersClappyton")
     await context.reply("got a result!")
-    logger.debug("got nickname result {}", result)
+    logger.debug("got nickname result {!r}", result)

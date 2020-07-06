@@ -42,7 +42,8 @@ class Connection:
     def execute(self, work: Request) -> asyncio.Future:
 
         # create a future, representing the Response that will satisfy this work item
-        future = asyncio.Future()
+        loop = asyncio.get_event_loop()
+        future = loop.create_future()
         self._futures[work.state] = future
         # submit the item to the queue, for the tx_worker to pick up
         self._work.put_nowait(work)

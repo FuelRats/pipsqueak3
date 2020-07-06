@@ -1,6 +1,6 @@
 import asyncio
 import typing
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 import aiohttp
@@ -10,8 +10,9 @@ from loguru import logger
 from prometheus_client import Histogram
 
 from .models.v1.nickname import Nickname
+from .models.v1.rats import RatAttributes
 from .websocket.client import Connection
-from .websocket.protocol import Request
+from .websocket.protocol import Request, Response
 from .._base import FuelratsApiABC, ApiConfig
 from ...rat import Rat
 from ...rescue import Rescue
@@ -47,13 +48,14 @@ class ApiV300Rest(FuelratsApiABC):
     async def find_nickname(self, key: str) -> Nickname:
         logger.trace("creating API session...")
         async with aiohttp.ClientSession(
-            raise_for_status=True,
-            timeout=aiohttp.ClientTimeout(total=5.0),
-            headers={"authorization": self.config.authorization} if self.config.authorization else {},
+                raise_for_status=True,
+                timeout=aiohttp.ClientTimeout(total=5.0),
+                headers={
+                    "authorization": self.config.authorization} if self.config.authorization else {},
         ) as session:
             logger.trace(f"requesting nick={key!r}")
             async with session.request(
-                method="GET", url=f"{self.config.uri}/nicknames?nick={key}"
+                    method="GET", url=f"{self.config.uri}/nicknames?nick={key}"
             ) as response:
                 data = await response.json()
                 logger.trace("got response, decoding")
@@ -68,6 +70,7 @@ class ApiV300Rest(FuelratsApiABC):
 class ApiV300WSS(FuelratsApiABC):
     connection: Optional[Connection] = attr.ib(default=None)
     """ underlying websocket """
+
     def __attrs_post_init__(self):
         PLUGIN_MANAGER.register(self)
 
@@ -91,10 +94,12 @@ class ApiV300WSS(FuelratsApiABC):
         if not self.connection or original != new_configuration:
             logger.info("New API configuration detected, applying changes...")
             # TODO: handle pending futures prior to shutdown
-            self.connection.shutdown.set()
+            if self.connection:
+                self.connection.shutdown.set()
 
-            # abandon the existing connection, it shut shut itself down as the shutdown event is set.
-            self.connection = None
+                # abandon the existing connection, it shut shut itself down as the shutdown event
+                # is set.
+                self.connection = None
             # only create a new connection
             if self.config.online_mode:
                 # spawn new worker task
@@ -127,11 +132,15 @@ class ApiV300WSS(FuelratsApiABC):
         A
         TASK
         """
+        logger.info("creating new socket connection....")
         async with websockets.connect(
-            uri=f"{self.config.uri}?bearer={self.config.authorization}"
+                uri=f"{self.config.uri}?bearer={self.config.authorization}",
+                subprotocols=('FR-JSONAPI-WS',)
         ) as soc:
+            logger.info("created.")
             self.connection = Connection(socket=soc)
-            await self.connection.shutdown
+            logger.info("pending shutdown event...")
+            await self.connection.shutdown.wait()
 
     async def get_rescues(self) -> typing.List[Rescue]:
         pass
@@ -148,11 +157,12 @@ class ApiV300WSS(FuelratsApiABC):
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
         pass
 
-    async def get_nickname(self, key: str) -> Nickname:
-        work = Request(endpoint="nickname", query={"nick": key},)
+    async def _get_nicknames(self, key: str) -> Response:
+        work = Request(endpoint=["nicknames", "search"], query={"nick": key}, )
         # TODO: offline check
         logger.info(f"querying nickname {key}")
-        response = await self.connection.execute(work)
-        logger.debug("got response {!r}", response)
+        return await self.connection.execute(work)
 
-    ...
+
+    async def get_rats_from_nickname(self, key:str) -> List[Rat]:
+        ...

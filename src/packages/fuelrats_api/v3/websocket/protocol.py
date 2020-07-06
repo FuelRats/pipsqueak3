@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json
 import uuid
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 import attr
 import asyncio
@@ -14,7 +14,10 @@ def state_factory() -> str:
 
 @attr.dataclass
 class Request:
-    endpoint: str = attr.ib(validator=attr.validators.instance_of(str))
+    endpoint: List[str] = attr.ib(validator=attr.validators.deep_iterable(
+        member_validator=attr.validators.instance_of(str),
+        iterable_validator=attr.validators.instance_of(list)
+    ))
     """
     An array pointing to a specific resource you would like to make a request to, 
     this is basically the Websocket API equivalent to a URL, and the WebSocket endpoint equivalent
