@@ -23,20 +23,18 @@ class Relationship:
 
         # check if we have a links object
         if "links" in payload:
-            kwargs['links'] = {key: Link.from_dict(value) for key, value in payload['links'].items()}
+            kwargs["links"] = {key: Link.from_dict(value) for key, value in payload["links"].items()}
 
-        data = payload['data']
+        data = payload["data"]
         if isinstance(data, list):
             # list of identifiers
-            kwargs['data'] = [ObjectIdentifier(**item) for item in data]
+            kwargs["data"] = [ObjectIdentifier(**item) for item in data]
         elif isinstance(data, dict):
             # single identifier
-            kwargs['data'] = ObjectIdentifier(**data)
+            kwargs["data"] = ObjectIdentifier(**data)
         elif data is None:
             # null is permissible here
-            kwargs['data'] = None
+            kwargs["data"] = None
 
-        kwargs['meta'] = payload.get('meta', {})
-        return cls(
-            **kwargs
-        )
+        kwargs["meta"] = payload.get("meta", {})
+        return cls(**kwargs)

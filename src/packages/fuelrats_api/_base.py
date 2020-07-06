@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
+from typing import Optional
 from uuid import UUID
 
 import attr
@@ -17,6 +18,7 @@ class FuelratsApiABC(abc.ABC):
     rat_converter: ApiConverter[Rat]
     rescue_converter: ApiConverter[Rescue]
     url: str = attr.ib(default="https://localhost:80/api", validator=attr.validators.instance_of(str))
+    authorization: Optional[str] = attr.ib(default=None)
 
     @abc.abstractmethod
     async def get_rescues(self) -> typing.List[Rescue]:
@@ -36,8 +38,4 @@ class FuelratsApiABC(abc.ABC):
 
     @abc.abstractmethod
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
-        ...
-
-    @abc.abstractmethod
-    async def get_nickname(self, key: str, fuzzy=False):
         ...

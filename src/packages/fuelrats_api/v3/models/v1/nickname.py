@@ -16,10 +16,7 @@ class NicknameRelationships:
 
     @classmethod
     def from_dict(cls, data: typing.Dict):
-        return cls(
-            rat=Relationship.from_dict(data['rat']),
-            user=Relationship.from_dict(data['user'])
-        )
+        return cls(rat=Relationship.from_dict(data["rat"]), user=Relationship.from_dict(data["user"]))
 
 
 @attr.dataclass
@@ -53,6 +50,7 @@ class NicknameAttributes:
 @attr.dataclass
 class Nickname(Resource):
     """"""
+
     attributes: NicknameAttributes = attr.ib(factory=NicknameAttributes)
     relationships: typing.Optional[NicknameRelationships] = None
     type: typing.ClassVar[str] = "nicknames"
@@ -60,7 +58,7 @@ class Nickname(Resource):
     @classmethod
     def from_dict(cls, data) -> Nickname:
         return cls(
-            id=data['id'],
-            attributes=NicknameAttributes(**data['attributes']),
-            relationships=NicknameRelationships.from_dict(data['relationships'])
+            id=data["id"],
+            attributes=NicknameAttributes(**data["attributes"]),
+            relationships=NicknameRelationships.from_dict(data["relationships"]),
         )

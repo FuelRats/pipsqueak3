@@ -22,9 +22,9 @@ class RatRelationships:
     @classmethod
     def from_dict(cls, data: typing.Dict):
         return cls(
-            user=Relationship.from_dict(data['user']),
-            ships=Relationship.from_dict(data['ships']),
-            epics=Relationship.from_dict(data['epics']),
+            user=Relationship.from_dict(data["user"]),
+            ships=Relationship.from_dict(data["ships"]),
+            epics=Relationship.from_dict(data["epics"]),
         )
 
 
@@ -34,5 +34,6 @@ class RatAttributes:
     updatedat: datetime
     platform: Platforms = attr.ib(converter=platform_converter)
     frontierId: typing.Optional[str] = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(str)))
+        validator=attr.validators.optional(attr.validators.instance_of(str))
+    )
     data: typing.Dict = attr.ib(factory=dict, validator=attr.validators.instance_of(dict))

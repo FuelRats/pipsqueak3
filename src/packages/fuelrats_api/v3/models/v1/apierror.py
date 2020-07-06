@@ -10,13 +10,15 @@ from uuid import UUID, uuid4
 @attr.dataclass
 class Pointer:
     pointer: Optional[str] = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(str)), default=None)
+        validator=attr.validators.optional(attr.validators.instance_of(str)), default=None
+    )
     """
     If the error is a client error caused by an invalid entity in the request object a JSON pointer
     to it will be provided here.
     """
-    parameter: str = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(str)),
-                             default=None)
+    parameter: str = attr.ib(
+        validator=attr.validators.optional(attr.validators.instance_of(str)), default=None
+    )
     """
     If the error is a client error caused by a query parameter the name of the query parameter will 
     be provided here.
@@ -39,8 +41,7 @@ class ApiError:
 
     @classmethod
     def from_dict(cls, data: Dict) -> ApiError:
-        data['id_'] = data['id']
-        del data['id']
-        data['source'] = Pointer.from_dict(data['source'])
+        data["id_"] = data["id"]
+        del data["id"]
+        data["source"] = Pointer.from_dict(data["source"])
         return cls(**data)
-
