@@ -6,14 +6,11 @@ from datetime import datetime
 import attr
 from dateutil.parser import parse as parse_date
 
+from .converters import to_platform, to_datetime
 from ..jsonapi.relationship import Relationship
 from ..jsonapi.resource import Resource
 from .....rat import Rat as InternalRat
 from .....utils import Platforms
-
-
-def platform_converter(key: str):
-    return Platforms[key.upper()]
 
 
 @attr.dataclass
@@ -32,12 +29,12 @@ class RatRelationships:
 class RatAttributes:
     name: str = attr.ib(validator=attr.validators.instance_of(str))
     createdAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime), converter=parse_date
+        validator=attr.validators.instance_of(datetime), converter=to_datetime
     )
     updatedAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime), converter=parse_date
+        validator=attr.validators.instance_of(datetime), converter=to_datetime
     )
-    platform: Platforms = attr.ib(converter=platform_converter)
+    platform: Platforms = attr.ib(converter=to_platform)
     frontierId: typing.Optional[str] = attr.ib(
         validator=attr.validators.optional(attr.validators.instance_of(str))
     )
