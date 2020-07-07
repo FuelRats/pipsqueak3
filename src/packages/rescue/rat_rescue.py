@@ -16,6 +16,7 @@ from io import StringIO
 from typing import Union, Optional, List, TYPE_CHECKING, Dict
 from uuid import UUID, uuid4
 
+from dateutil.tz import tzutc
 from loguru import logger
 
 from ..epic import Epic
@@ -88,8 +89,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._platform: Platforms = platform
         self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else {}
-        self._created_at: datetime = created_at if created_at else datetime.utcnow()
-        self._updated_at: datetime = updated_at if updated_at else datetime.utcnow()
+        self._created_at: datetime = created_at if created_at else datetime.now(tz=tzutc())
+        self._updated_at: datetime = updated_at if updated_at else datetime.now(tz=tzutc())
         self._api_id: UUID = uuid if uuid else uuid4()
         self._client: str = client
         self._irc_nick: str = irc_nickname if irc_nickname else client

@@ -28,4 +28,9 @@ def test_deserialize():
 
 
 def test_from_internal(rescue_sop_fx):
-    ApiRescue.from_internal(rescue_sop_fx)
+    # assert we can build a API rescue from mecha's internal data model
+    rescue = ApiRescue.from_internal(rescue_sop_fx)
+
+    assert rescue.id == rescue_sop_fx.api_id
+    assert rescue.attributes.client == rescue_sop_fx.client
+    assert rescue.attributes.createdAt.tzinfo is not None
