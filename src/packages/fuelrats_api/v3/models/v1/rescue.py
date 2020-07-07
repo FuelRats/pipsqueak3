@@ -10,7 +10,7 @@ from ..jsonapi.resource import Resource
 from .....rescue import Rescue as InternalRescue
 from datetime import datetime
 from .converters import to_platform
-from dateutil.parser import  parse as parse_datetime
+from .converters import to_datetime
 @attr.dataclass
 class RescueAttributes:
     client: str = attr.ib(validator=attr.validators.instance_of(str))
@@ -38,8 +38,8 @@ class RescueAttributes:
             iterable_validator=attr.validators.instance_of(list)
         )
     )
-    createdAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime), converter=parse_datetime)
-    updatedAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime), converter=parse_datetime)
+    createdAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime), converter=to_datetime)
+    updatedAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime), converter=to_datetime)
     status: str = attr.ib(validator=attr.validators.instance_of(str))
     outcome: Optional[str] = attr.ib(
         validator=attr.validators.optional(attr.validators.instance_of(str))
