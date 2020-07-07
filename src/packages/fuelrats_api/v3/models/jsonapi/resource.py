@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
 
 @attr.dataclass
 class Resource:
-    id: UUID
+    id: UUID = attr.ib(converter=UUID)
     type: typing.ClassVar[str]
 
     attributes: typing.Optional[typing.Dict] = None

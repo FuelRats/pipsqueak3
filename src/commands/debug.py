@@ -11,6 +11,7 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from uuid import UUID
 
 from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
@@ -67,11 +68,35 @@ async def cmd_get_plugins(context: Context):
     names = [plugin[0] for plugin in plugins]
     await context.reply(",".join(names))
 
+
 @command("get_nickname_api")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_get_nickname(context:Context):
+async def cmd_get_nickname(context: Context):
     await context.reply("fetching....")
-    result = await  context.bot.api_handler.get_nickname("ClappersClappyton")
+    result = await  context.bot.api_handler.get_rat("ClappersClappyton")
     await context.reply("got a result!")
     logger.debug("got nickname result {!r}", result)
+
+
+@command("debug_ratid")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_ratid(context: Context):
+    target = context.words[-1]
+    await context.reply(f"acquiring ratids for {target!r}...")
+    api_rats = await context.bot.api_handler.get_rat(target)
+    await context.reply(",".join([f"{rat.uuid}" for rat in api_rats]))
+
+@command("debug_get_rat")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_debug_get_rat(context:Context):
+    target = context.words[-1]
+    try:
+        target = UUID(target)
+    except ValueError:
+        return await context.reply("invalid uuid.")
+    await context.reply(f"fetching uuid {target}...")
+    subject = await context.bot.api_handler.get_rat(target)
+    await context.reply(f"{subject} rats returned.")

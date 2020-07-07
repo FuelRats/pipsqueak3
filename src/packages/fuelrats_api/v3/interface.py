@@ -10,11 +10,11 @@ from loguru import logger
 from prometheus_client import Histogram
 
 from .models.v1.nickname import Nickname
-from .models.v1.rats import RatAttributes
+from .models.v1.rats import Rat as ApiRat
 from .websocket.client import Connection
 from .websocket.protocol import Request, Response
 from .._base import FuelratsApiABC, ApiConfig
-from ...rat import Rat
+from ...rat import Rat as InternalRat
 from ...rescue import Rescue
 from ....config import CONFIG_MARKER, PLUGIN_MANAGER
 
@@ -39,7 +39,7 @@ class ApiV300Rest(FuelratsApiABC):
     async def update_rescue(self, rescue: Rescue) -> None:
         pass
 
-    async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
+    async def get_rat(self, key: typing.Union[UUID, str]) -> InternalRat:
         pass
 
     def _call(self, query: str) -> asyncio.Future:
@@ -153,8 +153,14 @@ class ApiV300WSS(FuelratsApiABC):
     async def update_rescue(self, rescue: Rescue) -> None:
         pass
 
-    async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
-        pass
+    async def get_rat(self, key: typing.Union[UUID, str]) -> List[InternalRat]:
+        if isinstance(key, UUID):
+            results = await self._get_rat_uuid(key)
+            return []
+        if isinstance(key, str):
+            results = await self._get_rats_from_nickname(key)
+            return [rat.as_internal_rat() for rat in results]
+        raise TypeError(type(key))
 
     async def _get_nicknames(self, key: str) -> Response:
         work = Request(endpoint=["nicknames", "search"], query={"nick": key},)
@@ -162,5 +168,17 @@ class ApiV300WSS(FuelratsApiABC):
         logger.info(f"querying nickname {key}")
         return await self.connection.execute(work)
 
-    async def get_rats_from_nickname(self, key: str) -> List[Rat]:
-        ...
+    async def _get_rat_uuid(self, key: UUID):
+        work = Request(endpoint=["rats", "read"], query={"id": f"{key}"})
+        logger.debug("requesting rat {}", work)
+        return await self.connection.execute(work)
+
+    async def _get_rats_from_nickname(self, key: str) -> List[ApiRat]:
+        raw = await self._get_nicknames(key)
+        # If comparing types by equality triggers you, you arn't alone.
+        # Its not actually a type, but a string the API uses to represent one.
+        # meaning the below is just a string equality operation; nothing untoward here.
+        rats = [ApiRat.from_dict(obj) for obj in raw.body["included"] if obj["type"] == ApiRat.type]
+        logger.debug("filtered Rats from nickname result: {!r}", rats)
+
+        return rats

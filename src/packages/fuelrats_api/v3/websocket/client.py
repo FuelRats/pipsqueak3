@@ -5,6 +5,8 @@ from websockets.client import WebSocketClientProtocol
 from .protocol import Response, Request
 from loguru import logger
 
+from ..models.v1.apierror import APIException, ApiError
+
 
 class Connection:
     __slots__ = ["_socket", "_futures", "shutdown", "_work"]
@@ -25,11 +27,20 @@ class Connection:
             # async block read from socket
             raw = await self._socket.recv()
             response = Response.deserialize(raw)
+
             logger.debug("parsed response:= {!r}", response)
             # check if we had a future for this, if so complete it.
             if response.state in self._futures:
+                # if its an error return, then set the exception so the consumer raises.
+                if response.status != 200:
+                    self._futures[response.state].set_exception(
+                        APIException(ApiError.from_dict(response.body["errors"][0]))
+                    )
+                    continue
                 self._futures[response.state].set_result(response)
             else:
+                if response.status != 200:
+                    raise APIException(ApiError.from_dict(response.body["errors"][0]))
                 logger.warning("got unsolicited response {!r}", response)
 
     async def tx_worker(self):

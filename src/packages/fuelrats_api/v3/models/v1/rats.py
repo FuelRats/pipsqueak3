@@ -51,14 +51,10 @@ class Rat(Resource):
     type: typing.ClassVar[str] = "rats"
 
     @classmethod
-    def from_dict(cls, data: typing.Dict) -> Resource:
+    def from_dict(cls, data: typing.Dict) -> Rat:
         attributes = RatAttributes(**data["attributes"])
-        relationships = RatRelationships.from_dict(data['relationships'])
-        return cls(
-            attributes=attributes,
-            relationships=relationships,
-            id=data['id']
-        )
+        relationships = RatRelationships.from_dict(data["relationships"])
+        return cls(attributes=attributes, relationships=relationships, id=data["id"])
 
     def as_internal_rat(self) -> InternalRat:
         """

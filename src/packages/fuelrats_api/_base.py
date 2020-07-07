@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 import typing
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 import attr
@@ -46,5 +46,5 @@ class FuelratsApiABC(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
+    async def get_rat(self, key: typing.Union[UUID, str]) -> List[Rat]:
         ...

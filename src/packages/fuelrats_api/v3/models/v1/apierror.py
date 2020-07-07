@@ -45,3 +45,8 @@ class ApiError:
         del data["id"]
         data["source"] = Pointer.from_dict(data["source"])
         return cls(**data)
+
+
+class APIException(Exception):
+    def __init__(self, error: ApiError):
+        self.error: ApiError = error
