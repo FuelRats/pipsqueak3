@@ -4,9 +4,8 @@ import typing
 from datetime import datetime
 
 import attr
-from dateutil.parser import parse as parse_date
 
-from .converters import to_platform, to_datetime
+from src.packages.fuelrats_api.v3.converters import to_platform, to_datetime
 from ..jsonapi.relationship import Relationship
 from ..jsonapi.resource import Resource
 from .....rat import Rat as InternalRat

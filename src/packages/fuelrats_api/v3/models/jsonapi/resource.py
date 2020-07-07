@@ -8,11 +8,11 @@ import attr
 if typing.TYPE_CHECKING:
     from .relationship import Relationship
     from .link import Links
-
+from ...converters import to_uuid
 
 @attr.dataclass
 class Resource:
-    id: UUID = attr.ib(converter=UUID)
+    id: UUID = attr.ib(converter=to_uuid)
     type: typing.ClassVar[str]
 
     attributes: typing.Optional[typing.Dict] = None

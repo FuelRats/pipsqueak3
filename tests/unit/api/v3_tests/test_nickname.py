@@ -1,5 +1,6 @@
 import json
 from importlib import resources
+from uuid import UUID
 
 import pytest
 
@@ -19,7 +20,7 @@ def test_parse():
     payload = json.loads(raw)
 
     nickname = Nickname.from_dict(payload['data'][0])
-    assert nickname.id == 21
-    assert nickname.attributes.vhost is None
-    assert nickname.attributes.nick == "unknown"
+    assert nickname.id == UUID('00000000-0000-4000-0000-000000000048')
+    assert nickname.attributes.vhost == "clapton.recruit.fuelrats.com"
+    assert nickname.attributes.nick == "ClappersClappyton"
     assert nickname.relationships.rat.links

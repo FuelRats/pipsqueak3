@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Union
+from uuid import UUID
 
 from dateutil.parser import parse as datetime_parser
 
-from .....utils import Platforms
+from src.packages.utils import Platforms
 
 
 def to_platform(key: str):
@@ -23,3 +24,17 @@ def to_datetime(raw: Union[str, datetime]) -> datetime:
     if isinstance(raw, datetime):
         return raw
     return datetime_parser(raw)
+
+
+def from_datetime(date: datetime) -> str:
+    """
+    converts a datetime object back to a ISO string
+    """
+    return date.isoformat().replace("+00:00", "Z")
+
+
+def to_uuid(raw: Union[str, UUID]) -> UUID:
+    """ idempotent UUID constructor """
+    if not isinstance(raw, UUID):
+        return UUID(raw)
+    return raw
