@@ -6,6 +6,7 @@ from uuid import UUID
 import pytest
 
 from src.packages.fuelrats_api.v3.models.v1.rescue import Rescue as ApiRescue
+from src.packages.rescue import Rescue as InternalRescue
 from .. import v3_tests
 
 pytestmark = [pytest.mark.unit, pytest.mark.api_v3]
@@ -34,3 +35,18 @@ def test_from_internal(rescue_sop_fx):
     assert rescue.id == rescue_sop_fx.api_id
     assert rescue.attributes.client == rescue_sop_fx.client
     assert rescue.attributes.createdAt.tzinfo is not None
+
+
+def test_to_internal(rescue_sop_fx):
+    """ verify converting a rescue to and from an API datamodel produces an equivalent object """
+    rescue = ApiRescue.from_internal(rescue_sop_fx)
+    rescue = rescue.as_internal()
+    assert rescue_sop_fx == rescue, "unequivalent rescues created!"
+
+def test_to_internal_w_quotes():
+    """ convert a rescue to the API datamodel with quotes. """
+    rescue = InternalRescue(client = "someone")
+    rescue.system = "somewhere"
+    rescue.add_quote("some message")
+    rescue.add_quote("some other message")
+    api_rescue = ApiRescue.from_internal(rescue)

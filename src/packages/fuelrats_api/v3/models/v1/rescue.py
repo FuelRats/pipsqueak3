@@ -128,7 +128,7 @@ class Rescue(Resource):
             quotes=[quote.as_internal() for quote in self.attributes.quotes],
             title=self.attributes.title,
             first_limpet=self.relationships.firstLimpet.data.id
-            if self.relationships.firstLimpet.data
+            if self.relationships and self.relationships.firstLimpet.data
             else None,
             board_index=self.attributes.commandIdentifier,
             lang_id=self.attributes.clientLanguage,

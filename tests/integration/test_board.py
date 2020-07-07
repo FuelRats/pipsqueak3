@@ -2,7 +2,7 @@ import pytest
 
 from src.packages.utils import Status, Platforms
 
-pytestmark = [pytest.mark.fuelrats_api, pytest.mark.asyncio, pytest.mark.integration]
+pytestmark = [pytest.mark.asyncio, pytest.mark.integration, pytest.mark.api_v3]
 
 async def test_create_rescue(board_online_fx, rescue_plain_fx):
     pytest.xfail("TODO: mock component")

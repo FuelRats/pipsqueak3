@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import typing
+from typing import Optional
 from uuid import UUID
 
 import attr
@@ -12,7 +13,7 @@ from ...converters import to_uuid
 
 @attr.dataclass
 class Resource:
-    id: UUID = attr.ib(converter=to_uuid)
+    id: Optional[UUID] = attr.ib(converter=attr.converters.optional(to_uuid))
     type: typing.ClassVar[str]
 
     attributes: typing.Optional[typing.Dict] = None
