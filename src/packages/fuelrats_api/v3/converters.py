@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
-from typing import Union
+from typing import Union, Any
 from uuid import UUID
 
 from dateutil.parser import parse as datetime_parser
@@ -38,3 +39,13 @@ def to_uuid(raw: Union[str, UUID]) -> UUID:
     if not isinstance(raw, UUID):
         return UUID(raw)
     return raw
+
+
+class CustomJsonSerializer(json.JSONEncoder):
+    """ custom JSON serializer class because some objects stdlib json throws a fit at. """
+    def default(self, o: Any) -> Any:
+        if isinstance(o, UUID):
+            return f"{o}"
+        if isinstance(o, datetime):
+            return from_datetime(o)
+        return super().default(o)

@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 import attr
 from ..jsonapi.link import Links
+from ...converters import to_uuid
 from uuid import UUID, uuid4
 
 
@@ -31,7 +32,7 @@ class Pointer:
 
 @attr.dataclass
 class ApiError:
-    id_: UUID = attr.ib(converter=UUID)
+    id_: UUID = attr.ib(converter=to_uuid)
     links: Links = attr.ib(validator=attr.validators.instance_of(dict))
     status: str = attr.ib(validator=attr.validators.instance_of(str))
     code: int = attr.ib(validator=attr.validators.instance_of(int))
