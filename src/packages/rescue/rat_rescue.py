@@ -780,7 +780,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             ```
         """
         yield
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(tz=tzutc())
 
     # TODO: to/from json
     # TODO: track changes
