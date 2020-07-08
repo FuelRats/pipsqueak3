@@ -10,7 +10,7 @@ from loguru import logger
 from prometheus_client import Histogram
 
 from .models.v1.nickname import Nickname
-from .models.v1.rats import Rat as ApiRat
+from .models.v1.rats import Rat as ApiRat, RAT_TYPE
 from .models.v1.rescue import Rescue as ApiRescue
 from .websocket.client import Connection
 from .websocket.protocol import Request, Response
@@ -184,7 +184,7 @@ class ApiV300WSS(FuelratsApiABC):
         # If comparing types by equality triggers you, you arn't alone.
         # Its not actually a type, but a string the API uses to represent one.
         # meaning the below is just a string equality operation; nothing untoward here.
-        rats = [ApiRat.from_dict(obj) for obj in raw.body["included"] if obj["type"] == ApiRat.type]
+        rats = [ApiRat.from_dict(obj) for obj in raw.body["included"] if obj["type"] == RAT_TYPE]
         logger.debug("filtered Rats from nickname result: {!r}", rats)
 
         return rats

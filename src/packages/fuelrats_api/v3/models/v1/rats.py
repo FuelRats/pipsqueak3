@@ -11,6 +11,8 @@ from ..jsonapi.resource import Resource
 from .....rat import Rat as InternalRat
 from .....utils import Platforms
 
+RAT_TYPE = "rats"
+
 
 @attr.dataclass
 class RatRelationships:
@@ -44,7 +46,7 @@ class RatAttributes:
 class Rat(Resource):
     attributes: RatAttributes = attr.ib(factory=RatAttributes)
     relationships: typing.Optional[RatRelationships] = None
-    type: str = "rats"
+    type: str = RAT_TYPE
 
     @classmethod
     def from_dict(cls, data: typing.Dict) -> Rat:
