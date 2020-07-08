@@ -11,6 +11,7 @@ from prometheus_client import Histogram
 
 from .models.v1.nickname import Nickname
 from .models.v1.rats import Rat as ApiRat
+from .models.v1.rescue import Rescue as ApiRescue
 from .websocket.client import Connection
 from .websocket.protocol import Request, Response
 from .._base import FuelratsApiABC, ApiConfig
@@ -148,7 +149,12 @@ class ApiV300WSS(FuelratsApiABC):
         pass
 
     async def create_rescue(self, rescue: Rescue) -> Rescue:
-        pass
+        work = Request(
+            endpoint=["rescues", "create"],
+            query={},
+            body={'data': attr.asdict(ApiRescue.from_internal(rescue), recurse=True)},
+        )
+        return await self.connection.execute(work)
 
     async def update_rescue(self, rescue: Rescue) -> None:
         pass

@@ -43,10 +43,12 @@ def test_to_internal(rescue_sop_fx):
     rescue = rescue.as_internal()
     assert rescue_sop_fx == rescue, "unequivalent rescues created!"
 
+
 def test_to_internal_w_quotes():
     """ convert a rescue to the API datamodel with quotes. """
-    rescue = InternalRescue(client = "someone")
+    rescue = InternalRescue(client="someone")
     rescue.system = "somewhere"
     rescue.add_quote("some message")
     rescue.add_quote("some other message")
     api_rescue = ApiRescue.from_internal(rescue)
+    assert api_rescue.attributes.quotes

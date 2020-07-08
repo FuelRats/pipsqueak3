@@ -44,7 +44,7 @@ class RatAttributes:
 class Rat(Resource):
     attributes: RatAttributes = attr.ib(factory=RatAttributes)
     relationships: typing.Optional[RatRelationships] = None
-    type: typing.ClassVar[str] = "rats"
+    type: str = "rats"
 
     @classmethod
     def from_dict(cls, data: typing.Dict) -> Rat:

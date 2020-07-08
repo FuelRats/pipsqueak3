@@ -65,7 +65,7 @@ class RescueAttributes:
     @classmethod
     def from_dict(cls, data: Dict) -> RescueAttributes:
         data = data.copy()  # shallow copy because callers might get confused if we mutate theirs...
-        data['quotes'] = [Quotation.from_dict(obj) for obj in data['quotes']]
+        data["quotes"] = [Quotation.from_dict(obj) for obj in data["quotes"]]
         return cls(**data)
 
     @classmethod
@@ -86,7 +86,7 @@ class RescueAttributes:
             status=data.status.name.lower(),
             outcome=data.outcome,
             quotes=[Quotation.from_internal(obj) for obj in data.quotes],
-            commandIdentifier=data.board_index
+            commandIdentifier=data.board_index,
         )
 
 
@@ -99,7 +99,7 @@ class RescueRelationships:
 
 @attr.dataclass
 class Rescue(Resource):
-    type = "rescues"
+    type: str = "rescues"
     attributes: Optional[RescueAttributes] = None
     relationships: Optional[RescueRelationships] = None
 
@@ -113,7 +113,7 @@ class Rescue(Resource):
         return cls(
             id=data["id"],
             relationships=relationships,
-            attributes=RescueAttributes.from_dict(data['attributes']),
+            attributes=RescueAttributes.from_dict(data["attributes"]),
         )
 
     def as_internal(self) -> InternalRescue:
@@ -132,13 +132,9 @@ class Rescue(Resource):
             else None,
             board_index=self.attributes.commandIdentifier,
             lang_id=self.attributes.clientLanguage,
-
             # TODO rest of attributes
         )
 
     @classmethod
     def from_internal(cls, data: InternalRescue) -> Rescue:
-        return Rescue(
-            id=data.api_id,
-            attributes=RescueAttributes.from_internal(data)
-        )
+        return Rescue(id=data.api_id, attributes=RescueAttributes.from_internal(data))

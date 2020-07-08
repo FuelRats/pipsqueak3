@@ -88,10 +88,11 @@ async def cmd_ratid(context: Context):
     api_rats = await context.bot.api_handler.get_rat(target)
     await context.reply(",".join([f"{rat.uuid}" for rat in api_rats]))
 
+
 @command("debug_get_rat")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_debug_get_rat(context:Context):
+async def cmd_debug_get_rat(context: Context):
     target = context.words[-1]
     try:
         target = UUID(target)
@@ -100,3 +101,12 @@ async def cmd_debug_get_rat(context:Context):
     await context.reply(f"fetching uuid {target}...")
     subject = await context.bot.api_handler.get_rat(target)
     await context.reply(f"{subject} rats returned.")
+
+@command("debug_summoncase")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_debug_summoncase(context:Context):
+    await context.reply("summoning case....")
+    rescue = await context.bot.board.create_rescue(client="some_client")
+    something = await context.bot.api_handler.create_rescue(rescue)
+    await context.reply("done.")

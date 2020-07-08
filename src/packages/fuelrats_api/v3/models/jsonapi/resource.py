@@ -11,10 +11,11 @@ if typing.TYPE_CHECKING:
     from .link import Links
 from ...converters import to_uuid
 
+
 @attr.dataclass
 class Resource:
     id: Optional[UUID] = attr.ib(converter=attr.converters.optional(to_uuid))
-    type: typing.ClassVar[str]
+    type: str = "Resource"
 
     attributes: typing.Optional[typing.Dict] = None
     relationships: typing.Optional[typing.Dict[str, Relationship]] = None

@@ -16,13 +16,17 @@ class QuotationAttributes:
     message: str = attr.ib(validator=attr.validators.instance_of(str))
     author: str = attr.ib(validator=attr.validators.instance_of(str))
     lastAuthor: str = attr.ib(validator=attr.validators.instance_of(str))
-    createdAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime), converter=to_datetime)
-    updatedAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime), converter=to_datetime)
+    createdAt: datetime = attr.ib(
+        validator=attr.validators.instance_of(datetime), converter=to_datetime
+    )
+    updatedAt: datetime = attr.ib(
+        validator=attr.validators.instance_of(datetime), converter=to_datetime
+    )
 
 
 @attr.dataclass
 class Quotation(Resource):
-    type = "quotations"
+    type: str = "quotations"
     attributes: Optional[QuotationAttributes] = None
 
     @classmethod
