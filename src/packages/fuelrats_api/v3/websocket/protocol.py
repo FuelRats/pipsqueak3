@@ -5,7 +5,7 @@ from typing import Dict, Any, List
 
 import attr
 import asyncio
-
+from ..converters import CustomJsonSerializer
 
 def state_factory() -> str:
     """ small factory to generate uuid4s as strings to stuff into a query state object """
@@ -46,7 +46,7 @@ class Request:
         """ serializes this request into the form the websocket expects"""
 
         frame = [self.state, self.endpoint, self.query, self.body]
-        return json.dumps(frame)
+        return json.dumps(frame, cls=CustomJsonSerializer)
 
 
 @attr.dataclass

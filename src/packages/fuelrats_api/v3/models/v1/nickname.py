@@ -53,7 +53,7 @@ class Nickname(Resource):
 
     attributes: NicknameAttributes = attr.ib(factory=NicknameAttributes)
     relationships: typing.Optional[NicknameRelationships] = None
-    type: typing.ClassVar[str] = "nicknames"
+    type: str = "nicknames"
 
     @classmethod
     def from_dict(cls, data) -> Nickname:
