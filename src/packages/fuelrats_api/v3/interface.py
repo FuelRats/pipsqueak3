@@ -1,6 +1,5 @@
 import asyncio
-import typing
-from typing import Optional, List
+from typing import Optional, List, Dict, Union
 from uuid import UUID
 
 import aiohttp
@@ -28,10 +27,10 @@ NICKNAME_TIME = Histogram(
 
 
 class ApiV300Rest(FuelratsApiABC):
-    async def get_rescues(self) -> typing.List[Rescue]:
+    async def get_rescues(self) -> List[Rescue]:
         pass
 
-    async def get_rescue(self, key: UUID) -> typing.Optional[Rescue]:
+    async def get_rescue(self, key: UUID) -> Optional[Rescue]:
         pass
 
     async def create_rescue(self, rescue: Rescue) -> Rescue:
@@ -40,7 +39,7 @@ class ApiV300Rest(FuelratsApiABC):
     async def update_rescue(self, rescue: Rescue) -> None:
         pass
 
-    async def get_rat(self, key: typing.Union[UUID, str]) -> InternalRat:
+    async def get_rat(self, key: Union[UUID, str]) -> InternalRat:
         pass
 
     def _call(self, query: str) -> asyncio.Future:
@@ -49,13 +48,14 @@ class ApiV300Rest(FuelratsApiABC):
     async def find_nickname(self, key: str) -> Nickname:
         logger.trace("creating API session...")
         async with aiohttp.ClientSession(
-            raise_for_status=True,
-            timeout=aiohttp.ClientTimeout(total=5.0),
-            headers={"authorization": self.config.authorization} if self.config.authorization else {},
+                raise_for_status=True,
+                timeout=aiohttp.ClientTimeout(total=5.0),
+                headers={
+                    "authorization": self.config.authorization} if self.config.authorization else {},
         ) as session:
             logger.trace(f"requesting nick={key!r}")
             async with session.request(
-                method="GET", url=f"{self.config.uri}/nicknames?nick={key}"
+                    method="GET", url=f"{self.config.uri}/nicknames?nick={key}"
             ) as response:
                 data = await response.json()
                 logger.trace("got response, decoding")
@@ -70,17 +70,19 @@ class ApiV300Rest(FuelratsApiABC):
 class ApiV300WSS(FuelratsApiABC):
     connection: Optional[Connection] = attr.ib(default=None)
     """ underlying websocket """
+    connected_event: asyncio.Event = attr.ib(factory=asyncio.Event)
 
     def __attrs_post_init__(self):
         PLUGIN_MANAGER.register(self)
+        asyncio.create_task(self.run_task())
 
     @CONFIG_MARKER
-    def rehash_handler(self, data: typing.Dict):
+    def rehash_handler(self, data: Dict):
         """
         Apply new configuration data
 
         Args:
-            data (typing.Dict): new configuration data to apply.
+            data (Dict): new configuration data to apply.
 
         """
         # grab original for comparison
@@ -108,12 +110,12 @@ class ApiV300WSS(FuelratsApiABC):
             logger.info("API handler took no action on rehash, nothing to change!")
 
     @CONFIG_MARKER
-    def validate_config(self, data: typing.Dict):  # pylint: disable=unused-argument
+    def validate_config(self, data: Dict):  # pylint: disable=unused-argument
         """
         Validate new configuration data.
 
         Args:
-            data (typing.Dict): new configuration data  to validate
+            data (Dict): new configuration data  to validate
 
         Raises:
             ValueError:  config section failed to validate.
@@ -134,32 +136,42 @@ class ApiV300WSS(FuelratsApiABC):
         """
         logger.info("creating new socket connection....")
         async with websockets.connect(
-            uri=f"{self.config.uri}?bearer={self.config.authorization}",
-            subprotocols=("FR-JSONAPI-WS",),
+                uri=f"{self.config.uri}?bearer={self.config.authorization}",
+                subprotocols=("FR-JSONAPI-WS",),
         ) as soc:
             logger.info("created.")
             self.connection = Connection(socket=soc)
+            self.connected_event.set()
             logger.info("pending shutdown event...")
             await self.connection.shutdown.wait()
 
-    async def get_rescues(self) -> typing.List[Rescue]:
+    async def get_rescues(self) -> List[Rescue]:
         pass
 
-    async def get_rescue(self, key: UUID) -> typing.Optional[Rescue]:
+    async def get_rescue(self, key: UUID) -> Optional[Rescue]:
         pass
+
+    async def ensure_connection(self):
+        logger.debug("waiting for the connected event to be set...")
+        await self.connected_event.wait()
+        logger.trace("connected event is set!")
 
     async def create_rescue(self, rescue: Rescue) -> Rescue:
+        await self.ensure_connection()
         work = Request(
             endpoint=["rescues", "create"],
             query={},
             body={'data': attr.asdict(ApiRescue.from_internal(rescue), recurse=True)},
         )
-        return await self.connection.execute(work)
+        result = await self.connection.execute(work)
+        # if we get this far, we got a OK response; which means the data field contains our rescue.
+        return ApiRescue.from_dict(result.body['data']).as_internal()
 
     async def update_rescue(self, rescue: Rescue) -> None:
         pass
 
-    async def get_rat(self, key: typing.Union[UUID, str]) -> List[InternalRat]:
+    async def get_rat(self, key: Union[UUID, str]) -> List[InternalRat]:
+        await self.ensure_connection()
         if isinstance(key, UUID):
             results = await self._get_rat_uuid(key)
             return []
@@ -169,17 +181,23 @@ class ApiV300WSS(FuelratsApiABC):
         raise TypeError(type(key))
 
     async def _get_nicknames(self, key: str) -> Response:
-        work = Request(endpoint=["nicknames", "search"], query={"nick": key},)
+        await self.ensure_connection()
+
+        work = Request(endpoint=["nicknames", "search"], query={"nick": key}, )
         # TODO: offline check
         logger.info(f"querying nickname {key}")
         return await self.connection.execute(work)
 
     async def _get_rat_uuid(self, key: UUID):
+        await self.ensure_connection()
+
         work = Request(endpoint=["rats", "read"], query={"id": f"{key}"})
         logger.debug("requesting rat {}", work)
         return await self.connection.execute(work)
 
     async def _get_rats_from_nickname(self, key: str) -> List[ApiRat]:
+        await self.ensure_connection()
+
         raw = await self._get_nicknames(key)
         # If comparing types by equality triggers you, you arn't alone.
         # Its not actually a type, but a string the API uses to represent one.
