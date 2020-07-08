@@ -11,6 +11,8 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+from typing import Optional
+
 from loguru import logger
 from uuid import uuid4
 
@@ -44,7 +46,7 @@ class MechaClient(Client):
             **kwargs (list): keyword arguments
 
         """
-        self._api_handler: ApiV300WSS = ApiV300WSS()
+        self._api_handler: Optional[ApiV300WSS] = None
         self._fact_manager = None  # Instantiate Global Fact Manager
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
@@ -153,6 +155,8 @@ class MechaClient(Client):
         """
         API Handler property
         """
+        if not self._api_handler:
+            self._api_handler = ApiV300WSS(config=ApiConfig(**self._config['api']))
         return self._api_handler
 
     @property
