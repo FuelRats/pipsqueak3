@@ -2,10 +2,14 @@ from __future__ import annotations
 import json
 import uuid
 from typing import Dict, Any, List
+from uuid import UUID
+from ..converters import to_uuid
 
+from loguru import logger
 import attr
 import asyncio
 from ..converters import CustomJsonSerializer
+
 
 def state_factory() -> str:
     """ small factory to generate uuid4s as strings to stuff into a query state object """
@@ -66,4 +70,20 @@ class Response:
         Returns:
             Response object
         """
-        return cls(*json.loads(raw))
+        state, status, body, *erroneous = json.loads(raw)
+        if erroneous:
+            logger.error("Failed to parse API response!")
+        return cls(state=state, status=status, body=body)
+
+
+@attr.dataclass
+class Event:
+    """
+    API Event response
+    """
+    event: str = attr.ib(validator=attr.validators.instance_of(str))
+    sender: UUID = attr.ib(validator=attr.validators.instance_of(UUID), converter=to_uuid)
+    obj_id: UUID = attr.ib(validator=attr.validators.instance_of(UUID), converter=to_uuid)
+    data: Dict = attr.ib(validator=attr.validators.instance_of(dict))
+
+
