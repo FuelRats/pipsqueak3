@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 from contextlib import contextmanager
 from datetime import datetime
 from io import StringIO
-from typing import Union, Optional, List, TYPE_CHECKING, Dict
+from typing import Union, Optional, List, TYPE_CHECKING, Dict, Set
 from uuid import UUID, uuid4
 
 from dateutil.tz import tzutc
@@ -86,6 +86,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
             rats (list): identified Rat(s) assigned to rescue.
             platform(Platforms): Platform for rescue
         """
+        self.modified: Set[str] = set()
+
         self._platform: Platforms = platform
         self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else {}
@@ -162,6 +164,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if isinstance(value, Status):
             self._status = value
+
+            self.modified.add("status")
         else:
             raise TypeError
 
@@ -188,6 +192,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if isinstance(value, str):
             self._irc_nick = value
+
+            self.modified.add("irc_nick")
         else:
             raise TypeError
 
@@ -210,6 +216,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if isinstance(value, str):
             self._lang_id = value
+
+            self.modified.add("lang_id")
         else:
             raise TypeError
 
@@ -228,6 +236,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if isinstance(value, Platforms):
             self._platform = value
+
+            self.modified.add("platform")
         else:
             raise TypeError(f"expected a Platforms, got type {type(value)}")
 
@@ -259,6 +269,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if isinstance(value, UUID):
             self._first_limpet = value
+
+            self.modified.add("first_limpet")
         else:
             # the value wasn't a uuid, but lets try and coerce it into one.
             try:
@@ -270,6 +282,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
             else:
                 # the attempt succeeded, lets assign it.
                 self._first_limpet = guid
+
+                self.modified.add("first_limpet")
 
     @property
     def board_index(self) -> int or None:
@@ -298,6 +312,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         if isinstance(value, int) or value is None:
             if value is None or value >= 0:
                 self._board_index = value
+
+                self.modified.add("board_index")
             else:
                 raise ValueError("Value must be greater than or equal to zero,"
                                  " or None.")
@@ -338,6 +354,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
             None
         """
         self._client = value
+
+        self.modified.add("client")
 
     @property
     def created_at(self) -> datetime:
@@ -388,9 +406,14 @@ class Rescue:  # pylint: disable=too-many-public-methods
 
         if value is None:
             # System must be nullable, so we specifically check for it
-            self._system = value
+            self._system = None
+
+            self.modified.add("system")
+            return
         # for API v2.1 compatibility reasons we cast to upper case
         self._system = value.upper()
+
+        self.modified.add("system")
 
     @property
     def active(self) -> bool:
@@ -451,6 +474,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if isinstance(value, list):
             self._quotes = value
+
+            self.modified.add("quotes")
         else:
             raise ValueError(f"expected type list, got {type(value)}")
 
@@ -506,6 +531,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         if value < self.created_at:
             raise ValueError(f"{value} is older than the cases creation date!")
         self._updated_at = value
+
+        self.modified.add("updated_at")
 
     @property
     def unidentified_rats(self) -> Dict[str, Rat]:
@@ -600,6 +627,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
     def code_red(self, value: bool):
         if isinstance(value, bool):
             self._code_red = value
+
+            self.modified.add("code_red")
         else:
             raise TypeError(f"expected type bool, got {type(value)}")
 
@@ -641,6 +670,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if value is None or isinstance(value, str):
             self._title = value
+
+            self.modified.add("title")
         else:
             raise TypeError(f"expected type None or str, got {type(value)}")
 
@@ -670,6 +701,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if isinstance(value, MarkForDeletion):
             self._mark_for_deletion = value
+
+            self.modified.add("mark_for_deletion")
         else:
             raise TypeError(f"got {type(value)} expected MarkForDeletion object")
 
@@ -697,6 +730,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         """
         if isinstance(value, dict):
             self._rats = value
+
+            self.modified.add("rats")
 
         else:
             raise TypeError(f"expected type list got {type(value)}")
