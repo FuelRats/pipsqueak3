@@ -212,7 +212,7 @@ class MechaClient(Client, MessageHistoryClient):
         self._fact_manager = None
 
     @property
-    def api_handler(self) -> object:
+    def api_handler(self) -> ApiV300WSS:
         """
         API Handler property
         """

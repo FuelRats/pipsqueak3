@@ -111,3 +111,12 @@ async def cmd_debug_summoncase(context: Context):
     rescue = await context.bot.board.create_rescue(client="some_client")
     something = await context.bot.api_handler.create_rescue(rescue)
     await context.reply("done.")
+
+
+@command("debug_fetch_rescues")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_debug_fetch(context: Context):
+    await context.reply("fetching...")
+    results = await context.bot.api_handler._get_open_rescues()
+    await context.reply(f"{len(results)} open cases detected.")
