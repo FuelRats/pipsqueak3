@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Union, Iterator
 from uuid import UUID
 
 import aiohttp
@@ -195,13 +195,14 @@ class ApiV300WSS(FuelratsApiABC):
         logger.debug("requesting rat {}", work)
         return await self.connection.execute(work)
 
-    async def _get_open_rescues(self) -> List[ApiRescue]:
+    async def _get_open_rescues(self) -> Iterator[ApiRescue]:
         await self.ensure_connection()
         work = Request(endpoint=["rescues", "search"], query={'filter': {"status": {"eq": "open"}}},
                        body={})
         logger.trace("requesting open rescues...")
         results = await self.connection.execute(work)
-        return [ApiRescue.from_dict(obj) for obj in results.body['data']]
+        # Iterators are less expensive than comprehensions (differed compute).
+        return (ApiRescue.from_dict(obj) for obj in results.body['data'])
 
 
     async def _get_rats_from_nickname(self, key: str) -> List[ApiRat]:

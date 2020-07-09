@@ -118,5 +118,5 @@ async def cmd_debug_summoncase(context: Context):
 @require_permission(TECHRAT)
 async def cmd_debug_fetch(context: Context):
     await context.reply("fetching...")
-    results = await context.bot.api_handler._get_open_rescues()
+    results = await context.bot.api_handler.get_rescues()
     await context.reply(f"{len(results)} open cases detected.")
