@@ -11,24 +11,59 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
+import functools
+
 from typing import Optional
 
 from loguru import logger
 from uuid import uuid4
 
 from pydle import Client
+from .packages.board import RatBoard
+from .packages.commands import trigger
+from .packages.fuelrats_api.v3.interface import ApiV300WSS, ApiConfig
+from .packages.permissions import require_permission, TECHRAT
+from .packages.context.context import Context
+from .packages.fact_manager.fact_manager import FactManager
+from .packages.galaxy import Galaxy
+from .packages.graceful_errors import graceful_errors
+from .packages.utils import sanitize
+from .features.message_history import MessageHistoryClient
 
-from src.packages.board import RatBoard
-from src.packages.commands import trigger
-from src.packages.context.context import Context
-from src.packages.fact_manager.fact_manager import FactManager
-from src.packages.galaxy import Galaxy
-from src.packages.graceful_errors import graceful_errors
-from src.packages.utils import sanitize
-from src.packages.fuelrats_api.v3.interface import ApiV300WSS, ApiConfig
+from typing import Dict
+from datetime import datetime, timezone
+import prometheus_client
+from prometheus_async.aio import time as aio_time
+
+ON_MESSAGE_TIME = prometheus_client.Histogram(
+    name="on_message",
+    namespace="client",
+    documentation="time in on_message",
+    unit="seconds"
+)
+TRACKED_MESSAGES = prometheus_client.Gauge(
+    namespace="client",
+    name="tracked_messages",
+    documentation="number of last messages tracked"
+)
+IGNORED_MESSAGES = prometheus_client.Counter(
+    name="ignored_messages",
+    namespace="client",
+    documentation="messages ignored by the client."
+)
+ERRORS = prometheus_client.Counter(
+    name="errors",
+    namespace="client",
+    documentation="errors detected during message handling"
+)
 
 
-class MechaClient(Client):
+@require_permission(TECHRAT)
+async def _on_invite(ctx: Context):
+    await ctx.bot.join(ctx.channel)
+
+
+class MechaClient(Client, MessageHistoryClient):
     """
     MechaSqueak v3_tests
     """
@@ -48,10 +83,14 @@ class MechaClient(Client):
         """
         self._api_handler: Optional[ApiV300WSS] = None
         self._fact_manager = None  # Instantiate Global Fact Manager
+        self._last_user_message: Dict[str, str] = {}  # Holds last message from user, by irc nick
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config if mecha_config else {}
         self._galaxy = None
+        self._start_time = datetime.now(tz=timezone.utc)
+        self._on_invite = require_permission(TECHRAT)(functools.partial(self._on_invite))
+        TRACKED_MESSAGES.set_function(lambda: len(self._last_user_message))
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
@@ -72,7 +111,19 @@ class MechaClient(Client):
     #
     # def on_join(self, channel, user):
     #     super().on_join(channel, user)
+    async def on_invite(self, channel, by):
+        logger.info(f"invited to channel {channel!r} by user {by!r}")
+        # create context from message, tie the channel to the sender
+        # (this ensures access-denys get sent to the right place)
+        ctx = await Context.from_message(self, sender=by, channel=by, message=channel)
+        logger.debug("invited to channel, context is {}", ctx)
 
+        return await self._on_invite(ctx)
+
+    async def _on_invite(self, ctx):
+        await self.join(ctx.words[0])
+
+    @aio_time(ON_MESSAGE_TIME)
     async def on_message(self, channel, user, message: str):
         """
         Triggered when a message is received
@@ -81,23 +132,32 @@ class MechaClient(Client):
         :param message: message body
         :return:
         """
+        await super().on_message(channel, user, message)
         logger.debug(f"{channel}: <{user}> {message}")
 
-        if user == self._config['irc']['nickname']:
+        if user == self._config["irc"]["nickname"]:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             logger.debug(f"Ignored {message} (anti-loop)")
+            IGNORED_MESSAGES.inc()
             return None
         # await command execution
         # sanitize input string headed to command executor
         sanitized_message = sanitize(message)
         logger.debug(f"Sanitized {sanitized_message}, Original: {message}")
         try:
+            self._last_user_message[user.casefold()] = sanitized_message  # Store sanitized message
             ctx = await Context.from_message(self, channel, user, sanitized_message)
+            if not ctx.words:
+                logger.trace("ignoring empty message")
+                IGNORED_MESSAGES.inc()
+                return
+
             await trigger(ctx)
 
         # Disable pylint's complaint here, as a broad catch is exactly what we want.
         except Exception as ex:  # pylint: disable=broad-except
+            ERRORS.inc()
             ex_uuid = uuid4()
             logger.exception(ex_uuid)
             error_message = graceful_errors.make_graceful(ex, ex_uuid)
@@ -127,7 +187,8 @@ class MechaClient(Client):
         This is initialized in a lazy way to increase overall startup speed.
         """
         if not self._fact_manager:
-            self._fact_manager = FactManager()  # Instantiate Global Fact Manager
+            # Instantiate Global Fact Manager
+            self._fact_manager = FactManager()
         return self._fact_manager
 
     @fact_manager.setter
@@ -151,7 +212,7 @@ class MechaClient(Client):
         self._fact_manager = None
 
     @property
-    def api_handler(self) -> ApiV300WSS:
+    def api_handler(self) -> object:
         """
         API Handler property
         """
@@ -218,3 +279,11 @@ class MechaClient(Client):
         logger.warning("Galaxy deleted!")
         del self._galaxy
         self._galaxy = None
+
+    @property
+    def last_user_message(self) -> Dict[str, str]:
+        return self._last_user_message
+
+    @property
+    def start_time(self) -> datetime:
+        return self._start_time
