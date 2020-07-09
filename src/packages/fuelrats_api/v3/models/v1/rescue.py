@@ -116,7 +116,7 @@ class Rescue(Resource):
             attributes=RescueAttributes.from_dict(data["attributes"]),
         )
 
-    def as_internal(self) -> InternalRescue:
+    def into_internal(self) -> InternalRescue:
         return InternalRescue(
             uuid=self.id,
             client=self.attributes.client,
@@ -125,7 +125,7 @@ class Rescue(Resource):
             created_at=self.attributes.createdAt,
             updated_at=self.attributes.updatedAt,
             unidentified_rats=self.attributes.unidentifiedRats,
-            quotes=[quote.as_internal() for quote in self.attributes.quotes],
+            quotes=[quote.into_internal() for quote in self.attributes.quotes],
             title=self.attributes.title,
             first_limpet=self.relationships.firstLimpet.data.id
             if self.relationships and self.relationships.firstLimpet.data

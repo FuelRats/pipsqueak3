@@ -40,7 +40,7 @@ def test_from_internal(rescue_sop_fx):
 def test_to_internal(rescue_sop_fx):
     """ verify converting a rescue to and from an API datamodel produces an equivalent object """
     rescue = ApiRescue.from_internal(rescue_sop_fx)
-    rescue = rescue.as_internal()
+    rescue = rescue.into_internal()
     assert rescue_sop_fx == rescue, "unequivalent rescues created!"
 
 

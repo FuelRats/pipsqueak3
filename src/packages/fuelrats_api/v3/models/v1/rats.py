@@ -54,7 +54,7 @@ class Rat(Resource):
         relationships = RatRelationships.from_dict(data["relationships"])
         return cls(attributes=attributes, relationships=relationships, id=data["id"])
 
-    def as_internal_rat(self) -> InternalRat:
+    def into_internal(self) -> InternalRat:
         """
         Converts this API rat to an Internal Rat object.
         """

@@ -146,7 +146,7 @@ class ApiV300WSS(FuelratsApiABC):
             await self.connection.shutdown.wait()
 
     async def get_rescues(self) -> List[Rescue]:
-        pass
+        return [obj.into_internal() for obj in await self._get_open_rescues()]
 
     async def get_rescue(self, key: UUID) -> Optional[Rescue]:
         pass
@@ -165,7 +165,7 @@ class ApiV300WSS(FuelratsApiABC):
         )
         result = await self.connection.execute(work)
         # if we get this far, we got a OK response; which means the data field contains our rescue.
-        return ApiRescue.from_dict(result.body['data']).as_internal()
+        return ApiRescue.from_dict(result.body['data']).into_internal()
 
     async def update_rescue(self, rescue: Rescue) -> None:
         pass
@@ -177,7 +177,7 @@ class ApiV300WSS(FuelratsApiABC):
             return []
         if isinstance(key, str):
             results = await self._get_rats_from_nickname(key)
-            return [rat.as_internal_rat() for rat in results]
+            return [rat.into_internal() for rat in results]
         raise TypeError(type(key))
 
     async def _get_nicknames(self, key: str) -> Response:
@@ -194,6 +194,15 @@ class ApiV300WSS(FuelratsApiABC):
         work = Request(endpoint=["rats", "read"], query={"id": f"{key}"})
         logger.debug("requesting rat {}", work)
         return await self.connection.execute(work)
+
+    async def _get_open_rescues(self) -> List[ApiRescue]:
+        await self.ensure_connection()
+        work = Request(endpoint=["rescues", "search"], query={'filter': {"status": {"eq": "open"}}},
+                       body={})
+        logger.trace("requesting open rescues...")
+        results = await self.connection.execute(work)
+        return [ApiRescue.from_dict(obj) for obj in results.body['data']]
+
 
     async def _get_rats_from_nickname(self, key: str) -> List[ApiRat]:
         await self.ensure_connection()

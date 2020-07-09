@@ -39,7 +39,7 @@ class Quotation(Resource):
         output["attributes"]["updatedAt"] = from_datetime(self.attributes.updatedAt)
         return output
 
-    def as_internal(self) -> InternalQuotation:
+    def into_internal(self) -> InternalQuotation:
         return InternalQuotation(
             message=self.attributes.message,
             author=self.attributes.author,
