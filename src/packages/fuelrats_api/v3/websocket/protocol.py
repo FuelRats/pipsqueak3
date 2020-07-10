@@ -29,7 +29,7 @@ class Request:
     this is basically the Websocket API equivalent to a URL, and the WebSocket endpoint equivalent
     to each endpoint is specified in that endpoint's documentation.
     """
-    query: Dict[str, Any] = attr.ib(validator=attr.validators.instance_of(dict))
+    query: Dict[str, Any] = attr.ib(validator=attr.validators.instance_of(dict), factory=dict)
     """
     Request query information object, corresponding to the url query parameters you would send 
     in an HTTP request.
