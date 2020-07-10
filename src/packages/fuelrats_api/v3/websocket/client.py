@@ -27,7 +27,7 @@ class Connection:
         # check if we had a future for this, if so complete it.
         if response.state in self._futures:
             # if its an error return, then set the exception so the consumer raises.
-            if response.status != 200:
+            if response.status < 200 or response.status >= 300:
                 self._futures[response.state].set_exception(
                     APIException(ApiError.from_dict(response.body["errors"][0]))
                 )
