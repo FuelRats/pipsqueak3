@@ -111,17 +111,24 @@ class ApiV300WSS(FuelratsApiABC):
         return [obj.into_internal() for obj in await self._get_open_rescues()]
 
     async def update_rescue(self, rescue: Rescue) -> None:
-        fields = rescue.modified
-        local = attr.asdict(ApiRescue.from_internal(rescue), recurse=True)
-        remote = await self._get_rescue(rescue.api_id)
-        remote = attr.asdict(remote)
+        if not rescue.api_id:
+            raise ValueError("Rescue cannot have a null API ID at this point.")
+        payload = {'data': ApiRescue.from_internal(rescue).to_delta(rescue.modified.copy())}
+        # Purge attributes we are not supposed to send.
+        del payload['data']['links']
+        del payload['data']['relationships']
+        work = Request(
+            endpoint=["rescues", "update"],
+            body=payload
+        )
+        response = await self.connection.execute(work)
+        return response
 
     async def _get_rescue(self, key: UUID) -> Optional[ApiRescue]:
         await self.ensure_connection()
         work = Request(
             endpoint=["rescues", "read"],
             query={"id": f"{key}"}
-
         )
         response = await self.connection.execute(work)
         return ApiRescue.from_dict(response.body['data'])
