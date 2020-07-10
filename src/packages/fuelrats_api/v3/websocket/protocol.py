@@ -81,9 +81,8 @@ class Event:
     """
     API Event response
     """
+
     event: str = attr.ib(validator=attr.validators.instance_of(str))
     sender: UUID = attr.ib(validator=attr.validators.instance_of(UUID), converter=to_uuid)
     obj_id: UUID = attr.ib(validator=attr.validators.instance_of(UUID), converter=to_uuid)
     data: Dict = attr.ib(validator=attr.validators.instance_of(dict))
-
-

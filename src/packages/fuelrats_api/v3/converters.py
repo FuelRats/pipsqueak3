@@ -43,6 +43,7 @@ def to_uuid(raw: Union[str, UUID]) -> UUID:
 
 class CustomJsonSerializer(json.JSONEncoder):
     """ custom JSON serializer class because some objects stdlib json throws a fit at. """
+
     def default(self, o: Any) -> Any:
         if isinstance(o, UUID):
             return f"{o}"

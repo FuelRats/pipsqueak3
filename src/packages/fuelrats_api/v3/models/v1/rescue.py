@@ -171,7 +171,7 @@ class Rescue(Resource):
         # serialize API rescue object
         data = attr.asdict(self, recurse=True)
         # figure out which keys we need to keep (only send the ones modified internally)
-        kept_attribs = {key: value for key, value in data['attributes'].items() if key in keep}
+        kept_attribs = {key: value for key, value in data["attributes"].items() if key in keep}
         # and patch the object.
-        data['attributes'] = kept_attribs
+        data["attributes"] = kept_attribs
         return data

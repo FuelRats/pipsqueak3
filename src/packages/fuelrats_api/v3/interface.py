@@ -98,8 +98,8 @@ class ApiV300WSS(FuelratsApiABC):
         """
         logger.info("creating new socket connection....")
         async with websockets.connect(
-                uri=f"{self.config.uri}?bearer={self.config.authorization}",
-                subprotocols=("FR-JSONAPI-WS",),
+            uri=f"{self.config.uri}?bearer={self.config.authorization}",
+            subprotocols=("FR-JSONAPI-WS",),
         ) as soc:
             logger.info("created.")
             self.connection = Connection(socket=soc)
@@ -113,25 +113,19 @@ class ApiV300WSS(FuelratsApiABC):
     async def update_rescue(self, rescue: Rescue) -> None:
         if not rescue.api_id:
             raise ValueError("Rescue cannot have a null API ID at this point.")
-        payload = {'data': ApiRescue.from_internal(rescue).to_delta(rescue.modified.copy())}
+        payload = {"data": ApiRescue.from_internal(rescue).to_delta(rescue.modified.copy())}
         # Purge attributes we are not supposed to send.
-        del payload['data']['links']
-        del payload['data']['relationships']
-        work = Request(
-            endpoint=["rescues", "update"],
-            body=payload
-        )
+        del payload["data"]["links"]
+        del payload["data"]["relationships"]
+        work = Request(endpoint=["rescues", "update"], body=payload)
         response = await self.connection.execute(work)
         return response
 
     async def _get_rescue(self, key: UUID) -> Optional[ApiRescue]:
         await self.ensure_connection()
-        work = Request(
-            endpoint=["rescues", "read"],
-            query={"id": f"{key}"}
-        )
+        work = Request(endpoint=["rescues", "read"], query={"id": f"{key}"})
         response = await self.connection.execute(work)
-        return ApiRescue.from_dict(response.body['data'])
+        return ApiRescue.from_dict(response.body["data"])
 
     async def get_rescue(self, key: UUID) -> typing.Optional[Rescue]:
         pass
@@ -146,11 +140,11 @@ class ApiV300WSS(FuelratsApiABC):
         work = Request(
             endpoint=["rescues", "create"],
             query={},
-            body={'data': attr.asdict(ApiRescue.from_internal(rescue), recurse=True)},
+            body={"data": attr.asdict(ApiRescue.from_internal(rescue), recurse=True)},
         )
         result = await self.connection.execute(work)
         # if we get this far, we got a OK response; which means the data field contains our rescue.
-        return ApiRescue.from_dict(result.body['data']).into_internal()
+        return ApiRescue.from_dict(result.body["data"]).into_internal()
 
     async def get_rat(self, key: Union[UUID, str]) -> List[InternalRat]:
         await self.ensure_connection()
@@ -165,7 +159,7 @@ class ApiV300WSS(FuelratsApiABC):
     async def _get_nicknames(self, key: str) -> Response:
         await self.ensure_connection()
 
-        work = Request(endpoint=["nicknames", "search"], query={"nick": key}, )
+        work = Request(endpoint=["nicknames", "search"], query={"nick": key},)
         # TODO: offline check
         logger.info(f"querying nickname {key}")
         return await self.connection.execute(work)
@@ -179,12 +173,13 @@ class ApiV300WSS(FuelratsApiABC):
 
     async def _get_open_rescues(self) -> Iterator[ApiRescue]:
         await self.ensure_connection()
-        work = Request(endpoint=["rescues", "search"], query={'filter': {"status": {"eq": "open"}}},
-                       body={})
+        work = Request(
+            endpoint=["rescues", "search"], query={"filter": {"status": {"eq": "open"}}}, body={}
+        )
         logger.trace("requesting open rescues...")
         results = await self.connection.execute(work)
         # Iterators are less expensive than comprehensions (differed compute).
-        return (ApiRescue.from_dict(obj) for obj in results.body['data'])
+        return (ApiRescue.from_dict(obj) for obj in results.body["data"])
 
     async def _get_rats_from_nickname(self, key: str) -> List[ApiRat]:
         await self.ensure_connection()
