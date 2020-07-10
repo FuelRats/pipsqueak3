@@ -1,4 +1,5 @@
 import asyncio
+import typing
 from typing import Optional, List, Dict, Union, Iterator
 from uuid import UUID
 
@@ -11,6 +12,7 @@ from prometheus_client import Histogram
 from .models.v1.nickname import Nickname
 from .models.v1.rats import Rat as ApiRat, RAT_TYPE
 from .models.v1.rescue import Rescue as ApiRescue
+from .models.jsonapi.resource import Resource
 from .websocket.client import Connection
 from .websocket.protocol import Request, Response
 from .._base import FuelratsApiABC, ApiConfig
@@ -24,46 +26,6 @@ NICKNAME_TIME = Histogram(
     unit="seconds",
     documentation="time spent retrieving nicknames...",
 )
-
-
-class ApiV300Rest(FuelratsApiABC):
-    async def get_rescues(self) -> List[Rescue]:
-        pass
-
-    async def get_rescue(self, key: UUID) -> Optional[Rescue]:
-        pass
-
-    async def create_rescue(self, rescue: Rescue) -> Rescue:
-        pass
-
-    async def update_rescue(self, rescue: Rescue) -> None:
-        pass
-
-    async def get_rat(self, key: Union[UUID, str]) -> InternalRat:
-        pass
-
-    def _call(self, query: str) -> asyncio.Future:
-        ...
-
-    async def find_nickname(self, key: str) -> Nickname:
-        logger.trace("creating API session...")
-        async with aiohttp.ClientSession(
-                raise_for_status=True,
-                timeout=aiohttp.ClientTimeout(total=5.0),
-                headers={
-                    "authorization": self.config.authorization} if self.config.authorization else {},
-        ) as session:
-            logger.trace(f"requesting nick={key!r}")
-            async with session.request(
-                    method="GET", url=f"{self.config.uri}/nicknames?nick={key}"
-            ) as response:
-                data = await response.json()
-                logger.trace("got response, decoding")
-                nickname = Nickname.from_dict(data["data"][0])
-                logger.debug(
-                    f"retrieved nickname object {nickname.id!r} - {nickname.attributes.nick!r}"
-                )
-                return nickname
 
 
 @attr.dataclass(eq=False)
@@ -148,7 +110,23 @@ class ApiV300WSS(FuelratsApiABC):
     async def get_rescues(self) -> List[Rescue]:
         return [obj.into_internal() for obj in await self._get_open_rescues()]
 
-    async def get_rescue(self, key: UUID) -> Optional[Rescue]:
+    async def update_rescue(self, rescue: Rescue) -> None:
+        fields = rescue.modified
+        local = attr.asdict(ApiRescue.from_internal(rescue), recurse=True)
+        remote = await self._get_rescue(rescue.api_id)
+        remote = attr.asdict(remote)
+
+    async def _get_rescue(self, key: UUID) -> Optional[ApiRescue]:
+        await self.ensure_connection()
+        work = Request(
+            endpoint=["rescues", "read"],
+            query={"id": f"{key}"}
+
+        )
+        response = await self.connection.execute(work)
+        return ApiRescue.from_dict(response.body['data'])
+
+    async def get_rescue(self, key: UUID) -> typing.Optional[Rescue]:
         pass
 
     async def ensure_connection(self):
@@ -166,9 +144,6 @@ class ApiV300WSS(FuelratsApiABC):
         result = await self.connection.execute(work)
         # if we get this far, we got a OK response; which means the data field contains our rescue.
         return ApiRescue.from_dict(result.body['data']).into_internal()
-
-    async def update_rescue(self, rescue: Rescue) -> None:
-        pass
 
     async def get_rat(self, key: Union[UUID, str]) -> List[InternalRat]:
         await self.ensure_connection()
@@ -203,7 +178,6 @@ class ApiV300WSS(FuelratsApiABC):
         results = await self.connection.execute(work)
         # Iterators are less expensive than comprehensions (differed compute).
         return (ApiRescue.from_dict(obj) for obj in results.body['data'])
-
 
     async def _get_rats_from_nickname(self, key: str) -> List[ApiRat]:
         await self.ensure_connection()

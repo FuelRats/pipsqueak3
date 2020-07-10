@@ -52,3 +52,19 @@ def test_to_internal_w_quotes():
     rescue.add_quote("some other message")
     api_rescue = ApiRescue.from_internal(rescue)
     assert api_rescue.attributes.quotes
+
+
+def test_diff(rescue_sop_fx):
+    rescue_sop_fx.modified.clear()
+    # Modify some attributes to populated the `modified` tracking attribute
+    rescue_sop_fx.client = "some_other_client"
+    assert len(rescue_sop_fx.modified) == 1, "unexpected modification!"
+
+    # serialize object to an API datamodel object
+    rescue = ApiRescue.from_internal(rescue_sop_fx)
+    # compute json blob from changed fields on the internal object
+    # (we can't bring the modified into the internal model without messing up serialization).
+    obj = rescue.to_delta(changes=rescue_sop_fx.modified)
+    # check that the attributes are as we expected.
+    modified_keys = list(obj['attributes'].keys())
+    assert modified_keys == ['client']

@@ -18,7 +18,7 @@ class Relationship:
     @classmethod
     def from_dict(cls, payload) -> Relationship:
         # FIXME handle alternate form if data is present
-        logger.debug("creating Relationship from {}", payload)
+        logger.trace("creating Relationship from {}", payload)
         kwargs = {}
 
         # check if we have a links object

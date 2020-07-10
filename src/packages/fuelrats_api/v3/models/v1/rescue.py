@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Set
 
 import attr
 
@@ -138,3 +138,40 @@ class Rescue(Resource):
     @classmethod
     def from_internal(cls, data: InternalRescue) -> Rescue:
         return Rescue(id=data.api_id, attributes=RescueAttributes.from_internal(data))
+
+    def to_delta(self, changes: Set[str]) -> Dict:
+        """
+        Converts this API rescue object to a dictionary blob delta based on changed fields from
+        an internal rescue object. `changes` should contain only attribute names on the **internal**
+        rescue object.
+
+
+
+        Args:
+            changes: set of changed InternalRescue attributes
+
+        Returns:
+            json blob of API Rescue
+        """
+        field_map = {
+            "client": "client",
+            "system": "system",
+            "irc_nickname": "clientNick",
+            "unidentified_rats": "unidentifiedRats",
+            "quotes": "quotes",
+            "title": "title",
+            "board_index": "commandIdentifier",
+            "lang_id": "clientLanguage",
+            "status": "status",
+            "code_red": "codeRed",
+            "platform": "platform",
+        }
+        # translate internal datamodel names to the APIs datamodel names
+        keep = {field_map[field] for field in changes}
+        # serialize API rescue object
+        data = attr.asdict(self, recurse=True)
+        # figure out which keys we need to keep (only send the ones modified internally)
+        kept_attribs = {key: value for key, value in data['attributes'].items() if key in keep}
+        # and patch the object.
+        data['attributes'] = kept_attribs
+        return data
