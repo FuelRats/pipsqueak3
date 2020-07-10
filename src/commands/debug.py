@@ -140,3 +140,17 @@ async def cmd_debug_fetch_single(context: Context):
         await context.reply("got a result")
     else:
         await context.reply("go fish.")
+
+
+@command("debug_update_rescue")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_update_rescue(context: Context):
+    uid = UUID(context.words[-1])
+    if uid not in context.bot.board:
+        return await context.reply("not currently tracking that rescue?")
+    rescue = context.bot.board[uid]
+    await context.reply(f"updating @{uid}...")
+    rescue.client = "some_test_client"
+    await context.bot.api_handler.update_rescue(rescue)
+    await context.reply("done.")
