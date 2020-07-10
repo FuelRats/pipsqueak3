@@ -119,4 +119,24 @@ async def cmd_debug_summoncase(context: Context):
 async def cmd_debug_fetch(context: Context):
     await context.reply("fetching...")
     results = await context.bot.api_handler.get_rescues()
+
     await context.reply(f"{len(results)} open cases detected.")
+    for rescue in results:
+        if rescue.board_index in context.bot.board:
+            logger.warning("reassigning API imported rescue @{} a new board index (collision)",
+                           rescue.api_id)
+            rescue.board_index = None
+        await context.bot.board.append(rescue)
+
+
+@command("debug_fetch_rescue")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_debug_fetch_single(context: Context):
+    uid = UUID(context.words[-1])
+    await context.reply(f"fetching @{uid}...")
+    result = await context.bot.api_handler._get_rescue(uid)
+    if result:
+        await context.reply("got a result")
+    else:
+        await context.reply("go fish.")
