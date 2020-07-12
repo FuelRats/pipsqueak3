@@ -100,7 +100,7 @@ async def cmd_debug_get_rat(context: Context):
         return await context.reply("invalid uuid.")
     await context.reply(f"fetching uuid {target}...")
     subject = await context.bot.api_handler.get_rat(target)
-    await context.reply(f"{subject} rats returned.")
+    await context.reply(f"identified rats: {','.join(repr(obj.name) for obj in subject)}")
 
 
 @command("debug_summoncase")

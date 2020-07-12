@@ -36,7 +36,8 @@ class ApiV300WSS(FuelratsApiABC):
 
     def __attrs_post_init__(self):
         PLUGIN_MANAGER.register(self)
-        asyncio.create_task(self.run_task())
+        if self.connection is None:
+            asyncio.create_task(self.run_task())
 
     @CONFIG_MARKER
     def rehash_handler(self, data: Dict):
@@ -150,7 +151,7 @@ class ApiV300WSS(FuelratsApiABC):
         await self.ensure_connection()
         if isinstance(key, UUID):
             results = await self._get_rat_uuid(key)
-            return []
+            return [ApiRat.from_dict(results.body['data']).into_internal()]
         if isinstance(key, str):
             results = await self._get_rats_from_nickname(key)
             return [rat.into_internal() for rat in results]
