@@ -493,6 +493,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         Returns:
             None
         """
+        self.modified.add("quotes")
         if author:
             # set the author of the quote
             self.quotes.append(Quotation(author=author, message=message))
