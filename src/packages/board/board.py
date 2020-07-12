@@ -22,7 +22,7 @@ from loguru import logger
 
 from src.config import CONFIG_MARKER
 from ..fuelrats_api import FuelratsApiABC
-from ..fuelrats_api.mockup.mockup import ApiError
+from ..fuelrats_api import ApiException
 
 from ..rescue import Rescue
 
@@ -126,6 +126,21 @@ class RatBoard(abc.Mapping):
         """
 
         super(RatBoard, self).__init__()
+
+    @property
+    def api_handler(self):
+        """ Api handler reference """
+        return self._handler
+
+    @api_handler.setter
+    def api_handler(self, value: FuelratsApiABC):
+        if not isinstance(value, FuelratsApiABC):
+            raise TypeError(type(value))
+        self._handler = value
+
+    @api_handler.deleter
+    def api_handler(self):
+        self._handler = None
 
     async def on_online(self):
         logger.info("Rescue board online.")
@@ -317,7 +332,7 @@ class RatBoard(abc.Mapping):
                 logger.trace("creating rescue on API...")
                 rescue = await self._handler.create_rescue(rescue)
 
-        except ApiError:
+        except ApiException:
             logger.exception("unable to create rescue on API!")
             # Emit upstream so the caller knows something went wrong
             raise

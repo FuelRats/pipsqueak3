@@ -377,7 +377,7 @@ def configuration_fx() -> Dict:
 def mock_fuelrats_api_fx():
     # TODO pull from configuration system
     pytest.xfail("FIXME deprecated API ")
-    return MockupAPI(url=r'http://api.thehellisthis.com:6543/api')
+    return MockupAPI(url=r'http:///api')
 
 
 @pytest.fixture

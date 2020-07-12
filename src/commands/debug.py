@@ -113,11 +113,15 @@ async def cmd_debug_summoncase(context: Context):
     await context.reply("done.")
 
 
-@command("debug_fetch_rescues")
+@command("debug_fbr")
 @require_channel
 @require_permission(TECHRAT)
 async def cmd_debug_fetch(context: Context):
-    await context.reply("fetching...")
+    await context.reply("flushing my board and fetching...")
+    keys = context.bot.board.keys()
+    for key in list(keys):  # my keys now!
+        await context.bot.board.remove_rescue(key)
+
     results = await context.bot.api_handler.get_rescues()
 
     await context.reply(f"{len(results)} open cases detected.")
@@ -154,3 +158,11 @@ async def cmd_update_rescue(context: Context):
     rescue.client = "some_test_client"
     await context.bot.api_handler.update_rescue(rescue)
     await context.reply("done.")
+
+
+@command("debug_go_online")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_debug_go_online(context: Context):
+    await context.reply("going online...")
+    await context.bot.board.on_online()

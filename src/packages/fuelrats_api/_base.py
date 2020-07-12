@@ -48,3 +48,7 @@ class FuelratsApiABC(abc.ABC):
     @abc.abstractmethod
     async def get_rat(self, key: typing.Union[UUID, str]) -> List[Rat]:
         ...
+
+
+class ApiException(RuntimeError):
+    ...

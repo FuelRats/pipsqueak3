@@ -156,7 +156,7 @@ class Rescue(Resource):
         field_map = {
             "client": "client",
             "system": "system",
-            "irc_nickname": "clientNick",
+            "irc_nick": "clientNick",
             "unidentified_rats": "unidentifiedRats",
             "quotes": "quotes",
             "title": "title",

@@ -6,7 +6,7 @@ import attr
 from ..jsonapi.link import Links
 from ...converters import to_uuid
 from uuid import UUID, uuid4
-
+from ...._base import ApiException as BaseApiException
 
 @attr.dataclass
 class Pointer:
@@ -48,6 +48,6 @@ class ApiError:
         return cls(**data)
 
 
-class APIException(Exception):
+class APIException(BaseApiException):
     def __init__(self, error: ApiError):
         self.error: ApiError = error

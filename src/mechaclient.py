@@ -218,6 +218,7 @@ class MechaClient(Client, MessageHistoryClient):
         """
         if not self._api_handler:
             self._api_handler = ApiV300WSS(config=ApiConfig(**self._config['api']))
+            self.board.api_handler = self._api_handler
         return self._api_handler
 
     @property
