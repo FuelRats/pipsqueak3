@@ -117,7 +117,7 @@ class ApiV300WSS(FuelratsApiABC):
         # Purge attributes we are not supposed to send.
         del payload["data"]["links"]
         del payload["data"]["relationships"]
-        work = Request(endpoint=["rescues", "update"], body=payload)
+        work = Request(endpoint=["rescues", "update"], body=payload, query={'id': f"{rescue.api_id}"})
         response = await self.connection.execute(work)
         return response
 
