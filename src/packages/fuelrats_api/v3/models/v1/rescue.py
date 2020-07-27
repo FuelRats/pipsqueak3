@@ -8,6 +8,7 @@ import attr
 from ..jsonapi.relationship import Relationship
 from ..jsonapi.resource import Resource
 from .....rescue import Rescue as InternalRescue
+from .....mark_for_deletion import MarkForDeletion
 from datetime import datetime
 from src.packages.fuelrats_api.v3.converters import to_datetime
 from .quotation import Quotation
@@ -70,13 +71,15 @@ class RescueAttributes:
 
     @classmethod
     def from_internal(cls, data: InternalRescue) -> RescueAttributes:
+
         return cls(
             client=data.client,
             clientNick=data.irc_nickname,
             clientLanguage=data.lang_id,
             codeRed=data.code_red,
             data={},
-            notes="",  # FIXME add notes to internal data model or?
+            # MFD reason translates into the notes field
+            notes=data.marked_for_deletion.reason if data.marked_for_deletion.marked else "",
             platform=data.platform.value.lower() if data.platform else None,
             system=data.system,
             title=data.title,
@@ -84,9 +87,12 @@ class RescueAttributes:
             createdAt=data.created_at,
             updatedAt=data.updated_at,
             status=data.status.name.lower(),
-            outcome=data.outcome,
+            # MFD translates to `purge` outcome, all other outcomes are not set by Mecha.
+            outcome="purge" if data.marked_for_deletion.marked else None,
             quotes=[Quotation.from_internal(obj) for obj in data.quotes],
+            # I did have to ask what this translated to...
             commandIdentifier=data.board_index,
+
         )
 
 
@@ -133,6 +139,10 @@ class Rescue(Resource):
             board_index=self.attributes.commandIdentifier,
             lang_id=self.attributes.clientLanguage,
             # TODO rest of attributes
+            mark_for_deletion=MarkForDeletion(
+                marked=self.attributes.outcome == "purge",
+                reason=self.attributes.notes if self.attributes.notes else None
+            )
         )
 
     @classmethod

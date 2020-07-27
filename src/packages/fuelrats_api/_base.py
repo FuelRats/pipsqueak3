@@ -11,7 +11,8 @@ if typing.TYPE_CHECKING:
     from ..rat.rat import Rat
     from ..rescue import Rescue
     from ._converter import ApiConverter
-
+Impersonation = typing.TypeVar("Impersonation", str, UUID)
+""" Type for an ID of the user Mecha is performing an API action on the behalf of """
 
 @attr.dataclass
 class ApiConfig:
@@ -30,23 +31,56 @@ class FuelratsApiABC(abc.ABC):
     __slots__ = ["rat_converter", "rescue_converter", "config"]
 
     @abc.abstractmethod
-    async def get_rescues(self) -> typing.List[Rescue]:
+    async def get_rescues(self, impersonating: Impersonation) -> typing.List[Rescue]:
+        """
+        Retrieves open rescues
+
+        Args:
+            impersonating: the user this command is acting for
+
+        Returns:
+            List of internal rescue objects
+        """
         ...
 
     @abc.abstractmethod
-    async def get_rescue(self, key: UUID) -> typing.Optional[Rescue]:
+    async def get_rescue(self, key: UUID, impersonating: Impersonation) -> typing.Optional[Rescue]:
+        """
+        Gets a single rescue by its ID.
+
+        Args:
+            key: api uuid of rescue
+            impersonating: the user this command is acting for
+
+        Returns:
+            InternalRescue, should it exist.
+        """
         ...
 
     @abc.abstractmethod
-    async def create_rescue(self, rescue: Rescue) -> Rescue:
+    async def create_rescue(self, rescue: Rescue, impersonating: Impersonation) -> Rescue:
+        """
+        Creates a new rescue, returning the created InternalRescue object with any fields the
+        API overrode.
+
+        Notes:
+            Use the return value of this function instead of the input argument in subsequent compute.
+
+        Args:
+            rescue: Internal Rescue to create on the API
+            impersonating: User this action is on the behalf of.
+
+        Returns:
+            Internal Rescue object as formed by the API
+        """
         ...
 
     @abc.abstractmethod
-    async def update_rescue(self, rescue: Rescue) -> None:
+    async def update_rescue(self, rescue: Rescue, impersonating: Impersonation) -> None:
         ...
 
     @abc.abstractmethod
-    async def get_rat(self, key: typing.Union[UUID, str]) -> List[Rat]:
+    async def get_rat(self, key: typing.Union[UUID, str], impersonating: Impersonation) -> List[Rat]:
         ...
 
 

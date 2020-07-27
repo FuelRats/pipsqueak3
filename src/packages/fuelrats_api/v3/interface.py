@@ -15,7 +15,7 @@ from .models.v1.rescue import Rescue as ApiRescue
 from .models.jsonapi.resource import Resource
 from .websocket.client import Connection
 from .websocket.protocol import Request, Response
-from .._base import FuelratsApiABC, ApiConfig
+from .._base import FuelratsApiABC, ApiConfig, Impersonation
 from ...rat import Rat as InternalRat
 from ...rescue import Rescue
 from ....config import CONFIG_MARKER, PLUGIN_MANAGER
@@ -99,8 +99,8 @@ class ApiV300WSS(FuelratsApiABC):
         """
         logger.info("creating new socket connection....")
         async with websockets.connect(
-            uri=f"{self.config.uri}?bearer={self.config.authorization}",
-            subprotocols=("FR-JSONAPI-WS",),
+                uri=f"{self.config.uri}?bearer={self.config.authorization}",
+                subprotocols=("FR-JSONAPI-WS",),
         ) as soc:
             logger.info("created.")
             self.connection = Connection(socket=soc)
@@ -108,27 +108,35 @@ class ApiV300WSS(FuelratsApiABC):
             logger.info("pending shutdown event...")
             await self.connection.shutdown.wait()
 
-    async def get_rescues(self) -> List[Rescue]:
-        return [obj.into_internal() for obj in await self._get_open_rescues()]
+    async def get_rescues(self, impersonate: Impersonation) -> List[Rescue]:
+        return [obj.into_internal() for obj in await self._get_open_rescues(impersonate=impersonate)]
 
-    async def update_rescue(self, rescue: Rescue) -> None:
+    async def update_rescue(self, rescue: Rescue, impersonation: Impersonation) -> None:
         if not rescue.api_id:
             raise ValueError("Rescue cannot have a null API ID at this point.")
-        payload = {"data": ApiRescue.from_internal(rescue).to_delta(rescue.modified.copy())}
+        payload = {
+            "data": ApiRescue.from_internal(rescue).to_delta(rescue.modified.copy()),
+        }
         # Purge attributes we are not supposed to send.
         del payload["data"]["links"]
         del payload["data"]["relationships"]
-        work = Request(endpoint=["rescues", "update"], body=payload, query={'id': f"{rescue.api_id}"})
+        work = Request(endpoint=["rescues", "update"], body=payload, query={
+            'id': f"{rescue.api_id}",
+            "representing": impersonation
+        })
+        if not Impersonation:
+            del work.query['representing']
         response = await self.connection.execute(work)
         return response
 
-    async def _get_rescue(self, key: UUID) -> Optional[ApiRescue]:
+    async def _get_rescue(self, key: UUID, impersonation: Impersonation) -> Optional[ApiRescue]:
         await self.ensure_connection()
-        work = Request(endpoint=["rescues", "read"], query={"id": f"{key}"})
+        work = Request(endpoint=["rescues", "read"],
+                       query={"id": f"{key}", "representing": impersonation})
         response = await self.connection.execute(work)
         return ApiRescue.from_dict(response.body["data"])
 
-    async def get_rescue(self, key: UUID) -> typing.Optional[Rescue]:
+    async def get_rescue(self, key: UUID, impersonation: Impersonation) -> typing.Optional[Rescue]:
         pass
 
     async def ensure_connection(self):
@@ -136,18 +144,18 @@ class ApiV300WSS(FuelratsApiABC):
         await self.connected_event.wait()
         logger.trace("connected event is set!")
 
-    async def create_rescue(self, rescue: Rescue) -> Rescue:
+    async def create_rescue(self, rescue: Rescue, impersonation: Impersonation) -> Rescue:
         await self.ensure_connection()
         work = Request(
             endpoint=["rescues", "create"],
-            query={},
+            query={'representing': impersonation},
             body={"data": attr.asdict(ApiRescue.from_internal(rescue), recurse=True)},
         )
         result = await self.connection.execute(work)
         # if we get this far, we got a OK response; which means the data field contains our rescue.
         return ApiRescue.from_dict(result.body["data"]).into_internal()
 
-    async def get_rat(self, key: Union[UUID, str]) -> List[InternalRat]:
+    async def get_rat(self, key: Union[UUID, str], impersonation: Impersonation) -> List[InternalRat]:
         await self.ensure_connection()
         if isinstance(key, UUID):
             results = await self._get_rat_uuid(key)
@@ -157,22 +165,24 @@ class ApiV300WSS(FuelratsApiABC):
             return [rat.into_internal() for rat in results]
         raise TypeError(type(key))
 
-    async def _get_nicknames(self, key: str) -> Response:
+    async def _get_nicknames(self, key: str, impersonation: Impersonation) -> Response:
         await self.ensure_connection()
 
-        work = Request(endpoint=["nicknames", "search"], query={"nick": key},)
+        work = Request(endpoint=["nicknames", "search"],
+                       query={"nick": key, "representing": impersonation}, )
         # TODO: offline check
         logger.info(f"querying nickname {key}")
         return await self.connection.execute(work)
 
-    async def _get_rat_uuid(self, key: UUID):
+    async def _get_rat_uuid(self, key: UUID, impersonation: Impersonation):
         await self.ensure_connection()
 
-        work = Request(endpoint=["rats", "read"], query={"id": f"{key}"})
+        work = Request(endpoint=["rats", "read"],
+                       query={"id": f"{key}", "representing": impersonation})
         logger.debug("requesting rat {}", work)
         return await self.connection.execute(work)
 
-    async def _get_open_rescues(self) -> Iterator[ApiRescue]:
+    async def _get_open_rescues(self, impersonate: Impersonation) -> Iterator[ApiRescue]:
         await self.ensure_connection()
         work = Request(
             endpoint=["rescues", "search"], query={"filter": {"status": {"eq": "open"}}}, body={}
@@ -182,7 +192,7 @@ class ApiV300WSS(FuelratsApiABC):
         # Iterators are less expensive than comprehensions (differed compute).
         return (ApiRescue.from_dict(obj) for obj in results.body["data"])
 
-    async def _get_rats_from_nickname(self, key: str) -> List[ApiRat]:
+    async def _get_rats_from_nickname(self, key: str, impersonation: Impersonation) -> List[ApiRat]:
         await self.ensure_connection()
 
         raw = await self._get_nicknames(key)

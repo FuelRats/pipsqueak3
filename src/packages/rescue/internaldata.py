@@ -4,7 +4,6 @@ import attr
 
 from ..mark_for_deletion import MarkForDeletion
 
-
 @attr.s
 class InternalData:
     """

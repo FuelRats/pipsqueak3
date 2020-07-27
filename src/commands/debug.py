@@ -43,7 +43,7 @@ async def cmd_debug_userinfo(context: Context):
     """
 
     await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
-    await context.reply(f"user identifed?: {context.user.identified}")
+    await context.reply(f"user identifed?: {context.user.identified} with account?: {context.user.account}")
 
 
 @command("superPing!")
@@ -74,7 +74,7 @@ async def cmd_get_plugins(context: Context):
 @require_permission(TECHRAT)
 async def cmd_get_nickname(context: Context):
     await context.reply("fetching....")
-    result = await  context.bot.api_handler.get_rat("ClappersClappyton")
+    result = await  context.bot.api_handler.get_rat("ClappersClappyton", impersonation=context.user.account)
     await context.reply("got a result!")
     logger.debug("got nickname result {!r}", result)
 
@@ -85,7 +85,7 @@ async def cmd_get_nickname(context: Context):
 async def cmd_ratid(context: Context):
     target = context.words[-1]
     await context.reply(f"acquiring ratids for {target!r}...")
-    api_rats = await context.bot.api_handler.get_rat(target)
+    api_rats = await context.bot.api_handler.get_rat(target, impersonation=context.user.account)
     await context.reply(",".join([f"{rat.uuid}" for rat in api_rats]))
 
 
@@ -99,7 +99,7 @@ async def cmd_debug_get_rat(context: Context):
     except ValueError:
         return await context.reply("invalid uuid.")
     await context.reply(f"fetching uuid {target}...")
-    subject = await context.bot.api_handler.get_rat(target)
+    subject = await context.bot.api_handler.get_rat(target, impersonation=context.user.account)
     await context.reply(f"identified rats: {','.join(repr(obj.name) for obj in subject)}")
 
 
@@ -109,7 +109,7 @@ async def cmd_debug_get_rat(context: Context):
 async def cmd_debug_summoncase(context: Context):
     await context.reply("summoning case....")
     rescue = await context.bot.board.create_rescue(client="some_client")
-    something = await context.bot.api_handler.create_rescue(rescue)
+    something = await context.bot.api_handler.create_rescue(rescue, impersonation=context.user.account)
     await context.reply("done.")
 
 
@@ -122,7 +122,7 @@ async def cmd_debug_fetch(context: Context):
     for key in list(keys):  # my keys now!
         await context.bot.board.remove_rescue(key)
 
-    results = await context.bot.api_handler.get_rescues()
+    results = await context.bot.api_handler.get_rescues(context.user.nickname)
 
     await context.reply(f"{len(results)} open cases detected.")
     for rescue in results:
@@ -139,7 +139,7 @@ async def cmd_debug_fetch(context: Context):
 async def cmd_debug_fetch_single(context: Context):
     uid = UUID(context.words[-1])
     await context.reply(f"fetching @{uid}...")
-    result = await context.bot.api_handler._get_rescue(uid)
+    result = await context.bot.api_handler._get_rescue(uid, impersonation=context.user.account)
     if result:
         await context.reply("got a result")
     else:
@@ -156,7 +156,7 @@ async def cmd_update_rescue(context: Context):
     rescue = context.bot.board[uid]
     await context.reply(f"updating @{uid}...")
     rescue.client = "some_test_client"
-    await context.bot.api_handler.update_rescue(rescue)
+    await context.bot.api_handler.update_rescue(rescue, impersonation=context.user.account)
     await context.reply("done.")
 
 
