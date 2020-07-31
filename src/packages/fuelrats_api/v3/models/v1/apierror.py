@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from typing import Dict, Optional
+from uuid import UUID
 
 import attr
+
 from ..jsonapi.link import Links
 from ...converters import to_uuid
-from uuid import UUID, uuid4
 from ...._base import ApiException as BaseApiException
+
 
 @attr.dataclass
 class Pointer:
@@ -49,5 +51,11 @@ class ApiError:
 
 
 class APIException(BaseApiException):
+    """ Base V3 exceptionn type """
+
     def __init__(self, error: ApiError):
         self.error: ApiError = error
+
+
+class UnauthorizedImpersonation(APIException):
+    """ The impersonated user did not have the required permissions for the operation """

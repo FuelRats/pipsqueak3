@@ -1,2 +1,3 @@
-from .._converter import ApiConverter
-from .._base import FuelratsApiABC
+from .models.v1.apierror import APIException, UnauthorizedImpersonation
+
+__all__ = ["APIException", "UnauthorizedImpersonation"]

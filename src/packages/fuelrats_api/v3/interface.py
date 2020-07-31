@@ -19,6 +19,7 @@ from .._base import FuelratsApiABC, ApiConfig, Impersonation
 from ...rat import Rat as InternalRat
 from ...rescue import Rescue
 from ....config import CONFIG_MARKER, PLUGIN_MANAGER
+from .models.v1.apierror import UnauthorizedImpersonation, APIException
 
 NICKNAME_TIME = Histogram(
     namespace="api",
@@ -161,7 +162,7 @@ class ApiV300WSS(FuelratsApiABC):
             results = await self._get_rat_uuid(key)
             return [ApiRat.from_dict(results.body['data']).into_internal()]
         if isinstance(key, str):
-            results = await self._get_rats_from_nickname(key)
+            results = await self._get_rats_from_nickname(key, impersonation=impersonation)
             return [rat.into_internal() for rat in results]
         raise TypeError(type(key))
 

@@ -6,7 +6,7 @@ from loguru import logger
 from websockets.client import WebSocketClientProtocol
 
 from .protocol import Response, Request, Event
-from ..models.v1.apierror import APIException, ApiError
+from ..models.v1.apierror import APIException, ApiError, UnauthorizedImpersonation
 
 
 class Connection:
@@ -28,10 +28,12 @@ class Connection:
         if response.state in self._futures:
             # if its an error return, then set the exception so the consumer raises.
             if response.status < 200 or response.status >= 300:
-                self._futures[response.state].set_exception(
-                    APIException(ApiError.from_dict(response.body["errors"][0]))
-                )
-                return
+                the_error = ApiError.from_dict(response.body["errors"][0])
+                if the_error.code == 401 and the_error.source.parameter == 'representing':
+                    return self._futures[response.state].set_exception(
+                        UnauthorizedImpersonation(the_error))
+                return self._futures[response.state].set_result(APIException(the_error))
+
             self._futures[response.state].set_result(response)
         else:
             if response.status != 200:

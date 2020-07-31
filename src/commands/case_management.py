@@ -408,7 +408,7 @@ async def cmd_case_management_inject(ctx: Context):
     if not rescue and not isinstance(tokens.subject[0], int):
         logger.debug("creating rescue for {!r}", tokens.subject[0])
         rescue = await ctx.bot.board.create_rescue(client=tokens.subject[0])
-        async with ctx.bot.board.modify_rescue(rescue) as case:
+        async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
             # check specific capture groups for existence.
@@ -432,7 +432,7 @@ async def cmd_case_management_inject(ctx: Context):
 
             return
 
-    async with ctx.bot.board.modify_rescue(rescue) as case:
+    async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
         case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
     await ctx.reply(

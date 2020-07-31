@@ -21,8 +21,7 @@ from uuid import UUID
 from loguru import logger
 
 from src.config import CONFIG_MARKER
-from ..fuelrats_api import FuelratsApiABC
-from ..fuelrats_api import ApiException
+from ..fuelrats_api import FuelratsApiABC, ApiException, Impersonation
 
 from ..rescue import Rescue
 
@@ -260,7 +259,7 @@ class RatBoard(abc.Mapping):
             del self._storage_by_client[target.irc_nickname.casefold()]
 
     @asynccontextmanager
-    async def modify_rescue(self, key: BoardKey) -> Rescue:
+    async def modify_rescue(self, key: BoardKey, impersonation: typing.Optional[Impersonation] = None) -> Rescue:
         """
         Context manager to modify a Rescue
 
@@ -299,7 +298,7 @@ class RatBoard(abc.Mapping):
             # If we are in online mode, emit update event to API.
             if self.online:
                 logger.trace("updating API...")
-                await self._handler.update_rescue(target)
+                await self._handler.update_rescue(target, impersonating=impersonation)
 
         logger.trace("released modification lock.")
 

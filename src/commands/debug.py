@@ -13,11 +13,13 @@ See LICENSE.md
 """
 from uuid import UUID
 
+from loguru import logger
+
 from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
+from src.packages.fuelrats_api.v3 import UnauthorizedImpersonation
 from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
-from loguru import logger
 
 
 @command("debug-whois")
@@ -43,7 +45,8 @@ async def cmd_debug_userinfo(context: Context):
     """
 
     await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
-    await context.reply(f"user identifed?: {context.user.identified} with account?: {context.user.account}")
+    await context.reply(
+        f"user identified?: {context.user.identified} with account?: {context.user.account}")
 
 
 @command("superPing!")
@@ -74,7 +77,8 @@ async def cmd_get_plugins(context: Context):
 @require_permission(TECHRAT)
 async def cmd_get_nickname(context: Context):
     await context.reply("fetching....")
-    result = await  context.bot.api_handler.get_rat("ClappersClappyton", impersonation=context.user.account)
+    result = await  context.bot.api_handler.get_rat("ClappersClappyton",
+                                                    impersonation=context.user.account)
     await context.reply("got a result!")
     logger.debug("got nickname result {!r}", result)
 
@@ -125,7 +129,7 @@ async def cmd_debug_fetch(context: Context):
     results = await context.bot.api_handler.get_rescues(context.user.nickname)
 
     await context.reply(f"{len(results)} open cases detected.")
-    for rescue in results:
+    for rescue in sorted(results, key=lambda obj: obj.board_index if obj.board_index else 0):
         if rescue.board_index in context.bot.board:
             logger.warning("reassigning API imported rescue @{} a new board index (collision)",
                            rescue.api_id)
@@ -156,7 +160,12 @@ async def cmd_update_rescue(context: Context):
     rescue = context.bot.board[uid]
     await context.reply(f"updating @{uid}...")
     rescue.client = "some_test_client"
-    await context.bot.api_handler.update_rescue(rescue, impersonation=context.user.account)
+    try:
+        await context.bot.api_handler.update_rescue(rescue, impersonation=context.user.account)
+    except UnauthorizedImpersonation:
+        logger.exception("failed API action")
+        return await context.reply("Action failed. Invoking IRC user is not authorized.")
+
     await context.reply("done.")
 
 
