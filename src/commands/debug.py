@@ -161,7 +161,8 @@ async def cmd_update_rescue(context: Context):
     await context.reply(f"updating @{uid}...")
     rescue.client = "some_test_client"
     try:
-        await context.bot.api_handler.update_rescue(rescue, impersonation=context.user.account)
+        # FIXME use account impersonation
+        await context.bot.api_handler.update_rescue(rescue, impersonating=None)
     except UnauthorizedImpersonation:
         logger.exception("failed API action")
         return await context.reply("Action failed. Invoking IRC user is not authorized.")
@@ -174,4 +175,5 @@ async def cmd_update_rescue(context: Context):
 @require_permission(TECHRAT)
 async def cmd_debug_go_online(context: Context):
     await context.reply("going online...")
+    context.bot.board.api_handler = context.bot.api_handler
     await context.bot.board.on_online()

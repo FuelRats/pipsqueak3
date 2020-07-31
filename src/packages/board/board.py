@@ -264,6 +264,7 @@ class RatBoard(abc.Mapping):
         Context manager to modify a Rescue
 
         Args:
+            impersonation: User account this modification was issued by
             key ():
 
         Yields:
@@ -294,7 +295,6 @@ class RatBoard(abc.Mapping):
                 # append will reacquire the lock, so don;t reacquire it ourselves (damn no rlocks),
                 # but the context manger is gunna freak out if we don't re-acquire it though.
                 await self._modification_lock.acquire()
-
             # If we are in online mode, emit update event to API.
             if self.online:
                 logger.trace("updating API...")

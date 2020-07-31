@@ -112,7 +112,7 @@ class ApiV300WSS(FuelratsApiABC):
     async def get_rescues(self, impersonate: Impersonation) -> List[Rescue]:
         return [obj.into_internal() for obj in await self._get_open_rescues(impersonate=impersonate)]
 
-    async def update_rescue(self, rescue: Rescue, impersonation: Impersonation) -> None:
+    async def update_rescue(self, rescue: Rescue, impersonating: Impersonation) -> None:
         if not rescue.api_id:
             raise ValueError("Rescue cannot have a null API ID at this point.")
         payload = {
@@ -123,7 +123,7 @@ class ApiV300WSS(FuelratsApiABC):
         del payload["data"]["relationships"]
         work = Request(endpoint=["rescues", "update"], body=payload, query={
             'id': f"{rescue.api_id}",
-            "representing": impersonation
+            "representing": impersonating
         })
         if not Impersonation:
             del work.query['representing']
