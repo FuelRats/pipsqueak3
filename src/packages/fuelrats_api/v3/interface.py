@@ -113,6 +113,7 @@ class ApiV300WSS(FuelratsApiABC):
         return [obj.into_internal() for obj in await self._get_open_rescues(impersonate=impersonate)]
 
     async def update_rescue(self, rescue: Rescue, impersonating: Impersonation) -> None:
+        await self.ensure_connection()
         if not rescue.api_id:
             raise ValueError("Rescue cannot have a null API ID at this point.")
         payload = {
@@ -196,7 +197,7 @@ class ApiV300WSS(FuelratsApiABC):
     async def _get_rats_from_nickname(self, key: str, impersonation: Impersonation) -> List[ApiRat]:
         await self.ensure_connection()
 
-        raw = await self._get_nicknames(key)
+        raw = await self._get_nicknames(key, impersonation=impersonation)
         # If comparing types by equality triggers you, you arn't alone.
         # Its not actually a type, but a string the API uses to represent one.
         # meaning the below is just a string equality operation; nothing untoward here.

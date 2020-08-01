@@ -216,7 +216,7 @@ class MechaClient(Client, MessageHistoryClient):
         """
         API Handler property
         """
-        if not self._api_handler:
+        if self._api_handler is None:
             self._api_handler = ApiV300WSS(config=ApiConfig(**self._config['api']))
             self.board.api_handler = self._api_handler
         return self._api_handler
@@ -227,8 +227,10 @@ class MechaClient(Client, MessageHistoryClient):
         Rat Board property
 
         """
-        if not self._rat_board:
-            self._rat_board = RatBoard()  # Create Rat Board Object
+        if self._rat_board is None:
+            self._rat_board = RatBoard(
+                api_handler=self._api_handler if self._api_handler else None
+            )  # Create Rat Board Object
         return self._rat_board
 
     @board.setter
