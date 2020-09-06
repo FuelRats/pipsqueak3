@@ -254,7 +254,8 @@ async def handle_ratsignal(ctx: Context) -> None:
             irc_nickname=ctx.user.nickname, client=ctx.user.nickname
         )
         await ctx.reply(
-            f"Case #{rescue.board_index} created for {ctx.user.nickname!r}, Dispatch please set details"
+            f"Case #{rescue.board_index} created for {ctx.user.nickname!r},"
+            f" Dispatch please set details"
         )
         return
 

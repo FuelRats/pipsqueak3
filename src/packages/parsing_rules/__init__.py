@@ -4,8 +4,8 @@ import pyparsing
 
 irc_name = pyparsing.Word(initChars=pyparsing.alphas, bodyChars=pyparsing.alphanums + "[]{}|:-_<>\\/")
 """
-Matches a valid IRC nickname. 
-Token MUST start with a letter but MAY contain numerics and some special chars
+Matches a valid IRC nickname.
+ Token MUST start with a letter but MAY contain numerics and some special chars
 """
 
 api_id = pyparsing.Word(initChars="@", bodyChars=pyparsing.hexnums + "-", min=36, max=37)
