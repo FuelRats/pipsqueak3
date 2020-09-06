@@ -102,6 +102,7 @@ INJECT_PATTERN = suppress_first_word + rescue_identifier.setResultsName(
     "remainder"
 )
 
+CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 
 @require_channel
@@ -231,7 +232,6 @@ async def cmd_case_management_cmdr(ctx: Context):
         await ctx.reply(f"Client for {case.board_index} is now CMDR {case.client}")
 
 
-CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 
 @require_channel

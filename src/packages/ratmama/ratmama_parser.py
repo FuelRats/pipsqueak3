@@ -157,8 +157,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             changed.append("platform")
         if not o2_status != exist_rescue.code_red:
             msg = "O2 Status changed!" if o2_status else "O2 Status changed, it is now CODE RED!"
-            changed.append(msg)
-            await ctx.reply(f"{message}{', '.join(changed)} {msg}")
+            await ctx.reply(f"{message}{', '.join(changed)}, {msg}")
         return
 
     platform = None
@@ -179,7 +178,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     )
     platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
     await ctx.reply(
-        f"DRILLSIGNAL - CMDR {rescue.client} - "
+        f"{_config.trigger_keyword.upper()} - CMDR {rescue.client} - "
         f"Reported System: {rescue.system} (distance to be implemented) - "
         f"Platform: {rescue.platform.value if rescue.platform else ''} - "
         f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
