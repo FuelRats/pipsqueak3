@@ -27,9 +27,11 @@ import attr
 
 @attr.dataclass
 class RatmamaConfig:
-    announcer_nicks: List[str] = attr.ib(validator=attr.validators.deep_iterable(
-        attr.validators.instance_of(str), attr.validators.instance_of(list)
-    ))
+    announcer_nicks: List[str] = attr.ib(
+        validator=attr.validators.deep_iterable(
+            attr.validators.instance_of(str), attr.validators.instance_of(list)
+        )
+    )
     """ nicknames that may announce cases """
     trigger_keyword: str = attr.ib(validator=attr.validators.instance_of(str))
     """trigger keyword """
@@ -51,13 +53,13 @@ def rehash_handler(data: Dict):
 
     """
     global _config
-    _config = RatmamaConfig(config_blob=data, **data['ratsignal_parser'])
+    _config = RatmamaConfig(config_blob=data, **data["ratsignal_parser"])
 
 
 @CONFIG_MARKER
 def validate_config(data: Dict):
     # the dataclass does its own validation
-    RatmamaConfig(config_blob=data, **data['ratsignal_parser'])
+    RatmamaConfig(config_blob=data, **data["ratsignal_parser"])
 
 
 RATMAMA_REGEX = re.compile(
@@ -114,9 +116,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     """
 
-    if ctx.user.nickname.casefold() not in (
-        nick.casefold() for nick in _config.announcer_nicks
-    ):
+    if ctx.user.nickname.casefold() not in (nick.casefold() for nick in _config.announcer_nicks):
         return
 
     message: str = ctx.words_eol[0]
@@ -130,20 +130,20 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     client = await User.from_pydle(ctx.bot, client_name)
 
-    if client is not None and client.hostname in (
-                "services.fuelrats.com",
-                "bot.fuelrats.com"):
-        return await ctx.reply("Signal attempted to create rescue for a service. "
-                               "Dispatch: please inject this case.")
+    if client is not None and client.hostname in ("services.fuelrats.com", "bot.fuelrats.com"):
+        return await ctx.reply(
+            "Signal attempted to create rescue for a service. " "Dispatch: please inject this case."
+        )
 
-    exist_rescue: Optional[Rescue] = ctx.bot.board[
-        client_name
-    ] if client_name in ctx.bot.board else None
+    exist_rescue: Optional[Rescue] = (
+        ctx.bot.board[client_name] if client_name in ctx.bot.board else None
+    )
 
     if exist_rescue:
         # we got a case already!
-        await ctx.reply(f"{client_name} has reconnected! Case #{exist_rescue.board_index} "
-                        f"(RETURN_SIGNAL)")
+        await ctx.reply(
+            f"{client_name} has reconnected! Case #{exist_rescue.board_index} " f"(RETURN_SIGNAL)"
+        )
         # now let's make it more visible if stuff changed
         changed = []
         message = f"Case #{exist_rescue.board_index} "
@@ -151,8 +151,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             changed.append("system")
 
         if (
-                exist_rescue.platform
-                and platform_name.casefold() != exist_rescue.platform.name.casefold()
+            exist_rescue.platform
+            and platform_name.casefold() != exist_rescue.platform.name.casefold()
         ):
             changed.append("platform")
         if not o2_status != exist_rescue.code_red:
@@ -266,7 +266,8 @@ async def handle_ratsignal(ctx: Context) -> None:
         platform=platform,
     )
     platform_signal = (
-        f"{rescue.platform.name.upper()}_SIGNAL" if rescue.platform else _config.trigger_keyword    )
+        f"{rescue.platform.name.upper()}_SIGNAL" if rescue.platform else _config.trigger_keyword
+    )
     await ctx.reply(
         f"Case created for {rescue.client}"
         f" on {rescue.platform.name if rescue.platform else '<unknown platform>'} in {rescue.system}. "

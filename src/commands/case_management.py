@@ -232,8 +232,6 @@ async def cmd_case_management_cmdr(ctx: Context):
         await ctx.reply(f"Client for {case.board_index} is now CMDR {case.client}")
 
 
-
-
 @require_channel
 @require_channel(RAT)
 @command("codered", "casered", "cr")
@@ -361,8 +359,6 @@ async def cmd_case_management_grab(ctx: Context):
         await ctx.reply(
             f"{case.client}'s case updated with " f"{last_message!r} (Case {case.board_index})"
         )
-
-
 
 
 @require_channel
@@ -594,7 +590,6 @@ async def cmd_case_management(ctx: Context):
     rescue = ctx.bot.board.get(tokens.subject[0])
     if not tokens.remainder:
         return await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
-
 
     if not rescue:
         return await ctx.reply("No case with that name or number.")
