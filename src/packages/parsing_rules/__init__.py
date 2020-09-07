@@ -13,9 +13,7 @@ api_id = pyparsing.Word(initChars="@", bodyChars=pyparsing.hexnums + "-", min=36
 
 case_number = (
     # may lead with 'case'
-    api_id.setParseAction(
-        lambda token: UUID(token[0][1:])
-    )
+    api_id.setParseAction(lambda token: UUID(token[0][1:]))
     | pyparsing.Optional(pyparsing.Literal("#").suppress())
     + pyparsing.Word(pyparsing.nums).setParseAction(lambda token: int(token[0]))
 )

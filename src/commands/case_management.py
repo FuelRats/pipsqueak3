@@ -69,13 +69,11 @@ IRC_NICK_PATTERN = (
 )
 JUST_RESCUE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
-def parse_int(token:str) -> int:
-    return int(token )
 SUB_CMD_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
-    + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1)+pyparsing.WordEnd())
-    .setParseAction(lambda token: parse_int(token.quote_id[0]))
+    + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1) + pyparsing.WordEnd())
+    .setParseAction(lambda token: int(token.quote_id[0]))
     .setResultsName("quote_id")
     + pyparsing.restOfLine.setResultsName("remainder")
 )

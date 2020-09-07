@@ -93,11 +93,11 @@ def rescues(min_size: int, max_size: int):
 def rat(draw):
     """ Strategy for generating valid rat objects """
     uuids = strategies.uuids(version=4)
-    name = valid_word()
+    names = valid_word()
     platforms = strategies.one_of(strategies.none(), platform)
     return _Rat(
         uuid=draw(uuids),
-        name=draw(name),
+        name=draw(names),
         platform=draw(platforms)
     )
 
