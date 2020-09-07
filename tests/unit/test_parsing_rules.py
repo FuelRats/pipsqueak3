@@ -3,6 +3,7 @@ from typing import Union, List
 from src.commands import case_management
 
 import pytest
+from loguru import logger
 from hypothesis import strategies, given
 from .. import strategies as test_strategies
 
@@ -76,11 +77,13 @@ def test_just_rescue_pattern(ident):
 @given(
     ident=test_strategies.rescue_identifier(),
     index=strategies.integers(min_value=0),
-    data=test_strategies.valid_words(min_size=1)
+    data=test_strategies.valid_words(min_size=0)
 )
 def test_sub_cmd_pattern(ident: IDENT_TYPE, index: int, data: List[str]):
-    payload = f"!sub {ident} {index} {' '.join(data)}"
+    remainder_payload = ' '.join(data).strip()
+    payload = f"!sub {ident} {index} {remainder_payload}"
 
     tokens = case_management.SUB_CMD_PATTERN.parseString(payload)
 
-    assert tokens.quote_id == index, "parsed incorrectly."
+    assert tokens.quote_id == index, "quote_id is incorrect."
+    assert tokens.remainder.strip() == remainder_payload, "remainder is incorrect."
