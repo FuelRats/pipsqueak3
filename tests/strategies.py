@@ -24,8 +24,8 @@ def valid_text():
     """
     return (
         strategies.text(valid_characters, min_size=10)
-        .filter(lambda data: sanitize(data) == data)
-        .filter(lambda data: data.isprintable())
+            .filter(lambda data: sanitize(data) == data)
+            .filter(lambda data: data.isprintable())
     )
 
 
@@ -63,8 +63,8 @@ _irc_nick_letters = strategies.characters(
 def valid_irc_name(draw):
     names = (
         strategies.text(alphabet=_irc_nick_letters, min_size=3)
-        .filter(lambda word: not word[0].isnumeric())
-        .filter(lambda word: not word.startswith(("\\", "_", "[", "]", "{", "}", "/")))
+            .filter(lambda word: not word[0].isnumeric())
+            .filter(lambda word: not word.startswith(("\\", "_", "[", "]", "{", "}", "/")))
     )
 
     return draw(names)
@@ -142,3 +142,16 @@ def rescue_identifier(draw):
     identifier = strategies.one_of(numbers, names)
 
     return draw(identifier)
+
+
+@strategies.composite
+def timer(draw):
+    """
+    Produces a timer string `{minute}:{second}`.
+
+    Shrinks towards 00:00.
+    """
+    minutes = strategies.integers(min_value=0, max_value=60)
+    seconds = strategies.integers(min_value=0, max_value=60)
+
+    return F"{draw(minutes)}:{draw(seconds)}"

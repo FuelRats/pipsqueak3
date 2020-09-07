@@ -49,3 +49,6 @@ platform = (
 """
 Matches a platform specifier
 """
+
+rest_of_line = pyparsing.restOfLine.setParseAction(lambda token: token[0].strip())
+""" Captures all remaining text, stripping leading/trailing whitespace."""

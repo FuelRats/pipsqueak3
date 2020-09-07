@@ -25,7 +25,8 @@ from ._list_flags import ListFlags
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.epic import Epic
-from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word, timer
+from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word, timer, \
+    rest_of_line
 from ..packages.permissions.permissions import (
     require_permission,
     RAT,
@@ -36,6 +37,7 @@ from ..packages.quotation.rat_quotation import Quotation
 from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status
+
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
@@ -55,9 +57,9 @@ CLEAR_PATTERN = (
     + pyparsing.Optional(irc_name).setResultsName("first_limpet")
 )
 CMDR_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + pyparsing.restOfLine.setResultsName("new_cmdr")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + rest_of_line.setResultsName("new_cmdr")
 )
 
 GRAB_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -75,13 +77,13 @@ SUB_CMD_PATTERN = (
     + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1) + pyparsing.WordEnd())
     .setParseAction(lambda token: int(token.quote_id[0]))
     .setResultsName("quote_id")
-    + pyparsing.restOfLine.setResultsName("remainder")
+    + rest_of_line.setResultsName("remainder")
 )
 
 SYS_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + pyparsing.restOfLine.setParseAction(lambda token: token[0].strip()).setResultsName("remainder")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + rest_of_line.setResultsName("remainder")
 )
 
 TITLE_PATTERN = SYS_PATTERN
@@ -98,7 +100,7 @@ INJECT_PATTERN = suppress_first_word + rescue_identifier.setResultsName(
     "code_red"
 ) + pyparsing.Optional(
     timer("timer")
-) + pyparsing.restOfLine.setResultsName(
+) + rest_of_line.setResultsName(
     "remainder"
 )
 
