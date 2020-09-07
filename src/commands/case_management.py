@@ -74,7 +74,7 @@ def parse_int(token:str) -> int:
 SUB_CMD_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
-    + pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1)
+    + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1)+pyparsing.WordEnd())
     .setParseAction(lambda token: parse_int(token.quote_id[0]))
     .setResultsName("quote_id")
     + pyparsing.restOfLine.setResultsName("remainder")
