@@ -235,7 +235,7 @@ async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms)
 @pytest.mark.hypothesis
 @hypothesis.given(
     cr_state=strategies.booleans(),
-    client=custom_strategies.valid_irc_name,
+    client=custom_strategies.valid_irc_name(),
     payload=custom_strategies.valid_text,
     platform=strategies.sampled_from([Platforms.PC, Platforms.XB, Platforms.PS]),
 )
