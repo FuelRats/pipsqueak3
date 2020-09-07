@@ -27,6 +27,7 @@ Please see [py.test](https://docs.pytest.org/en/latest/contents.html) documentat
 * Not using included fixtures.  These are common objects used in multiple tests as a known good source.  Many are parameterized to include important things, such as multiple platforms, systems, or users. Available fixtures are located in the [conftest.py](./tests/conftest.py) file.  If they can be re-used, add them.  Otherwise, purpose-built fixtures can be used locally.
 * Include an ``assert`` statement for each test function.  Set up a scenario with your test function, and check required conditions are expected.
 * Try/catch blocks should not be used in tests.  You may assert an exception was raised as follows:
+* forgetting to mark an async test as async, `async def` tests should be marked with `pytest.mark.asyncio`, otherwise pytest will either not run them (xpass), or just fail the entire test suite.
 
 ```python
 with pytest.raises(SomeErrorType):

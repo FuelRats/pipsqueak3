@@ -10,10 +10,9 @@ This project is under active development.  As such, features may be added or rem
 SPARK is currently **incomplete**.
 
 ## Requirements
-* Python 3.7
+* Python 3.8
 * PostgreSQL
-* Pydle >= 0.9.1
-
+* `poetry`
 ## Installation
 This script can be run as a Docker image or run locally.
 
@@ -45,15 +44,14 @@ docker-compose run mechasqueak
 
 ## Run Locally
 > ## NOTE:
-> on top of pip you must have installed `pipenv`, this guide assumes this fact.
+> on top of pip you must have installed `poetry`, this guide assumes this fact.
 
-> If you are not using pipenv, please see [Pipfile](Pipfile) for the list of required libraries. 
+> If you are not using poetry, please see [pyproject.toml](pyproject.toml) for the list of required libraries. 
  You will need to install these libraries manually.
 
 1. Clone the repository from the ``master`` branch, or for bleeding edge, use ``develop``.  Please keep in mind, Develop changes frequently and may be broken.
-2. Install the project's requirements, `pipenv install`
-    - For development, please use `pipenv install -d` to install our development dependencies.
-3. once installed, activate the venv `pipenv shell`
+2. Install the project's requirements, `poetry install --no-root`
+3. once installed, activate the venv `poetry shell`
 4. Build your configuration file.  Please see the [Configuration](#Configuration) section.
 5. Execute Mecha with ``python -m src --config <your configuration file>``  (You may need to use the python3 alias)
 
@@ -67,10 +65,10 @@ docker-compose run mechasqueak
 ## Configuration
 Configuration settings are stored in the `config/` subfolder as JSON files. 
 
-By default, Mecha will attempt to load `configuration.json` (file not provided) from this subdirectory.
+By default, Mecha will attempt to load `configuration.toml` (file not provided) from this subdirectory.
 
-To configure Mecha locally, please copy the provided `config.template.json` to a new file.
-`configuration.json` and fill in the appropriate fields, see `config/configuration.md` for details.
+To configure Mecha locally, please copy the provided `config.template.toml` to a new file.
+`configuration.toml` and fill in the appropriate fields, see `config/configuration.md` for details.
 
 When run via docker, it is not necessary to rebuild the image after changing
 configuration options as that directory is shared with the container (see `config/configuration.md`)

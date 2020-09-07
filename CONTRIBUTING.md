@@ -2,7 +2,7 @@
 
 >Welcome!  Contributors are welcome, under the following guidelines.  You don't have to be a member of our GitHub Org to contribute!
 
-This project is a complete rewrite and replacement for mechas2's codebase, written in Python 3.7.  This project is open source, released under [BSD-3](LICENSE).
+This project is a complete rewrite and replacement for mechas2's codebase, written in Python 3.  This project is open source, released under [BSD-3](LICENSE).
 
 Please note that while some organization members have direct write access, all code additions are **REQUIRED** to be peer reviewed.
 
