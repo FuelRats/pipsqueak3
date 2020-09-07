@@ -31,18 +31,26 @@ Characters that are valid to be in a word
 """
 
 valid_word = strategies.text(valid_word_chars, min_size=1)
-"""
-a single word (no whitespace)
 
-Shrinks towards smaller words. 
-"""
 
-valid_words = strategies.lists(valid_word, max_size=10)
-""" 
-a list of valid words
+def valid_word(min_size: int = 1):
+    """
+    a single word (no whitespace)
 
-Shrinks towards smaller lists and smaller words.
-"""
+    Shrinks towards smaller words.
+    """
+    return strategies.text(valid_word_chars, min_size=min_size)
+
+
+def valid_words(min_size=0, max_size=10, min_word_size=1):
+    """
+    a list of valid words
+
+    Shrinks towards smaller lists and smaller words.
+    """
+    return strategies.lists(valid_word(min_size=min_word_size))
+
+
 _irc_nick_letters = strategies.characters(
     whitelist_characters=f"{string.ascii_letters}{string.digits}" + r"\/_[]{}",
     whitelist_categories=())
@@ -85,12 +93,12 @@ def rescues(min_size: int, max_size: int):
 def rat(draw):
     """ Strategy for generating valid rat objects """
     uuids = strategies.uuids(version=4)
-    name = valid_word
+    name = valid_word()
     platforms = strategies.one_of(strategies.none(), platform)
     return _Rat(
         uuid=draw(uuids),
-        name=draw(valid_word),
-        platform=draw(platform)
+        name=draw(name),
+        platform=draw(platforms)
     )
 
 

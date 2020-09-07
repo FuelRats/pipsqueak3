@@ -41,7 +41,7 @@ def test_clear_pattern(ident: IDENT_TYPE, subject: str):
 
 @given(
     ident=test_strategies.rescue_identifier(),
-    subject=test_strategies.valid_word
+    subject=test_strategies.valid_word()
 )
 def test_cmdr_pattern(ident, subject):
     payload = f"!cmdr {ident} {subject}"
@@ -76,7 +76,7 @@ def test_just_rescue_pattern(ident):
 @given(
     ident=test_strategies.rescue_identifier(),
     index=strategies.integers(min_value=0),
-    data=test_strategies.valid_words
+    data=test_strategies.valid_words(min_size=1)
 )
 def test_sub_cmd_pattern(ident: IDENT_TYPE, index: int, data: List[str]):
     payload = f"!sub {ident} {index} {' '.join(data)}"
