@@ -104,10 +104,6 @@ def rescue_number(draw):
     uuids = strategies.uuids(version=4)
     # Either a space or a `#` character.
     leading_integer_literals = strategies.one_of(strategies.just("#"), strategies.just(" "))
-
-    # Either a space or a `@` character.
-    leading_uuid_literals = strategies.one_of(strategies.just("@"), strategies.just(" "))
-
     # Any positive number.
     numbers = strategies.integers(min_value=0)
 
@@ -117,7 +113,7 @@ def rescue_number(draw):
     raw_payload = draw(payload_mux)
     # If its a uuid, draw from the uuid prefix strategy as well and mash the two together.
     if isinstance(raw_payload, UUID):
-        return f"{draw(leading_uuid_literals)}{raw_payload}".lstrip()
+        return f"@{raw_payload}".lstrip()
 
     # Otherwise draw from the integer prefix strategy.
     return f"{draw(leading_integer_literals)}{raw_payload}".lstrip()
