@@ -13,24 +13,26 @@ valid_characters = strategies.characters(blacklist_categories=["C", "Zl", "Zp"])
 """
 Any character (ASCII / UNICODE) that isn't a control character or whitespace other than ' '.
 """
+
+
 # Filtered by anything that doesn't make it through the sanitizer.
-valid_text = (
-    strategies.text(valid_characters, min_size=10)
+def valid_text():
+    """
+    Generates probably valid text.
+
+    Shrinks towards smaller words.
+    """
+    return (
+        strategies.text(valid_characters, min_size=10)
         .filter(lambda data: sanitize(data) == data)
         .filter(lambda data: data.isprintable())
-)
-""" 
-Generates probably valid text.
+    )
 
-Shrinks towards smaller words.
-"""
 
 valid_word_chars = strategies.characters(blacklist_categories=["C", "Z"])
 """
 Characters that are valid to be in a word
 """
-
-valid_word = strategies.text(valid_word_chars, min_size=1)
 
 
 def valid_word(min_size: int = 1):
@@ -48,19 +50,22 @@ def valid_words(min_size=0, max_size=10, min_word_size=1):
 
     Shrinks towards smaller lists and smaller words.
     """
-    return strategies.lists(valid_word(min_size=min_word_size))
+    return strategies.lists(valid_word(min_size=min_word_size), min_size=min_size, max_size=max_size)
 
 
 _irc_nick_letters = strategies.characters(
     whitelist_characters=f"{string.ascii_letters}{string.digits}" + r"\/_[]{}",
-    whitelist_categories=())
+    whitelist_categories=(),
+)
 
 
 @strategies.composite
 def valid_irc_name(draw):
-    names = strategies.text(alphabet=_irc_nick_letters, min_size=3).filter(
-        lambda word: not word[0].isnumeric()).filter(
-        lambda word: not word.startswith(('\\', '_', '[', ']', '{', '}', '/')))
+    names = (
+        strategies.text(alphabet=_irc_nick_letters, min_size=3)
+        .filter(lambda word: not word[0].isnumeric())
+        .filter(lambda word: not word.startswith(("\\", "_", "[", "]", "{", "}", "/")))
+    )
 
     return draw(names)
 
@@ -76,17 +81,23 @@ rescue = strategies.builds(
     platform=platform,
     active=strategies.booleans(),
     code_red=strategies.booleans(),
-    board_index=strategies.one_of(strategies.integers(min_value=1), strategies.none())
+    board_index=strategies.one_of(strategies.integers(min_value=1), strategies.none()),
 )
 """ Strategy for generating a rescue. Shrinks towards smaller arguments """
 
 
 def rescues(min_size: int, max_size: int):
     """ builds a list of rescues, shrinks towards smaller lists and smaller rescues """
-    return strategies.lists(rescue, min_size=min_size, max_size=max_size,
-                            unique_by=(
-                                lambda case: case.irc_nickname, lambda case: case.board_index,
-                                lambda case: case.client))
+    return strategies.lists(
+        rescue,
+        min_size=min_size,
+        max_size=max_size,
+        unique_by=(
+            lambda case: case.irc_nickname,
+            lambda case: case.board_index,
+            lambda case: case.client,
+        ),
+    )
 
 
 @strategies.composite
@@ -95,15 +106,12 @@ def rat(draw):
     uuids = strategies.uuids(version=4)
     names = valid_word()
     platforms = strategies.one_of(strategies.none(), platform)
-    return _Rat(
-        uuid=draw(uuids),
-        name=draw(names),
-        platform=draw(platforms)
-    )
+    return _Rat(uuid=draw(uuids), name=draw(names), platform=draw(platforms))
 
 
-rats = strategies.lists(rat())
-""" a list of rats """
+def rats(min_size=0, max_size=None):
+    """ a list of rats, shrinks toward smaller lists """
+    return strategies.lists(rat(), min_size=min_size, max_size=max_size)
 
 
 @strategies.composite
