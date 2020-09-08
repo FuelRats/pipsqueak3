@@ -329,10 +329,14 @@ async def cmd_case_management_grab(ctx: Context):
         return
     tokens = GRAB_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = ctx.bot.board.get(tokens.subject[0])
+    rescue: Rescue = ctx.bot.board.get(tokens.subject[0])
+
+    subject = rescue.irc_nickname.casefold() if rescue else ctx.words[1].casefold()
+    logger.debug("checking for last message of irc nick {!r}...", subject)
     last_message = ctx.bot.last_user_message.get(
-        rescue.client.casefold() if rescue else ctx.words[1].casefold()
+        subject
     )
+    logger.debug("last_message = {!r}", last_message)
     if not last_message:
         return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
 
