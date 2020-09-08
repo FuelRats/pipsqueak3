@@ -797,6 +797,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         coloured = 'c' in format_spec
         show_assigned_rats = 'r' in format_spec
         show_uuid = '@' in format_spec
+        show_system = "s" in format_spec
 
         buffer = StringIO()
         buffer.write(f"[{self.board_index}")
@@ -805,6 +806,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
         buffer.write(F"{self.client}'s case, ")
         if self.irc_nickname != self.client and self.irc_nickname is not None:
             buffer.write(f"IRC Nick: {self.irc_nickname!r}, ")
+
+        if show_system and self.system:
+            buffer.write(f"in {self.system!r}, ")
 
         if self.code_red:
             base = '(CR '

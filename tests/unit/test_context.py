@@ -118,7 +118,7 @@ def test_split_message(payload, words, words_eol):
 
 @pytest.mark.hypothesis
 @hypothesis.given(
-    data=valid_text
+    data=valid_text()
 )
 def test_split_hypothesis(data: str):
     words_out, words_eol = _split_message(data)

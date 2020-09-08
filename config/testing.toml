@@ -33,6 +33,8 @@ url = "https://system.api.fuelrats.com/"
 
 [ratsignal_parser]
 announcer_nicks = [ "RatMama[Bot]", "some_announcer", 'unknown' ]
+trigger_keyword="TESTSIGNAL"
+
 
 [authentication.plain]
 username = ""

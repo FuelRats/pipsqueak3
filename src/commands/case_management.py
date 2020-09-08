@@ -18,12 +18,15 @@ import uuid
 from datetime import timezone
 
 import humanfriendly
+import pyparsing
 from loguru import logger
 
 from ._list_flags import ListFlags
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.epic import Epic
+from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word, timer, \
+    rest_of_line
 from ..packages.permissions.permissions import (
     require_permission,
     RAT,
@@ -35,29 +38,73 @@ from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status
 
+
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
 Regex matcher used to find a time within a string. Used to determine
 if a newly-submitted case is code red or not.
 """
+ASSIGN_PATTERN = (
+    suppress_first_word
+    + (rescue_identifier).setResultsName("subject")
+    + pyparsing.OneOrMore(irc_name).setResultsName("rats")
+)
+ACTIVE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
+CLEAR_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + pyparsing.Optional(irc_name).setResultsName("first_limpet")
+)
+CMDR_PATTERN = (
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + rest_of_line.setResultsName("new_cmdr")
+)
 
-# User input validation helper
-def _validate(ctx: Context, validate: str) -> typing.Optional[Rescue]:
-    try:
-        if validate not in ctx.bot.board:
-            rescue = ctx.bot.board[int(ctx.words[1])]
-        else:
-            rescue = ctx.bot.board.get(ctx.words[1])
-    except (KeyError, ValueError):
-        try:
-            force_uuid = uuid.UUID(ctx.words[1])
-        except ValueError:
-            return None
-        else:
-            rescue = ctx.bot.board.get(force_uuid)
+GRAB_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
-    return rescue
+IRC_NICK_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + irc_name.setResultsName("new_nick")
+)
+JUST_RESCUE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
+
+SUB_CMD_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1) + pyparsing.WordEnd())
+    .setParseAction(lambda token: int(token.quote_id[0]))
+    .setResultsName("quote_id")
+    + rest_of_line.setResultsName("remainder")
+)
+
+SYS_PATTERN = (
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + rest_of_line.setResultsName("remainder")
+)
+
+TITLE_PATTERN = SYS_PATTERN
+
+UNASSIGN_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + pyparsing.OneOrMore(irc_name).setResultsName("rats")
+)
+
+INJECT_PATTERN = suppress_first_word + rescue_identifier.setResultsName(
+    "subject"
+) & pyparsing.Optional(pyparsing.CaselessLiteral("cr")).setResultsName(
+    "code_red"
+) + pyparsing.Optional(
+    timer("timer")
+) + rest_of_line.setResultsName(
+    "remainder"
+)
+
+CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 
 @require_channel
@@ -75,12 +122,11 @@ async def cmd_case_management_active(ctx: Context):
     Channel Only: YES
     Permission: Rat
     """
-    if len(ctx.words) != 2:
+    if not ACTIVE_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !active <Client Name|Case Number>")
         return
-
-    # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    tokens = ACTIVE_PATTERN.parseString(ctx.words_eol[0])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -96,19 +142,20 @@ async def cmd_case_management_active(ctx: Context):
 @require_permission(RAT)
 @command("assign", "add", "go")
 async def cmd_case_management_assign(ctx: Context):
-    if len(ctx.words) <= 2:
+    if not ASSIGN_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
         return
-
+    tokens = ASSIGN_PATTERN.parseString(ctx.words_eol[0])
+    logger.debug("parsed assign tokens::{}", tokens)
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
         return
 
     # Get rats from input command
-    rat_list = ctx.words_eol[2].split()
+    rat_list = tokens.rats
 
     # Get client's IRC nick, otherwise use client name as entered
     rescue_client = rescue.irc_nickname if rescue.irc_nickname else rescue.client
@@ -132,18 +179,14 @@ async def cmd_case_management_assign(ctx: Context):
 @require_permission(RAT)
 @command("clear", "close")
 async def cmd_case_management_clear(ctx: Context):
-    if len(ctx.words) < 2 or len(ctx.words) > 3:
+    if not CLEAR_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !clear <Client Name|Board Index> [First Limpet Sender]")
         return
-
+    tokens = CLEAR_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
-    # Only set First Limpet if it was specified.
-    if len(ctx.words) == 3:
-        first_limpet = ctx.words[2]
-    else:
-        first_limpet = ""
+    first_limpet = tokens.first_limpet
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -175,19 +218,19 @@ async def cmd_case_management_clear(ctx: Context):
 @require_permission(RAT)
 @command("cmdr", "commander")
 async def cmd_case_management_cmdr(ctx: Context):
-    if len(ctx.words) < 2:
+    if not CMDR_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !cmdr <Client Name|Board Index> <CMDR name>")
         return
-
+    tokens = CMDR_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
         return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.client = ctx.words[2]
+        case.client = tokens.new_cmdr.strip()
         await ctx.reply(f"Client for {case.board_index} is now CMDR {case.client}")
 
 
@@ -195,12 +238,14 @@ async def cmd_case_management_cmdr(ctx: Context):
 @require_channel(RAT)
 @command("codered", "casered", "cr")
 async def cmd_case_management_codered(ctx: Context):
-    if len(ctx.words) < 2:
+    if not CODE_RED_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !codered <Client Name|Board Index>")
         return
 
+    tokens = CODE_RED_PATTERN.parseString(ctx.words_eol[0])
+
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = tokens.subject[0]
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -279,12 +324,12 @@ async def cmd_case_management_epic(ctx: Context):
 @require_permission(RAT)
 @command("grab")
 async def cmd_case_management_grab(ctx: Context):
-    if len(ctx.words) != 2:
+    if not GRAB_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !grab <Client Name>")
         return
-
+    tokens = GRAB_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1].casefold())
+    rescue = ctx.bot.board.get(tokens.subject[0])
     last_message = ctx.bot.last_user_message.get(
         rescue.client.casefold() if rescue else ctx.words[1].casefold()
     )
@@ -322,26 +367,23 @@ async def cmd_case_management_grab(ctx: Context):
 @require_permission(RAT)
 @command("inject")
 async def cmd_case_management_inject(ctx: Context):
-    if len(ctx.words) < 3:
+    if not INJECT_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !inject <Client Name|Board Index> <Text to Add>")
         return
-
+    tokens = INJECT_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
-    if not rescue:
-        logger.debug("creating rescue for {!r}", ctx.words[1])
-        rescue = await ctx.bot.board.create_rescue(client=ctx.words[1])
+    if not rescue and not isinstance(tokens.subject[0], int):
+        logger.debug("creating rescue for {!r}", tokens.subject[0])
+        rescue = await ctx.bot.board.create_rescue(client=tokens.subject[0])
         async with ctx.bot.board.modify_rescue(rescue) as case:
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
             for keyword in ctx.words_eol[2].split():
                 if keyword.upper() in {item.value for item in Platforms}:
                     case.platform = Platforms[keyword.upper()]
-                if (
-                    keyword.casefold() == "cr"
-                    or _TIME_RE.match(ctx.words_eol[2])
-                ):
+                if keyword.casefold() == "cr" or _TIME_RE.match(ctx.words_eol[2]):
                     case.code_red = True
             if "code red" in ctx.words_eol[2]:
                 case.code_red = True
@@ -367,18 +409,20 @@ async def cmd_case_management_inject(ctx: Context):
 @require_permission(RAT)
 @command("ircnick", "nick", "nickname")
 async def cmd_case_management_ircnick(ctx: Context):
-    if len(ctx.words) < 3:
-        await ctx.reply("Usage: !ircnick <Client Name|Board Index> <New Client Name>")
-        return
-
+    if not IRC_NICK_PATTERN.matches(ctx.words_eol[0]):
+        return await ctx.reply("Usage: !ircnick <Client Name|Board Index> <New Client Name>")
+    tokens = IRC_NICK_PATTERN.parseFile(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
         return
 
-    new_name = ctx.words[2]
+    new_name = tokens.new_nick
+    # sanity check that probably can never be reached.
+    if not new_name:
+        raise ValueError("new_name should be truthy.")
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.irc_nickname = new_name
@@ -395,12 +439,10 @@ async def cmd_case_management_ircnick(ctx: Context):
 @require_permission(RAT)
 @command("pc", "ps", "xb")
 async def cmd_case_management_system(ctx: Context):
-    if len(ctx.words) < 2:
-        await ctx.reply("Usage: !pc <Client Name|Board Index>")
-        return
-
-    # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    if not JUST_RESCUE_PATTERN.matches(ctx.words_eol[0]):
+        return await ctx.reply("Usage: !<pc|ps|xb> <Client Name|Board Index>")
+    tokens = JUST_RESCUE_PATTERN.parseString(ctx.words_eol[0])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -415,12 +457,12 @@ async def cmd_case_management_system(ctx: Context):
 @require_permission(RAT)
 @command("quote")
 async def cmd_case_management_quote(ctx: Context):
-    if len(ctx.words) < 2:
+    if not JUST_RESCUE_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !quote <Client Name|Board Index>")
         return
 
-    # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    tokens = JUST_RESCUE_PATTERN.parseString(ctx.words_eol[0])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -428,7 +470,7 @@ async def cmd_case_management_quote(ctx: Context):
 
     created_timestamp = rescue.updated_at.strftime("%b %d %H:%M:%S UTC")
 
-    header = f"{rescue}, " f"updated {created_timestamp}  " f"@{rescue.api_id}"
+    header = f"{rescue:s@r}, updated {created_timestamp}"
 
     await ctx.reply(header)
 
@@ -501,26 +543,24 @@ async def cmd_case_management_reopen(ctx: Context):
 @require_permission(OVERSEER)
 @command("sub")
 async def cmd_case_management(ctx: Context):
-    if len(ctx.words) < 3:
+    if not SUB_CMD_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !sub <Client Name|Board Index> <Quote Number> [New Text]")
-
-    rescue = _validate(ctx, ctx.words[1])
+    tokens = SUB_CMD_PATTERN.parseString(ctx.words_eol[0])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
         return
 
-    try:
-        quote_id = int(ctx.words[2])
-    except (TypeError, ValueError):
-        await ctx.reply(f"{ctx.words[2]!r} is not a valid quote index.")
-        return
+    quote_id = tokens.quote_id
 
     if quote_id > len(rescue.quotes):
         await ctx.reply(f"Invalid quote index for case #{rescue.board_index}")
         return
 
-    if len(ctx.words_eol[1].split()) >= 3:
+    logger.debug("quote_id:={}, remainder:={}", quote_id, tokens.remainder)
+
+    if tokens.remainder:
         if quote_id > len(rescue.quotes):
             # no such quote, bail out
             return await ctx.reply(f"no such quote by id {quote_id}")
@@ -546,53 +586,56 @@ async def cmd_case_management(ctx: Context):
 @require_permission(RAT)
 @command("sys", "loc", "location")
 async def cmd_case_management(ctx: Context):
-    if len(ctx.words) < 3:
+    if not SYS_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
-
-    rescue = _validate(ctx, ctx.words[1])
+    tokens = SYS_PATTERN.parseString(ctx.words_eol[0])
+    rescue = ctx.bot.board.get(tokens.subject[0])
+    if not tokens.remainder:
+        return await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
 
     if not rescue:
         return await ctx.reply("No case with that name or number.")
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.system = ctx.words_eol[2]
-        await ctx.reply(f"{case.client}'s system set to {ctx.words_eol[2]!r}")
+        case.system = tokens.remainder
+        await ctx.reply(f"{case.client}'s system set to {tokens.remainder!r}")
 
 
 @require_channel
 @require_permission(RAT)
 @command("title")
 async def cmd_case_management_title(ctx: Context):
-    if len(ctx.words) < 2:
+    if not TITLE_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !title <Client Name|Board Index> <Operation Title")
         return
 
-    rescue = _validate(ctx, ctx.words[1])
+    tokens = TITLE_PATTERN.parseString(ctx.words_eol[0])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
         return
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.title = ctx.words_eol[3]
-        await ctx.reply(f"{case.client}'s rescue title set to {ctx.words_eol[2]!r}")
+        case.title = tokens.remainder
+        await ctx.reply(f"{case.client}'s rescue title set to {tokens.remainder!r}")
 
 
 @require_channel
 @require_permission(RAT)
 @command("unassign", "rm", "remove", "standdown")
 async def cmd_case_management_unassign(ctx: Context):
-    if len(ctx.words) < 3:
+    if not UNASSIGN_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
 
-    # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
+    tokens = UNASSIGN_PATTERN.parseString(ctx.words_eol[0])
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         return await ctx.reply("No case with that name or number.")
 
     # Get rats from input command
-    rat_list = ctx.words_eol[2].split()
+    rat_list = tokens.rats.asList()
 
     # Get client's IRC nick, otherwise use client name as entered
     rescue_client = rescue.irc_nickname if rescue.irc_nickname else rescue.client

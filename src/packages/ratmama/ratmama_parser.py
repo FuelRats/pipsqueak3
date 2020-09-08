@@ -13,20 +13,34 @@ See LICENSE.md
 
 import re
 from loguru import logger
-from typing import Optional, Dict, TypedDict
+from typing import Optional, Dict, Any, List
 from src.config import CONFIG_MARKER
+from io import StringIO
 from ..context import Context
 from ..rescue import Rescue
 from ..rules import rule
 from ..user import User
 from ..utils import Platforms
 
-
-class _RatmamaConfig(TypedDict):
-    trigger_keyword: str
+import attr
 
 
-_config: _RatmamaConfig = {"trigger_keyword": ""}
+@attr.dataclass
+class RatmamaConfig:
+    announcer_nicks: List[str] = attr.ib(
+        validator=attr.validators.deep_iterable(
+            attr.validators.instance_of(str), attr.validators.instance_of(list)
+        )
+    )
+    """ nicknames that may announce cases """
+    trigger_keyword: str = attr.ib(validator=attr.validators.instance_of(str))
+    """trigger keyword """
+
+    config_blob: Dict = attr.ib(validator=attr.validators.instance_of(dict))
+    """ overall configuration blob """
+
+
+_config: RatmamaConfig
 
 
 @CONFIG_MARKER
@@ -38,7 +52,14 @@ def rehash_handler(data: Dict):
         data (typing.Dict): new configuration data to apply.
 
     """
-    _config.update(data)
+    global _config
+    _config = RatmamaConfig(config_blob=data, **data["ratsignal_parser"])
+
+
+@CONFIG_MARKER
+def validate_config(data: Dict):
+    # the dataclass does its own validation
+    RatmamaConfig(config_blob=data, **data["ratsignal_parser"])
 
 
 RATMAMA_REGEX = re.compile(
@@ -95,9 +116,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     """
 
-    if ctx.user.nickname.casefold() not in (
-        nick.casefold() for nick in _config["ratsignal_parser"]["announcer_nicks"]
-    ):
+    if ctx.user.nickname.casefold() not in (nick.casefold() for nick in _config.announcer_nicks):
         return
 
     message: str = ctx.words_eol[0]
@@ -111,64 +130,61 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     client = await User.from_pydle(ctx.bot, client_name)
 
-    if client is not None and client.hostname in (
-                "services.fuelrats.com",
-                "bot.fuelrats.com"):
-        return await ctx.reply("Signal attempted to create rescue for a service. "
-                               "Dispatch: please inject this case.")
+    if client is not None and client.hostname in ("services.fuelrats.com", "bot.fuelrats.com"):
+        return await ctx.reply(
+            "Signal attempted to create rescue for a service. " "Dispatch: please inject this case."
+        )
 
-    exist_rescue: Optional[Rescue] = ctx.bot.board[
-        client_name
-    ] if client_name in ctx.bot.board else None
+    exist_rescue: Optional[Rescue] = (
+        ctx.bot.board[client_name] if client_name in ctx.bot.board else None
+    )
 
     if exist_rescue:
         # we got a case already!
-        await ctx.reply(f"{client_name} has reconnected! Case #{exist_rescue.board_index} "
-                        f"(RETURN_SIGNAL)")
-        # now let's make it more visible if stuff changed
-        diff_response = ""
-        if system_name.casefold() != exist_rescue.system.casefold():
-            diff_response += f"System changed! "
-
-        if platform_name.casefold() != exist_rescue.platform.name.casefold():
-            diff_response += "Platform changed! "
-
-        if not o2_status != exist_rescue.code_red:
-            diff_response += (
-                "O2 Status changed!" if o2_status else "O2 Status changed, it is now CODE RED!"
-            )
-
-        if diff_response:
-            await ctx.reply(diff_response)
-
-    else:
-        platform = None
-
-        if platform_name.casefold() in ("pc", "ps", "xb"):
-            platform = Platforms[platform_name.upper()]
-        elif platform_name.casefold() == "ps4":
-            platform = Platforms.PS
-        else:
-            logger.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
-
-        # no case for that name, we have to make our own
-        rescue = await ctx.bot.board.create_rescue(
-            client=client_name,
-            system=system_name,
-            irc_nickname=nickname,
-            code_red=not o2_status,
-            lang_id=lang_code,
-            platform=platform,
-        )
-        platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
         await ctx.reply(
-            f"DRILLSIGNAL - CMDR {rescue.client} - "
-            f"Reported System: {rescue.system} (distance to be implemented) - "
-            f"Platform: {rescue.platform.value if rescue.platform else ''} - "
-            f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
-            f"Language: {result.group('full_language')}"
-            f" (Case #{rescue.board_index}) {platform_signal}"
+            f"{client_name} has reconnected! Case #{exist_rescue.board_index} " f"(RETURN_SIGNAL)"
         )
+        # now let's make it more visible if stuff changed
+        changed = []
+        message = f"Case #{exist_rescue.board_index} "
+        if system_name.casefold() != exist_rescue.system.casefold():
+            changed.append("system")
+
+        if (
+            exist_rescue.platform
+            and platform_name.casefold() != exist_rescue.platform.name.casefold()
+        ):
+            changed.append("platform")
+        if not o2_status != exist_rescue.code_red:
+            msg = "O2 Status changed!" if o2_status else "O2 Status changed, it is now CODE RED!"
+            await ctx.reply(f"{message}{', '.join(changed)}, {msg}")
+        return
+
+    platform = None
+    if platform_name.casefold() in ("pc", "ps", "xb"):
+        platform = Platforms[platform_name.upper()]
+    elif platform_name.casefold() == "ps4":
+        platform = Platforms.PS
+    else:
+        logger.warning(f"Got unknown platform from {ctx.user.nickname}: {platform_name}")
+    # no case for that name, we have to make our own
+    rescue = await ctx.bot.board.create_rescue(
+        client=client_name,
+        system=system_name,
+        irc_nickname=nickname,
+        code_red=not o2_status,
+        lang_id=lang_code,
+        platform=platform,
+    )
+    platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
+    await ctx.reply(
+        f"{_config.trigger_keyword.upper()} - CMDR {rescue.client} - "
+        f"Reported System: {rescue.system} (distance to be implemented) - "
+        f"Platform: {rescue.platform.value if rescue.platform else ''} - "
+        f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
+        f"Language: {result.group('full_language')}"
+        f" (Case #{rescue.board_index}) {platform_signal}"
+    )
 
 
 @rule(r"\bdrillsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
@@ -209,13 +225,7 @@ async def handle_ratsignal(ctx: Context) -> None:
         sep = "-"
 
     if not sep:
-        rescue = await ctx.bot.board.create_rescue(
-            irc_nickname=ctx.user.nickname, client=ctx.user.nickname
-        )
-        await ctx.reply(
-            f"Case #{rescue.board_index} created for {ctx.user.nickname}, please set details"
-        )
-        return
+        sep = " "
 
     system: str = None
     code_red: bool = False
@@ -232,10 +242,22 @@ async def handle_ratsignal(ctx: Context) -> None:
             platform = Platforms["XB"]
 
         elif "o2" in part.casefold():
-            code_red = "o2 ok" not in part.casefold()
+            code_red = "o2 ok" not in message.casefold()
 
         else:
             system = part
+
+    if system and "signal" in system.lower():
+        logger.error("erroneous case data generated! falling back to spatch...")
+        logger.debug("erroneous system: {!r}", system)
+        rescue = await ctx.bot.board.create_rescue(
+            irc_nickname=ctx.user.nickname, client=ctx.user.nickname
+        )
+        await ctx.reply(
+            f"Case #{rescue.board_index} created for {ctx.user.nickname!r},"
+            f" Dispatch please set details"
+        )
+        return
 
     rescue = await ctx.bot.board.create_rescue(
         client=ctx.user.nickname,
@@ -244,9 +266,12 @@ async def handle_ratsignal(ctx: Context) -> None:
         code_red=code_red,
         platform=platform,
     )
+    platform_signal = (
+        f"{rescue.platform.name.upper()}_SIGNAL" if rescue.platform else _config.trigger_keyword
+    )
     await ctx.reply(
         f"Case created for {rescue.client}"
-        f" on {rescue.platform.name} in {rescue.system}. "
+        f" on {rescue.platform.name if rescue.platform else '<unknown platform>'} in {rescue.system}. "
         f"{'O2 status is okay' if not code_red else 'This is a CR!'} "
-        f"- {rescue.platform.name.upper()}_SIGNAL"
+        f"- {platform_signal}"  # FIXME signal not rendering...
     )

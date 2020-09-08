@@ -23,12 +23,12 @@ pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio
 @pytest.mark.parametrize("announcement, signal, cmdr, system, platform, code_red", [
     ("Incoming Client: SomeClient - System: Fuelum - Platform: PC - O2: OK"
      " - Language: English (en-US)",
-     "DRILLSIGNAL - CMDR SomeClient - Reported System: Fuelum (distance to be implemented)"
+     "TESTSIGNAL - CMDR SomeClient - Reported System: Fuelum (distance to be implemented)"
      " - Platform: PC - O2: OK - Language: English (en-US) (Case #{}) (PC_SIGNAL)",
      "SomeClient", "FUELUM", Platforms.PC, False),
     ("Incoming Client: SomeOtherClient - System: LHS 3447 - Platform: XB"
      " - O2: NOT OK - Language: German (de-DE)",
-     "DRILLSIGNAL - CMDR SomeOtherClient - Reported System: LHS 3447 (distance to be implemented)"
+     "TESTSIGNAL - CMDR SomeOtherClient - Reported System: LHS 3447 (distance to be implemented)"
      " - Platform: XB - O2: NOT OK - Language: German (de-DE) (Case #{}) (XB_SIGNAL)",
      "SomeOtherClient", "LHS 3447", Platforms.XB, True),
     
@@ -36,19 +36,19 @@ pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio
     # if there's a client named R@signal or Drillsignal
     ("Incoming Client: Ratsignal - System: LHS 3447 - Platform: XB"
      " - O2: OK - Language: English (en-US)",
-     "DRILLSIGNAL - CMDR Ratsignal - Reported System: LHS 3447 (distance to be implemented)"
+     "TESTSIGNAL - CMDR Ratsignal - Reported System: LHS 3447 (distance to be implemented)"
      " - Platform: XB - O2: OK - Language: English (en-US) (Case #{}) (XB_SIGNAL)",
      "Ratsignal", "LHS 3447", Platforms.XB, False),
     ("Incoming Client: Drillsignal - System: LHS 3447 - Platform: PS"
      " - O2: NOT OK - Language: English (en-US)",
-     "DRILLSIGNAL - CMDR Drillsignal - Reported System: LHS 3447 (distance to be implemented)"
+     "TESTSIGNAL - CMDR Drillsignal - Reported System: LHS 3447 (distance to be implemented)"
      " - Platform: PS - O2: NOT OK - Language: English (en-US) (Case #{}) (PS_SIGNAL)",
      "Drillsignal", "LHS 3447", Platforms.PS, True),
 
     # This is also an edge case, attempting to create a rescue for a service.
     ("Incoming Client: some_service - System: LHS 3447 - Platform: PS"
      " - O2: NOT OK - Language: English (en-US)",
-     "DRILLSIGNAL - CMDR some_service - Reported System: LHS 3447 (distance to be implemented)"
+     "TESTSIGNAL - CMDR some_service - Reported System: LHS 3447 (distance to be implemented)"
      " - Platform: PS - O2: NOT OK - Language: English (en-US) (Case #{}) (PS_SIGNAL)",
      "some_service", "LHS 3447", Platforms.PS, True)
 ])
@@ -152,8 +152,9 @@ async def test_announcer_reconnect_with_changes(bot_fx, async_callable_fx, monke
     await ratmama.handle_ratmama_announcement(context)
     await ratmama.handle_ratmama_announcement(context2)
 
-    assert async_callable_fx.was_called_with("System changed! Platform changed!"
-                                             " O2 Status changed, it is now CODE RED!")
+    assert async_callable_fx.was_called_with(
+        'Case #0 system, platform, O2 Status changed, it is now CODE RED!'
+    )
 
 
 async def test_announce_from_invalid_user(bot_fx, async_callable_fx, monkeypatch):
