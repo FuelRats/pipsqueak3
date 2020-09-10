@@ -25,8 +25,14 @@ from ._list_flags import ListFlags
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.epic import Epic
-from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word, timer, \
-    rest_of_line, platform
+from ..packages.parsing_rules import (
+    rescue_identifier,
+    irc_name,
+    suppress_first_word,
+    timer,
+    rest_of_line,
+    platform,
+)
 from ..packages.permissions.permissions import (
     require_permission,
     RAT,
@@ -57,9 +63,9 @@ CLEAR_PATTERN = (
     + pyparsing.Optional(irc_name).setResultsName("first_limpet")
 )
 CMDR_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + rest_of_line.setResultsName("new_cmdr")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + rest_of_line.setResultsName("new_cmdr")
 )
 
 GRAB_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -81,9 +87,9 @@ SUB_CMD_PATTERN = (
 )
 
 SYS_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + rest_of_line.setResultsName("remainder")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + rest_of_line.setResultsName("remainder")
 )
 
 TITLE_PATTERN = SYS_PATTERN
@@ -94,16 +100,18 @@ UNASSIGN_PATTERN = (
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 
-INJECT_PATTERN = suppress_first_word + rescue_identifier.setResultsName(
-    "subject"
-) + (pyparsing.Optional(pyparsing.CaselessKeyword("cr")).setResultsName(
-    "code_red"
-) & pyparsing.Optional(
-    timer("timer")
-) & pyparsing.Optional(platform).setResultsName(
-    "platform"
-)) + rest_of_line.setResultsName(
-    "remainder"
+INJECT_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    # The following group captures in any order (&).
+    + (
+        pyparsing.Optional(pyparsing.CaselessKeyword("cr")).setResultsName("code_red")
+        & pyparsing.Optional(timer("timer"))
+        & pyparsing.Optional(platform).setResultsName("platform")
+    )
+    # This comes positionally LAST and OUTSIDE the above capture group or it
+    # catches the wrong things.
+    + rest_of_line.setResultsName("remainder")
 )
 
 CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -335,9 +343,7 @@ async def cmd_case_management_grab(ctx: Context):
 
     subject = rescue.irc_nickname.casefold() if rescue else ctx.words[1].casefold()
     logger.debug("checking for last message of irc nick {!r}...", subject)
-    last_message = ctx.bot.last_user_message.get(
-        subject
-    )
+    last_message = ctx.bot.last_user_message.get(subject)
     logger.debug("last_message = {!r}", last_message)
     if not last_message:
         return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
