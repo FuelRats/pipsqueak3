@@ -26,7 +26,7 @@ from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.epic import Epic
 from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word, timer, \
-    rest_of_line
+    rest_of_line, platform
 from ..packages.permissions.permissions import (
     require_permission,
     RAT,
@@ -96,11 +96,13 @@ UNASSIGN_PATTERN = (
 
 INJECT_PATTERN = suppress_first_word + rescue_identifier.setResultsName(
     "subject"
-) & pyparsing.Optional(pyparsing.CaselessLiteral("cr")).setResultsName(
+) + (pyparsing.Optional(pyparsing.CaselessKeyword("cr")).setResultsName(
     "code_red"
-) + pyparsing.Optional(
+) & pyparsing.Optional(
     timer("timer")
-) + rest_of_line.setResultsName(
+) & pyparsing.Optional(platform).setResultsName(
+    "platform"
+)) + rest_of_line.setResultsName(
     "remainder"
 )
 
@@ -387,10 +389,8 @@ async def cmd_case_management_inject(ctx: Context):
             for keyword in ctx.words_eol[2].split():
                 if keyword.upper() in {item.value for item in Platforms}:
                     case.platform = Platforms[keyword.upper()]
-                if keyword.casefold() == "cr" or _TIME_RE.match(ctx.words_eol[2]):
+                if tokens.code_red or tokens.timer:
                     case.code_red = True
-            if "code red" in ctx.words_eol[2]:
-                case.code_red = True
 
             await ctx.reply(
                 f"{case.client}'s case opened with: " f"{ctx.words_eol[2]}  (Case {case.board_index})"

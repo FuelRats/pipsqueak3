@@ -45,7 +45,7 @@ platform = (
         ^ pyparsing.CaselessLiteral("xboxone")
         ^ "pyparsing.CaselessLiteral(xbox one)"
     ).setResultsName("xbox")
-)
+) + pyparsing.WordEnd()
 """
 Matches a platform specifier
 """

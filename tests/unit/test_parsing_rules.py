@@ -7,6 +7,7 @@ import pytest
 from hypothesis import strategies, given
 
 from src.commands import case_management
+from src.packages.utils import Platforms
 from .. import strategies as test_strategies
 
 IDENT_TYPE = Union[str, int]
@@ -113,12 +114,16 @@ def test_unassign_pattern(ident: IDENT_TYPE, subjects: List[str]):
     code_red=strategies.one_of(strategies.just("cr"), strategies.none()),
     timer=strategies.one_of(strategies.none(), test_strategies.timer()),
     remainder=test_strategies.valid_words(),
+    platform = strategies.one_of(strategies.none(), test_strategies.platform)
 )
 def test_inject_pattern(
-    ident: IDENT_TYPE, code_red: Optional[str], timer: Optional[str], remainder: List[str]
+    ident: IDENT_TYPE, code_red: Optional[str], timer: Optional[str], remainder: List[str], platform: Optional[Platforms]
 ):
     buffer = StringIO()
     buffer.write(f"!inject {ident} ")
+    if platform:
+        buffer.write(f"{platform.value} ")
+
     if code_red:
         buffer.write(f"{code_red} ")
     if timer:
@@ -129,7 +134,9 @@ def test_inject_pattern(
 
     buffer.seek(0)
     payload = buffer.read().strip()
+    import pyparsing
 
+    pyparsing.__diag__.enable_all_warnings()
     tokens = case_management.INJECT_PATTERN.parseString(payload)
     assert tokens.remainder == " ".join(remainder).strip(), "invalid remainder"
 
