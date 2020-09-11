@@ -134,9 +134,7 @@ def test_inject_pattern(
 
     buffer.seek(0)
     payload = buffer.read().strip()
-    import pyparsing
 
-    pyparsing.__diag__.enable_all_warnings()
     tokens = case_management.INJECT_PATTERN.parseString(payload)
     assert tokens.remainder == " ".join(remainder).strip(), "invalid remainder"
 
