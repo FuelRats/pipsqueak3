@@ -49,6 +49,6 @@ async def cmd_rehash(context: Context):
 async def cmd_version(ctx: Context):
     # FIXME pull from pyproject.toml somehow?
     try:
-        return await ctx.reply(metadata.version("pipsqueak3"))
+        return await ctx.reply(f"SPARK version {metadata.version('pipsqueak3')}")
     except metadata.PackageNotFoundError:
-        return await ctx.reply("version ?.?.? (dirty)")
+        return await ctx.reply("SPARK version ?.?.? (dirty)")
