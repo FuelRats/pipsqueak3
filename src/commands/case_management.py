@@ -52,7 +52,7 @@ if a newly-submitted case is code red or not.
 """
 ASSIGN_PATTERN = (
     suppress_first_word
-    + (rescue_identifier).setResultsName("subject")
+    + rescue_identifier.setResultsName("subject")
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 ACTIVE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -395,11 +395,11 @@ async def cmd_case_management_inject(ctx: Context):
         async with ctx.bot.board.modify_rescue(rescue) as case:
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
-            for keyword in ctx.words_eol[2].split():
-                if keyword.upper() in {item.value for item in Platforms}:
-                    case.platform = Platforms[keyword.upper()]
-                if tokens.code_red or tokens.timer:
-                    case.code_red = True
+            if tokens.platform:
+                case.platform = Platforms[tokens.platform[0].upper()]
+
+            if tokens.code_red or tokens.timer:
+                case.code_red = True
 
             await ctx.reply(
                 f"{case.client}'s case opened with: " f"{ctx.words_eol[2]}  (Case {case.board_index})"
