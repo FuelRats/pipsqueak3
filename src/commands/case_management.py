@@ -105,7 +105,10 @@ INJECT_PATTERN = (
     + rescue_identifier.setResultsName("subject")
     # The following group captures in any order (&).
     + (
-        pyparsing.Optional(pyparsing.CaselessKeyword("cr")).setResultsName("code_red")
+        pyparsing.Optional(
+            pyparsing.CaselessKeyword("cr")
+            ^ pyparsing.CaselessKeyword("code red")
+        ).setResultsName("code_red")
         & pyparsing.Optional(timer("timer"))
         & pyparsing.Optional(platform).setResultsName("platform")
     )
