@@ -424,7 +424,7 @@ async def cmd_case_management_inject(ctx: Context):
 async def cmd_case_management_ircnick(ctx: Context):
     if not IRC_NICK_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !ircnick <Client Name|Board Index> <New Client Name>")
-    tokens = IRC_NICK_PATTERN.parseFile(ctx.words_eol[0])
+    tokens = IRC_NICK_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
     rescue = ctx.bot.board.get(tokens.subject[0])
 
