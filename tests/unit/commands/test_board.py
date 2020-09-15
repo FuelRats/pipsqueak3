@@ -215,7 +215,7 @@ def _test_quote_header(cr_state, message, rescue):
 @pytest.mark.parametrize("platform", (Platforms.PC, Platforms.XB, Platforms.PS))
 async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms):
     inject_ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov",
-                                            f"!inject subject PC sol {'cr' if cr_state else ''}")
+                                            f"!inject subject PC {'cr' if cr_state else ''} sol")
     # inject a case into existance
     await trigger(inject_ctx)
     rescue = bot_fx.board["subject"]

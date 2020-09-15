@@ -25,8 +25,14 @@ from ._list_flags import ListFlags
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.epic import Epic
-from ..packages.parsing_rules import rescue_identifier, irc_name, suppress_first_word, timer, \
-    rest_of_line
+from ..packages.parsing_rules import (
+    rescue_identifier,
+    irc_name,
+    suppress_first_word,
+    timer,
+    rest_of_line,
+    platform,
+)
 from ..packages.permissions.permissions import (
     require_permission,
     RAT,
@@ -46,7 +52,7 @@ if a newly-submitted case is code red or not.
 """
 ASSIGN_PATTERN = (
     suppress_first_word
-    + (rescue_identifier).setResultsName("subject")
+    + rescue_identifier.setResultsName("subject")
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 ACTIVE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -57,9 +63,9 @@ CLEAR_PATTERN = (
     + pyparsing.Optional(irc_name).setResultsName("first_limpet")
 )
 CMDR_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + rest_of_line.setResultsName("new_cmdr")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + rest_of_line.setResultsName("new_cmdr")
 )
 
 GRAB_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -81,9 +87,9 @@ SUB_CMD_PATTERN = (
 )
 
 SYS_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + rest_of_line.setResultsName("remainder")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + rest_of_line.setResultsName("remainder")
 )
 
 TITLE_PATTERN = SYS_PATTERN
@@ -94,14 +100,21 @@ UNASSIGN_PATTERN = (
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 
-INJECT_PATTERN = suppress_first_word + rescue_identifier.setResultsName(
-    "subject"
-) & pyparsing.Optional(pyparsing.CaselessLiteral("cr")).setResultsName(
-    "code_red"
-) + pyparsing.Optional(
-    timer("timer")
-) + rest_of_line.setResultsName(
-    "remainder"
+INJECT_PATTERN = (
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    # The following group captures in any order (&).
+    + (
+        pyparsing.Optional(
+            pyparsing.CaselessKeyword("cr")
+            ^ pyparsing.CaselessKeyword("code red")
+        ).setResultsName("code_red")
+        & pyparsing.Optional(timer("timer"))
+        & pyparsing.Optional(platform).setResultsName("platform")
+    )
+    # This comes positionally LAST and OUTSIDE the above capture group or it
+    # catches the wrong things.
+    + rest_of_line.setResultsName("remainder")
 )
 
 CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -333,9 +346,7 @@ async def cmd_case_management_grab(ctx: Context):
 
     subject = rescue.irc_nickname.casefold() if rescue else ctx.words[1].casefold()
     logger.debug("checking for last message of irc nick {!r}...", subject)
-    last_message = ctx.bot.last_user_message.get(
-        subject
-    )
+    last_message = ctx.bot.last_user_message.get(subject)
     logger.debug("last_message = {!r}", last_message)
     if not last_message:
         return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
@@ -384,12 +395,10 @@ async def cmd_case_management_inject(ctx: Context):
         async with ctx.bot.board.modify_rescue(rescue) as case:
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
-            for keyword in ctx.words_eol[2].split():
-                if keyword.upper() in {item.value for item in Platforms}:
-                    case.platform = Platforms[keyword.upper()]
-                if keyword.casefold() == "cr" or _TIME_RE.match(ctx.words_eol[2]):
-                    case.code_red = True
-            if "code red" in ctx.words_eol[2]:
+            if tokens.platform:
+                case.platform = Platforms[tokens.platform[0].upper()]
+
+            if tokens.code_red or tokens.timer:
                 case.code_red = True
 
             await ctx.reply(
