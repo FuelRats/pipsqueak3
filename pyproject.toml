@@ -26,6 +26,7 @@ graypy = "^2.1.0"
 python-dateutil = "^2.8.1"
 simplejson = "^3.17.0"
 websockets = "^8.1"
+python-dateutil = "^2.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
@@ -35,8 +36,9 @@ pylint = "*"
 pytest-httpserver = "*"
 codecov = "*"
 pycodestyle = "*"
-ipython = "^7.10.2"
-black = "^19.10b0"
+hypothesis = "^5.8.0"
+ipython = "^7.18.1"
+black = "^20.8b1"
 
 
 [build-system]
