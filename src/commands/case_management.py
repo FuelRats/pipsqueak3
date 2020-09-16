@@ -44,7 +44,6 @@ from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status
 
-
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
 Regex matcher used to find a time within a string. Used to determine
@@ -106,8 +105,7 @@ INJECT_PATTERN = (
     # The following group captures in any order (&).
     + (
         pyparsing.Optional(
-            pyparsing.CaselessKeyword("cr")
-            ^ pyparsing.CaselessKeyword("code red")
+            pyparsing.CaselessKeyword("cr") ^ pyparsing.CaselessKeyword("code red")
         ).setResultsName("code_red")
         & pyparsing.Optional(timer("timer"))
         & pyparsing.Optional(platform).setResultsName("platform")
@@ -395,9 +393,15 @@ async def cmd_case_management_inject(ctx: Context):
         async with ctx.bot.board.modify_rescue(rescue) as case:
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
-            if tokens.platform:
-                case.platform = Platforms[tokens.platform[0].upper()]
+            # check specific capture groups for existence.
+            if tokens.xbox:
+                case.platform = Platforms.XB
+            if tokens.playstation:
+                case.platform = Platforms.PS
+            if tokens.pc:
+                case.platform = Platforms.PC
 
+            # Check if either CR was explicitly stated or a timer token exists.
             if tokens.code_red or tokens.timer:
                 case.code_red = True
 
