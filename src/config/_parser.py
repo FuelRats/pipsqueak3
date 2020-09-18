@@ -21,7 +21,7 @@ from typing import Dict, Tuple, Optional, Type, Union
 import attr
 import toml
 from loguru import logger
-import pygelf
+import graypy
 
 from src.packages.cli_manager import cli_manager
 from ._manager import PLUGIN_MANAGER
@@ -32,9 +32,7 @@ class GelfConfig:
     enabled: bool = attr.ib(validator=attr.validators.instance_of(bool))
     port: Optional[int] = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(int)))
     host: Optional[str] = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(str)))
-    protocol: Optional[str] = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(str))
-    )
+
     log_level: str = attr.ib(default="DEBUG", validator=attr.validators.instance_of(str))
     send_context: bool = attr.ib(validator=attr.validators.instance_of(bool), default=False)
 
@@ -85,31 +83,20 @@ def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None)
             enqueue=True,
             mode=log_filemode,
         ),
-    ]
-    # If we are passed a gelf configuration: use it.
-    if gelf_configuration:
-        handler_type: Type[
-            Union[
-                pygelf.GelfTcpHandler,
-                pygelf.GelfHttpHandler,
-                pygelf.GelfTlsHandler,
-                pygelf.GelfUdpHandler,
-            ]
-        ] = getattr(pygelf, gelf_configuration.protocol)
-        handlers.append(
-            dict(
-                sink=handler_type(
-                    host=gelf_configuration.host,
-                    port=gelf_configuration.port,
-                    include_extra_fields=gelf_configuration.send_context,
-                ),
-                format="<{time}[{name}] {level.name}> {message}",
-                colorize=False,
-                backtrace=False,
-                diagnose=False,
-                level=gelf_configuration.log_level,
-            )
+
+        dict(
+            sink=graypy.GELFTCPHandler(
+                "localhost",
+                12201,
+
+            ),
+            format="<{time}[{name}] {level.name}> {message}",
+            colorize=False,
+            backtrace=False,
+            diagnose=False,
+            level=gelf_configuration.log_level,
         )
+    ]
 
     logger.configure(handlers=handlers)
 
