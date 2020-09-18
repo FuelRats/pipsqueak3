@@ -23,7 +23,7 @@ import sys
 
 from src.packages.cli_manager import cli_manager
 from ._manager import PLUGIN_MANAGER
-
+from pygelf import GelfTcpHandler
 
 def setup_logging(logfile: str):
     """
@@ -62,6 +62,7 @@ def setup_logging(logfile: str):
                  enqueue=True, mode=log_filemode),
         ]
     )
+    logger.add(GelfTcpHandler(host="127.0.0.1", port=12201))
 
     logger.info("Configuration file loading...")
 
