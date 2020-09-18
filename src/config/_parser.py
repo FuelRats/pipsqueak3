@@ -16,22 +16,35 @@ See LICENSE
 import hashlib
 import sys
 from pathlib import Path
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, Type, Union
 
 import attr
 import toml
 from loguru import logger
-from pygelf import GelfTcpHandler
+import pygelf
 
 from src.packages.cli_manager import cli_manager
 from ._manager import PLUGIN_MANAGER
 
 
-def setup_logging(logfile: str):
+@attr.dataclass(frozen=True)
+class GelfConfig:
+    enabled: bool = attr.ib(validator=attr.validators.instance_of(bool))
+    port: Optional[int] = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(int)))
+    host: Optional[str] = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(str)))
+    protocol: Optional[str] = attr.ib(
+        validator=attr.validators.optional(attr.validators.instance_of(str))
+    )
+    log_level: str = attr.ib(default="DEBUG", validator=attr.validators.instance_of(str))
+    send_context: bool = attr.ib(validator=attr.validators.instance_of(bool), default=False)
+
+
+def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None):
     """
     Sets up the logging system
 
     Args:
+        gelf_configuration :
         logfile (str): file path to log into
     """
     args = cli_manager.GET_ARGUMENTS()
@@ -50,23 +63,50 @@ def setup_logging(logfile: str):
     # check for new-log flag, overwriting existing log,
     # otherwise, append to the file per normal.
     if args.clean_log:
-        log_filemode = 'w'
+        log_filemode = "w"
     else:
-        log_filemode = 'a'
+        log_filemode = "a"
 
-    logger.configure(
-        handlers=[
-            dict(sink=sys.stdout, format="<b><c><{time}</c></b> [{name}] "
-                                         "<level>{level.name}</level> > {message}",
-                 colorize=True, backtrace=False, diagnose=False, level=loglevel),
-            dict(sink=logfile, level="DEBUG", format="< {time} > "
-                                                     "[ {module} ] {message}", rotation="50 MB",
-                 enqueue=True, mode=log_filemode),
-            dict(sink=GelfTcpHandler(host="127.0.0.1", port=12201, include_extra_fields=True),
-                 format="<{time}[{name}] {level.name}> {message}",
-                 colorize=True, backtrace=False, diagnose=False, level="DEBUG"),
-        ]
-    )
+    gelf_data = None
+    handlers = [
+        dict(
+            sink=sys.stdout,
+            format="<b><c><{time}</c></b> [{name}] " "<level>{level.name}</level> > {message}",
+            colorize=True,
+            backtrace=False,
+            diagnose=False,
+            level=loglevel,
+        ),
+        dict(
+            sink=logfile,
+            level="DEBUG",
+            format="< {time} > " "[ {module} ] {message}",
+            rotation="50 MB",
+            enqueue=True,
+            mode=log_filemode,
+        ),
+    ]
+    # If we are passed a gelf configuration: use it.
+    if gelf_configuration:
+        handler_type: Type[Union[
+            pygelf.GelfTcpHandler, pygelf.GelfHttpHandler, pygelf.GelfTlsHandler, pygelf.GelfUdpHandler]] = getattr(
+            pygelf, gelf_configuration.protocol)
+        handlers.append(
+            dict(
+                sink=handler_type(
+                    host=gelf_configuration.host,
+                    port=gelf_configuration.port,
+                    include_extra_fields=gelf_configuration.send_context,
+                ),
+                format="<{time}[{name}] {level.name}> {message}",
+                colorize=False,
+                backtrace=False,
+                diagnose=False,
+                level=gelf_configuration.log_level,
+            )
+        )
+
+    logger.configure(handlers=handlers)
 
     logger.info("Configuration file loading...")
 
@@ -119,13 +159,14 @@ def setup(filename: str) -> Tuple[Dict, str]:
     """
     # do the loading part
     config_dict, file_hash = load_config(filename)
-    setup_logging(config_dict['logging']['log_file'])
+    gelf_config = GelfConfig(**config_dict["logging"]["gelf"])
+
+    setup_logging(config_dict["logging"]["log_file"], gelf_configuration=gelf_config)
     logger.info(f"new config hash is {file_hash}")
     logger.info("verifying configuration....")
 
     # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
-    PLUGIN_MANAGER.hook.validate_config(  # pylint: disable=no-member
-        data=config_dict)
+    PLUGIN_MANAGER.hook.validate_config(data=config_dict)  # pylint: disable=no-member
     logger.info("done verifying. config loaded without error.")
 
     logger.info(f"emitting new configuration to plugins...")

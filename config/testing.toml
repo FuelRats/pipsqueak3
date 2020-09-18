@@ -12,6 +12,13 @@ method = "PLAIN"
 base_logger = "testmecha"
 log_file = "logs/unit_tests.log"
 
+# GELF logging output
+[logging.gelf]
+enabled = false
+protocol = "GelfTcpHandler"
+port = 12201
+host = "localhost"
+
 [database]
 host = "localhost"
 port = 5432
