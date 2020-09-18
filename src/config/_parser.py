@@ -14,16 +14,18 @@ Licensed under the BSD 3-Clause License.
 See LICENSE
 """
 import hashlib
-from loguru import logger
-from pathlib import Path
-from typing import Dict, Tuple
-
-import toml
 import sys
+from pathlib import Path
+from typing import Dict, Tuple, Optional
+
+import attr
+import toml
+from loguru import logger
+from pygelf import GelfTcpHandler
 
 from src.packages.cli_manager import cli_manager
 from ._manager import PLUGIN_MANAGER
-from pygelf import GelfTcpHandler
+
 
 def setup_logging(logfile: str):
     """
@@ -60,9 +62,11 @@ def setup_logging(logfile: str):
             dict(sink=logfile, level="DEBUG", format="< {time} > "
                                                      "[ {module} ] {message}", rotation="50 MB",
                  enqueue=True, mode=log_filemode),
+            dict(sink=GelfTcpHandler(host="127.0.0.1", port=12201, include_extra_fields=True),
+                 format="<{time}[{name}] {level.name}> {message}",
+                 colorize=True, backtrace=False, diagnose=False, level="DEBUG"),
         ]
     )
-    logger.add(GelfTcpHandler(host="127.0.0.1", port=12201))
 
     logger.info("Configuration file loading...")
 
