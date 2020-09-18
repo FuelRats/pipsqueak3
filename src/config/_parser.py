@@ -88,9 +88,14 @@ def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None)
     ]
     # If we are passed a gelf configuration: use it.
     if gelf_configuration:
-        handler_type: Type[Union[
-            pygelf.GelfTcpHandler, pygelf.GelfHttpHandler, pygelf.GelfTlsHandler, pygelf.GelfUdpHandler]] = getattr(
-            pygelf, gelf_configuration.protocol)
+        handler_type: Type[
+            Union[
+                pygelf.GelfTcpHandler,
+                pygelf.GelfHttpHandler,
+                pygelf.GelfTlsHandler,
+                pygelf.GelfUdpHandler,
+            ]
+        ] = getattr(pygelf, gelf_configuration.protocol)
         handlers.append(
             dict(
                 sink=handler_type(
