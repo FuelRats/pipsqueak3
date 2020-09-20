@@ -256,7 +256,7 @@ async def cmd_case_management_codered(ctx: Context):
     tokens = CODE_RED_PATTERN.parseString(ctx.words_eol[0])
 
     # Pass case to validator, return a case if found or None
-    rescue = tokens.subject[0]
+    rescue = ctx.bot.board.get(tokens.subject[0])
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
