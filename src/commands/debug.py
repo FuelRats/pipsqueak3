@@ -113,7 +113,7 @@ async def cmd_debug_get_rat(context: Context):
 async def cmd_debug_summoncase(context: Context):
     await context.reply("summoning case....")
     rescue = await context.bot.board.create_rescue(client="some_client")
-    something = await context.bot.api_handler.create_rescue(rescue, impersonation=context.user.account)
+    something = await context.bot.api_handler.create_rescue(rescue, impersonating=context.user.account)
     await context.reply("done.")
 
 

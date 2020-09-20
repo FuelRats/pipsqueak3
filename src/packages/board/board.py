@@ -329,7 +329,7 @@ class RatBoard(abc.Mapping):
                 logger.warning("creating case in offline mode...")
             else:
                 logger.trace("creating rescue on API...")
-                rescue = await self._handler.create_rescue(rescue)
+                rescue = await self._handler.create_rescue(rescue, impersonating=None)
 
         except ApiException:
             logger.exception("unable to create rescue on API!")

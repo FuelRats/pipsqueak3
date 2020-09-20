@@ -146,11 +146,11 @@ class ApiV300WSS(FuelratsApiABC):
         await self.connected_event.wait()
         logger.trace("connected event is set!")
 
-    async def create_rescue(self, rescue: Rescue, impersonation: Impersonation) -> Rescue:
+    async def create_rescue(self, rescue: Rescue, impersonating: Impersonation) -> Rescue:
         await self.ensure_connection()
         work = Request(
             endpoint=["rescues", "create"],
-            query={'representing': impersonation},
+            query={'representing': impersonating},
             body={"data": attr.asdict(ApiRescue.from_internal(rescue), recurse=True)},
         )
         result = await self.connection.execute(work)
