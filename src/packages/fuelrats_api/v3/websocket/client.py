@@ -32,7 +32,7 @@ class Connection:
                 if the_error.code == 401 and the_error.source.parameter == 'representing':
                     return self._futures[response.state].set_exception(
                         UnauthorizedImpersonation(the_error))
-                return self._futures[response.state].set_result(APIException(the_error))
+                return self._futures[response.state].set_exception(APIException(the_error))
 
             self._futures[response.state].set_result(response)
         else:
