@@ -65,6 +65,10 @@ class Connection:
             # async blocking get work
             work = await self._work.get()
             with logger.contextualize(state=work.state):
+                if 'representing' in work.query:
+                    # FIXME remove this hack once the API actually has production data...
+                    # TODO: check drill mode and selectively not emit?
+                    del work.query['representing']
                 await self._socket.send(work.serialize())
 
     async def execute(self, work: Request) -> Response:

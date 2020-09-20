@@ -160,7 +160,7 @@ class ApiV300WSS(FuelratsApiABC):
     async def get_rat(self, key: Union[UUID, str], impersonation: Impersonation) -> List[InternalRat]:
         await self.ensure_connection()
         if isinstance(key, UUID):
-            results = await self._get_rat_uuid(key)
+            results = await self._get_rat_uuid(key, impersonation=None)
             return [ApiRat.from_dict(results.body['data']).into_internal()]
         if isinstance(key, str):
             results = await self._get_rats_from_nickname(key, impersonation=impersonation)
