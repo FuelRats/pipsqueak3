@@ -51,18 +51,21 @@ class Connection:
             raw_data = json.loads(raw)
             if len(raw_data) == 3:
                 response = Response(*raw_data)
-                await self._handle_response(response)
+                with logger.contextualize(state=response.state):
+                    await self._handle_response(response)
                 continue
             if len(raw_data) == 4:
                 event = Event(*raw_data)
-                await self._handle_event(event)
+                with logger.contextualize(event=event.event):
+                    await self._handle_event(event)
 
     async def tx_worker(self):
         """ Worker that sends messages to the websocket """
         while not self.shutdown.is_set():
             # async blocking get work
             work = await self._work.get()
-            await self._socket.send(work.serialize())
+            with logger.contextualize(state=work.state):
+                await self._socket.send(work.serialize())
 
     async def execute(self, work: Request) -> Response:
 
