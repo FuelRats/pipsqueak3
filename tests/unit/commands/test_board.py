@@ -287,3 +287,21 @@ async def test_sub_replace(bot_fx, rescue_sop_fx):
     await trigger(context)
     assert len(rescue_sop_fx.quotes) == initial_quote_count - 1, "quote added / deleted unexpectedly"
 
+
+@pytest.mark.asyncio
+async def test_cmdr(bot_fx, rescue_sop_fx):
+    await bot_fx.board.append(rescue_sop_fx)
+    old_nick = rescue_sop_fx.client
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!cmdr {rescue_sop_fx.board_index} snafu")
+    await trigger(context)
+
+    assert rescue_sop_fx.client != old_nick, "failed to update commander at all"
+    assert rescue_sop_fx.client == "snafu", "failed to update commander correctly"
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_ov",
+                                         f"!cmdr {rescue_sop_fx.irc_nickname} something_cheeky")
+    await trigger(context)
+
+    assert rescue_sop_fx.client == "something_cheeky"

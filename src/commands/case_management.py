@@ -559,7 +559,7 @@ async def cmd_case_management_reopen(ctx: Context):
 @require_channel()
 @require_permission(OVERSEER)
 @command("sub")
-async def cmd_case_management(ctx: Context):
+async def cmd_case_management_sub(ctx: Context):
     if not SUB_CMD_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !sub <Client Name|Board Index> <Quote Number> [New Text]")
     tokens = SUB_CMD_PATTERN.parseString(ctx.words_eol[0])
@@ -601,8 +601,8 @@ async def cmd_case_management(ctx: Context):
 
 @require_channel
 @require_permission(RAT)
-@command("sys", "loc", "location")
-async def cmd_case_management(ctx: Context):
+@command("sys", "loc", "location", "system")
+async def cmd_case_management_sys(ctx: Context):
     if not SYS_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
     tokens = SYS_PATTERN.parseString(ctx.words_eol[0])
