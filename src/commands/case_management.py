@@ -271,7 +271,7 @@ async def cmd_case_management_codered(ctx: Context):
             await ctx.reply(
                 f"Code Red! {case.client} is on {bold(color('Emergency Oxygen!', Colors.RED))}")
             if notifiers:
-                await ctx.reply(f"{','.join(notifiers)} this is {bold('YOUR')} case!")
+                await ctx.reply(f"{', '.join(notifiers)} this is {bold('YOUR')} case!")
         else:
             await ctx.reply(f"{case.client} is no longer a Code Red.")
 
