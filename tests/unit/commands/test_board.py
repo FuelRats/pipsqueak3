@@ -332,3 +332,23 @@ async def test_system(bot_fx, rescue_sop_fx):
 
     assert rescue_sop_fx != old_sys, "Failed to update system."
     assert rescue_sop_fx.system == "FUELUM", "Failed to update system"
+
+
+@pytest.mark.asyncio
+@pytest.mark.hypothesis
+@pytest.mark.parametrize(
+    "platform_string,platform",
+    [
+        ("pc", Platforms.PC),
+        ("ps", Platforms.PS),
+        ("xb", Platforms.XB)
+    ]
+)
+async def test_platform(bot_fx, platform_string: str, platform: Platforms, rescue_sop_fx):
+    await bot_fx.board.append(rescue_sop_fx)
+    context = await Context.from_message(
+        bot_fx, channel="#ratchat", sender="some_ov",
+        message=f"!{platform_string} {rescue_sop_fx.board_index}"
+    )
+    await trigger(ctx=context)
+    assert rescue_sop_fx.platform is platform, "failed to update platform"
