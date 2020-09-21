@@ -42,7 +42,7 @@ from ..packages.permissions.permissions import (
 from ..packages.quotation.rat_quotation import Quotation
 from ..packages.rat import Rat
 from ..packages.rescue import Rescue
-from ..packages.utils import Platforms, Status
+from ..packages.utils import Platforms, Status, color, bold, Colors
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
@@ -265,7 +265,14 @@ async def cmd_case_management_codered(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.code_red = not case.code_red
         if case.code_red:
-            await ctx.reply(f"Code Red! {case.client} is on Emergency Oxygen!")
+            case: Rescue
+            notifiers = {name for name in case.rats.keys()}
+            notifiers.update({name for name in case.unidentified_rats.keys()})
+            await ctx.reply(
+                f"Code Red! {case.client} is on {bold(color('Emergency Oxygen!', Colors.RED))}"
+            )
+            if notifiers:
+                await ctx.reply(f"{', '.join(notifiers)} this is {bold('YOUR')} case!")
         else:
             await ctx.reply(f"{case.client} is no longer a Code Red.")
 
