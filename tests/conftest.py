@@ -23,6 +23,7 @@ import pytest
 
 # from psycopg2.pool import SimpleConnectionPool
 from src.config import CONFIG_MARKER, PLUGIN_MANAGER, setup_logging, setup
+from src.config._parser import GelfConfig
 from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 
@@ -36,7 +37,12 @@ sys.argv = ["test",
 # Include other conftest files
 pytest_plugins = ["tests.fixtures.galaxy_fx"]
 
-setup_logging("logs/unit_tests.log")
+setup_logging(
+    "logs/unit_tests.log",
+    gelf_configuration=GelfConfig(
+        enabled=False, port=None, host="localhost"
+    )
+)
 
 from src.packages.permissions.permissions import Permission
 from tests.fixtures.mock_bot import MockBot
