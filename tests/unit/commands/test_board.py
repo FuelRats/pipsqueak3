@@ -305,3 +305,30 @@ async def test_cmdr(bot_fx, rescue_sop_fx):
     await trigger(context)
 
     assert rescue_sop_fx.client == "something_cheeky"
+
+
+@pytest.mark.asyncio
+async def test_cmdr(bot_fx, rescue_sop_fx):
+    await bot_fx.board.append(rescue_sop_fx)
+    old_nick = rescue_sop_fx.irc_nickname
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!ircnick {rescue_sop_fx.board_index} snafu")
+    await trigger(context)
+
+    assert rescue_sop_fx.irc_nickname == "snafu", "failed to update irc nickname."
+
+    assert old_nick not in bot_fx.board, "Unexpected rescue artefact"
+
+
+@pytest.mark.asyncio
+async def test_system(bot_fx, rescue_sop_fx):
+    await bot_fx.board.append(rescue_sop_fx)
+    old_sys = rescue_sop_fx.system
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!sys {rescue_sop_fx.board_index} Fuelum")
+    await trigger(context)
+
+    assert rescue_sop_fx != old_sys, "Failed to update system."
+    assert rescue_sop_fx.system == "FUELUM", "Failed to update system"
