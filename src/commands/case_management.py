@@ -42,7 +42,7 @@ from ..packages.permissions.permissions import (
 from ..packages.quotation.rat_quotation import Quotation
 from ..packages.rat import Rat
 from ..packages.rescue import Rescue
-from ..packages.utils import Platforms, Status
+from ..packages.utils import Platforms, Status, color, bold, Colors
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
@@ -50,69 +50,69 @@ Regex matcher used to find a time within a string. Used to determine
 if a newly-submitted case is code red or not.
 """
 ASSIGN_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + pyparsing.OneOrMore(irc_name).setResultsName("rats")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 ACTIVE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 CLEAR_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + pyparsing.Optional(irc_name).setResultsName("first_limpet")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + pyparsing.Optional(irc_name).setResultsName("first_limpet")
 )
 CMDR_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + rest_of_line.setResultsName("new_cmdr")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + rest_of_line.setResultsName("new_cmdr")
 )
 
 GRAB_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 IRC_NICK_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + irc_name.setResultsName("new_nick")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + irc_name.setResultsName("new_nick")
 )
 JUST_RESCUE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 SUB_CMD_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1) + pyparsing.WordEnd())
-    .setParseAction(lambda token: int(token.quote_id[0]))
-    .setResultsName("quote_id")
-    + rest_of_line.setResultsName("remainder")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1) + pyparsing.WordEnd())
+        .setParseAction(lambda token: int(token.quote_id[0]))
+        .setResultsName("quote_id")
+        + rest_of_line.setResultsName("remainder")
 )
 
 SYS_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + rest_of_line.setResultsName("remainder")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + rest_of_line.setResultsName("remainder")
 )
 
 TITLE_PATTERN = SYS_PATTERN
 
 UNASSIGN_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    + pyparsing.OneOrMore(irc_name).setResultsName("rats")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 
 INJECT_PATTERN = (
-    suppress_first_word
-    + rescue_identifier.setResultsName("subject")
-    # The following group captures in any order (&).
-    + (
-        pyparsing.Optional(
-            pyparsing.CaselessKeyword("cr") ^ pyparsing.CaselessKeyword("code red")
-        ).setResultsName("code_red")
-        & pyparsing.Optional(timer("timer"))
-        & pyparsing.Optional(platform).setResultsName("platform")
-    )
-    # This comes positionally LAST and OUTSIDE the above capture group or it
-    # catches the wrong things.
-    + rest_of_line.setResultsName("remainder")
+        suppress_first_word
+        + rescue_identifier.setResultsName("subject")
+        # The following group captures in any order (&).
+        + (
+                pyparsing.Optional(
+                    pyparsing.CaselessKeyword("cr") ^ pyparsing.CaselessKeyword("code red")
+                ).setResultsName("code_red")
+                & pyparsing.Optional(timer("timer"))
+                & pyparsing.Optional(platform).setResultsName("platform")
+        )
+        # This comes positionally LAST and OUTSIDE the above capture group or it
+        # catches the wrong things.
+        + rest_of_line.setResultsName("remainder")
 )
 
 CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -265,7 +265,13 @@ async def cmd_case_management_codered(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.code_red = not case.code_red
         if case.code_red:
-            await ctx.reply(f"Code Red! {case.client} is on Emergency Oxygen!")
+            case: Rescue
+            notifiers = {name for name in case.rats.keys()}
+            notifiers.update({name for name in case.unidentified_rats.keys()})
+            await ctx.reply(
+                f"Code Red! {case.client} is on {bold(color('Emergency Oxygen!', Colors.RED))}")
+            if notifiers:
+                await ctx.reply(f"{','.join(notifiers)} this is {bold('YOUR')} case!")
         else:
             await ctx.reply(f"{case.client} is no longer a Code Red.")
 
@@ -537,12 +543,12 @@ async def cmd_case_management_quoteid(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             quote_timestamp = (
-                humanfriendly.format_timespan(
-                    (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
-                    detailed=False,
-                    max_units=2,
-                )
-                + " ago"
+                    humanfriendly.format_timespan(
+                        (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                        detailed=False,
+                        max_units=2,
+                    )
+                    + " ago"
             )
             await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
 
@@ -768,7 +774,7 @@ def _list_rescue(rescue_collection, format_specifiers):
 
 
 def _rescue_filter(
-    flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
+        flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
 ) -> bool:
     """
     determine whether the `rescue` object is one we care about
