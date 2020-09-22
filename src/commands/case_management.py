@@ -197,7 +197,7 @@ async def cmd_case_management_clear(ctx: Context):
     # Pass case to validator, return a case if found or None
     rescue = ctx.bot.board.get(tokens.subject[0])
 
-    first_limpet = tokens.first_limpet
+    first_limpet = tokens.first_limpet[0] if tokens.first_limpet else None
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
@@ -388,11 +388,18 @@ async def cmd_case_management_grab(ctx: Context):
 @command("inject")
 async def cmd_case_management_inject(ctx: Context):
     if not INJECT_PATTERN.matches(ctx.words_eol[0]):
+        logger.debug("pattern match failed.")
         await ctx.reply("Usage: !inject <Client Name|Board Index> <Text to Add>")
         return
     tokens = INJECT_PATTERN.parseString(ctx.words_eol[0])
     # Pass case to validator, return a case if found or None
     rescue = ctx.bot.board.get(tokens.subject[0])
+
+    logger.debug("tokens: {!r}", tokens)
+    # SPARK-223 failsafe
+    if tokens.subject[0] != ctx.words[1]:
+        # if the subject doesn't match
+        return await ctx.reply("Invalid IRC nick for inject. Abort.")
 
     if not rescue and not isinstance(tokens.subject[0], int):
         logger.debug("creating rescue for {!r}", tokens.subject[0])

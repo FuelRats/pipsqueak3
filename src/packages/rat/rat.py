@@ -33,7 +33,7 @@ class Rat:
         validator=attr.validators.optional(attr.validators.instance_of(UUID))
     )
     name: str = attr.ib(
-        validator=attr.validators.instance_of(str), converter=_name_converter
+        validator=attr.validators.instance_of(str),
     )
     platform: Optional[Platforms] = attr.ib(
         validator=attr.validators.optional(attr.validators.instance_of(Platforms)),

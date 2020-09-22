@@ -2,7 +2,12 @@ from uuid import UUID
 
 import pyparsing
 
-irc_name = pyparsing.Word(initChars=pyparsing.alphas, bodyChars=pyparsing.alphanums + "[]{}|:-_<>\\/")
+irc_name = (
+    pyparsing.Word(
+        initChars=pyparsing.alphas,
+        bodyChars=pyparsing.alphanums + "[]{}|:-_<>\\/",
+    )
+) + pyparsing.WordEnd()
 """
 Matches a valid IRC nickname.
  Token MUST start with a letter but MAY contain numerics and some special chars
@@ -16,7 +21,7 @@ case_number = (
     api_id.setParseAction(lambda token: UUID(token[0][1:]))
     | pyparsing.Optional(pyparsing.Literal("#").suppress())
     + pyparsing.Word(pyparsing.nums).setParseAction(lambda token: int(token[0]))
-)
+) + pyparsing.WordEnd()
 """Matches a case number"""
 
 rescue_identifier = irc_name | case_number

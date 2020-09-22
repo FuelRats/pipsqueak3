@@ -1,17 +1,19 @@
 """
 PyTest module for Context-specific regressions
 """
-
+import pyparsing
+import pytest
 from pytest import mark
 
+from src.commands.case_management import ASSIGN_PATTERN
 from src.packages.commands import rat_command
 from src.packages.context.context import Context
 from src.packages.commands import command
 from src.packages.user.user import User
+from loguru import logger
+pytestmark = [mark.regressions, mark.asyncio]
 
 
-@mark.asyncio
-@mark.regressions
 async def test_on_command_double_prefix(bot_fx, monkeypatch, context_fx, async_callable_fx):
     """
     Verifies that when commands are prefixed with the command prefix during registration,
@@ -34,3 +36,9 @@ async def test_on_command_double_prefix(bot_fx, monkeypatch, context_fx, async_c
 
     result = await rat_command.trigger(ctx=ctx)
     assert 42 == result
+
+
+def test_spark_something():
+    with pytest.raises(pyparsing.ParseException):
+        ASSIGN_PATTERN.parseString("!go 0Test rik07")
+

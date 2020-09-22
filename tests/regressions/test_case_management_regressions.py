@@ -20,3 +20,12 @@ async def test_spark_214(bot_fx):
     await trigger(ctx=context)
 
     assert _rescue.code_red != pre_state, "!cr failed to flip CR state"
+
+
+async def test_spark_223_command(bot_fx):
+    pre_len = len(bot_fx.board)
+    context = await Context.from_message(bot=bot_fx, channel="#ratchat", sender="some_ov",
+                                         message="!inject sǝʌıɥↃ‾ǝıssn∀ Helgoland PC ok")
+    await trigger(ctx=context)
+
+    assert len(bot_fx.board) == pre_len, "number of rescues changed unexpectedly!"
