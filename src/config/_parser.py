@@ -65,7 +65,6 @@ def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None)
     else:
         log_filemode = "a"
 
-    gelf_data = None
     handlers = [
         dict(
             sink=sys.stdout,
@@ -83,20 +82,22 @@ def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None)
             enqueue=True,
             mode=log_filemode,
         ),
-
-        dict(
-            sink=graypy.GELFTCPHandler(
-                "localhost",
-                12201,
-
-            ),
-            format="<{time}[{name}] {level.name}> {message}",
-            colorize=False,
-            backtrace=False,
-            diagnose=False,
-            level=gelf_configuration.log_level,
-        )
     ]
+
+    if gelf_configuration:
+        handlers.append(
+            dict(
+                sink=graypy.GELFTCPHandler(
+                    gelf_configuration.host,
+                    gelf_configuration.port,
+                ),
+                format="<{time}[{name}] {level.name}> {message}",
+                colorize=False,
+                backtrace=False,
+                diagnose=False,
+                level=gelf_configuration.log_level,
+            )
+        )
 
     logger.configure(handlers=handlers)
 
