@@ -287,3 +287,68 @@ async def test_sub_replace(bot_fx, rescue_sop_fx):
     await trigger(context)
     assert len(rescue_sop_fx.quotes) == initial_quote_count - 1, "quote added / deleted unexpectedly"
 
+
+@pytest.mark.asyncio
+async def test_cmdr(bot_fx, rescue_sop_fx):
+    await bot_fx.board.append(rescue_sop_fx)
+    old_nick = rescue_sop_fx.client
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!cmdr {rescue_sop_fx.board_index} snafu")
+    await trigger(context)
+
+    assert rescue_sop_fx.client != old_nick, "failed to update commander at all"
+    assert rescue_sop_fx.client == "snafu", "failed to update commander correctly"
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_ov",
+                                         f"!cmdr {rescue_sop_fx.irc_nickname} something_cheeky")
+    await trigger(context)
+
+    assert rescue_sop_fx.client == "something_cheeky"
+
+
+@pytest.mark.asyncio
+async def test_cmdr(bot_fx, rescue_sop_fx):
+    await bot_fx.board.append(rescue_sop_fx)
+    old_nick = rescue_sop_fx.irc_nickname
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!ircnick {rescue_sop_fx.board_index} snafu")
+    await trigger(context)
+
+    assert rescue_sop_fx.irc_nickname == "snafu", "failed to update irc nickname."
+
+    assert old_nick not in bot_fx.board, "Unexpected rescue artefact"
+
+
+@pytest.mark.asyncio
+async def test_system(bot_fx, rescue_sop_fx):
+    await bot_fx.board.append(rescue_sop_fx)
+    old_sys = rescue_sop_fx.system
+
+    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
+                                         f"!sys {rescue_sop_fx.board_index} Fuelum")
+    await trigger(context)
+
+    assert rescue_sop_fx != old_sys, "Failed to update system."
+    assert rescue_sop_fx.system == "FUELUM", "Failed to update system"
+
+
+@pytest.mark.asyncio
+@pytest.mark.hypothesis
+@pytest.mark.parametrize(
+    "platform_string,platform",
+    [
+        ("pc", Platforms.PC),
+        ("ps", Platforms.PS),
+        ("xb", Platforms.XB)
+    ]
+)
+async def test_platform(bot_fx, platform_string: str, platform: Platforms, rescue_sop_fx):
+    await bot_fx.board.append(rescue_sop_fx)
+    context = await Context.from_message(
+        bot_fx, channel="#ratchat", sender="some_ov",
+        message=f"!{platform_string} {rescue_sop_fx.board_index}"
+    )
+    await trigger(ctx=context)
+    assert rescue_sop_fx.platform is platform, "failed to update platform"
