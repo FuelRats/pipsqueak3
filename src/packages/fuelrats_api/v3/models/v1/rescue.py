@@ -177,7 +177,7 @@ class Rescue(Resource):
             "platform": "platform",
         }
         # translate internal datamodel names to the APIs datamodel names
-        keep = {field_map[field] for field in changes}
+        keep = {field_map[field] for field in changes if field != 'mark_for_deletion'}
         # serialize API rescue object
         data = attr.asdict(self, recurse=True)
         # figure out which keys we need to keep (only send the ones modified internally)

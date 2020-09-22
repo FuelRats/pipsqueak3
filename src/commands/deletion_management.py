@@ -67,7 +67,7 @@ async def del_management_md(ctx: Context):
 
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.marked_for_deletion = new_mfd
-        case.status = Status.CLOSED
+        case.status = Status.PURGE
         await ctx.reply(f"{case.client}'s case has been closed and added to the MFD list.")
 
     await ctx.bot.board.remove_rescue(rescue)

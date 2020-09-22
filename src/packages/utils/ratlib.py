@@ -41,6 +41,8 @@ class Status(Enum):
     """The rescue is currently closed"""
     INACTIVE = 2
     """The rescue is open, but is marked inactive"""
+    PURGE = 3
+    """ Purged rescue (MFD) """
 
 
 class Colors(Enum):
@@ -212,7 +214,7 @@ def color(text: str, text_color: Colors, bg_color: Optional[Colors] = None) -> s
         raise TypeError("Expected a Colors enum, got {type(text_color)}")
     if isinstance(bg_color, Colors):
         return f'{Formatting.FORMAT_COLOR.value}{text_color.value}{bg_color.value}{text}' \
-            f'{Formatting.FORMAT_COLOR.value}'
+               f'{Formatting.FORMAT_COLOR.value}'
 
     return f'{Formatting.FORMAT_COLOR.value}{text_color.value}{text}{Formatting.FORMAT_COLOR.value}'
 
