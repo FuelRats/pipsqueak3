@@ -24,9 +24,7 @@ prometheus_async = "^19.2.0"
 pyparsing = "^2.4.7"
 graypy = "^2.1.0"
 python-dateutil = "^2.8.1"
-simplejson = "^3.17.0"
 websockets = "^8.1"
-python-dateutil = "^2.8.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
