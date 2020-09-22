@@ -43,7 +43,7 @@ def test_clear_pattern(ident: IDENT_TYPE, subject: Optional[str]):
     payload = f"!clear {ident} {subject if subject else ''}".rstrip()
     tokens = case_management.CLEAR_PATTERN.parseString(payload)
     if subject:
-        assert tokens.first_limpet == subject
+        assert tokens.first_limpet[0] == subject
 
 
 @given(ident=test_strategies.rescue_identifier(), subject=test_strategies.valid_word())
@@ -63,7 +63,7 @@ def test_grab_pattern(ident):
 def test_irc_nick_pattern(ident, new_ident):
     payload = f"!ircnick {ident} {new_ident}"
     tokens = case_management.IRC_NICK_PATTERN.parseString(payload)
-    assert tokens.new_nick == new_ident, "new_nick is incorrect."
+    assert tokens.new_nick[0] == new_ident, "new_nick is incorrect."
 
 
 @given(
@@ -121,7 +121,8 @@ def test_unassign_pattern(ident: IDENT_TYPE, subjects: List[str]):
     platform=strategies.one_of(strategies.none(), test_strategies.platform)
 )
 def test_inject_pattern(
-    ident: IDENT_TYPE, code_red: Optional[str], timer: Optional[str], remainder: List[str], platform: Optional[Platforms]
+        ident: IDENT_TYPE, code_red: Optional[str], timer: Optional[str], remainder: List[str],
+        platform: Optional[Platforms]
 ):
     buffer = StringIO()
     buffer.write(f"!inject {ident} ")
@@ -153,3 +154,5 @@ def test_inject_pattern(
 
         # assert equality.
         assert tokens.timer.asList() == timer_should_equal, "timer failed to parse correctly."
+
+    assert f"{tokens.subject[0]}" == f"{ident}".strip("#@")
