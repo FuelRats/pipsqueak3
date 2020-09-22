@@ -7,7 +7,7 @@ irc_name = (
         initChars=pyparsing.alphas,
         bodyChars=pyparsing.alphanums + "[]{}|:-_<>\\/",
     )
-) +  pyparsing.WordEnd()
+) + pyparsing.WordEnd()
 """
 Matches a valid IRC nickname.
  Token MUST start with a letter but MAY contain numerics and some special chars
