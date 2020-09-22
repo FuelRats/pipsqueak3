@@ -397,7 +397,11 @@ async def cmd_case_management_inject(ctx: Context):
 
     logger.debug("tokens: {!r}", tokens)
     # SPARK-223 failsafe
-    if tokens.subject[0] != ctx.words[1]:
+    # build a list of possible words that was the subject
+    possible_words = {word for word in ctx.words if word.startswith(f"{tokens.subject[0]}")}
+    # and assert that at least one of these is equal to the subject.
+    # to prevent daft input like `!inject sǝʌıɥↃ‾ǝıssn∀ Helgoland PC ok` from working.
+    if not any(word == f"{tokens.subject[0]}" for word in possible_words):
         # if the subject doesn't match
         return await ctx.reply("Invalid IRC nick for inject. Abort.")
 
@@ -450,7 +454,7 @@ async def cmd_case_management_ircnick(ctx: Context):
         await ctx.reply("No case with that name or number.")
         return
 
-    new_name = tokens.new_nick
+    new_name = tokens.new_nick[0]
     # sanity check that probably can never be reached.
     if not new_name:
         raise ValueError("new_name should be truthy.")
