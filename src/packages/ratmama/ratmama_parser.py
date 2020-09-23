@@ -153,8 +153,10 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         )
         # now let's make it more visible if stuff changed
         changed = []
-        message = f"Dispatch! Case #{exist_rescue.board_index} {bold('fields changed')} on rejoin," \
-                  f" please verify:  "
+        message = (
+            f"Dispatch! Case #{exist_rescue.board_index} {bold('fields changed')} on rejoin,"
+            f" please verify:  "
+        )
         cr_message = ""
         if (
             (
@@ -167,12 +169,15 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             changed.append("system")
 
         if (
-            exist_rescue.platform is None or platform_name.casefold() != exist_rescue.platform.name.casefold()
+            exist_rescue.platform is None
+            or platform_name.casefold() != exist_rescue.platform.name.casefold()
         ):
             changed.append("platform")
         if not o2_status != exist_rescue.code_red:
             cr_message = (
-                ", O2 Status!" if o2_status else f", O2 Status changed, rescue is now {color('CODE RED', Colors.RED)}!"
+                ", O2 Status!"
+                if o2_status
+                else f", O2 Status changed, rescue is now {color('CODE RED', Colors.RED)}!"
             )
 
         if changed:
