@@ -20,7 +20,7 @@ from ..context import Context
 from ..rescue import Rescue
 from ..rules import rule
 from ..user import User
-from ..utils import Platforms
+from ..utils import Platforms, color, Colors, bold
 
 import attr
 
@@ -101,7 +101,11 @@ RATMAMA_REGEX = re.compile(
 
 
 @rule(
-    r"^Incoming Client:", case_sensitive=False, full_message=False, prefixless=True, pass_match=False
+    r"^Incoming Client:",
+    case_sensitive=False,
+    full_message=False,
+    prefixless=True,
+    pass_match=False,
 )
 async def handle_ratmama_announcement(ctx: Context) -> None:
     """
@@ -130,7 +134,10 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     client = await User.from_pydle(ctx.bot, client_name)
 
-    if client is not None and client.hostname in ("services.fuelrats.com", "bot.fuelrats.com"):
+    if client is not None and client.hostname in (
+        "services.fuelrats.com",
+        "bot.fuelrats.com",
+    ):
         return await ctx.reply(
             "Signal attempted to create rescue for a service. " "Dispatch: please inject this case."
         )
@@ -146,19 +153,33 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         )
         # now let's make it more visible if stuff changed
         changed = []
-        message = f"Case #{exist_rescue.board_index} "
-        if system_name.casefold() != exist_rescue.system.casefold():
+        message = f"Dispatch! Case #{exist_rescue.board_index} {bold('fields changed')} on rejoin," \
+                  f" please verify:  "
+        cr_message = ""
+        if (
+            (
+                exist_rescue.system is not None
+                and system_name.casefold() != exist_rescue.system.casefold()
+            )
+            or exist_rescue.system is None
+            and system_name is not None
+        ):
             changed.append("system")
 
         if (
-            exist_rescue.platform
-            and platform_name.casefold() != exist_rescue.platform.name.casefold()
+            exist_rescue.platform is None or platform_name.casefold() != exist_rescue.platform.name.casefold()
         ):
             changed.append("platform")
         if not o2_status != exist_rescue.code_red:
-            msg = "O2 Status changed!" if o2_status else "O2 Status changed, it is now CODE RED!"
-            await ctx.reply(f"{message}{', '.join(changed)}, {msg}")
-        return
+            cr_message = (
+                ", O2 Status!" if o2_status else f", O2 Status changed, rescue is now {color('CODE RED', Colors.RED)}!"
+            )
+
+        if changed:
+            # SPARK-46: Warn when a client reconnects with different settings, but differ to dispatch
+            # to overwrite existing data instead of doing it ourselves.
+            await ctx.reply(f"{message}{', '.join(changed)}{cr_message}")
+            return
 
     platform = None
     if platform_name.casefold() in ("pc", "ps", "xb"):
@@ -187,7 +208,13 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     )
 
 
-@rule(r"\bdrillsignal\b", case_sensitive=False, full_message=True, pass_match=False, prefixless=True)
+@rule(
+    r"\bdrillsignal\b",
+    case_sensitive=False,
+    full_message=True,
+    pass_match=False,
+    prefixless=True,
+)
 async def handle_ratsignal(ctx: Context) -> None:
     """
     Tries to extract as much details as possible from a self-issued ratsignal and appends
@@ -235,7 +262,13 @@ async def handle_ratsignal(ctx: Context) -> None:
         if part.casefold() in ("pc",):
             platform = Platforms["PC"]
 
-        elif part.casefold() in ("ps", "ps4", "playstation", "playstation4", "playstation 4"):
+        elif part.casefold() in (
+            "ps",
+            "ps4",
+            "playstation",
+            "playstation4",
+            "playstation 4",
+        ):
             platform = Platforms["PS"]
 
         elif part.casefold() in ("xb", "xb1", "xbox", "xboxone", "xbox one"):
