@@ -149,11 +149,16 @@ async def test_announcer_reconnect_with_changes(bot_fx, async_callable_fx, monke
     monkeypatch.setattr(context, "reply", async_callable_fx)
     monkeypatch.setattr(context2, "reply", async_callable_fx)
 
+    assert len(bot_fx.board) == 0, "precondition failed."
     await ratmama.handle_ratmama_announcement(context)
+    assert len(bot_fx.board ) == 1, "failed to handle announcement."
     await ratmama.handle_ratmama_announcement(context2)
 
+    assert len(bot_fx.board) == 1, "created too many cases (mishandle)."
+
     assert async_callable_fx.was_called_with(
-        'Case #0 system, platform, O2 Status changed, it is now CODE RED!'
+        'Dispatch! Case #0 fields changed on rejoin, please verify:  system, platform, '
+        'O2 Status changed, rescue is now 04CODE RED!'
     )
 
 
