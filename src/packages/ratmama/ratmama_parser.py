@@ -184,7 +184,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
             # SPARK-46: Warn when a client reconnects with different settings, but differ to dispatch
             # to overwrite existing data instead of doing it ourselves.
             await ctx.reply(f"{message}{', '.join(changed)}{cr_message}")
-            return
+        return
 
     platform = None
     if platform_name.casefold() in ("pc", "ps", "xb"):
