@@ -32,8 +32,7 @@ from src.packages.permissions import require_permission, RAT
 
 import prometheus_client
 
-import signal
-
+import faulthandler
 
 TIME_IN_PING = prometheus_client.Summary(
     name="ping", documentation="Time spent in the ping command", namespace="command", unit="seconds"
@@ -88,24 +87,12 @@ async def start():
     logger.info("Connected to IRC.")
 
 
-def ask_exit(signal_name, loop):
-    # if we get here we can safely assume the interpreter is FUBAR.
-    # So we can't trust logger or anything else.
-    # emit an error and hopefully stacktrace and bail out.
-    print("fatal error. traceback::")
-    traceback.print_stack()
-    print(f"Received signal {signal_name}: Abort.")
-    exit(-1)
-
-
 # entry point
 if __name__ == "__main__":
     prometheus_client.start_http_server(6820, "localhost")
     LOOP = asyncio.get_event_loop()
     # due to recent incidents in drillsqueak, its evident we need a signal handler.
-
-    for signame in {"SIGTERM", "SIGSEGV", "SIGHUP"}:
-        LOOP.add_signal_handler(getattr(signal, signame), functools.partial(ask_exit, signame, LOOP))
+    faulthandler.enable()
 
     LOOP.run_until_complete(start())
     LOOP.run_forever()
