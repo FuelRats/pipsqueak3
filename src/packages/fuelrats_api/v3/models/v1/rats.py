@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import typing
 from datetime import datetime
@@ -49,7 +48,7 @@ class Rat(Resource):
     type: str = RAT_TYPE
 
     @classmethod
-    def from_dict(cls, data: typing.Dict) -> Rat:
+    def from_dict(cls, data: typing.Dict) -> 'Rat':
         attributes = RatAttributes(**data["attributes"])
         relationships = RatRelationships.from_dict(data["relationships"])
         return cls(attributes=attributes, relationships=relationships, id=data["id"])

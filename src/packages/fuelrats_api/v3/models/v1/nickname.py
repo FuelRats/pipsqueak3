@@ -1,4 +1,3 @@
-from __future__ import annotations
 
 import typing
 from datetime import datetime
@@ -56,7 +55,7 @@ class Nickname(Resource):
     type: str = "nicknames"
 
     @classmethod
-    def from_dict(cls, data) -> Nickname:
+    def from_dict(cls, data) -> 'Nickname':
         return cls(
             id=data["id"],
             attributes=NicknameAttributes(**data["attributes"]),

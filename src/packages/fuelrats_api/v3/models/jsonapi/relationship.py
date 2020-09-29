@@ -1,8 +1,7 @@
-from __future__ import annotations
-
 import typing
 
 import attr
+import cattr
 from loguru import logger
 
 from .link import ResourceLinkage, Links, Link
@@ -16,7 +15,7 @@ class Relationship:
     meta: typing.Dict = attr.ib(factory=dict)
 
     @classmethod
-    def from_dict(cls, payload) -> Relationship:
+    def from_dict(cls, payload) -> 'Relationship':
         # FIXME handle alternate form if data is present
         logger.trace("creating Relationship from {}", payload)
         kwargs = {}
@@ -38,3 +37,6 @@ class Relationship:
 
         kwargs["meta"] = payload.get("meta", {})
         return cls(**kwargs)
+
+
+cattr.register_structure_hook(Relationship, lambda data, _: Relationship.from_dict(data))

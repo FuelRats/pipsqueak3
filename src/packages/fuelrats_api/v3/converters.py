@@ -8,7 +8,7 @@ from uuid import UUID
 from dateutil.parser import parse as datetime_parser
 
 from src.packages.utils import Platforms
-
+import cattr
 
 def to_platform(key: str):
     return Platforms[key.upper()]
@@ -39,6 +39,10 @@ def to_uuid(raw: Union[str, UUID]) -> UUID:
     if not isinstance(raw, UUID):
         return UUID(raw)
     return raw
+
+
+cattr.register_structure_hook(datetime, lambda data, _: to_datetime(data))
+cattr.register_structure_hook(Platforms, lambda platform, _: platform.upper())
 
 
 class CustomJsonSerializer(json.JSONEncoder):
