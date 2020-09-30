@@ -1,10 +1,8 @@
-from __future__ import annotations
-
 import typing
 from typing import Optional, Dict, List, Set
 
 import attr
-
+import cattr
 from ..jsonapi.relationship import Relationship
 from ..jsonapi.resource import Resource
 from .....rescue import Rescue as InternalRescue
@@ -64,14 +62,13 @@ class RescueAttributes:
     """ Board index. """
 
     @classmethod
-    def from_dict(cls, data: Dict) -> RescueAttributes:
+    def from_dict(cls, data: Dict) -> 'RescueAttributes':
         data = data.copy()  # shallow copy because callers might get confused if we mutate theirs...
         data["quotes"] = [Quotation.from_dict(obj) for obj in data["quotes"]]
         return cls(**data)
 
     @classmethod
-    def from_internal(cls, data: InternalRescue) -> RescueAttributes:
-
+    def from_internal(cls, data: InternalRescue) -> 'RescueAttributes':
         return cls(
             client=data.client,
             clientNick=data.irc_nickname,
@@ -110,7 +107,7 @@ class Rescue(Resource):
     relationships: Optional[RescueRelationships] = None
 
     @classmethod
-    def from_dict(cls, data: typing.Dict) -> Rescue:
+    def from_dict(cls, data: typing.Dict) -> 'Rescue':
         relationships = RescueRelationships(
             rats=Relationship.from_dict(data["relationships"]["rats"]),
             firstLimpet=Relationship.from_dict(data["relationships"]["firstLimpet"]),
@@ -146,7 +143,7 @@ class Rescue(Resource):
         )
 
     @classmethod
-    def from_internal(cls, data: InternalRescue) -> Rescue:
+    def from_internal(cls, data: InternalRescue) -> 'Rescue':
         return Rescue(id=data.api_id, attributes=RescueAttributes.from_internal(data))
 
     def to_delta(self, changes: Set[str]) -> Dict:
@@ -178,6 +175,9 @@ class Rescue(Resource):
         }
         # translate internal datamodel names to the APIs datamodel names
         keep = {field_map[field] for field in changes if field != 'mark_for_deletion'}
+
+        if 'marked_for_deletion' in changes:
+            keep |= {'status'}
         # serialize API rescue object
         data = attr.asdict(self, recurse=True)
         # figure out which keys we need to keep (only send the ones modified internally)
@@ -185,3 +185,6 @@ class Rescue(Resource):
         # and patch the object.
         data["attributes"] = kept_attribs
         return data
+
+
+cattr.register_unstructure_hook(Rescue, lambda rescue: rescue.to_delta())

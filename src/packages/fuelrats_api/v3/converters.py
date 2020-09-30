@@ -41,16 +41,26 @@ def to_uuid(raw: Union[str, UUID]) -> UUID:
     return raw
 
 
-cattr.register_structure_hook(datetime, lambda data, _: to_datetime(data))
-cattr.register_structure_hook(Platforms, lambda platform, _: platform.upper())
 
+event_converter = cattr.Converter(unstruct_strat=cattr.UnstructureStrategy.AS_TUPLE)
+""" 
+event structure converter.
 
-class CustomJsonSerializer(json.JSONEncoder):
-    """ custom JSON serializer class because some objects stdlib json throws a fit at. """
+Events come in effectively as a tuple, which doesn't match the default `cattr` global converter,
+thus we need to define a second one that uses tuples instead.
 
-    def default(self, o: Any) -> Any:
-        if isinstance(o, UUID):
-            return f"{o}"
-        if isinstance(o, datetime):
-            return from_datetime(o)
-        return super().default(o)
+(Either that or a magically complicated dict comprehension that isn't very performant.)
+"""
+
+# Doing this in a loop so both converters get it without duplication...
+for converter in (cattr, event_converter):
+    # UUID doesn't have a builtin de/structure hook, provide our own
+    converter.register_structure_hook(UUID, lambda data, _: UUID(data))
+    converter.register_unstructure_hook(UUID, lambda data: f"{data}")
+    # Nor does datetime, for some reason
+    converter.register_structure_hook(datetime, lambda data, _: to_datetime(data))
+    converter.register_unstructure_hook(datetime, lambda date: from_datetime(date))
+    # Platforms is an enum so cattr *does* provide one, its just not
+    # conformant to the enum in the API so we need our own conversion hook...
+    converter.register_structure_hook(Platforms, lambda platform, _: platform.upper())
+    converter.register_unstructure_hook(Platforms, lambda platform: platform.value)

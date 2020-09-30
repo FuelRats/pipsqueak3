@@ -1,4 +1,5 @@
 import typing
+from typing import List
 
 import attr
 import cattr
@@ -27,10 +28,10 @@ class Relationship:
         data = payload["data"]
         if isinstance(data, list):
             # list of identifiers
-            kwargs["data"] = [ObjectIdentifier(**item) for item in data]
+            kwargs["data"] = cattr.structure(data, List[ObjectIdentifier])
         elif isinstance(data, dict):
             # single identifier
-            kwargs["data"] = ObjectIdentifier(**data)
+            kwargs["data"] = cattr.structure(data, ObjectIdentifier)
         elif data is None:
             # null is permissible here
             kwargs["data"] = None

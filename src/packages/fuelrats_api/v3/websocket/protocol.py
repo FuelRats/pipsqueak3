@@ -1,19 +1,14 @@
-from __future__ import annotations
 import json
 import uuid
 from typing import Dict, Any, List
 from uuid import UUID
+
+import cattr
+
 from ..converters import to_uuid
 
 from loguru import logger
 import attr
-import asyncio
-from ..converters import CustomJsonSerializer
-
-
-def state_factory() -> str:
-    """ small factory to generate uuid4s as strings to stuff into a query state object """
-    return f"{uuid.uuid4()}"
 
 
 @attr.dataclass
@@ -40,7 +35,7 @@ class Request:
     HTTP request.
     """
 
-    state: str = attr.ib(factory=state_factory)
+    state: str = attr.ib(factory=uuid.uuid4)
     """
     The state parameter can be any random string, it is used as a unique identifier that will be 
     sent back in replies allowing you to identify what request a response is in reply to.
@@ -48,19 +43,21 @@ class Request:
 
     def serialize(self) -> str:
         """ serializes this request into the form the websocket expects"""
-
         frame = [self.state, self.endpoint, self.query, self.body]
-        return json.dumps(frame, cls=CustomJsonSerializer)
+        return json.dumps(cattr.unstructure(frame))
 
 
 @attr.dataclass
 class Response:
-    state: str = attr.ib(validator=attr.validators.instance_of(str))
+    state: UUID = attr.ib(
+        validator=attr.validators.instance_of(UUID),
+        converter=to_uuid
+    )
     status: int = attr.ib(validator=attr.validators.instance_of(int))
     body: dict = attr.ib(validator=attr.validators.instance_of(dict))
 
     @classmethod
-    def deserialize(cls, raw: str) -> Response:
+    def deserialize(cls, raw: str) -> 'Response':
         """
         Deserializes the provided `raw` into a Response object
 
@@ -76,13 +73,3 @@ class Response:
         return cls(state=state, status=status, body=body)
 
 
-@attr.dataclass
-class Event:
-    """
-    API Event response
-    """
-
-    event: str = attr.ib(validator=attr.validators.instance_of(str))
-    sender: UUID = attr.ib(validator=attr.validators.instance_of(UUID), converter=to_uuid)
-    obj_id: UUID = attr.ib(validator=attr.validators.instance_of(UUID), converter=to_uuid)
-    data: Dict = attr.ib(validator=attr.validators.instance_of(dict))
