@@ -8,7 +8,7 @@ import pytest
 from src.packages.fuelrats_api.v3.models.v1.rescue import Rescue as ApiRescue
 from src.packages.rescue import Rescue as InternalRescue
 from .. import v3_tests
-
+import cattr
 pytestmark = [pytest.mark.unit, pytest.mark.api_v3]
 
 RAW_ENUMERATE_RESCUE_RESPONSE: Dict = json.loads(
@@ -17,7 +17,7 @@ RAW_ENUMERATE_RESCUE_RESPONSE: Dict = json.loads(
 
 def test_deserialize():
     original = RAW_ENUMERATE_RESCUE_RESPONSE.copy()
-    rescue = ApiRescue.from_dict(RAW_ENUMERATE_RESCUE_RESPONSE['data'][0])
+    rescue = cattr.structure(RAW_ENUMERATE_RESCUE_RESPONSE['data'][0], ApiRescue)
 
     assert RAW_ENUMERATE_RESCUE_RESPONSE == original, "illegal mutation of input data"
     assert rescue.id == UUID("a8acc8d6-af38-4256-9911-7455e33012f2")

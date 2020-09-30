@@ -142,8 +142,9 @@ class ApiV300WSS(FuelratsApiABC):
         pass
 
     async def ensure_connection(self):
-        logger.debug("waiting for the connected event to be set...")
-        await self.connected_event.wait()
+        if not self.connected_event.is_set():
+            logger.debug("waiting for the connected event to be set...")
+            await self.connected_event.wait()
         logger.trace("connected event is set!")
 
     async def create_rescue(self, rescue: Rescue, impersonating: Impersonation) -> Rescue:

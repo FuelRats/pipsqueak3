@@ -6,6 +6,7 @@ import pytest
 
 from src.packages.fuelrats_api.v3.models.v1.nickname import Nickname
 from .. import v3_tests
+import cattr
 
 pytestmark = [pytest.mark.unit, pytest.mark.api_v3]
 
@@ -19,7 +20,7 @@ def test_parse():
     raw = resources.read_text(v3_tests, "raw_nickname_response.json")
     payload = json.loads(raw)
 
-    nickname = Nickname.from_dict(payload['data'][0])
+    nickname = cattr.structure(payload['data'][0], Nickname)
     assert nickname.id == UUID('00000000-0000-4000-0000-000000000048')
     assert nickname.attributes.vhost == "clapton.recruit.fuelrats.com"
     assert nickname.attributes.nick == "ClappersClappyton"

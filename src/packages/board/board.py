@@ -322,6 +322,7 @@ class RatBoard(abc.Mapping):
             ApiError: Something went wrong in API creation, rescue has been created locally.
         """
         index = self.free_case_number
+        logger.trace("instantiating local rescue object...")
         rescue = Rescue(*args, board_index=index, **kwargs)
 
         try:
