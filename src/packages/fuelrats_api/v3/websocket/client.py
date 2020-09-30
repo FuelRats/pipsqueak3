@@ -70,25 +70,33 @@ class Connection:
                 continue
 
     async def fail_watchdog(self):
+        """
+        Watchdog task that periodically checks that the other workers haven't died.
+
+        If they have, mark any in-flight futures as failed with exception,
+        as we are in an invalid state.
+        """
         while not self.shutdown.is_set():
             fail = None
-            tx_exception = None
 
             await asyncio.sleep(1)
-            logger.debug("watchdog tick.")
+            logger.trace("watchdog tick.")
 
             if self._tx_worker.done():
                 fail = self._tx_worker.exception()
             if self._rx_worker.done():
                 fail = self._rx_worker.exception()
-            try:
-                if fail:
-                    logger.exception("TX/RX hardfail {}", fail)
-                    for task in self._futures.values():
-                        if not task.done():
-                            task.set_exception(fail)
-            except:
-                logger.exception("something went horribly wrong.")
+            if fail:
+                logger.exception("TX/RX hardfail {}", fail)
+                # We are in an invalid state, signal we died.
+                self.shutdown.set()
+
+                # Propagate failure to any in-flight futures, as they cannot possibly succeed now.
+                for task in self._futures.values():
+                    # Its possible to have done tasks in here (race)
+                    # and setting the exception of a done task is a runtime error.
+                    if not task.done():
+                        task.set_exception(fail)
 
     async def tx_worker(self):
         """ Worker that sends messages to the websocket """
