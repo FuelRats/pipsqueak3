@@ -14,8 +14,15 @@ from ..models.v1.apierror import APIException, ApiError, UnauthorizedImpersonati
 
 
 class Connection:
-    __slots__ = ["_socket", "_futures", "shutdown", "_work", "_rx_worker", "_tx_worker",
-                 "_fail_worker"]
+    __slots__ = [
+        "_socket",
+        "_futures",
+        "shutdown",
+        "_work",
+        "_rx_worker",
+        "_tx_worker",
+        "_fail_worker",
+    ]
 
     def __init__(self, socket):
         self._socket: WebSocketClientProtocol = socket
@@ -35,9 +42,10 @@ class Connection:
             # if its an error return, then set the exception so the consumer raises.
             if response.status < 200 or response.status >= 300:
                 the_error = ApiError.from_dict(response.body["errors"][0])
-                if the_error.code == 401 and the_error.source.parameter == 'representing':
+                if the_error.code == 401 and the_error.source.parameter == "representing":
                     return self._futures[response.state].set_exception(
-                        UnauthorizedImpersonation(the_error))
+                        UnauthorizedImpersonation(the_error)
+                    )
                 return self._futures[response.state].set_exception(APIException(the_error))
 
             self._futures[response.state].set_result(response)
@@ -108,10 +116,10 @@ class Connection:
             # async blocking get work
             work = await self._work.get()
             with logger.contextualize(state=work.state):
-                if 'representing' in work.query:
+                if "representing" in work.query:
                     # FIXME remove this hack once the API actually has production data...
                     # TODO: check drill mode and selectively not emit?
-                    del work.query['representing']
+                    del work.query["representing"]
                 await self._socket.send(work.serialize())
 
     async def execute(self, work: Request) -> Response:

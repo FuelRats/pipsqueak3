@@ -6,6 +6,7 @@ from .resource_identifier import ObjectIdentifier
 
 import cattr
 
+
 @attr.dataclass
 class Link:
     href: str
@@ -20,7 +21,8 @@ class Link:
         # links type B
         return cls(**payload)
 
-cattr.register_structure_hook(Link, lambda data,_: Link.from_dict(data))
+
+cattr.register_structure_hook(Link, lambda data, _: Link.from_dict(data))
 
 
 Links = typing.Dict[str, Link]

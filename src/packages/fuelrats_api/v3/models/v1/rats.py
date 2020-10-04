@@ -1,4 +1,3 @@
-
 import typing
 from datetime import datetime
 
@@ -21,7 +20,8 @@ class RatRelationships:
     @classmethod
     def from_dict(cls, data: typing.Dict):
         return cls(
-            user=Relationship.from_dict(data["user"]), ships=Relationship.from_dict(data["ships"]),
+            user=Relationship.from_dict(data["user"]),
+            ships=Relationship.from_dict(data["ships"]),
         )
 
 

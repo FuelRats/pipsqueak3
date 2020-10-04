@@ -13,14 +13,16 @@ from ...._base import ApiException as BaseApiException
 @attr.dataclass
 class Pointer:
     pointer: Optional[str] = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(str)), default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(str)),
+        default=None,
     )
     """
     If the error is a client error caused by an invalid entity in the request object a JSON pointer
     to it will be provided here.
     """
     parameter: str = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(str)), default=None,
+        validator=attr.validators.optional(attr.validators.instance_of(str)),
+        default=None,
     )
     """
     If the error is a client error caused by a query parameter the name of the query parameter will 

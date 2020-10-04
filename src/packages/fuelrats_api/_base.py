@@ -14,6 +14,7 @@ if typing.TYPE_CHECKING:
 Impersonation = typing.TypeVar("Impersonation", str, UUID)
 """ Type for an ID of the user Mecha is performing an API action on the behalf of """
 
+
 @attr.dataclass
 class ApiConfig:
     online_mode: bool = attr.ib(validator=attr.validators.instance_of(bool))

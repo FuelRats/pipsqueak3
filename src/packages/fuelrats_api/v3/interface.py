@@ -101,8 +101,8 @@ class ApiV300WSS(FuelratsApiABC):
         """
         logger.info("creating new socket connection....")
         async with websockets.connect(
-                uri=f"{self.config.uri}?bearer={self.config.authorization}",
-                subprotocols=("FR-JSONAPI-WS",),
+            uri=f"{self.config.uri}?bearer={self.config.authorization}",
+            subprotocols=("FR-JSONAPI-WS",),
         ) as soc:
             logger.info("created.")
             self.connection = Connection(socket=soc)
@@ -123,21 +123,23 @@ class ApiV300WSS(FuelratsApiABC):
         # Purge attributes we are not supposed to send.
         del payload["data"]["links"]
         del payload["data"]["relationships"]
-        work = Request(endpoint=["rescues", "update"], body=payload, query={
-            'id': f"{rescue.api_id}",
-            "representing": impersonating
-        })
+        work = Request(
+            endpoint=["rescues", "update"],
+            body=payload,
+            query={"id": f"{rescue.api_id}", "representing": impersonating},
+        )
         if not Impersonation:
-            del work.query['representing']
+            del work.query["representing"]
         response = await self.connection.execute(work)
         return response
 
     async def _get_rescue(self, key: UUID, impersonation: Impersonation) -> Optional[ApiRescue]:
         await self.ensure_connection()
-        work = Request(endpoint=["rescues", "read"],
-                       query={"id": f"{key}", "representing": impersonation})
+        work = Request(
+            endpoint=["rescues", "read"], query={"id": f"{key}", "representing": impersonation}
+        )
         response = await self.connection.execute(work)
-        return cattr.structure(response.body['data'], Optional[ApiRescue])
+        return cattr.structure(response.body["data"], Optional[ApiRescue])
 
     async def get_rescue(self, key: UUID, impersonation: Impersonation) -> typing.Optional[Rescue]:
         pass
@@ -152,19 +154,19 @@ class ApiV300WSS(FuelratsApiABC):
         await self.ensure_connection()
         work = Request(
             endpoint=["rescues", "create"],
-            query={'representing': impersonating},
+            query={"representing": impersonating},
             body={"data": attr.asdict(ApiRescue.from_internal(rescue), recurse=True)},
         )
         result = await self.connection.execute(work)
         # if we get this far, we got a OK response; which means the data field contains our rescue.
-        payload: ApiRescue = cattr.structure(result.body['data'], ApiRescue)
+        payload: ApiRescue = cattr.structure(result.body["data"], ApiRescue)
         return payload.into_internal()
 
     async def get_rat(self, key: Union[UUID, str], impersonation: Impersonation) -> List[InternalRat]:
         await self.ensure_connection()
         if isinstance(key, UUID):
             results = await self._get_rat_uuid(key, impersonation=None)
-            rat: ApiRat = cattr.structure(results.body['data'] ,ApiRat)
+            rat: ApiRat = cattr.structure(results.body["data"], ApiRat)
             return [rat.into_internal()]
         if isinstance(key, str):
             results = await self._get_rats_from_nickname(key, impersonation=impersonation)
@@ -174,8 +176,10 @@ class ApiV300WSS(FuelratsApiABC):
     async def _get_nicknames(self, key: str, impersonation: Impersonation) -> Response:
         await self.ensure_connection()
 
-        work = Request(endpoint=["nicknames", "search"],
-                       query={"nick": key, "representing": impersonation}, )
+        work = Request(
+            endpoint=["nicknames", "search"],
+            query={"nick": key, "representing": impersonation},
+        )
         # TODO: offline check
         logger.info(f"querying nickname {key}")
         return await self.connection.execute(work)
@@ -183,8 +187,9 @@ class ApiV300WSS(FuelratsApiABC):
     async def _get_rat_uuid(self, key: UUID, impersonation: Impersonation):
         await self.ensure_connection()
 
-        work = Request(endpoint=["rats", "read"],
-                       query={"id": f"{key}", "representing": impersonation})
+        work = Request(
+            endpoint=["rats", "read"], query={"id": f"{key}", "representing": impersonation}
+        )
         logger.debug("requesting rat {}", work)
         return await self.connection.execute(work)
 
@@ -206,8 +211,9 @@ class ApiV300WSS(FuelratsApiABC):
         # If comparing types by equality triggers you, you arn't alone.
         # Its not actually a type, but a string the API uses to represent one.
         # meaning the below is just a string equality operation; nothing untoward here.
-        rats = [cattr.structure(obj, ApiRat) for obj in raw.body["included"] if
-                obj["type"] == RAT_TYPE]
+        rats = [
+            cattr.structure(obj, ApiRat) for obj in raw.body["included"] if obj["type"] == RAT_TYPE
+        ]
         logger.debug("filtered Rats from nickname result: {!r}", rats)
 
         return rats

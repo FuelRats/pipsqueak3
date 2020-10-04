@@ -49,5 +49,5 @@ class Quotation:
             author=data.author,
             lastAuthor=data.last_author,
             createdAt=data.created_at,
-            updatedAt=data.updated_at
+            updatedAt=data.updated_at,
         )

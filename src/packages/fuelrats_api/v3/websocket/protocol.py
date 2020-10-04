@@ -49,15 +49,12 @@ class Request:
 
 @attr.dataclass
 class Response:
-    state: UUID = attr.ib(
-        validator=attr.validators.instance_of(UUID),
-        converter=to_uuid
-    )
+    state: UUID = attr.ib(validator=attr.validators.instance_of(UUID), converter=to_uuid)
     status: int = attr.ib(validator=attr.validators.instance_of(int))
     body: dict = attr.ib(validator=attr.validators.instance_of(dict))
 
     @classmethod
-    def deserialize(cls, raw: str) -> 'Response':
+    def deserialize(cls, raw: str) -> "Response":
         """
         Deserializes the provided `raw` into a Response object
 
@@ -71,5 +68,3 @@ class Response:
         if erroneous:
             logger.error("Failed to parse API response!")
         return cls(state=state, status=status, body=body)
-
-

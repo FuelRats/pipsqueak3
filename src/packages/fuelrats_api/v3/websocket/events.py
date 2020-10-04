@@ -21,6 +21,7 @@ class RescueUpdate:
 @attr.dataclass
 class RescueCreate:
     """ Rescue creation event """
+
     event: str = attr.ib(validator=attr.validators.instance_of(str))
     state: UUID = attr.ib(validator=attr.validators.instance_of(UUID))
     obj_id: UUID = attr.ib(validator=attr.validators.instance_of(UUID))
@@ -32,6 +33,7 @@ class ConnectionEvent:
     """
     API Connection Event
     """
+
     event: str = attr.ib(validator=attr.validators.instance_of(str))
     state: int = attr.ib(validator=attr.validators.instance_of(int))
     data: Dict = attr.ib(validator=attr.validators.instance_of(dict), factory=dict)
@@ -39,7 +41,7 @@ class ConnectionEvent:
 
 
 CLS_FOR_EVENT: Dict[str, Type] = {
-    'fuelrats.rescueupdate': RescueUpdate,
-    'fuelrats.rescuecreate': RescueCreate,
-    'connection': ConnectionEvent
+    "fuelrats.rescueupdate": RescueUpdate,
+    "fuelrats.rescuecreate": RescueCreate,
+    "connection": ConnectionEvent,
 }

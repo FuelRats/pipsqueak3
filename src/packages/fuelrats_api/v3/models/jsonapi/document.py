@@ -12,4 +12,3 @@ class Document:
     data: Any
     included: List[Links]
     links: Optional[Links]
-

@@ -64,13 +64,13 @@ class RescueAttributes:
     """ Board index. """
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'RescueAttributes':
+    def from_dict(cls, data: Dict) -> "RescueAttributes":
         data = data.copy()  # shallow copy because callers might get confused if we mutate theirs...
         data["quotes"] = [Quotation.from_dict(obj) for obj in data["quotes"]]
         return cls(**data)
 
     @classmethod
-    def from_internal(cls, data: InternalRescue) -> 'RescueAttributes':
+    def from_internal(cls, data: InternalRescue) -> "RescueAttributes":
         return cls(
             client=data.client,
             clientNick=data.irc_nickname,
@@ -91,7 +91,6 @@ class RescueAttributes:
             quotes=[Quotation.from_internal(obj) for obj in data.quotes],
             # I did have to ask what this translated to...
             commandIdentifier=data.board_index,
-
         )
 
 
@@ -127,14 +126,13 @@ class Rescue(Resource):
             # TODO rest of attributes
             mark_for_deletion=MarkForDeletion(
                 marked=self.attributes.outcome == "purge",
-                reason=self.attributes.notes if self.attributes.notes else None
+                reason=self.attributes.notes if self.attributes.notes else None,
             ),
-            platform=self.attributes.platform
-
+            platform=self.attributes.platform,
         )
 
     @classmethod
-    def from_internal(cls, data: InternalRescue) -> 'Rescue':
+    def from_internal(cls, data: InternalRescue) -> "Rescue":
         return Rescue(id=data.api_id, attributes=RescueAttributes.from_internal(data))
 
     def to_delta(self, changes: Set[str]) -> Dict:
@@ -165,10 +163,10 @@ class Rescue(Resource):
             "platform": "platform",
         }
         # translate internal datamodel names to the APIs datamodel names
-        keep = {field_map[field] for field in changes if field != 'mark_for_deletion'}
+        keep = {field_map[field] for field in changes if field != "mark_for_deletion"}
 
-        if 'mark_for_deletion' in changes:
-            keep |= {'outcome'}
+        if "mark_for_deletion" in changes:
+            keep |= {"outcome"}
             self.attributes.outcome = "purge"
         # serialize API rescue object
         data = attr.asdict(self, recurse=True)

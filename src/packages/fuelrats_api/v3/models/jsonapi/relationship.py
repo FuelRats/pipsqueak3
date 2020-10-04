@@ -16,7 +16,7 @@ class Relationship:
     meta: typing.Dict = attr.ib(factory=dict)
 
     @classmethod
-    def from_dict(cls, payload) -> 'Relationship':
+    def from_dict(cls, payload) -> "Relationship":
         # FIXME handle alternate form if data is present
         logger.trace("creating Relationship from {}", payload)
         kwargs = {}

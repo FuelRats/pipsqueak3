@@ -73,7 +73,10 @@ class MockupAPI(FuelratsApiABC):
         data = self.rescue_converter.to_api(rescue)
         logger.debug("update data := {}", data)
         return await self._query(
-            method="PATCH", query=query, data=dumps(data), skip_auto_headers={"CONTENT-TYPE"},
+            method="PATCH",
+            query=query,
+            data=dumps(data),
+            skip_auto_headers={"CONTENT-TYPE"},
         )
 
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:
