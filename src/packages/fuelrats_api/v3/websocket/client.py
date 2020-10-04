@@ -58,14 +58,18 @@ class Connection:
             # async block read from socket
             raw = await self._socket.recv()
             raw_data = json.loads(raw)
-            if try_parse_uuid(raw_data[0]):
+            event_or_uid = raw_data[0]
+            if try_parse_uuid(event_or_uid):
                 response = Response(*raw_data)
                 with logger.contextualize(state=response.state):
                     await self._handle_response(response)
-                continue
             else:
-                event = event_converter.structure(raw_data, CLS_FOR_EVENT[raw_data[0]])
-                with logger.contextualize(event=raw_data[0]):
+                logger.debug("handling raw event data: {}", raw_data)
+                with logger.contextualize(event=event_or_uid):
+                    if event_or_uid not in CLS_FOR_EVENT:
+                        logger.error("no handler defined for event {}", event_or_uid)
+                        continue
+                    event = event_converter.structure(raw_data, CLS_FOR_EVENT[event_or_uid])
                     await self._handle_event(event)
                 continue
 
