@@ -5,6 +5,7 @@ from uuid import UUID
 
 import aiohttp
 import attr
+import cattr
 import websockets
 from loguru import logger
 from prometheus_client import Histogram
@@ -136,7 +137,7 @@ class ApiV300WSS(FuelratsApiABC):
         work = Request(endpoint=["rescues", "read"],
                        query={"id": f"{key}", "representing": impersonation})
         response = await self.connection.execute(work)
-        return ApiRescue.from_dict(response.body["data"])
+        return cattr.structure(response.body['data'], Optional[ApiRescue])
 
     async def get_rescue(self, key: UUID, impersonation: Impersonation) -> typing.Optional[Rescue]:
         pass
@@ -156,16 +157,19 @@ class ApiV300WSS(FuelratsApiABC):
         )
         result = await self.connection.execute(work)
         # if we get this far, we got a OK response; which means the data field contains our rescue.
-        return ApiRescue.from_dict(result.body["data"]).into_internal()
+        payload: ApiRescue = cattr.structure(result.body['data'], ApiRescue)
+        return payload.into_internal()
 
     async def get_rat(self, key: Union[UUID, str], impersonation: Impersonation) -> List[InternalRat]:
         await self.ensure_connection()
         if isinstance(key, UUID):
             results = await self._get_rat_uuid(key, impersonation=None)
-            return [ApiRat.from_dict(results.body['data']).into_internal()]
+            rat: ApiRat = cattr.structure(results.body['data'])
+            return [rat.into_internal()]
         if isinstance(key, str):
             results = await self._get_rats_from_nickname(key, impersonation=impersonation)
-            return [rat.into_internal() for rat in results]
+            results_iter: Iterator[ApiRat] = (cattr.structure(item, ApiRat) for item in results)
+            return [rat.into_internal() for rat in results_iter]
         raise TypeError(type(key))
 
     async def _get_nicknames(self, key: str, impersonation: Impersonation) -> Response:
@@ -185,7 +189,7 @@ class ApiV300WSS(FuelratsApiABC):
         logger.debug("requesting rat {}", work)
         return await self.connection.execute(work)
 
-    async def _get_open_rescues(self, impersonate: Impersonation) -> Iterator[ApiRescue]:
+    async def _get_open_rescues(self, impersonate: Impersonation) -> List[ApiRescue]:
         await self.ensure_connection()
         work = Request(
             endpoint=["rescues", "search"], query={"filter": {"status": {"eq": "open"}}}, body={}
@@ -193,7 +197,8 @@ class ApiV300WSS(FuelratsApiABC):
         logger.trace("requesting open rescues...")
         results = await self.connection.execute(work)
         # Iterators are less expensive than comprehensions (differed compute).
-        return (ApiRescue.from_dict(obj) for obj in results.body["data"])
+        structured_data = cattr.structure(results.body["data"], List[ApiRescue])
+        return structured_data
 
     async def _get_rats_from_nickname(self, key: str, impersonation: Impersonation) -> List[ApiRat]:
         await self.ensure_connection()
@@ -202,7 +207,8 @@ class ApiV300WSS(FuelratsApiABC):
         # If comparing types by equality triggers you, you arn't alone.
         # Its not actually a type, but a string the API uses to represent one.
         # meaning the below is just a string equality operation; nothing untoward here.
-        rats = [ApiRat.from_dict(obj) for obj in raw.body["included"] if obj["type"] == RAT_TYPE]
+        rats = [cattr.structure(obj, ApiRat) for obj in raw.body["included"] if
+                obj["type"] == RAT_TYPE]
         logger.debug("filtered Rats from nickname result: {!r}", rats)
 
         return rats

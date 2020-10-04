@@ -47,12 +47,6 @@ class Rat(Resource):
     relationships: typing.Optional[RatRelationships] = None
     type: str = RAT_TYPE
 
-    @classmethod
-    def from_dict(cls, data: typing.Dict) -> 'Rat':
-        attributes = RatAttributes(**data["attributes"])
-        relationships = RatRelationships.from_dict(data["relationships"])
-        return cls(attributes=attributes, relationships=relationships, id=data["id"])
-
     def into_internal(self) -> InternalRat:
         """
         Converts this API rat to an Internal Rat object.

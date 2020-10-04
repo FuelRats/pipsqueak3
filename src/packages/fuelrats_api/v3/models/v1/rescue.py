@@ -10,6 +10,7 @@ from .....mark_for_deletion import MarkForDeletion
 from datetime import datetime
 from src.packages.fuelrats_api.v3.converters import to_datetime
 from .quotation import Quotation
+from .....utils import Platforms
 
 
 @attr.dataclass
@@ -24,8 +25,8 @@ class RescueAttributes:
     codeRed: bool = attr.ib(validator=attr.validators.instance_of(bool))
     data: Dict = attr.ib(validator=attr.validators.instance_of(dict))  # ???
     notes: str = attr.ib(validator=attr.validators.instance_of(str))
-    platform: Optional[str] = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(str))
+    platform: Optional[Platforms] = attr.ib(
+        validator=attr.validators.optional(attr.validators.instance_of(Platforms))
     )
     system: Optional[str] = attr.ib(
         validator=attr.validators.optional(attr.validators.instance_of(str))
@@ -139,7 +140,9 @@ class Rescue(Resource):
             mark_for_deletion=MarkForDeletion(
                 marked=self.attributes.outcome == "purge",
                 reason=self.attributes.notes if self.attributes.notes else None
-            )
+            ),
+            platform=self.attributes.platform
+
         )
 
     @classmethod
