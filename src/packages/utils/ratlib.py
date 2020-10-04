@@ -41,8 +41,7 @@ class Status(Enum):
     """The rescue is currently closed"""
     INACTIVE = 2
     """The rescue is open, but is marked inactive"""
-    PURGE = 3
-    """ Purged rescue (MFD) """
+
 
 
 class Colors(Enum):

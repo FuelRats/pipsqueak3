@@ -179,4 +179,9 @@ class Rescue(Resource):
         return data
 
 
+@attr.dataclass
+class RescueDocument(Document):
+    data: Rescue
+
+
 cattr.register_unstructure_hook(Rescue, lambda rescue: rescue.to_delta())

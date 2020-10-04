@@ -3,7 +3,7 @@ from uuid import UUID
 
 import cattr
 import attr
-from ..models.v1.rescue import Rescue as ApiRescue
+from ..models.v1.rescue import Rescue as ApiRescue, RescueDocument
 
 
 @attr.dataclass
@@ -24,7 +24,7 @@ class RescueCreate:
     event: str = attr.ib(validator=attr.validators.instance_of(str))
     state: UUID = attr.ib(validator=attr.validators.instance_of(UUID))
     obj_id: UUID = attr.ib(validator=attr.validators.instance_of(UUID))
-    rescue: ApiRescue = attr.ib(validator=attr.validators.instance_of(ApiRescue))
+    data: Dict = attr.ib(validator=attr.validators.instance_of(dict))
 
 
 @attr.dataclass

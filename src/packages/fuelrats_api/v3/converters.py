@@ -6,9 +6,11 @@ from typing import Union, Any
 from uuid import UUID
 
 from dateutil.parser import parse as datetime_parser
+from loguru import logger
 
 from src.packages.utils import Platforms
 import cattr
+
 
 def to_platform(key: str):
     return Platforms[key.upper()]
@@ -41,7 +43,6 @@ def to_uuid(raw: Union[str, UUID]) -> UUID:
     return raw
 
 
-
 event_converter = cattr.Converter(unstruct_strat=cattr.UnstructureStrategy.AS_TUPLE)
 """ 
 event structure converter.
@@ -52,10 +53,16 @@ thus we need to define a second one that uses tuples instead.
 (Either that or a magically complicated dict comprehension that isn't very performant.)
 """
 
+
+def structure_uuid(data: str, *args) -> UUID:
+    logger.debug(f"structuring {data} as uuid...")
+    return UUID(data)
+
+
 # Doing this in a loop so both converters get it without duplication...
 for converter in (cattr, event_converter):
     # UUID doesn't have a builtin de/structure hook, provide our own
-    converter.register_structure_hook(UUID, lambda data, _: UUID(data))
+    converter.register_structure_hook(UUID, structure_uuid)
     converter.register_unstructure_hook(UUID, lambda data: f"{data}")
     # Nor does datetime, for some reason
     converter.register_structure_hook(datetime, lambda data, _: to_datetime(data))
@@ -63,4 +70,4 @@ for converter in (cattr, event_converter):
     # Platforms is an enum so cattr *does* provide one, its just not
     # conformant to the enum in the API so we need our own conversion hook...
     converter.register_structure_hook(Platforms, lambda platform, _: Platforms[platform.upper()])
-    converter.register_unstructure_hook(Platforms, lambda platform: platform.value)
+    converter.register_unstructure_hook(Platforms, lambda platform: platform.value.casefold())
