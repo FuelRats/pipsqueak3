@@ -90,6 +90,8 @@ async def cmd_ratid(context: Context):
     target = context.words[-1]
     await context.reply(f"acquiring ratids for {target!r}...")
     api_rats = await context.bot.api_handler.get_rat(target, impersonation=context.user.account)
+    if not api_rats:
+        return await context.reply("go fish.")
     await context.reply(",".join([f"{rat.uuid}" for rat in api_rats]))
 
 

@@ -29,12 +29,12 @@ class RatRelationships:
 class RatAttributes:
     name: str = attr.ib(validator=attr.validators.instance_of(str))
     createdAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime), converter=to_datetime
+        validator=attr.validators.instance_of(datetime),
     )
     updatedAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime), converter=to_datetime
+        validator=attr.validators.instance_of(datetime),
     )
-    platform: Platforms = attr.ib(converter=to_platform)
+    platform: Platforms = attr.ib()
     frontierId: typing.Optional[str] = attr.ib(
         validator=attr.validators.optional(attr.validators.instance_of(str))
     )

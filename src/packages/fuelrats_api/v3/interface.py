@@ -164,12 +164,11 @@ class ApiV300WSS(FuelratsApiABC):
         await self.ensure_connection()
         if isinstance(key, UUID):
             results = await self._get_rat_uuid(key, impersonation=None)
-            rat: ApiRat = cattr.structure(results.body['data'])
+            rat: ApiRat = cattr.structure(results.body['data'] ,ApiRat)
             return [rat.into_internal()]
         if isinstance(key, str):
             results = await self._get_rats_from_nickname(key, impersonation=impersonation)
-            results_iter: Iterator[ApiRat] = (cattr.structure(item, ApiRat) for item in results)
-            return [rat.into_internal() for rat in results_iter]
+            return [rat.into_internal() for rat in results]
         raise TypeError(type(key))
 
     async def _get_nicknames(self, key: str, impersonation: Impersonation) -> Response:
