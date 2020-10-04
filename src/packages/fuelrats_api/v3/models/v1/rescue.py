@@ -5,6 +5,7 @@ import attr
 import cattr
 from ..jsonapi.relationship import Relationship
 from ..jsonapi.resource import Resource
+from ..jsonapi.document import Document
 from .....rescue import Rescue as InternalRescue
 from .....mark_for_deletion import MarkForDeletion
 from datetime import datetime
@@ -166,8 +167,9 @@ class Rescue(Resource):
         # translate internal datamodel names to the APIs datamodel names
         keep = {field_map[field] for field in changes if field != 'mark_for_deletion'}
 
-        if 'marked_for_deletion' in changes:
-            keep |= {'status'}
+        if 'mark_for_deletion' in changes:
+            keep |= {'outcome'}
+            self.attributes.outcome = "purge"
         # serialize API rescue object
         data = attr.asdict(self, recurse=True)
         # figure out which keys we need to keep (only send the ones modified internally)
