@@ -107,19 +107,6 @@ class Rescue(Resource):
     attributes: Optional[RescueAttributes] = None
     relationships: Optional[RescueRelationships] = None
 
-    @classmethod
-    def from_dict(cls, data: typing.Dict) -> 'Rescue':
-        relationships = RescueRelationships(
-            rats=Relationship.from_dict(data["relationships"]["rats"]),
-            firstLimpet=Relationship.from_dict(data["relationships"]["firstLimpet"]),
-            epics=Relationship.from_dict(data["relationships"]["epics"]),
-        )
-        return cls(
-            id=data["id"],
-            relationships=relationships,
-            attributes=RescueAttributes.from_dict(data["attributes"]),
-        )
-
     def into_internal(self) -> InternalRescue:
         return InternalRescue(
             uuid=self.id,

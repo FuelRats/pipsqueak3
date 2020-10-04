@@ -1,4 +1,3 @@
-
 import typing
 from typing import Optional
 from uuid import UUID
@@ -17,8 +16,4 @@ class Resource:
 
     attributes: typing.Optional[typing.Dict] = None
     relationships: typing.Optional[typing.Dict[str, Relationship]] = None
-    links: typing.Optional[Links] = attr.ib(default=None,)
-
-    @classmethod
-    def from_dict(cls, data: typing.Dict) -> 'Resource':
-        return cls(**data)
+    links: typing.Optional[Links] = attr.ib(default=None, )
