@@ -78,7 +78,7 @@ class RescueAttributes:
             data={},
             # MFD reason translates into the notes field
             notes=data.marked_for_deletion.reason if data.marked_for_deletion.marked else "",
-            platform=data.platform.value.lower() if data.platform else None,
+            platform=data.platform,
             system=data.system,
             title=data.title,
             unidentifiedRats=[obj.name for obj in data.unidentified_rats.values()],
