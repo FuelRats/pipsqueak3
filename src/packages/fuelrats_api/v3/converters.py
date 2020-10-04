@@ -62,5 +62,5 @@ for converter in (cattr, event_converter):
     converter.register_unstructure_hook(datetime, lambda date: from_datetime(date))
     # Platforms is an enum so cattr *does* provide one, its just not
     # conformant to the enum in the API so we need our own conversion hook...
-    converter.register_structure_hook(Platforms, lambda platform, _: platform.upper())
+    converter.register_structure_hook(Platforms, lambda platform, _: Platforms[platform.upper()])
     converter.register_unstructure_hook(Platforms, lambda platform: platform.value)
