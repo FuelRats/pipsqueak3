@@ -35,7 +35,7 @@ class Request:
     HTTP request.
     """
 
-    state: str = attr.ib(factory=uuid.uuid4)
+    state: str = attr.ib(factory=uuid.uuid4, validator=attr.validators.instance_of(UUID))
     """
     The state parameter can be any random string, it is used as a unique identifier that will be 
     sent back in replies allowing you to identify what request a response is in reply to.

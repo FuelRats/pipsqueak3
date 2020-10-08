@@ -24,16 +24,17 @@ class Connection:
         "_fail_worker",
     ]
 
-    def __init__(self, socket):
+    def __init__(self, socket, spawn_workers:bool = True):
         self._socket: WebSocketClientProtocol = socket
         self._futures: Dict[str, asyncio.Future] = {}
         self.shutdown = asyncio.Event()
         self._work: asyncio.Queue[Request] = asyncio.Queue()
 
-        # spawn worker tasks
-        self._rx_worker = asyncio.create_task(self.rx_worker())
-        self._tx_worker = asyncio.create_task(self.tx_worker())
-        self._fail_worker = asyncio.create_task(self.fail_watchdog())
+        if spawn_workers:
+            # spawn worker tasks
+            self._rx_worker = asyncio.create_task(self.rx_worker())
+            self._tx_worker = asyncio.create_task(self.tx_worker())
+            self._fail_worker = asyncio.create_task(self.fail_watchdog())
 
     async def _handle_response(self, response: Response):
         logger.debug("parsed response:= {!r}", response)
@@ -65,21 +66,23 @@ class Connection:
         while not self.shutdown.is_set():
             # async block read from socket
             raw = await self._socket.recv()
-            raw_data = json.loads(raw)
-            event_or_uid = raw_data[0]
-            if try_parse_uuid(event_or_uid):
-                response = Response(*raw_data)
-                with logger.contextualize(state=response.state):
-                    await self._handle_response(response)
-            else:
-                logger.debug("handling raw event data: {}", raw_data)
-                with logger.contextualize(event=event_or_uid):
-                    if event_or_uid not in CLS_FOR_EVENT:
-                        logger.error("no handler defined for event {}", event_or_uid)
-                        continue
-                    event = event_converter.structure(raw_data, CLS_FOR_EVENT[event_or_uid])
-                    await self._handle_event(event)
-                continue
+            await self.on_rx_raw(raw)
+
+    async def on_rx_raw(self, raw: str):
+        """ underlying implementation that handles websocket data """
+        raw_data = json.loads(raw)
+        event_or_uid = raw_data[0]
+        if try_parse_uuid(event_or_uid):
+            response = Response(*raw_data)
+            with logger.contextualize(state=response.state):
+                return await self._handle_response(response)
+        logger.debug("handling raw event data: {}", raw_data)
+        with logger.contextualize(event=event_or_uid):
+            if event_or_uid not in CLS_FOR_EVENT:
+                logger.error("no structure defined for event {}", event_or_uid)
+                return  # no structure definition, eject.
+            event = event_converter.structure(raw_data, CLS_FOR_EVENT[event_or_uid])
+            await self._handle_event(event)
 
     async def fail_watchdog(self):
         """
@@ -115,12 +118,16 @@ class Connection:
         while not self.shutdown.is_set():
             # async blocking get work
             work = await self._work.get()
-            with logger.contextualize(state=work.state):
-                if "representing" in work.query:
-                    # FIXME remove this hack once the API actually has production data...
-                    # TODO: check drill mode and selectively not emit?
-                    del work.query["representing"]
-                await self._socket.send(work.serialize())
+            await self._do_work_transmit(work)
+
+    async def _do_work_transmit(self, work):
+        """ Actually emits messages to the underlying transport. """
+        with logger.contextualize(state=work.state):
+            if "representing" in work.query:
+                # FIXME remove this hack once the API actually has production data...
+                # TODO: check drill mode and selectively not emit?
+                del work.query["representing"]
+            await self._socket.send(work.serialize())
 
     async def execute(self, work: Request) -> Response:
         await self.check_fail()

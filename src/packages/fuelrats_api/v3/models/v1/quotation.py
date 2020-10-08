@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import typing
 from datetime import datetime
 from typing import Optional, Dict
@@ -17,21 +15,11 @@ class Quotation:
     author: str = attr.ib(validator=attr.validators.instance_of(str))
     lastAuthor: str = attr.ib(validator=attr.validators.instance_of(str))
     createdAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime), converter=to_datetime
+        validator=attr.validators.instance_of(datetime)
     )
     updatedAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime), converter=to_datetime
+        validator=attr.validators.instance_of(datetime)
     )
-
-    @classmethod
-    def from_dict(cls, data: typing.Dict) -> Quotation:
-        return cls(**data)
-
-    def to_dict(self) -> Dict:
-        output = attr.asdict(self, recurse=True)
-        output["createdAt"] = from_datetime(self.attributes.createdAt)
-        output["updatedAt"] = from_datetime(self.attributes.updatedAt)
-        return output
 
     def into_internal(self) -> InternalQuotation:
         return InternalQuotation(
@@ -43,7 +31,7 @@ class Quotation:
         )
 
     @classmethod
-    def from_internal(cls, data: InternalQuotation) -> Quotation:
+    def from_internal(cls, data: InternalQuotation) -> 'Quotation':
         return cls(
             message=data.message,
             author=data.author,
