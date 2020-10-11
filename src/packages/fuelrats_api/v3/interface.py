@@ -142,7 +142,9 @@ class ApiV300WSS(FuelratsApiABC):
         return cattr.structure(response.body["data"], Optional[ApiRescue])
 
     async def get_rescue(self, key: UUID, impersonation: Impersonation) -> typing.Optional[Rescue]:
-        pass
+        rescue = await self._get_rescue(key=key, impersonation=impersonation)
+        if rescue:
+            return rescue.into_internal()
 
     async def ensure_connection(self):
         if not self.connected_event.is_set():

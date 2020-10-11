@@ -45,13 +45,13 @@ class FuelratsApiABC(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def get_rescue(self, key: UUID, impersonating: Impersonation) -> typing.Optional[Rescue]:
+    async def get_rescue(self, key: UUID, impersonation: Impersonation) -> typing.Optional[Rescue]:
         """
         Gets a single rescue by its ID.
 
         Args:
             key: api uuid of rescue
-            impersonating: the user this command is acting for
+            impersonation: the user this command is acting for
 
         Returns:
             InternalRescue, should it exist.

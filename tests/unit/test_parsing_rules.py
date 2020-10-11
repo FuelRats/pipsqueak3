@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from io import StringIO
 from typing import Union, List, Optional
+from uuid import UUID
 
 import pytest
 from hypothesis import strategies, given
@@ -156,3 +157,11 @@ def test_inject_pattern(
         assert tokens.timer.asList() == timer_should_equal, "timer failed to parse correctly."
 
     assert f"{tokens.subject[0]}" == f"{ident}".strip("#@")
+
+
+@given(
+    uid = strategies.uuids(version=4)
+)
+def test_reopen_pattern(uid: UUID):
+    payload = F"!reopen {uid}"
+    assert case_management.REOPEN_PATTERN.matches(payload)

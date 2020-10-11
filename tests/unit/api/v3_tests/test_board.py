@@ -10,12 +10,7 @@ from src.packages.rescue import Rescue
 pytestmark = [pytest.mark.asyncio, pytest.mark.api_v3]
 
 
-def test_board_on_online(mock_fuelrats_api_fx):
-    pytest.fail("fixme")
-
-
-async def test_get_rescue(api_wss_fx, api_wss_connection_fx):
-    target = UUID("c1ff8456-5c51-47b1-8d0e-be6104840820")
+async def test_get_open_rescues(api_wss_fx, api_wss_connection_fx):
     api_wss_connection_fx.expect(request=Request(
         state=UUID("282a22b2-e44f-45e2-a711-712ebca24f64"),
         endpoint=["rescues", "search"], query={"filter": {"status": {"eq": "open"}}}, body={}
