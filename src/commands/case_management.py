@@ -839,5 +839,6 @@ async def cmd_reopen(context: Context):
         await context.bot.board.append(rescue)
         async with context.bot.board.modify_rescue(rescue) as rescue:
             rescue.status = Status.OPEN
+            rescue.unmark_delete()
 
         return await context.reply(f"reopened {rescue.client}'s case #{rescue.board_index}.")
