@@ -24,7 +24,7 @@ class Connection:
         "_fail_worker",
     ]
 
-    def __init__(self, socket, spawn_workers:bool = True):
+    def __init__(self, socket, spawn_workers: bool = True):
         self._socket: WebSocketClientProtocol = socket
         self._futures: Dict[str, asyncio.Future] = {}
         self.shutdown = asyncio.Event()

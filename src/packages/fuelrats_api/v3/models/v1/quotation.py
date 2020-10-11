@@ -14,12 +14,8 @@ class Quotation:
     message: str = attr.ib(validator=attr.validators.instance_of(str))
     author: str = attr.ib(validator=attr.validators.instance_of(str))
     lastAuthor: str = attr.ib(validator=attr.validators.instance_of(str))
-    createdAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime)
-    )
-    updatedAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime)
-    )
+    createdAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime))
+    updatedAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime))
 
     def into_internal(self) -> InternalQuotation:
         return InternalQuotation(
@@ -31,7 +27,7 @@ class Quotation:
         )
 
     @classmethod
-    def from_internal(cls, data: InternalQuotation) -> 'Quotation':
+    def from_internal(cls, data: InternalQuotation) -> "Quotation":
         return cls(
             message=data.message,
             author=data.author,
