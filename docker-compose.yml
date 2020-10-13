@@ -37,7 +37,8 @@ services:
 
     build: .
     image: mecha3
-    command: "pipenv run pytest"
+    stop_signal: SIGINT
+    command: "poetry run pytest"
 
   mecha3-dev:
     volumes:
@@ -54,7 +55,8 @@ services:
         target: /mechasqueak/certs/
     build: .
     image: mecha3
-    command: ["pipenv","run","python","main.py","--config", "develop.json"]
+    stop_signal: SIGINT
+    command: ["poetry","run","python","-m", "src","--config", "backroom.toml"]
 
   drillsqueak:
     volumes:
@@ -72,7 +74,9 @@ services:
 
     build: .
     image: mecha3
-    command: ["pipenv","run","python","main.py","--config", "drill.json"]
+    stop_signal: SIGINT
+    command: ["poetry","run","python","-m", "src","--config", "drillsqueak.toml"]
+
 
   mechasqueak:
     volumes:
@@ -89,4 +93,14 @@ services:
         target: /mechasqueak/certs/
     build: .
     image: mecha3
-    command: ["pipenv","run","python","main.py","--config", "live.json"]
+    stop_signal: SIGINT
+    command: ["poetry","run","python","-m", "src","--config", "production.toml"]
+
+  database:
+    image: postgres
+    environment:
+      #          DB_USER: mecha
+      DB_DATABASE: circle-test
+      POSTGRES_PASSWORD: mecha
+    ports:
+      - "5432:5432"

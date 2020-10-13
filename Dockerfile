@@ -13,21 +13,22 @@
 
 
 # Use an official Python runtime as a parent image
-FROM python:3.6.6-alpine
+FROM python:3.8.5
 # Set the working directory to /mechasqueak
 WORKDIR /mechasqueak
 
-COPY ./Pipfile ./
-COPY ./Pipfile.lock ./
+COPY ./pyproject.toml /mechasqueak
+COPY ./poetry.lock /mechasqueak
 # fetch git, as we will need it.
-RUN apk add --no-cache git
+RUN apt update && apt install -y git build-essential
 
 # install pipenv
-RUN pip install pipenv
-
-# Install any needed packages specified in requirements.txt
-RUN pipenv install -d
-
+WORKDIR /mechasqueak
+RUN pip install poetry
+RUN poetry install --no-root
 # Copy the current directory contents into the container at /mechasqueak
 ADD . /mechasqueak
+
+RUN poetry run pip install .
+
 
