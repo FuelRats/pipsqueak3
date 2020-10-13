@@ -21,13 +21,14 @@ from uuid import UUID
 
 import humanfriendly
 
-STRIPPED_CHARS = '\t'
+STRIPPED_CHARS = "\t"
 
 
 class Platforms(Enum):
     """
     Stores the different platforms we care about
     """
+
     PC = "PC"
     XB = "XB"
     PS = "PS"
@@ -41,8 +42,10 @@ class Platforms(Enum):
             text_color = Colors.PURPLE
         return color(self.value, text_color)
 
+
 class Status(Enum):
     """Rescue status enum"""
+
     OPEN = 0
     """The rescue is currently open"""
     CLOSED = 1
@@ -51,41 +54,42 @@ class Status(Enum):
     """The rescue is open, but is marked inactive"""
 
 
-
 class Colors(Enum):
     """
     Contains mIRC-style color codes (the standard)
     Reference: https://www.mirc.com/colors.html
     """
-    WHITE = '00'
-    BLACK = '01'
-    BLUE = '02'
-    GREEN = '03'
-    RED = '04'
-    BROWN = '05'
-    PURPLE = '06'
-    ORANGE = '07'
-    YELLOW = '08'
-    LIGHT_GREEN = '09'
-    CYAN = '10'
-    LIGHT_CYAN = '11'
-    LIGHT_BLUE = '12'
-    PINK = '13'
-    GREY = '14'
-    LIGHT_GREY = '15'
+
+    WHITE = "00"
+    BLACK = "01"
+    BLUE = "02"
+    GREEN = "03"
+    RED = "04"
+    BROWN = "05"
+    PURPLE = "06"
+    ORANGE = "07"
+    YELLOW = "08"
+    LIGHT_GREEN = "09"
+    CYAN = "10"
+    LIGHT_CYAN = "11"
+    LIGHT_BLUE = "12"
+    PINK = "13"
+    GREY = "14"
+    LIGHT_GREY = "15"
 
 
 class Formatting(Enum):
     """
     mIRC-style formatting codes, works with colors
     """
+
     # this code needs to be suffixed to the colors above to actually display a color
-    FORMAT_COLOR = '\x03'
-    FORMAT_BOLD = '\x02'
-    FORMAT_UNDERLINE = '\x1F'
-    FORMAT_ITALIC = '\x1D'
-    FORMAT_REVERSE = '\x16'
-    FORMAT_RESET = '\x0F'
+    FORMAT_COLOR = "\x03"
+    FORMAT_BOLD = "\x02"
+    FORMAT_UNDERLINE = "\x1F"
+    FORMAT_ITALIC = "\x1D"
+    FORMAT_REVERSE = "\x16"
+    FORMAT_RESET = "\x0F"
 
 
 class Singleton:
@@ -133,18 +137,19 @@ def sanitize(message: str) -> str:
     sanitized_string = message
 
     # Remove IRC control codes for color, bold, underline, etc.
-    control_code_regex = re.compile(r"([\x02\x1D\x1F\x1E\x11\x16\x0F]|"
-                                    r"(\x03([0-9]{1,2}(,[0-9]{1,2})?)?)|"
-                                    r"(\x04([0-9a-fA-F]{6}(,[0-9a-fA-F]{6})?)?))"
-                                    )
-    sanitized_string = control_code_regex.sub('', sanitized_string)
+    control_code_regex = re.compile(
+        r"([\x02\x1D\x1F\x1E\x11\x16\x0F]|"
+        r"(\x03([0-9]{1,2}(,[0-9]{1,2})?)?)|"
+        r"(\x04([0-9a-fA-F]{6}(,[0-9a-fA-F]{6})?)?))"
+    )
+    sanitized_string = control_code_regex.sub("", sanitized_string)
 
     # Remove stripped characters. (e.g. Tabs)
     for character in sanitized_string:
         if character in STRIPPED_CHARS:
-            sanitized_string = sanitized_string.replace(character, '')
+            sanitized_string = sanitized_string.replace(character, "")
 
-    sanitized_string = ' '.join(sanitized_string.split())
+    sanitized_string = " ".join(sanitized_string.split())
 
     return sanitized_string
 
@@ -220,10 +225,12 @@ def color(text: str, text_color: Colors, bg_color: Optional[Colors] = None) -> s
     if not isinstance(text_color, Colors):
         raise TypeError("Expected a Colors enum, got {type(text_color)}")
     if isinstance(bg_color, Colors):
-        return f'{Formatting.FORMAT_COLOR.value}{text_color.value}{bg_color.value}{text}' \
-               f'{Formatting.FORMAT_COLOR.value}'
+        return (
+            f"{Formatting.FORMAT_COLOR.value}{text_color.value}{bg_color.value}{text}"
+            f"{Formatting.FORMAT_COLOR.value}"
+        )
 
-    return f'{Formatting.FORMAT_COLOR.value}{text_color.value}{text}{Formatting.FORMAT_COLOR.value}'
+    return f"{Formatting.FORMAT_COLOR.value}{text_color.value}{text}{Formatting.FORMAT_COLOR.value}"
 
 
 def bold(text: str) -> str:
@@ -237,7 +244,7 @@ def bold(text: str) -> str:
         str: the bolded text
 
     """
-    return f'{Formatting.FORMAT_BOLD.value}{text}{Formatting.FORMAT_BOLD.value}'
+    return f"{Formatting.FORMAT_BOLD.value}{text}{Formatting.FORMAT_BOLD.value}"
 
 
 def italic(text: str) -> str:
@@ -250,7 +257,7 @@ def italic(text: str) -> str:
     Returns:
         str: the italicized text
     """
-    return f'{Formatting.FORMAT_ITALIC.value}{text}{Formatting.FORMAT_ITALIC.value}'
+    return f"{Formatting.FORMAT_ITALIC.value}{text}{Formatting.FORMAT_ITALIC.value}"
 
 
 def underline(text: str) -> str:
@@ -264,7 +271,7 @@ def underline(text: str) -> str:
         str: the underlined text
 
     """
-    return f'{Formatting.FORMAT_UNDERLINE.value}{text}{Formatting.FORMAT_UNDERLINE.value}'
+    return f"{Formatting.FORMAT_UNDERLINE.value}{text}{Formatting.FORMAT_UNDERLINE.value}"
 
 
 def reverse(text: str) -> str:
@@ -278,7 +285,7 @@ def reverse(text: str) -> str:
         str: the reversed text
 
     """
-    return f'{Formatting.FORMAT_REVERSE.value}{text}{Formatting.FORMAT_REVERSE.value}'
+    return f"{Formatting.FORMAT_REVERSE.value}{text}{Formatting.FORMAT_REVERSE.value}"
 
 
 @dataclass(frozen=True)
@@ -299,7 +306,7 @@ class Vector:
 
         return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
-    def normal(self) -> 'Vector':
+    def normal(self) -> "Vector":
         """
         The normalized vector, representing 1 "unit" of distance in the Vector's
         original direction.
@@ -314,7 +321,7 @@ class Vector:
 
         mag = self.magnitude()
         if mag == 0:
-            raise ValueError('Cannot normalize a zero Vector.')
+            raise ValueError("Cannot normalize a zero Vector.")
         return Vector(self.x / mag, self.y / mag, self.z / mag)
 
     def distance(self, other) -> float:
@@ -322,13 +329,10 @@ class Vector:
         Calculates the total distance between two Vectors.
         """
 
-        return sqrt(
-            ((other.x - self.x) ** 2) +
-            ((other.y - self.y) ** 2) +
-            ((other.z - self.z) ** 2))
+        return sqrt(((other.x - self.x) ** 2) + ((other.y - self.y) ** 2) + ((other.z - self.z) ** 2))
 
     @classmethod
-    def zero(cls) -> 'Vector':
+    def zero(cls) -> "Vector":
         """
         Returns the zero Vector.
         """
@@ -344,6 +348,4 @@ class Vector:
         return Vector(self.x * other, self.y * other, self.z * other)
 
     def __eq__(self, other):
-        return (isclose(self.x, other.x) and
-                isclose(self.y, other.y) and
-                isclose(self.z, other.z))
+        return isclose(self.x, other.x) and isclose(self.y, other.y) and isclose(self.z, other.z)

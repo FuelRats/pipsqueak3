@@ -44,7 +44,7 @@ def to_uuid(raw: Union[str, UUID]) -> UUID:
 
 
 event_converter = cattr.Converter(unstruct_strat=cattr.UnstructureStrategy.AS_TUPLE)
-""" 
+"""
 event structure converter.
 
 Events come in effectively as a tuple, which doesn't match the default `cattr` global converter,

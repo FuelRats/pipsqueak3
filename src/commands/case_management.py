@@ -51,69 +51,69 @@ Regex matcher used to find a time within a string. Used to determine
 if a newly-submitted case is code red or not.
 """
 ASSIGN_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + pyparsing.OneOrMore(irc_name).setResultsName("rats")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 ACTIVE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 CLEAR_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + pyparsing.Optional(irc_name).setResultsName("first_limpet")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + pyparsing.Optional(irc_name).setResultsName("first_limpet")
 )
 CMDR_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + rest_of_line.setResultsName("new_cmdr")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + rest_of_line.setResultsName("new_cmdr")
 )
 
 GRAB_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 IRC_NICK_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + irc_name.setResultsName("new_nick")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + irc_name.setResultsName("new_nick")
 )
 JUST_RESCUE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
 
 SUB_CMD_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1) + pyparsing.WordEnd())
-        .setParseAction(lambda token: int(token.quote_id[0]))
-        .setResultsName("quote_id")
-        + rest_of_line.setResultsName("remainder")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + (pyparsing.Word(pyparsing.nums, pyparsing.nums, min=1) + pyparsing.WordEnd())
+    .setParseAction(lambda token: int(token.quote_id[0]))
+    .setResultsName("quote_id")
+    + rest_of_line.setResultsName("remainder")
 )
 
 SYS_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + rest_of_line.setResultsName("remainder")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + rest_of_line.setResultsName("remainder")
 )
 
 TITLE_PATTERN = SYS_PATTERN
 
 UNASSIGN_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        + pyparsing.OneOrMore(irc_name).setResultsName("rats")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
 
 INJECT_PATTERN = (
-        suppress_first_word
-        + rescue_identifier.setResultsName("subject")
-        # The following group captures in any order (&).
-        + (
-                pyparsing.Optional(
-                    pyparsing.CaselessKeyword("cr") ^ pyparsing.CaselessKeyword("code red")
-                ).setResultsName("code_red")
-                & pyparsing.Optional(timer("timer"))
-                & pyparsing.Optional(platform).setResultsName("platform")
-        )
-        # This comes positionally LAST and OUTSIDE the above capture group or it
-        # catches the wrong things.
-        + rest_of_line.setResultsName("remainder")
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    # The following group captures in any order (&).
+    + (
+        pyparsing.Optional(
+            pyparsing.CaselessKeyword("cr") ^ pyparsing.CaselessKeyword("code red")
+        ).setResultsName("code_red")
+        & pyparsing.Optional(timer("timer"))
+        & pyparsing.Optional(platform).setResultsName("platform")
+    )
+    # This comes positionally LAST and OUTSIDE the above capture group or it
+    # catches the wrong things.
+    + rest_of_line.setResultsName("remainder")
 )
 
 CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
@@ -558,12 +558,12 @@ async def cmd_case_management_quoteid(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             quote_timestamp = (
-                    humanfriendly.format_timespan(
-                        (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
-                        detailed=False,
-                        max_units=2,
-                    )
-                    + " ago"
+                humanfriendly.format_timespan(
+                    (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                    detailed=False,
+                    max_units=2,
+                )
+                + " ago"
             )
             await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
 
@@ -780,7 +780,7 @@ def _list_rescue(rescue_collection, format_specifiers):
 
 
 def _rescue_filter(
-        flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
+    flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
 ) -> bool:
     """
     determine whether the `rescue` object is one we care about
@@ -819,8 +819,9 @@ async def cmd_reopen(context: Context):
     with logger.contextualize(api_id=tokens.subject):
         logger.debug("attempting to reopen rescue by UUID {}...", tokens.subject)
 
-        rescue = await context.bot.board.api_handler.get_rescue(key=tokens.subject,
-                                                                impersonation=context.user.account)
+        rescue = await context.bot.board.api_handler.get_rescue(
+            key=tokens.subject, impersonation=context.user.account
+        )
         if not rescue:
             return await context.reply(f"no such rescue by id @{tokens.subject}")
 
@@ -828,11 +829,13 @@ async def cmd_reopen(context: Context):
 
         if rescue.irc_nickname in context.bot.board:
             return await context.reply(
-                f"Cannot comply, {rescue.irc_nickname!r} currently has an open rescue.")
+                f"Cannot comply, {rescue.irc_nickname!r} currently has an open rescue."
+            )
 
         if rescue.board_index in context.bot.board:
             logger.debug(
-                "board index collision, reassigning re-opened case's index to avoid conflict.")
+                "board index collision, reassigning re-opened case's index to avoid conflict."
+            )
             rescue.board_index = context.bot.board.free_case_number
         logger.trace("appending reopened rescue to board")
 

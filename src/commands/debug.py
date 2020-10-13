@@ -46,7 +46,8 @@ async def cmd_debug_userinfo(context: Context):
 
     await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
     await context.reply(
-        f"user identified?: {context.user.identified} with account?: {context.user.account}")
+        f"user identified?: {context.user.identified} with account?: {context.user.account}"
+    )
 
 
 @command("superPing!")
@@ -77,8 +78,9 @@ async def cmd_get_plugins(context: Context):
 @require_permission(TECHRAT)
 async def cmd_get_nickname(context: Context):
     await context.reply("fetching....")
-    result = await  context.bot.api_handler.get_rat("ClappersClappyton",
-                                                    impersonation=context.user.account)
+    result = await context.bot.api_handler.get_rat(
+        "ClappersClappyton", impersonation=context.user.account
+    )
     await context.reply("got a result!")
     logger.debug("got nickname result {!r}", result)
 
@@ -133,8 +135,9 @@ async def cmd_debug_fetch(context: Context):
     await context.reply(f"{len(results)} open cases detected.")
     for rescue in sorted(results, key=lambda obj: obj.board_index if obj.board_index else 0):
         if rescue.board_index in context.bot.board:
-            logger.warning("reassigning API imported rescue @{} a new board index (collision)",
-                           rescue.api_id)
+            logger.warning(
+                "reassigning API imported rescue @{} a new board index (collision)", rescue.api_id
+            )
             rescue.board_index = None
         await context.bot.board.append(rescue)
 

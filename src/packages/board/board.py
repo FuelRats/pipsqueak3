@@ -55,13 +55,13 @@ def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
         ValueError:  config section failed to validate.
         KeyError:  config section failed to validate.
     """
-    if 'board' not in data:
+    if "board" not in data:
         raise ValueError("board configuration section is missing!")
 
-    if data['board']['cycle_at'] <= 0:
+    if data["board"]["cycle_at"] <= 0:
         raise ValueError("constraint cycle_at must be non-zero and positive")
 
-    if data['board']['api_url'] == "":
+    if data["board"]["api_url"] == "":
         raise ValueError("constraint api_url must not be empty.")
 
 
@@ -76,27 +76,26 @@ def rehash_handler(data: typing.Dict):  # pylint: disable=unused-argument
 
     """
     global cycle_at
-    cycle_at = data['board']['cycle_at']
+    cycle_at = data["board"]["cycle_at"]
 
 
 class RatBoard(abc.Mapping):
     """
     The Rat Board
     """
-    __slots__ = ["_storage_by_uuid",
-                 "_storage_by_client",
-                 "_handler",
-                 "_storage_by_index",
-                 "_index_counter",
-                 "_offline",
-                 "_modification_lock",
-                 "__weakref__"
-                 ]
 
-    def __init__(
-            self,
-            api_handler: typing.Optional[FuelratsApiABC] = None,
-            offline: bool = True):
+    __slots__ = [
+        "_storage_by_uuid",
+        "_storage_by_client",
+        "_handler",
+        "_storage_by_index",
+        "_index_counter",
+        "_offline",
+        "_modification_lock",
+        "__weakref__",
+    ]
+
+    def __init__(self, api_handler: typing.Optional[FuelratsApiABC] = None, offline: bool = True):
         self._handler: typing.Optional[FuelratsApiABC] = api_handler
         """
         fuelrats.com API handler
@@ -217,7 +216,7 @@ class RatBoard(abc.Mapping):
         Args:
             rescue (Rescue): object to append
             overwrite(bool): overwrite existing cases
-    """
+        """
         logger.trace("acquiring modification lock...")
         async with self._modification_lock:
             # ensure the rescue has a board index, because if this is null it breaks all the things.
@@ -259,7 +258,9 @@ class RatBoard(abc.Mapping):
             del self._storage_by_client[target.irc_nickname.casefold()]
 
     @asynccontextmanager
-    async def modify_rescue(self, key: BoardKey, impersonation: typing.Optional[Impersonation] = None) -> Rescue:
+    async def modify_rescue(
+        self, key: BoardKey, impersonation: typing.Optional[Impersonation] = None
+    ) -> Rescue:
         """
         Context manager to modify a Rescue
 

@@ -25,8 +25,8 @@ class Pointer:
         default=None,
     )
     """
-    If the error is a client error caused by a query parameter the name of the query parameter will 
-    be provided here.
+    If the error is a client error caused by a query parameter the name of the query parameter will
+     be provided here.
     """
 
     @classmethod

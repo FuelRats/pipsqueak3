@@ -21,5 +21,5 @@ __all__ = [
     "deletion_management",
     "starsystems",
     "administration",
-    "api_utilities"
+    "api_utilities",
 ]
