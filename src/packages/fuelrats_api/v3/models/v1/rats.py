@@ -1,5 +1,6 @@
 import typing
 from datetime import datetime
+from typing import Optional
 
 import attr
 
@@ -15,7 +16,7 @@ RAT_TYPE = "rats"
 @attr.dataclass
 class RatRelationships:
     user: Relationship
-    ships: Relationship
+    ships: Optional[Relationship] = attr.ib(default=None)
 
     @classmethod
     def from_dict(cls, data: typing.Dict):

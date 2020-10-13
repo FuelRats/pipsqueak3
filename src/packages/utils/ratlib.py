@@ -32,6 +32,14 @@ class Platforms(Enum):
     XB = "XB"
     PS = "PS"
 
+    def colorize(self) -> str:
+        if self is Platforms.PC:
+            text_color = Colors.GREY
+        elif self is Platforms.XB:
+            text_color = Colors.GREEN
+        else:
+            text_color = Colors.PURPLE
+        return color(self.value, text_color)
 
 class Status(Enum):
     """Rescue status enum"""

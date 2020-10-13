@@ -13,6 +13,7 @@ from . import case_management
 from . import deletion_management
 from . import starsystems
 from . import administration
+from . import api_utilities
 
 __all__ = [
     "debug",
@@ -20,4 +21,5 @@ __all__ = [
     "deletion_management",
     "starsystems",
     "administration",
+    "api_utilities"
 ]
