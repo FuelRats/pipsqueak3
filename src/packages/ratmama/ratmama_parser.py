@@ -12,6 +12,8 @@ See LICENSE.md
 """
 import asyncio
 import re
+
+import aiohttp
 from loguru import logger
 from typing import Optional, Dict, Any, List
 from src.config import CONFIG_MARKER
@@ -219,7 +221,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
                     distance_str = "landmark"
             else:
                 distance_str = f"no landmark found for system {system.name}"
-    except asyncio.TimeoutError:
+    except (asyncio.TimeoutError, aiohttp.ServerTimeoutError):
         distance_str = "<timeout requesting system data>"
 
     await ctx.reply(
