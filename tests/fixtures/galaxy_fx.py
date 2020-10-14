@@ -26,27 +26,27 @@ def mock_system_api_server_fx():
         # System Data
         # - Fuelum
         httpserver.expect_request("/api/systems/5031721931482").respond_with_data(
-            """{"data": {"id": "10283432", "type": "systems", "attributes": {"id64": 5031721931482, "name": "Fuelum", "coords": {"x": 52.0, "y": -52.65625, "z": 49.8125}}, "links": {"self": "https://system.api.fuelrats.com/api/systems/10283432"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://system.api.fuelrats.com/api/systems/10283432"}, "meta": {}}"""
+            """{"data": {"id": "10283432", "type": "systems", "attributes": {"id64": 5031721931482, "name": "Fuelum", "coords": {"x": 52.0, "y": -52.65625, "z": 49.8125}}, "links": {"self": "https://sapi.fuelrats.dev/api/systems/10283432"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://sapi.fuelrats.dev/api/systems/10283432"}, "meta": {}}"""
         )
         # - Beagle Point
         httpserver.expect_request("/api/systems/81973396946").respond_with_data(
-            """{"data": {"id": "10369161", "type": "systems", "attributes": {"id64": 81973396946, "name": "Beagle Point", "coords": {"x": -1111.5625, "y": -134.21875, "z": 65269.75}}, "links": {"self": "https://system.api.fuelrats.com/api/systems/10369161"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://system.api.fuelrats.com/api/systems/10369161"}, "meta": {}}"""
+            """{"data": {"id": "10369161", "type": "systems", "attributes": {"id64": 81973396946, "name": "Beagle Point", "coords": {"x": -1111.5625, "y": -134.21875, "z": 65269.75}}, "links": {"self": "https://sapi.fuelrats.dev/api/systems/10369161"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://sapi.fuelrats.dev/api/systems/10369161"}, "meta": {}}"""
         )
         # - Eorld Pri QI-Z d1-4302
         httpserver.expect_request("/api/systems/147826004709651").respond_with_data(
-            """{"data": {"id": "18082834", "type": "systems", "attributes": {"id64": 147826004709651, "name": "Eorld Pri QI-Z d1-4302", "coords": {"x": -320.0, "y": -49.46875, "z": 19636.6875}}, "links": {"self": "https://system.api.fuelrats.com/api/systems/18082834"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://system.api.fuelrats.com/api/systems/18082834"}, "meta": {}}"""
+            """{"data": {"id": "18082834", "type": "systems", "attributes": {"id64": 147826004709651, "name": "Eorld Pri QI-Z d1-4302", "coords": {"x": -320.0, "y": -49.46875, "z": 19636.6875}}, "links": {"self": "https://sapi.fuelrats.dev/api/systems/18082834"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://sapi.fuelrats.dev/api/systems/18082834"}, "meta": {}}"""
         )
         # - Prae Flyi RO-I b29-113
         httpserver.expect_request("/api/systems/249152528933625").respond_with_data(
-            """{"data": {"id": "22311274", "type": "systems", "attributes": {"id64": 249152528933625, "name": "Prae Flyi RO-I b29-113", "coords": {"x": -586.125, "y": -112.0625, "z": 39248.5}}, "links": {"self": "https://system.api.fuelrats.com/api/systems/22311274"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://system.api.fuelrats.com/api/systems/22311274"}, "meta": {}}"""
+            """{"data": {"id": "22311274", "type": "systems", "attributes": {"id64": 249152528933625, "name": "Prae Flyi RO-I b29-113", "coords": {"x": -586.125, "y": -112.0625, "z": 39248.5}}, "links": {"self": "https://sapi.fuelrats.dev/api/systems/22311274"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://sapi.fuelrats.dev/api/systems/22311274"}, "meta": {}}"""
         )
         # - Chua Eohn CT-F d12-2
         httpserver.expect_request("/api/systems/78995497067").respond_with_data(
-            """{"data": {"id": "19626238", "type": "systems", "attributes": {"id64": 78995497067, "name": "Chua Eohn CT-F d12-2", "coords": {"x": -995.5, "y": -162.59375, "z": 58857.0}}, "links": {"self": "https://system.api.fuelrats.com/api/systems/19626238"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://system.api.fuelrats.com/api/systems/19626238"}, "meta": {}}"""
+            """{"data": {"id": "19626238", "type": "systems", "attributes": {"id64": 78995497067, "name": "Chua Eohn CT-F d12-2", "coords": {"x": -995.5, "y": -162.59375, "z": 58857.0}}, "links": {"self": "https://sapi.fuelrats.dev/api/systems/19626238"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://sapi.fuelrats.dev/api/systems/19626238"}, "meta": {}}"""
         )
         # - ANGRBONII
         httpserver.expect_request("/api/systems/40557912804216").respond_with_data(
-            """{"data": {"id": "10288293", "type": "systems", "attributes": {"id64": 40557912804216, "name": "Angrbonii", "coords": {"x": 61.65625, "y": -42.4375, "z": 53.59375}}, "links": {"self": "https://system.api.fuelrats.com/api/systems/10288293"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://system.api.fuelrats.com/api/systems/10288293"}, "meta": {}}"""
+            """{"data": {"id": "10288293", "type": "systems", "attributes": {"id64": 40557912804216, "name": "Angrbonii", "coords": {"x": 61.65625, "y": -42.4375, "z": 53.59375}}, "links": {"self": "https://sapi.fuelrats.dev/api/systems/10288293"}, "related": {}, "relationships": {}, "meta": {}}, "included": [], "links": {"self": "https://sapi.fuelrats.dev/api/systems/10288293"}, "meta": {}}"""
         )
 
         # Star Data
@@ -87,6 +87,10 @@ def mock_system_api_server_fx():
         # - Chua Eohn CT-F d12-2
         httpserver.expect_request("/api/systems", query_string=b"filter%5Bname:ilike%5D=Chua+Eohn+CT-F+d12-2&sort=name&limit=1").respond_with_data(
             """{"data": [{"id": "78995497067", "type": "systems", "attributes": {"name": "Chua Eohn CT-F d12-2", "coords": {"x": -995.5, "y": -162.59375, "z": 58857.0}}, "links": {"self": "http://sapi.fuelrats.dev/api/systems/78995497067"}, "related": {}, "relationships": {"planets": {"data": [{"type": "bodies", "id": "288230455147208811"}, {"type": "bodies", "id": "324259252166172779"}, {"type": "bodies", "id": "360288049185136747"}, {"type": "bodies", "id": "180144064090316907"}, {"type": "bodies", "id": "252201658128244843"}], "links": {"self": "http://sapi.fuelrats.dev/api/systems/78995497067/relationships/planets", "related": "http://sapi.fuelrats.dev/api/systems/78995497067/planets"}, "meta": {"direction": "ONETOMANY", "results": {"limit": 10, "available": 5, "returned": 5}}}, "stars": {"data": [{"type": "stars", "id": "144115267071352939"}, {"type": "stars", "id": "72057673033425003"}, {"type": "stars", "id": "108086470052388971"}], "links": {"self": "http://sapi.fuelrats.dev/api/systems/78995497067/relationships/stars", "related": "http://sapi.fuelrats.dev/api/systems/78995497067/stars"}, "meta": {"direction": "ONETOMANY", "results": {"limit": 10, "available": 3, "returned": 3}}}}, "meta": {}}], "included": [], "links": {"first": "http://sapi.fuelrats.dev/api/systems?sort=name&filter%5Bname%3Ailike%5D=Chua+Eohn+CT-F+d12-2&page%5Boffset%5D=0", "last": "http://sapi.fuelrats.dev/api/systems?sort=name&filter%5Bname%3Ailike%5D=Chua+Eohn+CT-F+d12-2&page%5Boffset%5D=0", "self": "http://sapi.fuelrats.dev/api/systems?filter[name:ilike]=Chua+Eohn+CT-F+d12-2&sort=name&limit=1"}, "meta": {"results": {"available": 1, "limit": 10, "offset": 0, "returned": 1}}}"""
+        )
+        # - LHS 3447
+        httpserver.expect_request("/api/systems", query_string=b"filter%5Bname:ilike%5D=LHS+3447&sort=name&limit=1").respond_with_data(
+            """{"data": [{"id": "5306465653474", "type": "systems", "attributes": {"name": "LHS 3447", "coords": {"x": -43.1875, "y": -5.28125, "z": 56.15625}}, "links": {"self": "http://sapi.fuelrats.dev/api/systems/5306465653474"}, "related": {}, "relationships": {"planets": {"data": [{"type": "bodies", "id": "900725231939752674"}, {"type": "bodies", "id": "1477185984243176162"}, {"type": "bodies", "id": "1585272375300068066"}, {"type": "bodies", "id": "1513214781262140130"}, {"type": "bodies", "id": "468379667712185058"}, {"type": "bodies", "id": "612494855788040930"}, {"type": "bodies", "id": "1765416360394887906"}, {"type": "bodies", "id": "432350870693221090"}, {"type": "bodies", "id": "396322073674257122"}, {"type": "bodies", "id": "1729387563375923938"}], "links": {"self": "http://sapi.fuelrats.dev/api/systems/5306465653474/relationships/planets", "related": "http://sapi.fuelrats.dev/api/systems/5306465653474/planets"}, "meta": {"direction": "ONETOMANY", "results": {"limit": 10, "available": 10, "returned": 10}}}, "stars": {"data": [{"type": "stars", "id": "36034103484617442"}, {"type": "stars", "id": "72062900503581410"}], "links": {"self": "http://sapi.fuelrats.dev/api/systems/5306465653474/relationships/stars", "related": "http://sapi.fuelrats.dev/api/systems/5306465653474/stars"}, "meta": {"direction": "ONETOMANY", "results": {"limit": 10, "available": 2, "returned": 2}}}}, "meta": {}}], "included": [], "links": {"first": "http://sapi.fuelrats.dev/api/systems?sort=name&filter%5Bname%3Ailike%5D=lhs+3447&page%5Boffset%5D=0", "last": "http://sapi.fuelrats.dev/api/systems?sort=name&filter%5Bname%3Ailike%5D=lhs+3447&page%5Boffset%5D=0", "self": "http://sapi.fuelrats.dev/api/systems?filter%5Bname:ilike%5D=lhs+3447&sort=name&limit=1"}, "meta": {"results": {"available": 1, "limit": 10, "offset": 0, "returned": 1}}}"""
         )
         # - Fallthrough for failed searches
         httpserver.expect_request("/api/systems").respond_with_data(
@@ -129,6 +133,10 @@ def mock_system_api_server_fx():
         # - Fuelum
         httpserver.expect_request("/landmark", query_string=b"name=Fuelum").respond_with_data(
             """{"meta": {"name": "Fuelum"}, "landmarks": [{"name": "Fuelum", "distance": 0.00450693909432589}]}"""
+        )
+        # - LHS 3447
+        httpserver.expect_request("/landmark", query_string=b"name=LHS+3447").respond_with_data(
+            """{"meta": {"name": "LHS 3447"}, "landmarks": [{"name": "Sol", "distance": 71.0392579625871}]}"""
         )
 
         # Tests that Galaxy will retry failed requests

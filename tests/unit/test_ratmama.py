@@ -21,36 +21,36 @@ pytestmark = [pytest.mark.unit, pytest.mark.ratsignal_parse, pytest.mark.asyncio
 
 
 @pytest.mark.parametrize("announcement, signal, cmdr, system, platform, code_red", [
-    ("Incoming Client: SomeClient - System: Angrbonii - Platform: PC - O2: OK"
+    ("Incoming Client: SomeClient - System: Fuelum - Platform: PC - O2: OK"
      " - Language: English (en-US)",
-     "TESTSIGNAL - CMDR SomeClient - Reported System: Angrbonii (14.56ly from FUELUM)"
+     "TESTSIGNAL - CMDR SomeClient - Reported System: Fuelum (landmark)"
      " - Platform: PC - O2: OK - Language: English (en-US) (Case #{}) (PC_SIGNAL)",
-     "SomeClient", "ANGRBONII", Platforms.PC, False),
+     "SomeClient", "FUELUM", Platforms.PC, False),
     ("Incoming Client: SomeOtherClient - System: LHS 3447 - Platform: XB"
      " - O2: NOT OK - Language: German (de-DE)",
-     "TESTSIGNAL - CMDR SomeOtherClient - Reported System: LHS 3447 (not found in the galaxy db)"
+     "TESTSIGNAL - CMDR SomeOtherClient - Reported System: LHS 3447 (71.04ly from sol)"
      " - Platform: XB - O2: NOT OK - Language: German (de-DE) (Case #{}) (XB_SIGNAL)",
      "SomeOtherClient", "LHS 3447", Platforms.XB, True),
 
     # These three tests specifically target an edge case where we accidentally create two cases
     # if there's a client named R@signal or Drillsignal
-    ("Incoming Client: Ratsignal - System: Fuelum - Platform: XB"
+    ("Incoming Client: Ratsignal - System: LHS 3447 - Platform: XB"
      " - O2: OK - Language: English (en-US)",
-     "TESTSIGNAL - CMDR Ratsignal - Reported System: Fuelum (landmark)"
+     "TESTSIGNAL - CMDR Ratsignal - Reported System: LHS 3447 (71.04ly from sol)"
      " - Platform: XB - O2: OK - Language: English (en-US) (Case #{}) (XB_SIGNAL)",
-     "Ratsignal", "FUELUM", Platforms.XB, False),
-    ("Incoming Client: Drillsignal - System: Fuelum - Platform: PS"
+     "Ratsignal", "LHS 3447", Platforms.XB, False),
+    ("Incoming Client: Drillsignal - System: LHS 3447 - Platform: PS"
      " - O2: NOT OK - Language: English (en-US)",
-     "TESTSIGNAL - CMDR Drillsignal - Reported System: Fuelum (landmark)"
+     "TESTSIGNAL - CMDR Drillsignal - Reported System: LHS 3447 (71.04ly from sol)"
      " - Platform: PS - O2: NOT OK - Language: English (en-US) (Case #{}) (PS_SIGNAL)",
-     "Drillsignal", "FUELUM", Platforms.PS, True),
+     "Drillsignal", "LHS 3447", Platforms.PS, True),
 
     # This is also an edge case, attempting to create a rescue for a service.
-    ("Incoming Client: some_service - System: Fuelum - Platform: PS"
+    ("Incoming Client: some_service - System: LHS 3447 - Platform: PS"
      " - O2: NOT OK - Language: English (en-US)",
-     "TESTSIGNAL - CMDR some_service - Reported System: Fuelum (landmark)"
+     "TESTSIGNAL - CMDR some_service - Reported System: LHS 3447 (71.04ly from sol)"
      " - Platform: PS - O2: NOT OK - Language: English (en-US) (Case #{}) (PS_SIGNAL)",
-     "some_service", "FUELUM", Platforms.PS, True)
+     "some_service", "LHS 3447", Platforms.PS, True)
 ])
 async def test_announcer_parse(bot_fx,
                                async_callable_fx,
