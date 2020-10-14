@@ -1,5 +1,0 @@
-# Ignore generated files
-**/*.pyc
-
-# ignore the git history
-.git*/*
