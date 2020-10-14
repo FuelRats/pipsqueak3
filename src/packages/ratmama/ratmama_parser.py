@@ -204,16 +204,16 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     )
     platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
 
-    distance_str = 'not found in the galaxy DB'
+    distance_str = "not found in the galaxy DB"
     system = await asyncio.wait_for(ctx.bot.galaxy.find_system_by_name(system_name), timeout=2)
     if system:
         landmark_info = await asyncio.wait_for(ctx.bot.galaxy.find_nearest_landmark(system), timeout=2)
         if landmark_info:
             landmark, distance = landmark_info
             if system.name != landmark.name:
-                distance_str = f'{distance}ly from {landmark.name}'
+                distance_str = f"{distance}ly from {landmark.name}"
             else:
-                distance_str = 'landmark'
+                distance_str = "landmark"
 
     await ctx.reply(
         f"{_config.trigger_keyword.upper()} - CMDR {rescue.client} - "
