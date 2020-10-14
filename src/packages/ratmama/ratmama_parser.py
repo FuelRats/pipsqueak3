@@ -217,6 +217,8 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
                     distance_str = f"{distance}ly from {landmark.name}"
                 else:
                     distance_str = "landmark"
+            else:
+                distance_str = f"no landmark found for system {system.name}"
     except asyncio.TimeoutError:
         distance_str = "<timeout requesting system data>"
 
