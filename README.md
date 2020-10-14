@@ -13,36 +13,9 @@ SPARK is currently **incomplete**.
 * Python 3.8
 * PostgreSQL
 * `poetry`
+
 ## Installation
-This script can be run as a Docker image or run locally.
 
-To run as a docker image, you may use the provided docker-compose.
-
-If you would prefer to run the service locally, bear in mind you may need to run a local PostgreSQL Database for the fact module.
-
-### Building via Docker
-We have provided a `docker-compose.yml` suitably configured for building and running Mecha
-as a Alpine Linux multi-container service. 
-
-## Run with Docker
-To build Mecha via docker, run the following command:
-```bash
-docker-compose build mechasqueak
-```
-
-To verify the build completed successfully and you have a clean copy of the project, please run
-the test suites.
-```bash
-docker-compose run tests
-```
-
-To run the bot, after creating your configuration file (see Configuration below), run the following
-command:
-```bash
-docker-compose run mechasqueak
-```
-
-## Run Locally
 > ## NOTE:
 > on top of pip you must have installed `poetry`, this guide assumes this fact.
 
@@ -53,6 +26,7 @@ docker-compose run mechasqueak
 2. Install the project's requirements, `poetry install --no-root`
 3. once installed, activate the venv `poetry shell`
 4. Build your configuration file.  Please see the [Configuration](#Configuration) section.
+5. Start infrastructure services (irc, ircservices, db). There is a docker-compose file readily available that will do it for you: `docker-compose.template.yml` feel free to use it directly with `docker-compose -f docker-compose.template.yml up` or rename it to `docker-compose.yml` and customize it the way you see fit.
 5. Execute Mecha with ``python -m src --config <your configuration file>``  (You may need to use the python3 alias)
 
 |    Flag         |    Description                     |
@@ -69,6 +43,3 @@ By default, Mecha will attempt to load `configuration.toml` (file not provided) 
 
 To configure Mecha locally, please copy the provided `config.template.toml` to a new file.
 `configuration.toml` and fill in the appropriate fields, see `config/configuration.md` for details.
-
-When run via docker, it is not necessary to rebuild the image after changing
-configuration options as that directory is shared with the container (see `config/configuration.md`)

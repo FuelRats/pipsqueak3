@@ -21,9 +21,9 @@ host = "localhost"
 [database]
 host = "localhost"
 port = 5432
-dbname = "mecha3"
-username = "mecha3"
-password = "mecha3"
+dbname = "db"
+username = "user"
+password = "password"
 fact_table = "fact"
 fact_log = "fact_transaction"
 
