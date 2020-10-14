@@ -1,9 +1,9 @@
 [irc]
-nickname = "Mechasqueak3-tests[BOT]"
+nickname = "Mechasqueak3[BOT|SPARK]"
 server = "localhost"
 port = 6697
 tls = true
-channels = [ "#unkn0wndev",]
+channels = [ "#dev",]
 
 [authentication]
 method = "PLAIN"
@@ -14,7 +14,7 @@ log_file = "logs/unit_tests.log"
 
 # GELF logging output
 [logging.gelf]
-enabled = false
+enabled = true
 port = 12201
 host = "localhost"
 
@@ -25,20 +25,24 @@ dbname = "db"
 username = "user"
 password = "password"
 fact_table = "fact"
-fact_log = "fact_transaction"
+fact_log = "fact_log"
 
 [commands]
 prefix = "!"
 
 [api]
-online_mode = false
-url = "http://localhost/"
+online_mode = true
+uri = "wss://dev.api.fuelrats.com"
+authorization = "Nope!"
+
 
 [system_api]
 url = "https://system.api.fuelrats.com/"
 
 [ratsignal_parser]
 announcer_nicks = [ "RatMama[Bot]", "some_announcer", 'unknown' ]
+trigger_keyword="TESTSIGNAL"
+
 
 [authentication.plain]
 username = ""
@@ -70,4 +74,4 @@ level = 4
 
 [board]
 cycle_at = 15
-api_url = "https://api.thehellisthis.com"
+api_url = "localhost"
