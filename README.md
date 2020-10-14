@@ -27,7 +27,7 @@ SPARK is currently **incomplete**.
 3. once installed, activate the venv `poetry shell`
 4. Build your configuration file.  Please see the [Configuration](#Configuration) section.
 5. Start infrastructure services (irc, ircservices, db). There is a docker-compose file readily available that will do it for you: `docker-compose.template.yml` feel free to use it directly with `docker-compose -f docker-compose.template.yml up` or rename it to `docker-compose.yml` and customize it the way you see fit.
-5. Execute Mecha with ``python -m src --config <your configuration file>``  (You may need to use the python3 alias)
+6. Execute Mecha with ``python -m src --config <your configuration file>``  (You may need to use the python3 alias)
 
 |    Flag         |    Description                     |
 | :--------------:|------------------------------------|
