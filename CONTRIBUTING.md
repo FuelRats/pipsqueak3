@@ -62,8 +62,6 @@ def example_function(param1: int, param2: str) -> bool:
 All pull requests must pass standard checks:
 * Build must be be successful and functional (obviously!)
 * Must pass all integrity checks
-    * Codecov diff-coverage (85% required)
-    * Codecov total-coverage (>90% required)
     * pycodestyle pep8 standards
     * pylint pass with no error levels or higher
     * Circleci unit test run (Pytest)
@@ -76,7 +74,7 @@ All pull requests must pass standard checks:
 
 Your PR should have sensible commits and messages.  Please see the **Naming & Commenting Standards** section below.
 
-New features are required to contain tests sufficient for newly added code to be evaluated without reducing coverage.
+New features are required to contain tests sufficient for newly added code to be provable.
 
 After branching, you should immediately use `git push -u origin feature/my-awesome-feature` to make that the default upstream ref.
 
