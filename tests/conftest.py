@@ -142,7 +142,7 @@ def rat_board_fx() -> RatBoard:
 @pytest.fixture()
 def bot_fx(configuration_fx, galaxy_fx):
     mock_bot = MockBot(nickname="mock_mecha3[BOT]", mecha_config=configuration_fx)
-    mock_bot._galaxy = galaxy_fx
+    mock_bot.galaxy = galaxy_fx
     return mock_bot
 
 
