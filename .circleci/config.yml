@@ -7,7 +7,6 @@ jobs:
   tests:
     environment:
       POETRY_VIRTUALENVS_IN_PROJECT: true
-      CC_TEST_REPORTER_ID: c9ec35db75642b31c9d4d818e9efae69202fc4f2a0c2bb35f56ebeef28c4031f
 
     docker:
       # specify the version you desire here
@@ -78,7 +77,6 @@ jobs:
           name: run tests
           command: |
             poetry run pytest -m "unit or regressions" -v --cov --cov-report xml --junit-xml=test-reports/pytest.xml  --doctest-modules
-            poetry run codecov -F unittest
 
       - store_artifacts:
           path: logs/unit_tests.log
