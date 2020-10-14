@@ -218,7 +218,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
                 else:
                     distance_str = "landmark"
     except asyncio.TimeoutError:
-        distance_str = "galaxy DB request timeout"
+        distance_str = "<timeout requesting system data>"
 
     await ctx.reply(
         f"{_config.trigger_keyword.upper()} - CMDR {rescue.client} - "
