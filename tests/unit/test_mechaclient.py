@@ -57,7 +57,6 @@ def test_verify_api_handler(bot_fx):
     class FakeAPIHandler:
         ...
 
-    assert bot_fx.api_handler is None
 
     with pytest.raises(AttributeError):
         bot_fx.api_handler = FakeAPIHandler()

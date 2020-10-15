@@ -10,8 +10,8 @@ from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from src.packages.rescue.internaldata import InternalData as RescueData
 from src.packages.utils import Platforms
-from .._converter import ApiConverter, _DTYPE
-from ...mark_for_deletion import MarkForDeletion
+from src.packages.fuelrats_api._converter import ApiConverter, _DTYPE
+from src.packages.mark_for_deletion import MarkForDeletion
 
 
 class MarkForDeleteConverter(ApiConverter[MarkForDeletion]):
@@ -27,9 +27,9 @@ class InternalDataConverter(ApiConverter[RescueData]):
     @classmethod
     def from_api(cls, data):
         return RescueData(
-            boardIndex=data['boardIndex'],
-            langID=data['langID'],
-            markedForDeletion=cls.mfd_converter.from_api(data['markedForDeletion'])
+            boardIndex=data["boardIndex"],
+            langID=data["langID"],
+            markedForDeletion=cls.mfd_converter.from_api(data["markedForDeletion"]),
         )
 
     @classmethod
@@ -62,7 +62,7 @@ class RescueConverter(ApiConverter[Rescue]):
         attributes = content["attributes"]
         logger.debug("original attributes:= {}", attributes)
 
-        internal_data = cls.internal_data_converter.from_api(attributes['data'])
+        internal_data = cls.internal_data_converter.from_api(attributes["data"])
 
         attributes["board_index"] = internal_data.boardIndex
         attributes["lang_id"] = internal_data.langID

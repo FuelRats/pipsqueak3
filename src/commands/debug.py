@@ -11,20 +11,15 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+from uuid import UUID
+
+from loguru import logger
 
 from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
-from src.packages.permissions.permissions import (
-    require_permission,
-    TECHRAT,
-    require_channel,
-)
-from src.packages.utils import Platforms, Status
-
-from loguru import logger
-import humanfriendly
-from datetime import datetime, timezone
+from src.packages.fuelrats_api.v3 import UnauthorizedImpersonation
+from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
 
 
 @command("debug-whois")
@@ -50,13 +45,15 @@ async def cmd_debug_userinfo(context: Context):
     """
 
     await context.reply(f"triggering user is {context.user.nickname}, {context.user.hostname}")
-    await context.reply(f"user identifed?: {context.user.identified}")
+    await context.reply(
+        f"user identified?: {context.user.identified} with account?: {context.user.account}"
+    )
 
 
 @command("superPing!")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_debug_superping(context: Context):
+async def cmd_superping(context: Context):
     """
     A debug command to coerce mecha to respond.
     """
@@ -67,7 +64,7 @@ async def cmd_debug_superping(context: Context):
 @command("getConfigPlugins")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_debug_get_plugins(context: Context):
+async def cmd_get_plugins(context: Context):
     """Lists configuration plugins"""
     await context.reply(f"getting plugins...")
 
@@ -76,92 +73,112 @@ async def cmd_debug_get_plugins(context: Context):
     await context.reply(",".join(names))
 
 
-@command("debug-lastmsg")
+@command("get_nickname_api")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_debug_lastmessage(context: Context):
-    """Get last message sent by user"""
-    specified_user = context.words[1].casefold()
-    await context.reply(f"Last message from {specified_user}:")
-    await context.reply(f"{context.bot.last_user_message[specified_user]!r}")
-
-
-@command("debug-case")
-@require_channel
-@require_permission(TECHRAT)
-async def cmd_create_debug_case(context: Context):
-    debug_rescue = await context.bot.board.create_rescue(
-        client="Shatt", system="HIP 21991", platform=Platforms.PC, active=True, status=Status.OPEN,
+async def cmd_get_nickname(context: Context):
+    await context.reply("fetching....")
+    result = await context.bot.api_handler.get_rat(
+        "ClappersClappyton", impersonation=context.user.account
     )
-
-    await context.reply(f"Created Debug Case as case #{debug_rescue.board_index}!")
-    await context.reply(f"Client: {debug_rescue.client}    System: {debug_rescue.system}")
-    await context.reply(f"API ID: {debug_rescue.api_id}")
+    await context.reply("got a result!")
+    logger.debug("got nickname result {!r}", result)
 
 
-@command("debug-cr")
+@command("debug_ratid")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_create_debug_case(context: Context):
-    debug_rescue = await context.bot.board.create_rescue(
-        client="ShattCR",
-        system="HIP 21991",
-        platform=Platforms.PC,
-        active=True,
-        status=Status.OPEN,
-        code_red=True,
-    )
-
-    await context.reply(f"Created Debug Case as case #{debug_rescue.board_index}!")
-    await context.reply(f"Client: {debug_rescue.client}    System: {debug_rescue.system}")
+async def cmd_ratid(context: Context):
+    target = context.words[-1]
+    await context.reply(f"acquiring ratids for {target!r}...")
+    api_rats = await context.bot.api_handler.get_rat(target, impersonation=context.user.account)
+    if not api_rats:
+        return await context.reply("go fish.")
+    await context.reply(",".join([f"{rat.uuid}" for rat in api_rats]))
 
 
-@command("debug-eol")
+@command("debug_get_rat")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_words_eol(context: Context):
-    await context.reply(f"EOL: {context.words_eol}")
+async def cmd_debug_get_rat(context: Context):
+    target = context.words[-1]
+    try:
+        target = UUID(target)
+    except ValueError:
+        return await context.reply("invalid uuid.")
+    await context.reply(f"fetching uuid {target}...")
+    subject = await context.bot.api_handler.get_rat(target, impersonation=context.user.account)
+    await context.reply(f"identified rats: {','.join(repr(obj.name) for obj in subject)}")
 
 
-@command("debug-starttime")
+@command("debug_summoncase")
 @require_channel
 @require_permission(TECHRAT)
-async def cmd_uptime(context: Context):
-    timestamp = (
-        humanfriendly.format_timespan(
-            (datetime.now(tz=timezone.utc) - context.bot.start_time), detailed=False, max_units=2,
-        )
-        + " ago"
-    )
-    await context.reply(
-        f"This instance was connected on "
-        f'{context.bot.start_time.strftime("%b %d %H:%M:%S UTC")} ({timestamp})'
-    )
+async def cmd_debug_summoncase(context: Context):
+    await context.reply("summoning case....")
+    rescue = await context.bot.board.create_rescue(client="some_client")
+    something = await context.bot.api_handler.create_rescue(rescue, impersonating=context.user.account)
+    await context.reply("done.")
 
 
-@command("cake")
+@command("debug_fbr")
+@require_channel
 @require_permission(TECHRAT)
-async def cmd_cake(context: Context):
-    await context.reply("🎂🎂🎂")  # cake
+async def cmd_debug_fetch(context: Context):
+    await context.reply("flushing my board and fetching...")
+    keys = context.bot.board.keys()
+    for key in list(keys):  # my keys now!
+        await context.bot.board.remove_rescue(key)
+
+    results = await context.bot.api_handler.get_rescues(context.user.nickname)
+
+    await context.reply(f"{len(results)} open cases detected.")
+    for rescue in sorted(results, key=lambda obj: obj.board_index if obj.board_index else 0):
+        if rescue.board_index in context.bot.board:
+            logger.warning(
+                "reassigning API imported rescue @{} a new board index (collision)", rescue.api_id
+            )
+            rescue.board_index = None
+        await context.bot.board.append(rescue)
 
 
-@command("snickers")
+@command("debug_fetch_rescue")
+@require_channel
 @require_permission(TECHRAT)
-async def cmd_cake(context: Context):
-    await context.reply("🍫")  # snickers
+async def cmd_debug_fetch_single(context: Context):
+    uid = UUID(context.words[-1])
+    await context.reply(f"fetching @{uid}...")
+    result = await context.bot.api_handler._get_rescue(uid, impersonation=context.user.account)
+    if result:
+        await context.reply("got a result")
+    else:
+        await context.reply("go fish.")
 
 
-@command("get_fact")
+@command("debug_update_rescue")
+@require_channel
 @require_permission(TECHRAT)
-async def cmd_debug_get_fact(context: Context):
-    if len(context.words_eol) != 3:
-        return await context.reply("usage !get_fact <name> <platform>")
-    _, name, lang = context.words
-    result = await context.bot.fact_manager.exists(name, lang)
-    if not result:
-        return await context.reply(f"unable to find fact by name {name!r} with lang {lang!r}")
+async def cmd_update_rescue(context: Context):
+    uid = UUID(context.words[-1])
+    if uid not in context.bot.board:
+        return await context.reply("not currently tracking that rescue?")
+    rescue = context.bot.board[uid]
+    await context.reply(f"updating @{uid}...")
+    rescue.client = "some_test_client"
+    try:
+        # FIXME use account impersonation
+        await context.bot.api_handler.update_rescue(rescue, impersonating=None)
+    except UnauthorizedImpersonation:
+        logger.exception("failed API action")
+        return await context.reply("Action failed. Invoking IRC user is not authorized.")
 
-    fact = await context.bot.fact_manager.find(name, lang)
-    if fact is None:
-        return await context.reply("fact was somehow null here! (this is an error!)")
-    return await context.reply(fact.message)
+    await context.reply("done.")
+
+
+@command("debug_go_online")
+@require_channel
+@require_permission(TECHRAT)
+async def cmd_debug_go_online(context: Context):
+    await context.reply("going online...")
+    context.bot.board.api_handler = context.bot.api_handler
+    await context.bot.board.on_online()

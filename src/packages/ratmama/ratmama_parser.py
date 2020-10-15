@@ -129,7 +129,7 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
     system_name: str = result.group("system")
     platform_name: str = result.group("platform")
     o2_status: bool = result.group("o2") == "OK"  # false is CR
-    lang_code: str = result.group("language_code")
+    lang_code: str = f"{result.group('language_code')}-{result.group('language_country').upper()}"
     nickname: Optional[str] = result.group("nick")
 
     client = await User.from_pydle(ctx.bot, client_name)

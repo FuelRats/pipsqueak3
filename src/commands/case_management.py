@@ -32,6 +32,7 @@ from ..packages.parsing_rules import (
     timer,
     rest_of_line,
     platform,
+    api_id,
 )
 from ..packages.permissions.permissions import (
     require_permission,
@@ -116,6 +117,8 @@ INJECT_PATTERN = (
 )
 
 CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
+
+REOPEN_PATTERN = suppress_first_word + api_id.setResultsName("subject")
 
 
 @require_channel
@@ -408,7 +411,7 @@ async def cmd_case_management_inject(ctx: Context):
     if not rescue and not isinstance(tokens.subject[0], int):
         logger.debug("creating rescue for {!r}", tokens.subject[0])
         rescue = await ctx.bot.board.create_rescue(client=tokens.subject[0])
-        async with ctx.bot.board.modify_rescue(rescue) as case:
+        async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
             case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
             # check specific capture groups for existence.
@@ -432,7 +435,7 @@ async def cmd_case_management_inject(ctx: Context):
 
             return
 
-    async with ctx.bot.board.modify_rescue(rescue) as case:
+    async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
         case.add_quote(ctx.words_eol[2], ctx.user.nickname)
 
     await ctx.reply(
@@ -563,15 +566,6 @@ async def cmd_case_management_quoteid(ctx: Context):
                 + " ago"
             )
             await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
-
-
-@require_channel()
-@require_permission(OVERSEER)
-@command("reopen")
-async def cmd_case_management_reopen(ctx: Context):
-    # TODO: Add Re-open command with API pass
-    await ctx.reply("Not available in offline mode.")
-    return
 
 
 @require_channel()
@@ -810,3 +804,44 @@ def _rescue_filter(
     if platform_filter:  # if we rae filtering on platform
         filters.append(rescue.platform is platform_filter)
     return not all(filters)
+
+
+@command("reopen")
+@require_channel
+@require_permission(OVERSEER)
+async def cmd_reopen(context: Context):
+    """ Re-open a closed rescue """
+    if not REOPEN_PATTERN.matches(context.words_eol[0]):
+        return await context.reply("usage: !reopen <API-ID>")
+
+    tokens = REOPEN_PATTERN.parseString(context.words_eol[0])
+    # contextualize subsequent logging calls with the API ID of the request
+    with logger.contextualize(api_id=tokens.subject):
+        logger.debug("attempting to reopen rescue by UUID {}...", tokens.subject)
+
+        rescue = await context.bot.board.api_handler.get_rescue(
+            key=tokens.subject, impersonation=context.user.account
+        )
+        if not rescue:
+            return await context.reply(f"no such rescue by id @{tokens.subject}")
+
+        # We have a rescue, check that the board id / ircnick isn't already in use.
+
+        if rescue.irc_nickname in context.bot.board:
+            return await context.reply(
+                f"Cannot comply, {rescue.irc_nickname!r} currently has an open rescue."
+            )
+
+        if rescue.board_index in context.bot.board:
+            logger.debug(
+                "board index collision, reassigning re-opened case's index to avoid conflict."
+            )
+            rescue.board_index = context.bot.board.free_case_number
+        logger.trace("appending reopened rescue to board")
+
+        await context.bot.board.append(rescue)
+        async with context.bot.board.modify_rescue(rescue) as rescue:
+            rescue.status = Status.OPEN
+            rescue.unmark_delete()
+
+        return await context.reply(f"reopened {rescue.client}'s case #{rescue.board_index}.")

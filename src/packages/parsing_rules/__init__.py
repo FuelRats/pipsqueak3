@@ -1,6 +1,7 @@
 from uuid import UUID
 
 import pyparsing
+from pyparsing import Word, Literal, hexnums
 
 irc_name = (
     pyparsing.Word(
@@ -13,12 +14,23 @@ Matches a valid IRC nickname.
  Token MUST start with a letter but MAY contain numerics and some special chars
 """
 
-api_id = pyparsing.Word(initChars="@", bodyChars=pyparsing.hexnums + "-", min=36, max=37)
+api_id = pyparsing.Optional(pyparsing.Suppress("@")) + (
+    Word(hexnums, exact=8)
+    + Literal("-")
+    + Word(hexnums, exact=4)
+    + Literal("-")
+    + Word(hexnums, exact=4)
+    + Literal("-")
+    + Word(hexnums, exact=4)
+    + Literal("-")
+    + Word(hexnums, exact=12)
+    + pyparsing.WordEnd()
+).setParseAction(lambda tokens: UUID("".join(tokens.asList())))
 """ matches a well formed UUID4"""
 
 case_number = (
     # may lead with 'case'
-    api_id.setParseAction(lambda token: UUID(token[0][1:]))
+    api_id
     | pyparsing.Optional(pyparsing.Literal("#").suppress())
     + pyparsing.Word(pyparsing.nums).setParseAction(lambda token: int(token[0]))
 ) + pyparsing.WordEnd()

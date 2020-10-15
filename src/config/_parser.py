@@ -47,7 +47,9 @@ def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None)
     """
     args = cli_manager.GET_ARGUMENTS()
     # check for CLI verbosity flag
-    if args.verbose:
+    if args.trace:
+        loglevel = "TRACE"
+    elif args.verbose:
         loglevel = "DEBUG"
     else:
         loglevel = "INFO"

@@ -21,8 +21,8 @@ from uuid import UUID
 from loguru import logger
 
 from src.config import CONFIG_MARKER
-from ..fuelrats_api import FuelratsApiABC
-from ..fuelrats_api.v3.mockup import ApiError
+from ..fuelrats_api import FuelratsApiABC, ApiException, Impersonation
+
 from ..rescue import Rescue
 
 cycle_at = 15
@@ -55,13 +55,13 @@ def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
         ValueError:  config section failed to validate.
         KeyError:  config section failed to validate.
     """
-    if 'board' not in data:
+    if "board" not in data:
         raise ValueError("board configuration section is missing!")
 
-    if data['board']['cycle_at'] <= 0:
+    if data["board"]["cycle_at"] <= 0:
         raise ValueError("constraint cycle_at must be non-zero and positive")
 
-    if data['board']['api_url'] == "":
+    if data["board"]["api_url"] == "":
         raise ValueError("constraint api_url must not be empty.")
 
 
@@ -76,27 +76,26 @@ def rehash_handler(data: typing.Dict):  # pylint: disable=unused-argument
 
     """
     global cycle_at
-    cycle_at = data['board']['cycle_at']
+    cycle_at = data["board"]["cycle_at"]
 
 
 class RatBoard(abc.Mapping):
     """
     The Rat Board
     """
-    __slots__ = ["_storage_by_uuid",
-                 "_storage_by_client",
-                 "_handler",
-                 "_storage_by_index",
-                 "_index_counter",
-                 "_offline",
-                 "_modification_lock",
-                 "__weakref__"
-                 ]
 
-    def __init__(
-            self,
-            api_handler: typing.Optional[FuelratsApiABC] = None,
-            offline: bool = True):
+    __slots__ = [
+        "_storage_by_uuid",
+        "_storage_by_client",
+        "_handler",
+        "_storage_by_index",
+        "_index_counter",
+        "_offline",
+        "_modification_lock",
+        "__weakref__",
+    ]
+
+    def __init__(self, api_handler: typing.Optional[FuelratsApiABC] = None, offline: bool = True):
         self._handler: typing.Optional[FuelratsApiABC] = api_handler
         """
         fuelrats.com API handler
@@ -125,6 +124,21 @@ class RatBoard(abc.Mapping):
         """
 
         super(RatBoard, self).__init__()
+
+    @property
+    def api_handler(self):
+        """ Api handler reference """
+        return self._handler
+
+    @api_handler.setter
+    def api_handler(self, value: FuelratsApiABC):
+        if not isinstance(value, FuelratsApiABC):
+            raise TypeError(type(value))
+        self._handler = value
+
+    @api_handler.deleter
+    def api_handler(self):
+        self._handler = None
 
     async def on_online(self):
         logger.info("Rescue board online.")
@@ -202,7 +216,7 @@ class RatBoard(abc.Mapping):
         Args:
             rescue (Rescue): object to append
             overwrite(bool): overwrite existing cases
-    """
+        """
         logger.trace("acquiring modification lock...")
         async with self._modification_lock:
             # ensure the rescue has a board index, because if this is null it breaks all the things.
@@ -244,11 +258,14 @@ class RatBoard(abc.Mapping):
             del self._storage_by_client[target.irc_nickname.casefold()]
 
     @asynccontextmanager
-    async def modify_rescue(self, key: BoardKey) -> Rescue:
+    async def modify_rescue(
+        self, key: BoardKey, impersonation: typing.Optional[Impersonation] = None
+    ) -> Rescue:
         """
         Context manager to modify a Rescue
 
         Args:
+            impersonation: User account this modification was issued by
             key ():
 
         Yields:
@@ -279,11 +296,10 @@ class RatBoard(abc.Mapping):
                 # append will reacquire the lock, so don;t reacquire it ourselves (damn no rlocks),
                 # but the context manger is gunna freak out if we don't re-acquire it though.
                 await self._modification_lock.acquire()
-
             # If we are in online mode, emit update event to API.
             if self.online:
                 logger.trace("updating API...")
-                await self._handler.update_rescue(target)
+                await self._handler.update_rescue(target, impersonating=impersonation)
 
         logger.trace("released modification lock.")
 
@@ -307,6 +323,7 @@ class RatBoard(abc.Mapping):
             ApiError: Something went wrong in API creation, rescue has been created locally.
         """
         index = self.free_case_number
+        logger.trace("instantiating local rescue object...")
         rescue = Rescue(*args, board_index=index, **kwargs)
 
         try:
@@ -314,9 +331,9 @@ class RatBoard(abc.Mapping):
                 logger.warning("creating case in offline mode...")
             else:
                 logger.trace("creating rescue on API...")
-                rescue = await self._handler.create_rescue(rescue)
+                rescue = await self._handler.create_rescue(rescue, impersonating=None)
 
-        except ApiError:
+        except ApiException:
             logger.exception("unable to create rescue on API!")
             # Emit upstream so the caller knows something went wrong
             raise

@@ -15,7 +15,7 @@ import logging
 import random
 import string
 import sys
-from typing import Dict
+from typing import Dict, List
 from uuid import uuid4, UUID
 
 import psycopg2.pool
@@ -28,6 +28,10 @@ from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
+from src.packages.fuelrats_api._base import ApiConfig
+from src.packages.fuelrats_api.v3.interface import ApiV300WSS
+from tests.fixtures.mock_websocket import FakeConnection, Expectation
+
 sys.argv = ["test",
             "--config-file", "testing.toml",
             "--clean-log",
@@ -57,7 +61,7 @@ from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from tests.fixtures.mock_callables import CallableMock, AsyncCallableMock
 from src.packages.database import DatabaseManager
 from src.packages.fact_manager.fact import Fact
-from src.packages.fuelrats_api.v3.mockup import MockupAPI
+from src.packages.fuelrats_api.mockup.mockup import MockupAPI
 
 
 @pytest.fixture(params=[("pcClient", Platforms.PC, "firestone", 24),
@@ -377,7 +381,7 @@ def configuration_fx() -> Dict:
 def mock_fuelrats_api_fx():
     # TODO pull from configuration system
     pytest.xfail("FIXME deprecated API ")
-    return MockupAPI(url=r'http://api.thehellisthis.com:6543/api')
+    return MockupAPI(url=r'http:///api')
 
 
 @pytest.fixture
@@ -386,3 +390,19 @@ def board_online_fx(rat_board_fx, mock_fuelrats_api_fx):
     rat_board_fx._offline = False
 
     return rat_board_fx
+
+
+@pytest.fixture(scope="function")
+def api_wss_connection_fx() -> FakeConnection:
+    """ The expectations `api_wss_fx` use, provided here for ease of access """
+    return FakeConnection()
+
+
+@pytest.fixture
+def api_wss_fx(api_wss_connection_fx) -> ApiV300WSS:
+    interface = ApiV300WSS(connection=api_wss_connection_fx, config=ApiConfig(
+        online_mode=False, uri="localhost", authorization=None
+    ))
+    interface.connected_event.set()
+    yield interface
+    assert not api_wss_connection_fx.expectations, "Unresolved expectations remain..."
