@@ -1,0 +1,101 @@
+{
+    "jsonapi": {
+        "version": "1.0",
+        "meta": {
+            "apiVersion": "3.0"
+        }
+    },
+    "meta": {},
+    "links": {},
+    "data": {
+        "type": "rats",
+        "id": "c23e014a-8a07-4f7c-99bf-357e0e7a8a8b",
+        "attributes": {
+            "name": "theunkn0wn1",
+            "data": {},
+            "platform": "pc",
+            "frontierId": null,
+            "createdAt": "2019-12-15T23:00:00.000Z",
+            "updatedAt": "2019-12-15T23:00:00.000Z"
+        },
+        "relationships": {
+            "user": {
+                "links": {
+                    "self": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/relationships/user",
+                    "related": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/user"
+                },
+                "data": {
+                    "type": "users",
+                    "id": "793be7be-c6b5-4160-b7aa-2c6663ffe382"
+                }
+            },
+            "ships": {
+                "links": {
+                    "self": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/relationships/ships",
+                    "related": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/ships"
+                },
+                "data": []
+            },
+            "epics": {
+                "links": {
+                    "self": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/relationships/epics",
+                    "related": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b/epics"
+                },
+                "data": null
+            }
+        },
+        "links": {
+            "self": "https://dev.api.fuelrats.com/rats/c23e014a-8a07-4f7c-99bf-357e0e7a8a8b"
+        }
+    },
+    "included": [
+        {
+            "type": "users",
+            "id": "793be7be-c6b5-4160-b7aa-2c6663ffe382",
+            "attributes": {
+                "data": {},
+                "email": "unknown@fuelrats.com",
+                "status": "active",
+                "suspended": null,
+                "stripeId": null,
+                "frontierId": null,
+                "image": false,
+                "createdAt": "2019-12-15T23:00:00.000Z",
+                "updatedAt": "2019-12-15T23:00:00.000Z"
+            },
+            "relationships": {
+                "nicknames": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/relationships/nicknames",
+                        "related": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/nicknames"
+                    },
+                    "data": null
+                },
+                "groups": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/relationships/groups",
+                        "related": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/groups"
+                    },
+                    "data": null
+                },
+                "clients": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/relationships/clients",
+                        "related": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/clients"
+                    },
+                    "data": null
+                },
+                "epics": {
+                    "links": {
+                        "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/relationships/epics",
+                        "related": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382/epics"
+                    },
+                    "data": null
+                }
+            },
+            "links": {
+                "self": "https://dev.api.fuelrats.com/users/793be7be-c6b5-4160-b7aa-2c6663ffe382"
+            }
+        }
+    ]
+}

@@ -34,7 +34,9 @@ _PARSER.add_argument("--config-file", "--config", "-c",
 _PARSER.add_argument("--verbose", "-v",
                      help="Enable verbose logging. Earmuffs sold separately",
                      action="store_true")
-
+_PARSER.add_argument("--trace",
+                     help="Trace logging, overrides verbose. Earmufs required beyond this point.",
+                     action="store_true")
 # register optional no color flag to remove ANSI coding in logs.
 _PARSER.add_argument("--nocolors", "--nc",
                      help="Disable ANSI color coding. For people who hate fun.",

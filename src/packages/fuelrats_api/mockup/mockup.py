@@ -9,7 +9,7 @@ from loguru import logger
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from ._converters import RatConverter, RescueConverter
-from .._base import FuelratsApiABC
+from src.packages.fuelrats_api._base import FuelratsApiABC
 
 
 class ApiError(RuntimeError):
@@ -73,7 +73,10 @@ class MockupAPI(FuelratsApiABC):
         data = self.rescue_converter.to_api(rescue)
         logger.debug("update data := {}", data)
         return await self._query(
-            method="PATCH", query=query, data=dumps(data), skip_auto_headers={"CONTENT-TYPE"},
+            method="PATCH",
+            query=query,
+            data=dumps(data),
+            skip_auto_headers={"CONTENT-TYPE"},
         )
 
     async def get_rat(self, key: typing.Union[UUID, str]) -> Rat:

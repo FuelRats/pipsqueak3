@@ -1,6 +1,6 @@
 <img src="https://github.com/FuelRats/pipsqueak3/blob/develop/assets/m3spark.png?raw=true" width="50%" />
 
-[![Build Status](https://circleci.com/gh/FuelRats/pipsqueak3/tree/develop.svg?style=svg)](https://circleci.com/gh/FuelRats/pipsqueak3/tree/develop) [![codecov](https://codecov.io/gh/FuelRats/pipsqueak3/branch/develop/graph/badge.svg)](https://codecov.io/gh/FuelRats/pipsqueak3)
+[![Build Status](https://circleci.com/gh/FuelRats/pipsqueak3/tree/develop.svg?style=svg)](https://circleci.com/gh/FuelRats/pipsqueak3/tree/develop) 
 
 SPARK is the all-in-one wonderbot written and utilized by *The Fuel Rats* for rescue management.
 This project is under active development.  As such, features may be added or removed without notice.

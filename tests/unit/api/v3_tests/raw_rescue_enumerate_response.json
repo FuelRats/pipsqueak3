@@ -1,0 +1,224 @@
+{
+  "jsonapi": {
+    "version": "1.0",
+    "meta": {
+      "apiVersion": "3.0.0"
+    }
+  },
+  "meta": {
+    "page": 1,
+    "lastPage": 1,
+    "offset": 0,
+    "limit": 100,
+    "total": 4,
+    "apiVersion": "3.0.0",
+    "rateLimitTotal": 3600,
+    "rateLimitRemaining": 3599,
+    "rateLimitReset": "2020-07-07T19:00:00.000Z"
+  },
+  "links": {
+    "self": "https://dev.api.fuelrats.com/rescues?page%5Bsize%5D=100&page%5Bnumber%5D=1&filter=%7B%7D",
+    "first": "https://dev.api.fuelrats.com/rescues?page%5Bsize%5D=100&page%5Bnumber%5D=1&filter=%7B%7D",
+    "last": "https://dev.api.fuelrats.com/rescues?page%5Bsize%5D=100&page%5Bnumber%5D=1&filter=%7B%7D"
+  },
+  "data": [
+    {
+      "type": "rescues",
+      "id": "a8acc8d6-af38-4256-9911-7455e33012f2",
+      "attributes": {
+        "client": "Test Client",
+        "clientNick": null,
+        "clientLanguage": null,
+        "commandIdentifier": null,
+        "codeRed": true,
+        "data": {},
+        "notes": "hello world2222222!",
+        "platform": "ps",
+        "system": "TARNKAPPE",
+        "title": null,
+        "unidentifiedRats": [],
+        "createdAt": "2020-01-12T20:09:01.135Z",
+        "updatedAt": "2020-05-01T20:54:45.824Z",
+        "status": "open",
+        "outcome": null,
+        "quotes": []
+      },
+      "meta": {},
+      "relationships": {
+        "rats": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/a8acc8d6-af38-4256-9911-7455e33012f2/relationships/rats",
+            "related": "https://dev.api.fuelrats.com/rescues/a8acc8d6-af38-4256-9911-7455e33012f2/rats"
+          },
+          "data": []
+        },
+        "firstLimpet": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/a8acc8d6-af38-4256-9911-7455e33012f2/relationships/firstLimpet",
+            "related": "https://dev.api.fuelrats.com/rescues/a8acc8d6-af38-4256-9911-7455e33012f2/firstLimpet"
+          },
+          "data": null
+        },
+        "epics": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/a8acc8d6-af38-4256-9911-7455e33012f2/relationships/epics",
+            "related": "https://dev.api.fuelrats.com/rescues/a8acc8d6-af38-4256-9911-7455e33012f2/epics"
+          },
+          "data": []
+        }
+      },
+      "links": {
+        "self": "https://dev.api.fuelrats.com/rescues/a8acc8d6-af38-4256-9911-7455e33012f2"
+      }
+    },
+    {
+      "type": "rescues",
+      "id": "1cd4a9b6-af77-4aa2-953f-ec8b81a8375c",
+      "attributes": {
+        "client": "Test Client 2",
+        "clientNick": null,
+        "clientLanguage": null,
+        "commandIdentifier": null,
+        "codeRed": true,
+        "data": {},
+        "notes": "",
+        "platform": "ps",
+        "system": "FUELUM",
+        "title": null,
+        "unidentifiedRats": [],
+        "createdAt": "2020-01-12T20:12:02.122Z",
+        "updatedAt": "2020-01-12T20:12:02.122Z",
+        "status": "open",
+        "outcome": null,
+        "quotes": []
+      },
+      "meta": {},
+      "relationships": {
+        "rats": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/1cd4a9b6-af77-4aa2-953f-ec8b81a8375c/relationships/rats",
+            "related": "https://dev.api.fuelrats.com/rescues/1cd4a9b6-af77-4aa2-953f-ec8b81a8375c/rats"
+          },
+          "data": []
+        },
+        "firstLimpet": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/1cd4a9b6-af77-4aa2-953f-ec8b81a8375c/relationships/firstLimpet",
+            "related": "https://dev.api.fuelrats.com/rescues/1cd4a9b6-af77-4aa2-953f-ec8b81a8375c/firstLimpet"
+          },
+          "data": null
+        },
+        "epics": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/1cd4a9b6-af77-4aa2-953f-ec8b81a8375c/relationships/epics",
+            "related": "https://dev.api.fuelrats.com/rescues/1cd4a9b6-af77-4aa2-953f-ec8b81a8375c/epics"
+          },
+          "data": []
+        }
+      },
+      "links": {
+        "self": "https://dev.api.fuelrats.com/rescues/1cd4a9b6-af77-4aa2-953f-ec8b81a8375c"
+      }
+    },
+    {
+      "type": "rescues",
+      "id": "a8d3217e-674a-4fe5-9e8f-8d37fc3e81e6",
+      "attributes": {
+        "client": "Test Client 3",
+        "clientNick": null,
+        "clientLanguage": null,
+        "commandIdentifier": null,
+        "codeRed": false,
+        "data": {},
+        "notes": "",
+        "platform": "xb",
+        "system": "FUELUM",
+        "title": null,
+        "unidentifiedRats": [],
+        "createdAt": "2020-01-12T20:19:25.571Z",
+        "updatedAt": "2020-01-12T20:19:25.571Z",
+        "status": "open",
+        "outcome": null,
+        "quotes": []
+      },
+      "meta": {},
+      "relationships": {
+        "rats": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/a8d3217e-674a-4fe5-9e8f-8d37fc3e81e6/relationships/rats",
+            "related": "https://dev.api.fuelrats.com/rescues/a8d3217e-674a-4fe5-9e8f-8d37fc3e81e6/rats"
+          },
+          "data": []
+        },
+        "firstLimpet": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/a8d3217e-674a-4fe5-9e8f-8d37fc3e81e6/relationships/firstLimpet",
+            "related": "https://dev.api.fuelrats.com/rescues/a8d3217e-674a-4fe5-9e8f-8d37fc3e81e6/firstLimpet"
+          },
+          "data": null
+        },
+        "epics": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/a8d3217e-674a-4fe5-9e8f-8d37fc3e81e6/relationships/epics",
+            "related": "https://dev.api.fuelrats.com/rescues/a8d3217e-674a-4fe5-9e8f-8d37fc3e81e6/epics"
+          },
+          "data": []
+        }
+      },
+      "links": {
+        "self": "https://dev.api.fuelrats.com/rescues/a8d3217e-674a-4fe5-9e8f-8d37fc3e81e6"
+      }
+    },
+    {
+      "type": "rescues",
+      "id": "3f79ae8d-fd34-4498-8176-9c0da8db13dd",
+      "attributes": {
+        "client": "Test Client 3",
+        "clientNick": null,
+        "clientLanguage": null,
+        "commandIdentifier": null,
+        "codeRed": false,
+        "data": {},
+        "notes": "",
+        "platform": "xb",
+        "system": "FUELUM",
+        "title": null,
+        "unidentifiedRats": [],
+        "createdAt": "2020-01-12T20:59:16.034Z",
+        "updatedAt": "2020-01-12T20:59:16.034Z",
+        "status": "open",
+        "outcome": null,
+        "quotes": []
+      },
+      "meta": {},
+      "relationships": {
+        "rats": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/3f79ae8d-fd34-4498-8176-9c0da8db13dd/relationships/rats",
+            "related": "https://dev.api.fuelrats.com/rescues/3f79ae8d-fd34-4498-8176-9c0da8db13dd/rats"
+          },
+          "data": []
+        },
+        "firstLimpet": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/3f79ae8d-fd34-4498-8176-9c0da8db13dd/relationships/firstLimpet",
+            "related": "https://dev.api.fuelrats.com/rescues/3f79ae8d-fd34-4498-8176-9c0da8db13dd/firstLimpet"
+          },
+          "data": null
+        },
+        "epics": {
+          "links": {
+            "self": "https://dev.api.fuelrats.com/rescues/3f79ae8d-fd34-4498-8176-9c0da8db13dd/relationships/epics",
+            "related": "https://dev.api.fuelrats.com/rescues/3f79ae8d-fd34-4498-8176-9c0da8db13dd/epics"
+          },
+          "data": []
+        }
+      },
+      "links": {
+        "self": "https://dev.api.fuelrats.com/rescues/3f79ae8d-fd34-4498-8176-9c0da8db13dd"
+      }
+    }
+  ],
+  "included": []
+}
+

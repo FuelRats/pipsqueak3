@@ -13,12 +13,15 @@ This module is built on top of the Pydle system.
 """
 import functools
 
+from typing import Optional
+
 from loguru import logger
 from uuid import uuid4
 
 from pydle import Client
 from .packages.board import RatBoard
 from .packages.commands import trigger
+from .packages.fuelrats_api.v3.interface import ApiV300WSS, ApiConfig
 from .packages.permissions import require_permission, TECHRAT
 from .packages.context.context import Context
 from .packages.fact_manager.fact_manager import FactManager
@@ -62,7 +65,7 @@ async def _on_invite(ctx: Context):
 
 class MechaClient(Client, MessageHistoryClient):
     """
-    MechaSqueak v3
+    MechaSqueak v3_tests
     """
 
     __version__ = "3.0a"
@@ -78,7 +81,7 @@ class MechaClient(Client, MessageHistoryClient):
             **kwargs (list): keyword arguments
 
         """
-        self._api_handler = None  # TODO: replace with handler init once it exists
+        self._api_handler: Optional[ApiV300WSS] = None
         self._fact_manager = None  # Instantiate Global Fact Manager
         self._last_user_message: Dict[str, str] = {}  # Holds last message from user, by irc nick
         self._rat_cache = None  # TODO: replace with ratcache once it exists
@@ -209,10 +212,13 @@ class MechaClient(Client, MessageHistoryClient):
         self._fact_manager = None
 
     @property
-    def api_handler(self) -> object:
+    def api_handler(self) -> ApiV300WSS:
         """
         API Handler property
         """
+        if self._api_handler is None:
+            self._api_handler = ApiV300WSS(config=ApiConfig(**self._config['api']))
+            self.board.api_handler = self._api_handler
         return self._api_handler
 
     @property
@@ -221,8 +227,10 @@ class MechaClient(Client, MessageHistoryClient):
         Rat Board property
 
         """
-        if not self._rat_board:
-            self._rat_board = RatBoard()  # Create Rat Board Object
+        if self._rat_board is None:
+            self._rat_board = RatBoard(
+                api_handler=self._api_handler if self._api_handler else None
+            )  # Create Rat Board Object
         return self._rat_board
 
     @board.setter

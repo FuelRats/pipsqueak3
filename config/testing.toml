@@ -32,7 +32,8 @@ prefix = "!"
 
 [api]
 online_mode = false
-url = "http://localhost/"
+uri = "http://localhost/"
+authorization = ""
 
 [system_api]
 url = "https://system.api.fuelrats.com/"

@@ -15,6 +15,7 @@ from datetime import datetime
 from uuid import uuid4, UUID
 
 import pytest
+from dateutil.tz import tzutc
 
 from src.packages.mark_for_deletion.mark_for_deletion import MarkForDeletion
 from src.packages.rat.rat import Rat
@@ -82,7 +83,7 @@ def test_created_at_date_exists(rescue_sop_fx):
     """
     Verifies rescue.created_at datetime is set, and in the past.
     """
-    expected_time_differential = (datetime.utcnow() - rescue_sop_fx.created_at)
+    expected_time_differential = (datetime.now(tz=tzutc()) - rescue_sop_fx.created_at)
     assert expected_time_differential != 0
 
 
@@ -90,12 +91,12 @@ def test_updated_at_date_exists(rescue_sop_fx):
     """
     Verifies rescue.updated_at is correct
     """
-    rescue_sop_fx._updatedAt = datetime(1990, 1, 1, 1, 1, 1)
+    rescue_sop_fx._updatedAt = datetime(1990, 1, 1, 1, 1, 1, tzinfo=tzutc())
 
     with rescue_sop_fx.change():
         rescue_sop_fx.system = 'UpdatedSystem'
 
-    assert rescue_sop_fx.updated_at != datetime(1990, 1, 1, 1, 1, 1)
+    assert rescue_sop_fx.updated_at != datetime(1990, 1, 1, 1, 1, 1, tzinfo=tzutc())
 
 
 def test_updated_at_raises_typeerror(rescue_sop_fx):
@@ -111,7 +112,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
 
     # Set to the past:
     with pytest.raises(ValueError):
-        rescue_sop_fx.updated_at = datetime(1990, 1, 1, 1, 1, 1)
+        rescue_sop_fx.updated_at = datetime(1990, 1, 1, 1, 1, 1, tzinfo=tzutc())
 
 
 @pytest.mark.parametrize("expected_rats", [
@@ -325,7 +326,7 @@ def test_rescue_lang_id_constructor(rescue_sop_fx):
     Verifies Language_ID is returned
     """
     # Defaults to EN
-    assert rescue_sop_fx.lang_id == 'EN'
+    assert rescue_sop_fx.lang_id == 'en-US'
 
 
 @pytest.mark.parametrize("garbage", [None, 42, -2.2, uuid4()])

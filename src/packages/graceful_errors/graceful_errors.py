@@ -14,13 +14,14 @@ See LICENSE.md
 import random
 from typing import Dict
 from uuid import UUID
-
+from src.packages.fuelrats_api.v3.models.v1.apierror import APIException
 BY_ERROR: Dict[type(Exception), str] = {
     AttributeError: "Overripe",
     IndexError: "Stale",
     TypeError: "Stinky",
     ValueError: "Moldy",
     RuntimeError: "Abominable",
+    APIException: "Rotten",
 
 }
 
