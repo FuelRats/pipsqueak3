@@ -1,5 +1,5 @@
 [irc]
-nickname = "Mechasqueak3[BOT|SPARK]"
+nickname = "Mechasqueak3-tests[BOT]"
 server = "localhost"
 port = 6697
 tls = true
