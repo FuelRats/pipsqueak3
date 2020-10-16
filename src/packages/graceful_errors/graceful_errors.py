@@ -15,6 +15,7 @@ import random
 from typing import Dict
 from uuid import UUID
 from src.packages.fuelrats_api.v3.models.v1.apierror import APIException
+
 BY_ERROR: Dict[type(Exception), str] = {
     AttributeError: "Overripe",
     IndexError: "Stale",
@@ -22,10 +23,20 @@ BY_ERROR: Dict[type(Exception), str] = {
     ValueError: "Moldy",
     RuntimeError: "Abominable",
     APIException: "Rotten",
-
 }
 
-CHEESES = ['Cheddar', 'Gouda', "Mozzerella", "Asiago", "Monterey Jack", "Brie", "Roquefort", "Edam"]
+CHEESES = [
+    "Cheddar",
+    "Gouda",
+    "Mozzarella",
+    "Asiago",
+    "Monterey Jack",
+    "Brie",
+    "Roquefort",
+    "Edam",
+    "Stilton",
+    "Emmentaler",
+]
 
 
 def make_graceful(ex: Exception, ex_uuid: UUID) -> str:
