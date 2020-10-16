@@ -10,8 +10,10 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-
+import asyncio
 import re
+
+import aiohttp
 from loguru import logger
 from typing import Optional, Dict, Any, List
 from src.config import CONFIG_MARKER
@@ -203,9 +205,28 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         platform=platform,
     )
     platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
+
+    distance_str = "not found in the galaxy DB"
+    try:
+        system = await asyncio.wait_for(ctx.bot.galaxy.find_system_by_name(system_name), timeout=2)
+        if system:
+            landmark_info = await asyncio.wait_for(
+                ctx.bot.galaxy.find_nearest_landmark(system), timeout=2,
+            )
+            if landmark_info:
+                landmark, distance = landmark_info
+                if system.name != landmark.name:
+                    distance_str = f"{distance}ly from {landmark.name}"
+                else:
+                    distance_str = "landmark"
+            else:
+                distance_str = f"no landmark found for system {system.name}"
+    except (asyncio.TimeoutError, aiohttp.ServerTimeoutError):
+        distance_str = "<timeout requesting system data>"
+
     await ctx.reply(
         f"{_config.trigger_keyword.upper()} - CMDR {rescue.client} - "
-        f"Reported System: {rescue.system} (distance to be implemented) - "
+        f"Reported System: {rescue.system} ({distance_str}) - "
         f"Platform: {rescue.platform.value if rescue.platform else ''} - "
         f"O2: {'NOT OK' if rescue.code_red else 'OK'} - "
         f"Language: {result.group('full_language')}"
