@@ -112,3 +112,9 @@ config/configuration.toml
 
 #certs
 *.pem
+
+# Docker-related local dev env stuff
+.volumes
+docker-compose.yml
+Dockerfile
+.dockerignore

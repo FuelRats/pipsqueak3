@@ -3,7 +3,7 @@ nickname = "Mechasqueak3-tests[BOT]"
 server = "localhost"
 port = 6697
 tls = true
-channels = [ "#unkn0wndev",]
+channels = [ "#dev",]
 
 [authentication]
 method = "PLAIN"
@@ -21,11 +21,11 @@ host = "localhost"
 [database]
 host = "localhost"
 port = 5432
-dbname = "mecha3"
-username = "mecha3"
-password = "mecha3"
+dbname = "db"
+username = "user"
+password = "password"
 fact_table = "fact"
-fact_log = "fact_transaction"
+fact_log = "fact_log"
 
 [commands]
 prefix = "!"
@@ -34,11 +34,14 @@ prefix = "!"
 online_mode = false
 url = "http://localhost/"
 
+
 [system_api]
 url = "https://system.api.fuelrats.com/"
 
 [ratsignal_parser]
 announcer_nicks = [ "RatMama[Bot]", "some_announcer", 'unknown' ]
+trigger_keyword="TESTSIGNAL"
+
 
 [authentication.plain]
 username = ""
@@ -70,4 +73,4 @@ level = 4
 
 [board]
 cycle_at = 15
-api_url = "https://api.thehellisthis.com"
+api_url = "localhost"
