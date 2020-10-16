@@ -182,7 +182,7 @@ async def test_mechaclient_on_message_anti_loop(bot_fx):
                                                      "lul, 0mg haxor",
                                                      "wr+ #3",
                                                      "925300 minutes"])
-@pytest.mark.parametrize("mechaclient_irc_names", ["rat_2412", "Shaott", "xXxN00BR4TxXx"])
+@pytest.mark.parametrize("mechaclient_irc_names", ["some_recruit", "some_ov", "some_service"])
 @pytest.mark.asyncio
 async def test_mechaclient_on_message_handling(bot_fx, mechaclient_irc_chatter,
                                                mechaclient_irc_names):

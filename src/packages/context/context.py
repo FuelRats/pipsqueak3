@@ -11,8 +11,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 from __future__ import annotations  # for forward references standard in >=3.8
-from loguru import logger
+
 import typing
+from typing import List, ClassVar
+
+import attr
+from loguru import logger
 
 from src.config import CONFIG_MARKER
 from ..user import User
@@ -29,7 +33,7 @@ def validate_config(data: typing.Dict):
     Args:
         data(typing.Dict): configuration object
     """
-    if not isinstance(data['commands']['prefix'], str):
+    if not isinstance(data["commands"]["prefix"], str):
         raise ValueError
 
 
@@ -41,100 +45,33 @@ def rehash_handler(data: typing.Dict):
     Args:
         data(typing.Dict): configuration object
     """
-    Context.PREFIX = data['commands']['prefix']
+    Context.PREFIX = data["commands"]["prefix"]
     logger.debug(f"in rehash handler, using new prefix {Context.PREFIX}")
 
 
+@attr.dataclass
 class Context:
     """
     Command context, stores the context of a command's invocation
     """
 
-    PREFIX: typing.ClassVar[str] = "<!!NOTSET!!>"
-
-    def __init__(self, bot: MechaClient,
-                 user: User,
-                 target: str,
-                 words: [str],
-                 words_eol: [str],
-                 prefixed: bool = False
-                 ):
-        """
-        Creates a new Commands Context
-
-        Args:
-            user (User): invoking IRC user
-            bot (Modules.mechaclient.MechaClient): Mechaclient instance
-            target(str): channel of invoking channel
-            words ([str]): list of words from command invocation
-            words_eol ([str]): list of words from command invocation to EOL
-            prefixed (bool): marker if the message is prefixed
-        """
-        self._user: User = user
-        self._bot: MechaClient = bot
-        self._target: str = target
-        self._words: [str] = words
-        self._words_eol: [str] = words_eol
-        self._prefixed: bool = prefixed
-
-    @property
-    def prefixed(self):
-        """
-        Flag marking if the created context is a command/prefixed invocation
-        Returns:
-
-        """
-        return self._prefixed
-
-    @property
-    def user(self) -> User:
-        """
-        IRC user instance
-
-        Returns:
-            User
-        """
-        return self._user
-
-    @property
-    def bot(self) -> MechaClient:
-        """
-        MechaClient instance
-
-        Returns:
-            MechaClient
-        """
-        return self._bot
-
-    @property
-    def words(self) -> [str]:
-        """
-        words in invoking message
-
-        Returns:
-            list[str]: list of words
-        """
-        return self._words
-
-    @property
-    def words_eol(self) -> typing.List[str]:
-        """
-        Words in invoking message to EOL
-
-        Returns:
-            list[str]
-        """
-        return self._words_eol
-
-    @property
-    def target(self) -> str:
-        """
-        Target of command invocation
-
-        Returns:
-            str
-        """
-        return self._target
+    bot: MechaClient
+    user: User = attr.ib(validator=attr.validators.instance_of(User))
+    target: str = attr.ib(validator=attr.validators.instance_of(str))
+    words: List[str] = attr.ib(
+        validator=attr.validators.deep_iterable(
+            member_validator=attr.validators.instance_of(str),
+            iterable_validator=attr.validators.instance_of(list),
+        )
+    )
+    words_eol: List[str] = attr.ib(
+        validator=attr.validators.deep_iterable(
+            member_validator=attr.validators.instance_of(str),
+            iterable_validator=attr.validators.instance_of(list),
+        )
+    )
+    prefixed: bool = attr.ib(validator=attr.validators.instance_of(bool), default=False)
+    PREFIX: ClassVar[str] = "<!!NOTSET!!>"
 
     @property
     def channel(self) -> typing.Optional[str]:

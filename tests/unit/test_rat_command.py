@@ -27,12 +27,14 @@ from src.packages.context.context import Context
 @pytest.mark.commands
 class TestRatCommand(object):
     @pytest.mark.asyncio
-    async def test_invalid_command(self):
+    async def test_invalid_command(self, bot_fx):
         """
         Ensures that nothing happens and `trigger` exits quietly when no command can be found.
         """
-        await Commands.trigger(Context(None, None, "#unit_test", ['!unknowncommandsad hi!'],
-                                       ['!unknowncommandsad hi!', "hi!"]))
+        ctx = await Context.from_message(
+            bot_fx, "#unittest", "some_recruit", "!unknowncommandsad hi!"
+        )
+        await Commands.trigger(ctx)
 
     @pytest.mark.parametrize("alias", ['potato', 'cannon', 'Fodder', 'fireball'])
     def test_double_command_registration(self, alias):
