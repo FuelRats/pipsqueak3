@@ -31,9 +31,8 @@ fact_log = "fact_log"
 prefix = "!"
 
 [api]
-online_mode = true
-uri = "wss://dev.api.fuelrats.com"
-authorization = "Nope!"
+online_mode = false
+url = "http://localhost/"
 
 
 [system_api]
