@@ -19,6 +19,8 @@ services:
       - POSTGRES_PASSWORD=password
     volumes:
       - .volumes/db_data/:/var/lib/postgresql/data
+      # Initialize database on first container run.
+      # See "Initialization scripts" at https://hub.docker.com/_/postgres for more info.
       - ./initdb.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
