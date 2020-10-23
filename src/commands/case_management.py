@@ -212,14 +212,16 @@ async def cmd_case_management_clear(ctx: Context):
         return await ctx.reply("Cannot comply: platform not set.")
     if first_limpet:
         if first_limpet in rescue.unidentified_rats:
-            return await ctx.reply(f"Cannot comply: {first_limpet!r}  is unidentified.")
-
-        if first_limpet not in rescue.rats:
+            if not ctx.DRILL_MODE:
+                return await ctx.reply(f"Cannot comply: {first_limpet!r}  is unidentified.")
+        elif first_limpet not in rescue.rats:
             return await ctx.reply(f"Cannot comply: {first_limpet!r} is not assigned to this rescue")
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.active = False
         case.status = Status.CLOSED
-        if first_limpet:
+        # If we are drill mode, just:tm: don't add the first limpet association
+        # as we probably don't have valid user data in the drill API.
+        if first_limpet and not ctx.DRILL_MODE:
             case.first_limpet = rescue.rats[first_limpet].uuid
             # TODO: Add paperwork call link here
 
