@@ -180,7 +180,7 @@ async def cmd_case_management_assign(ctx: Context):
             rat = Rat(name=name, uuid=None)
             await case.add_rat(rat)
 
-            if rat.name in case.unidentified_rats:
+            if rat.name in case.unidentified_rats and not ctx.DRILL_MODE:
                 await ctx.reply(f"Warning: {name!r} is NOT identified.")
 
     await ctx.reply(
