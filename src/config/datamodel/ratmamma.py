@@ -1,3 +1,15 @@
+"""
+Ratmamma parsing configuration datamodel
+
+Copyright (c) 2020 The Fuel Rat Mischief,
+All rights reserved.
+
+Licensed under the BSD 3-Clause License.
+
+See LICENSE.md
+"""
+
+
 from typing import List, Set
 
 import attr
@@ -12,9 +24,11 @@ class RatmamaConfigRoot:
         ),
         default=["RatMama[Bot]"],
     )
+    """ Messages from these users will be inspected for an client announcement. """
     trigger_keyword: str = attr.attrib(
         validator=attr.validators.instance_of(str), default="TESTSIGNAL"
     )
+    """ The word to use as a trigger for non-announced clients """
 
     def __attrs_post_init__(self):
         # Casefold nicks after instantiation
