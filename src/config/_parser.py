@@ -16,25 +16,15 @@ See LICENSE
 import hashlib
 import sys
 from pathlib import Path
-from typing import Dict, Tuple, Optional, Type, Union
+from typing import Dict, Tuple, Optional
 
-import attr
 import toml
 from loguru import logger
 import graypy
 
 from src.packages.cli_manager import cli_manager
 from ._manager import PLUGIN_MANAGER
-
-
-@attr.dataclass(frozen=True)
-class GelfConfig:
-    enabled: bool = attr.ib(validator=attr.validators.instance_of(bool))
-    port: Optional[int] = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(int)))
-    host: Optional[str] = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(str)))
-
-    log_level: str = attr.ib(default="DEBUG", validator=attr.validators.instance_of(str))
-    send_context: bool = attr.ib(validator=attr.validators.instance_of(bool), default=False)
+from .datamodel.gelf import GelfConfig
 
 
 def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None):

@@ -23,7 +23,7 @@ import pytest
 
 # from psycopg2.pool import SimpleConnectionPool
 from src.config import CONFIG_MARKER, PLUGIN_MANAGER, setup_logging, setup
-from src.config._parser import GelfConfig
+from src.config.datamodel.gelf import GelfConfig
 from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 
