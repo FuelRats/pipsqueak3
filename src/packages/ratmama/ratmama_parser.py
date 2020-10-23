@@ -45,6 +45,7 @@ def rehash_handler(data: ConfigRoot):
     global _config
     _config = data.ratsignal_parser
 
+
 RATMAMA_REGEX = re.compile(
     r"""(?x)
     # The above makes whitespace and comments in the pattern ignored.

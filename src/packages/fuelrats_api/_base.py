@@ -17,8 +17,6 @@ Impersonation = typing.TypeVar("Impersonation", str, UUID)
 """ Type for an ID of the user Mecha is performing an API action on the behalf of """
 
 
-
-
 @attr.dataclass(eq=False)
 class FuelratsApiABC(abc.ABC):
     rat_converter: ApiConverter[Rat]

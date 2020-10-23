@@ -149,7 +149,13 @@ class MechaClient(Client, MessageHistoryClient):
         logger.debug(f"Sanitized {sanitized_message}, Original: {message}")
         try:
             self._last_user_message[user.casefold()] = sanitized_message  # Store sanitized message
-            ctx = await Context.from_message(self, channel=channel, sender=user, message=sanitized_message)
+            ctx = await Context.from_message(
+                self,
+                channel=channel,
+                sender=user,
+                message=sanitized_message
+            )
+
             if not ctx.words:
                 logger.trace("ignoring empty message")
                 IGNORED_MESSAGES.inc()
