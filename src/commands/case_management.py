@@ -211,10 +211,10 @@ async def cmd_case_management_clear(ctx: Context):
     if not rescue.platform:
         return await ctx.reply("Cannot comply: platform not set.")
     if first_limpet:
-        if first_limpet in rescue.unidentified_rats:
-            if not ctx.DRILL_MODE:
-                return await ctx.reply(f"Cannot comply: {first_limpet!r}  is unidentified.")
-        elif first_limpet not in rescue.rats:
+        logger.debug("clearning rescue to FL {}", first_limpet)
+        if first_limpet in rescue.unidentified_rats and not ctx.DRILL_MODE:
+            return await ctx.reply(f"Cannot comply: {first_limpet!r}  is unidentified.")
+        if first_limpet not in rescue.rats and first_limpet not in rescue.unidentified_rats:
             return await ctx.reply(f"Cannot comply: {first_limpet!r} is not assigned to this rescue")
     async with ctx.bot.board.modify_rescue(rescue) as case:
         case.active = False
