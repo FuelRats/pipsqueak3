@@ -103,8 +103,9 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     """
 
-    if ctx.user.nickname.casefold() not in (nick.casefold() for nick in _config.announcer_nicks):
-        return
+    # If the user isn't one that is allowed to trigger this code,
+    if ctx.user.nickname.casefold() not in _config.announcer_nicks:
+        return  # then SKIP!
 
     message: str = ctx.words_eol[0]
     result = re.fullmatch(RATMAMA_REGEX, message)
@@ -186,6 +187,10 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         platform=platform,
     )
     platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
+
+    # [SPARK-217]: Don't emit  Platform signals in drill mode.
+    if ctx.DRILL_MODE:
+        platform_signal = ""
 
     distance_str = "not found in the galaxy DB"
     try:

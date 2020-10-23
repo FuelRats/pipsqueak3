@@ -47,6 +47,7 @@ def rehash_handler(data: ConfigRoot):
         data(typing.Dict): configuration object
     """
     Context.PREFIX = data.commands.prefix
+    Context.DRILL_MODE = data.commands.drill_mode
     logger.debug(f"in rehash handler, using new prefix {Context.PREFIX}")
 
 
@@ -73,6 +74,7 @@ class Context:
     )
     prefixed: bool = attr.ib(validator=attr.validators.instance_of(bool), default=False)
     PREFIX: ClassVar[str] = "<!!NOTSET!!>"
+    DRILL_MODE: ClassVar[bool] = False
 
     @property
     def channel(self) -> typing.Optional[str]:
