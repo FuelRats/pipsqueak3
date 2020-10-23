@@ -2,7 +2,6 @@ from typing import List, Optional
 
 import pytest
 
-from src.packages.fuelrats_api._base import ApiConfig
 from src.packages.fuelrats_api.v3.interface import ApiV300WSS, Connection
 import attr
 import asyncio

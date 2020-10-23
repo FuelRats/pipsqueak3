@@ -18,12 +18,14 @@ import sys
 from pathlib import Path
 from typing import Dict, Tuple, Optional
 
+import cattr
 import toml
 from loguru import logger
 import graypy
 
 from src.packages.cli_manager import cli_manager
 from ._manager import PLUGIN_MANAGER
+from .datamodel import ConfigRoot
 from .datamodel.gelf import GelfConfig
 
 
@@ -143,10 +145,13 @@ def setup(filename: str) -> Tuple[Dict, str]:
         configuration data located at `filename`.
     """
     # do the loading part
+    logger.info("loading configuration....")
     config_dict, file_hash = load_config(filename)
-    gelf_config = GelfConfig(**config_dict["logging"]["gelf"])
+    logger.info("structuring new configuration...")
+    configuration: ConfigRoot = cattr.structure(config_dict, ConfigRoot)
+    gelf_config = configuration.logging.gelf
 
-    setup_logging(config_dict["logging"]["log_file"], gelf_configuration=gelf_config)
+    setup_logging(configuration.logging.log_file, gelf_configuration=gelf_config)
     logger.info(f"new config hash is {file_hash}")
     logger.info("verifying configuration....")
 
@@ -157,5 +162,5 @@ def setup(filename: str) -> Tuple[Dict, str]:
     logger.info(f"emitting new configuration to plugins...")
 
     # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
-    PLUGIN_MANAGER.hook.rehash_handler(data=config_dict)  # pylint: disable=no-member
+    PLUGIN_MANAGER.hook.rehash_handler(data=configuration)  # pylint: disable=no-member
     return config_dict, file_hash

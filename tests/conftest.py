@@ -23,12 +23,13 @@ import pytest
 
 # from psycopg2.pool import SimpleConnectionPool
 from src.config import CONFIG_MARKER, PLUGIN_MANAGER, setup_logging, setup
+from src.config.datamodel import ConfigRoot
+from src.config.datamodel.api import FuelratsApiConfigRoot
 from src.config.datamodel.gelf import GelfConfig
 from src.packages import cli_manager
 from src.packages.cache.rat_cache import RatCache
 
 # Set argv to keep cli arguments meant for pytest from polluting our things
-from src.packages.fuelrats_api._base import ApiConfig
 from src.packages.fuelrats_api.v3.interface import ApiV300WSS
 from tests.fixtures.mock_websocket import FakeConnection, Expectation
 
@@ -348,11 +349,11 @@ class ConfigReceiver:
     """
     Namespace plugin for hooking into config events
     """
-    data: Dict = {}
+    data: ConfigRoot
 
     @classmethod
     @CONFIG_MARKER
-    def rehash_handler(cls, data: Dict):
+    def rehash_handler(cls, data: ConfigRoot):
         cls.data = data
 
 
@@ -372,7 +373,7 @@ def global_init_fx() -> None:
 
 
 @pytest.fixture(scope="session")
-def configuration_fx() -> Dict:
+def configuration_fx() -> ConfigRoot:
     """
     provides the session configuration dictionary, as loaded at test session start.
     """
@@ -402,7 +403,7 @@ def api_wss_connection_fx() -> FakeConnection:
 
 @pytest.fixture
 def api_wss_fx(api_wss_connection_fx) -> ApiV300WSS:
-    interface = ApiV300WSS(connection=api_wss_connection_fx, config=ApiConfig(
+    interface = ApiV300WSS(connection=api_wss_connection_fx, config=FuelratsApiConfigRoot(
         online_mode=False, uri="localhost", authorization=None
     ))
     interface.connected_event.set()

@@ -26,27 +26,15 @@ from ..utils import Platforms, color, Colors, bold
 
 import attr
 
-
-@attr.dataclass
-class RatmamaConfig:
-    announcer_nicks: List[str] = attr.ib(
-        validator=attr.validators.deep_iterable(
-            attr.validators.instance_of(str), attr.validators.instance_of(list)
-        )
-    )
-    """ nicknames that may announce cases """
-    trigger_keyword: str = attr.ib(validator=attr.validators.instance_of(str))
-    """trigger keyword """
-
-    config_blob: Dict = attr.ib(validator=attr.validators.instance_of(dict))
-    """ overall configuration blob """
+from ...config.datamodel import ConfigRoot
+from ...config.datamodel.ratmamma import RatmamaConfigRoot
 
 
-_config: RatmamaConfig
+_config: RatmamaConfigRoot
 
 
 @CONFIG_MARKER
-def rehash_handler(data: Dict):
+def rehash_handler(data: ConfigRoot):
     """
     Apply new configuration data
 
@@ -55,14 +43,7 @@ def rehash_handler(data: Dict):
 
     """
     global _config
-    _config = RatmamaConfig(config_blob=data, **data["ratsignal_parser"])
-
-
-@CONFIG_MARKER
-def validate_config(data: Dict):
-    # the dataclass does its own validation
-    RatmamaConfig(config_blob=data, **data["ratsignal_parser"])
-
+    _config = data.ratsignal_parser
 
 RATMAMA_REGEX = re.compile(
     r"""(?x)

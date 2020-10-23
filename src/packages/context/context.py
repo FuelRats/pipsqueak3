@@ -20,6 +20,7 @@ from loguru import logger
 
 from src.config import CONFIG_MARKER
 from ..user import User
+from ...config.datamodel import ConfigRoot
 
 if typing.TYPE_CHECKING:
     from src.mechaclient import MechaClient
@@ -38,14 +39,14 @@ def validate_config(data: typing.Dict):
 
 
 @CONFIG_MARKER
-def rehash_handler(data: typing.Dict):
+def rehash_handler(data: ConfigRoot):
     """
     Apply context-related configuration values from event
 
     Args:
         data(typing.Dict): configuration object
     """
-    Context.PREFIX = data["commands"]["prefix"]
+    Context.PREFIX = data.commands.prefix
     logger.debug(f"in rehash handler, using new prefix {Context.PREFIX}")
 
 

@@ -17,6 +17,7 @@ import typing
 import pluggy
 
 from ._constants import _PLUGIN_NAME
+from .datamodel import ConfigRoot
 
 VALIDATOR_SPEC = pluggy.HookspecMarker(_PLUGIN_NAME)
 REHASH_SPEC = pluggy.HookspecMarker(_PLUGIN_NAME)
@@ -39,11 +40,11 @@ def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
 
 # noinspection PyUnusedLocal
 @REHASH_SPEC
-def rehash_handler(data: typing.Dict):  # pylint: disable=unused-argument
+def rehash_handler(data: ConfigRoot):  # pylint: disable=unused-argument
     """
     Apply new configuration data
 
     Args:
-        data (typing.Dict): new configuration data to apply.
+        data (ConfigRoot): new configuration data to apply.
 
     """

@@ -19,6 +19,7 @@ from loguru import logger
 from .fact import Fact
 from ..database import DatabaseManager
 from src.config import CONFIG_MARKER
+from ...config.datamodel import ConfigRoot
 
 
 class FactManager(DatabaseManager):
@@ -37,7 +38,7 @@ class FactManager(DatabaseManager):
 
     @classmethod
     @CONFIG_MARKER
-    def rehash_handler(cls, data: typing.Dict):
+    def rehash_handler(cls, data: ConfigRoot):
         """
         Apply new configuration data
 
@@ -50,8 +51,8 @@ class FactManager(DatabaseManager):
     def __init__(self, fact_table=None, fact_log=None):
 
         # Pull table names from config file
-        self._fact_table = fact_table if fact_table else self._config['database']['fact_table']
-        self._fact_log = fact_log if fact_log else self._config['database']['fact_log']
+        self._fact_table = fact_table if fact_table else self._config.database.fact_table
+        self._fact_log = fact_log if fact_log else self._config.database.fact_log
 
         # Validate passed or configured table names
         if not isinstance(self._fact_table, str):

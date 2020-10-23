@@ -132,6 +132,6 @@ async def test_db_query_direct(test_dbm_fx):
          'username': 'root',
          'password': 'mecha'}
 ))
-def test_validate_config_invalid(configuration_fx, data, test_dbm_fx):
+def test_validate_config_invalid(data, test_dbm_fx):
     with pytest.raises(ValueError):
         test_dbm_fx.validate_config(data={'database': data})

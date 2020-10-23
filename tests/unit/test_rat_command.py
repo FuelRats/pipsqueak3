@@ -65,7 +65,7 @@ class TestRatCommand(object):
         Verifiy that found commands can be invoked via Commands.Trigger()
         """
 
-        trigger_alias = f"{configuration_fx['commands']['prefix']}{alias}"
+        trigger_alias = f"{configuration_fx.commands.prefix}{alias}"
 
         @Commands.command(alias)
         async def potato(context: Context):
