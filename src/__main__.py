@@ -86,7 +86,7 @@ async def start():
 
     logger.info("Connected to IRC.")
     if config.telemetry.enabled:
-        logger.info("spawning telemetry client...")
+        logger.info("spawning telemetry client w config {}", config.telemetry)
         prometheus_client.start_http_server(
             config.telemetry.bind_port,
             f"{config.telemetry.bind_host}"
