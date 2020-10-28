@@ -352,3 +352,35 @@ async def test_platform(bot_fx, platform_string: str, platform: Platforms, rescu
     )
     await trigger(ctx=context)
     assert rescue_sop_fx.platform is platform, "failed to update platform"
+
+
+async def test_clear_rescue_unident_drill_mode(bot_fx, rat_board_fx, rescue_sop_fx, rat_no_id_fx,
+                                               monkeypatch):
+    """ verifies rescues WILL be closed to unidentified rats in drill mode"""
+    rescue_sop_fx.unidentified_rats[rat_no_id_fx.name] = rat_no_id_fx
+    await rat_board_fx.append(rescue_sop_fx)
+
+    context = await Context.from_message(
+        bot_fx, channel="#fuelrats", sender="some_ov",
+        message=f"!clear {rescue_sop_fx.board_index} {rat_no_id_fx.name}"
+    )
+
+    monkeypatch.setattr(context, "DRILL_MODE", True)
+    await trigger(ctx=context)
+    assert rescue_sop_fx not in rat_board_fx, "failed to clear rescue."
+
+
+async def test_clear_rescue_unident_prod_mode(bot_fx, rat_board_fx, rescue_sop_fx, rat_no_id_fx,
+                                              monkeypatch):
+    """ verifies rescues will NOT be closed for unidentified rats outside drill mode """
+    rescue_sop_fx.unidentified_rats[rat_no_id_fx.name] = rat_no_id_fx
+    await rat_board_fx.append(rescue_sop_fx)
+
+    context = await Context.from_message(
+        bot_fx, channel="#fuelrats", sender="some_ov",
+        message=f"!clear {rescue_sop_fx.board_index} {rat_no_id_fx.name}"
+    )
+
+    monkeypatch.setattr(context, "DRILL_MODE", False)
+    await trigger(ctx=context)
+    assert rescue_sop_fx.client in rat_board_fx, "unexpectedly cleared rescue."

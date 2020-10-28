@@ -16,11 +16,12 @@ from .models.v1.rescue import Rescue as ApiRescue
 from .models.jsonapi.resource import Resource
 from .websocket.client import Connection
 from .websocket.protocol import Request, Response
-from .._base import FuelratsApiABC, ApiConfig, Impersonation
+from .._base import FuelratsApiABC, Impersonation
 from ...rat import Rat as InternalRat
 from ...rescue import Rescue
 from ....config import CONFIG_MARKER, PLUGIN_MANAGER
 from .models.v1.apierror import UnauthorizedImpersonation, APIException
+from ....config.datamodel import ConfigRoot
 
 NICKNAME_TIME = Histogram(
     namespace="api",
@@ -42,7 +43,7 @@ class ApiV300WSS(FuelratsApiABC):
             asyncio.create_task(self.run_task())
 
     @CONFIG_MARKER
-    def rehash_handler(self, data: Dict):
+    def rehash_handler(self, data: ConfigRoot):
         """
         Apply new configuration data
 
@@ -52,7 +53,7 @@ class ApiV300WSS(FuelratsApiABC):
         """
         # grab original for comparison
         original = self.config
-        new_configuration = ApiConfig(**data["api"])
+        new_configuration = data.api
 
         # apply new configuration
         self.config = new_configuration
@@ -73,22 +74,6 @@ class ApiV300WSS(FuelratsApiABC):
                 asyncio.create_task(self.run_task())
         else:
             logger.info("API handler took no action on rehash, nothing to change!")
-
-    @CONFIG_MARKER
-    def validate_config(self, data: Dict):  # pylint: disable=unused-argument
-        """
-        Validate new configuration data.
-
-        Args:
-            data (Dict): new configuration data  to validate
-
-        Raises:
-            ValueError:  config section failed to validate.
-            KeyError:  config section failed to validate.
-        """
-        relevant = data["api"]
-        # attempt to construct api configuration; if this succeeds the config is acceptable.
-        ApiConfig(**relevant)
 
     async def run_task(self):
         """

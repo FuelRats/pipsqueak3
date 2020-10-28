@@ -13,6 +13,7 @@ from loguru import logger
 from psycopg2 import sql, pool
 
 from src.config import CONFIG_MARKER
+from src.config.datamodel import ConfigRoot
 
 
 class DatabaseManager:
@@ -55,7 +56,7 @@ class DatabaseManager:
 
     @classmethod
     @CONFIG_MARKER
-    def rehash_handler(cls, data: typing.Dict):
+    def rehash_handler(cls, data: ConfigRoot):
         """
         Apply new configuration data
 
@@ -109,20 +110,20 @@ class DatabaseManager:
 
             # Utilize function arguments if they are provided,
             # otherwise retrieve from config file and use those values.
-            self._dbhost = dbhost if dbhost is not None else self._config["database"].get("host")
+            self._dbhost = dbhost if dbhost is not None else self._config.database.host
             assert self._dbhost
 
-            self._dbport = dbport if dbhost is not None else self._config["database"].get("port")
+            self._dbport = dbport if dbhost is not None else self._config.database.port
             assert self._dbport
 
-            self._dbname = dbname if dbname is not None else self._config["database"].get("dbname")
+            self._dbname = dbname if dbname is not None else self._config.database.dbname
             assert self._dbname
 
-            self._dbuser = dbuser if dbuser is not None else self._config["database"].get("username")
+            self._dbuser = dbuser if dbuser is not None else self._config.database.username
             assert self._dbuser
 
             self._dbpass = (
-                dbpassword if dbpassword is not None else self._config["database"].get("password")
+                dbpassword if dbpassword is not None else self._config.database.password
             )
             assert self._dbpass
 

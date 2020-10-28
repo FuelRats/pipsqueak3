@@ -24,6 +24,7 @@ from src.config import CONFIG_MARKER
 from ..fuelrats_api import FuelratsApiABC, ApiException, Impersonation
 
 from ..rescue import Rescue
+from ...config.datamodel import ConfigRoot
 
 cycle_at = 15
 """
@@ -67,7 +68,7 @@ def validate_config(data: typing.Dict):  # pylint: disable=unused-argument
 
 # noinspection PyUnusedLocal
 @CONFIG_MARKER
-def rehash_handler(data: typing.Dict):  # pylint: disable=unused-argument
+def rehash_handler(data: ConfigRoot):  # pylint: disable=unused-argument
     """
     Apply new configuration data
 
@@ -76,7 +77,7 @@ def rehash_handler(data: typing.Dict):  # pylint: disable=unused-argument
 
     """
     global cycle_at
-    cycle_at = data["board"]["cycle_at"]
+    cycle_at = data.board.cycle_at
 
 
 class RatBoard(abc.Mapping):

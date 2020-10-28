@@ -11,7 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 
 """
-
+import cattr
 from loguru import logger
 from functools import wraps
 from typing import Any, Union, Callable, Dict, Set
@@ -20,6 +20,8 @@ from src.config import CONFIG_MARKER
 from ..context import Context
 import prometheus_client
 from prometheus_async.aio import time as aio_time
+
+from ...config.datamodel import ConfigRoot
 
 REQUIRE_PERMISSION_TIME = prometheus_client.Summary("permissions_require_permissions_seconds",
                                                     "time in require_permission")
@@ -63,7 +65,7 @@ def validate_config(data: Dict):
 
 
 @CONFIG_MARKER
-def rehash_handler(data: Dict):
+def rehash_handler(data: ConfigRoot):
     """
     Apply new configuration data
 
@@ -72,11 +74,11 @@ def rehash_handler(data: Dict):
 
     """
     logger.debug("applying new permissions scheme...")
-    RECRUIT.update(data['permissions']['recruit'])
-    RAT.update(data['permissions']['rat'])
-    OVERSEER.update(data['permissions']['overseer'])
-    TECHRAT.update(data['permissions']['techrat'])
-    ADMIN.update(data['permissions']['administrator'])
+    RECRUIT.update(cattr.unstructure(data.permissions.recruit))
+    RAT.update(cattr.unstructure(data.permissions.rat))
+    OVERSEER.update(cattr.unstructure(data.permissions.overseer))
+    TECHRAT.update(cattr.unstructure(data.permissions.techrat))
+    ADMIN.update(cattr.unstructure(data.permissions.administrator))
 
 
 class Permission:

@@ -22,6 +22,7 @@ from loguru import logger
 from src.config import CONFIG_MARKER
 from .star_system import StarSystem
 from ..utils import Vector
+from ...config.datamodel import ConfigRoot
 
 
 class Galaxy:
@@ -32,7 +33,7 @@ class Galaxy:
 
     @classmethod
     @CONFIG_MARKER
-    def rehash_handler(cls, data: typing.Dict):
+    def rehash_handler(cls, data: ConfigRoot):
         """
         Apply new configuration data
 
@@ -51,7 +52,7 @@ class Galaxy:
     "A ClientTimeout object representing the total time an HTTP request can take before failing."
 
     def __init__(self, url: str = None):
-        self.url = url or self._config['system_api']['url']
+        self.url = url or self._config.system_api.url
 
     @alru_cache()
     async def find_system_by_name(self,

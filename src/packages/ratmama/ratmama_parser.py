@@ -26,27 +26,15 @@ from ..utils import Platforms, color, Colors, bold
 
 import attr
 
-
-@attr.dataclass
-class RatmamaConfig:
-    announcer_nicks: List[str] = attr.ib(
-        validator=attr.validators.deep_iterable(
-            attr.validators.instance_of(str), attr.validators.instance_of(list)
-        )
-    )
-    """ nicknames that may announce cases """
-    trigger_keyword: str = attr.ib(validator=attr.validators.instance_of(str))
-    """trigger keyword """
-
-    config_blob: Dict = attr.ib(validator=attr.validators.instance_of(dict))
-    """ overall configuration blob """
+from ...config.datamodel import ConfigRoot
+from ...config.datamodel.ratmamma import RatmamaConfigRoot
 
 
-_config: RatmamaConfig
+_config: RatmamaConfigRoot
 
 
 @CONFIG_MARKER
-def rehash_handler(data: Dict):
+def rehash_handler(data: ConfigRoot):
     """
     Apply new configuration data
 
@@ -55,13 +43,7 @@ def rehash_handler(data: Dict):
 
     """
     global _config
-    _config = RatmamaConfig(config_blob=data, **data["ratsignal_parser"])
-
-
-@CONFIG_MARKER
-def validate_config(data: Dict):
-    # the dataclass does its own validation
-    RatmamaConfig(config_blob=data, **data["ratsignal_parser"])
+    _config = data.ratsignal_parser
 
 
 RATMAMA_REGEX = re.compile(
@@ -122,8 +104,9 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
 
     """
 
-    if ctx.user.nickname.casefold() not in (nick.casefold() for nick in _config.announcer_nicks):
-        return
+    # If the user isn't one that is allowed to trigger this code,
+    if ctx.user.nickname.casefold() not in _config.announcer_nicks:
+        return  # then SKIP!
 
     message: str = ctx.words_eol[0]
     result = re.fullmatch(RATMAMA_REGEX, message)
@@ -205,6 +188,10 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         platform=platform,
     )
     platform_signal = f"({rescue.platform.value.upper()}_SIGNAL)" if rescue.platform else ""
+
+    # [SPARK-217]: Don't emit  Platform signals in drill mode.
+    if ctx.DRILL_MODE:
+        platform_signal = ""
 
     distance_str = "not found in the galaxy DB"
     try:

@@ -16,25 +16,17 @@ See LICENSE
 import hashlib
 import sys
 from pathlib import Path
-from typing import Dict, Tuple, Optional, Type, Union
+from typing import Dict, Tuple, Optional
 
-import attr
+import cattr
 import toml
 from loguru import logger
 import graypy
 
 from src.packages.cli_manager import cli_manager
 from ._manager import PLUGIN_MANAGER
-
-
-@attr.dataclass(frozen=True)
-class GelfConfig:
-    enabled: bool = attr.ib(validator=attr.validators.instance_of(bool))
-    port: Optional[int] = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(int)))
-    host: Optional[str] = attr.ib(validator=attr.validators.optional(attr.validators.instance_of(str)))
-
-    log_level: str = attr.ib(default="DEBUG", validator=attr.validators.instance_of(str))
-    send_context: bool = attr.ib(validator=attr.validators.instance_of(bool), default=False)
+from .datamodel import ConfigRoot
+from .datamodel.gelf import GelfConfig
 
 
 def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None):
@@ -142,7 +134,7 @@ def load_config(filename: str) -> Tuple[Dict, str]:
     return config_dict, checksum
 
 
-def setup(filename: str) -> Tuple[Dict, str]:
+def setup(filename: str) -> Tuple[ConfigRoot, str]:
     """
     Validates and applies the configuration from disk.
 
@@ -153,10 +145,13 @@ def setup(filename: str) -> Tuple[Dict, str]:
         configuration data located at `filename`.
     """
     # do the loading part
+    logger.info("loading configuration....")
     config_dict, file_hash = load_config(filename)
-    gelf_config = GelfConfig(**config_dict["logging"]["gelf"])
+    logger.info("structuring new configuration...")
+    configuration: ConfigRoot = cattr.structure(config_dict, ConfigRoot)
+    gelf_config = configuration.logging.gelf
 
-    setup_logging(config_dict["logging"]["log_file"], gelf_configuration=gelf_config)
+    setup_logging(configuration.logging.log_file, gelf_configuration=gelf_config)
     logger.info(f"new config hash is {file_hash}")
     logger.info("verifying configuration....")
 
@@ -167,5 +162,5 @@ def setup(filename: str) -> Tuple[Dict, str]:
     logger.info(f"emitting new configuration to plugins...")
 
     # NOTE: these members are dynamic, and only exist at runtime. (pylint can't see them.)
-    PLUGIN_MANAGER.hook.rehash_handler(data=config_dict)  # pylint: disable=no-member
-    return config_dict, file_hash
+    PLUGIN_MANAGER.hook.rehash_handler(data=configuration)  # pylint: disable=no-member
+    return configuration, file_hash

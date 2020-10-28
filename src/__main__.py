@@ -19,6 +19,7 @@ from loguru import logger
 # noinspection PyUnresolvedReferences
 from src import commands  # pylint: disable=unused-import
 from src.config import setup
+from src.config.datamodel.auth import AuthenticationMethod
 from src.mechaclient import MechaClient
 from src.packages import cli_manager
 # noinspection PyUnresolvedReferences
@@ -56,28 +57,31 @@ async def start():
     """
 
     config, _ = setup(cli_manager.GET_ARGUMENTS().config_file)
-    client_args = {"nickname": config["irc"]["nickname"]}
+    client_args = {"nickname": config.irc.nickname}
 
-    auth_method = config["authentication"]["method"]
-    if auth_method == "PLAIN":
-        client_args["sasl_username"] = config['authentication']['plain']['username']
-        client_args["sasl_password"] = config['authentication']['plain']['password']
-        client_args["sasl_identity"] = config['authentication']['plain']['identity']
+    auth_method = config.authentication.method
+    if auth_method == AuthenticationMethod.PLAIN:
+        client_args["sasl_username"] = config.authentication.plain.username
+        client_args["sasl_password"] = config.authentication.plain.password
+        client_args["sasl_identity"] = config.authentication.plain.identity
         logger.info("Authenticating via SASL PLAIN.")
-    elif auth_method == "EXTERNAL":
+    elif auth_method == AuthenticationMethod.EXTERNAL:
         client_args["sasl_mechanism"] = "EXTERNAL"
-        cert = config['authentication']['external']['tls_client_cert']
+        cert = config.authentication.external.tls_client_cert
         client_args["tls_client_cert"] = f"certs/{cert}"
         logger.info(f"Authenticating using client certificate at {cert}.")
+    elif auth_method == AuthenticationMethod.NO_AUTH:
+        ...
     else:
+        # this should not be a reachable pathway unless someone didn't use the enum.
         raise ValueError(f"unknown authentication mechanism {auth_method}")
 
     client = MechaClient(**client_args, mecha_config=config)
 
     logger.info("connecting to irc...")
-    await client.connect(hostname=config['irc']['server'],
-                         port=config['irc']['port'],
-                         tls=config['irc']['tls'],
+    await client.connect(hostname=config.irc.server,
+                         port=config.irc.port,
+                         tls=config.irc.tls,
                          )
 
     logger.info("Connected to IRC.")

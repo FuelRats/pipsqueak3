@@ -19,9 +19,11 @@ from loguru import logger
 from uuid import uuid4
 
 from pydle import Client
+
+from .config.datamodel import ConfigRoot
 from .packages.board import RatBoard
 from .packages.commands import trigger
-from .packages.fuelrats_api.v3.interface import ApiV300WSS, ApiConfig
+from .packages.fuelrats_api.v3.interface import ApiV300WSS
 from .packages.permissions import require_permission, TECHRAT
 from .packages.context.context import Context
 from .packages.fact_manager.fact_manager import FactManager
@@ -70,7 +72,7 @@ class MechaClient(Client, MessageHistoryClient):
 
     __version__ = "3.0a"
 
-    def __init__(self, *args, mecha_config=None, **kwargs):
+    def __init__(self, *args, mecha_config: ConfigRoot, **kwargs):
         """
         Custom mechasqueak constructor
 
@@ -86,7 +88,7 @@ class MechaClient(Client, MessageHistoryClient):
         self._last_user_message: Dict[str, str] = {}  # Holds last message from user, by irc nick
         self._rat_cache = None  # TODO: replace with ratcache once it exists
         self._rat_board = None  # Instantiate Rat Board
-        self._config = mecha_config if mecha_config else {}
+        self._config = mecha_config
         self._galaxy = None
         self._start_time = datetime.now(tz=timezone.utc)
         self._on_invite = require_permission(TECHRAT)(functools.partial(self._on_invite))
@@ -100,7 +102,7 @@ class MechaClient(Client, MessageHistoryClient):
         """
         logger.debug(f"Connecting to channels...")
         # join a channel
-        for channel in self._config["irc"]["channels"]:
+        for channel in self._config.irc.channels:
             logger.debug(f"Configured channel {channel}")
             await self.join(channel)
 
@@ -135,7 +137,7 @@ class MechaClient(Client, MessageHistoryClient):
         await super().on_message(channel, user, message)
         logger.debug(f"{channel}: <{user}> {message}")
 
-        if user == self._config["irc"]["nickname"]:
+        if user == self._config.irc.nickname:
             # don't do this and the bot can get int o an infinite
             # self-stimulated positive feedback loop.
             logger.debug(f"Ignored {message} (anti-loop)")
@@ -147,7 +149,13 @@ class MechaClient(Client, MessageHistoryClient):
         logger.debug(f"Sanitized {sanitized_message}, Original: {message}")
         try:
             self._last_user_message[user.casefold()] = sanitized_message  # Store sanitized message
-            ctx = await Context.from_message(self, channel, user, sanitized_message)
+            ctx = await Context.from_message(
+                self,
+                channel=channel,
+                sender=user,
+                message=sanitized_message
+            )
+
             if not ctx.words:
                 logger.trace("ignoring empty message")
                 IGNORED_MESSAGES.inc()
@@ -217,7 +225,7 @@ class MechaClient(Client, MessageHistoryClient):
         API Handler property
         """
         if self._api_handler is None:
-            self._api_handler = ApiV300WSS(config=ApiConfig(**self._config['api']))
+            self._api_handler = ApiV300WSS(config=self._config.api)
             self.board.api_handler = self._api_handler
         return self._api_handler
 
