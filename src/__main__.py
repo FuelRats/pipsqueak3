@@ -85,11 +85,16 @@ async def start():
                          )
 
     logger.info("Connected to IRC.")
+    if config.telemetry.enabled:
+        logger.info("spawning telemetry client...")
+        prometheus_client.start_http_server(
+            config.telemetry.bind_port,
+            f"{config.telemetry.bind_host}"
+        )
 
 
 # entry point
 if __name__ == "__main__":
-    prometheus_client.start_http_server(6820, "localhost")
     LOOP = asyncio.get_event_loop()
     LOOP.run_until_complete(start())
     LOOP.run_forever()
