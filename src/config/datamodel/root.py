@@ -9,7 +9,6 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-
 from typing import List
 
 import attr
@@ -23,6 +22,7 @@ from .database import DatabaseConfigRoot
 from .commands import CommandsConfigRoot
 from .api import FuelratsApiConfigRoot, StarsystemApiConfigRoot
 from .ratmamma import RatmamaConfigRoot
+from .prometheus import TelemetryConfigRoot
 
 
 @attr.dataclass
@@ -39,3 +39,4 @@ class ConfigRoot:
     api: FuelratsApiConfigRoot
     system_api: StarsystemApiConfigRoot
     ratsignal_parser: RatmamaConfigRoot
+    telemetry: TelemetryConfigRoot = attr.ib(factory=TelemetryConfigRoot)
