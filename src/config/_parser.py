@@ -62,7 +62,7 @@ def setup_logging(logfile: str, gelf_configuration: Optional[GelfConfig] = None)
     handlers = [
         dict(
             sink=sys.stdout,
-            format="<b><c><{time}</c></b> [{name}] " "<level>{level.name}</level> > {message}",
+            format="<b><c><{time}</c></b> [{name}] | {extra} | " "<level>{level.name}</level> > {message}",
             colorize=True,
             backtrace=False,
             diagnose=False,

@@ -21,6 +21,7 @@ from ..context import Context
 import prometheus_client
 from prometheus_async.aio import time as aio_time
 
+from ..user import User
 from ...config.datamodel import ConfigRoot
 import warnings
 
@@ -294,8 +295,7 @@ def require_permission(permission: Permission,
 
         @wraps(func)
         async def guarded(context: Context, *args):
-            if context.user.hostname in _by_vhost.keys() \
-                    and _by_vhost[context.user.hostname] >= permission:
+            if has_required_permission(context.user, permission):
                 return await func(context, *args)
 
             await context.reply(override_message if override_message else permission.denied_message)
@@ -303,6 +303,14 @@ def require_permission(permission: Permission,
         return aio_time(REQUIRE_PERMISSION_TIME)(guarded)
 
     return real_decorator
+
+
+def has_required_permission(user: User, permission: Permission):
+    """ asserts whether the user specified in Context"""
+    effective_permissions = _by_vhost.get(user.hostname)
+    if not effective_permissions:
+        return False
+    return effective_permissions >= permission
 
 
 def require_channel(func: Union[str, Callable] = None,

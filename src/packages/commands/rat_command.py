@@ -23,7 +23,7 @@ from loguru import logger
 from prometheus_async.aio import time as aio_time
 from pyparsing import Word, Suppress, alphanums, alphas, ZeroOrMore
 
-from src.packages.permissions import Permission
+from src.packages.permissions import Permission, has_required_permission
 from src.packages.rules.rules import get_rule
 from ..context import Context
 from ..ratmama.ratmama_parser import handle_ratmama_announcement
@@ -53,6 +53,13 @@ TIME_IN_COMMAND = prometheus_client.Histogram(
     labelnames=["command"],
 )
 
+TIME_IN_PREXECUTE = prometheus_client.Histogram(
+    namespace="commands",
+    name="time_in_pre_execute",
+    unit="seconds",
+    documentation="time spent processing command pre-execution hooks",
+    labelnames=["command"],
+)
 
 # set the logger for rat_command
 
@@ -103,10 +110,19 @@ class Command:
     require_direct_message: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
     func: typing.Optional[typing.Callable] = attr.ib(default=None)
 
-    async def __call__(self, *args, **kwargs):
+    async def __call__(self, context: Context, *args, **kwargs):
         # TODO: pre-execution hooks would go here
-        with TIME_IN_COMMAND.labels(command=self.aliases[0]).time():
-            return await self.underlying(*args, **kwargs)
+        with logger.contextualize(
+            invoking_nick=context.user.nickname, invoking_account=context.user.account
+        ):
+            with TIME_IN_PREXECUTE.labels(command=self.aliases[0]).time():
+                if self.require_permission:
+                    if not has_required_permission(context.user, self.require_permission):
+                        logger.warning("A user tried to invoke a command they aren't allowed.")
+                        return await context.reply(self.require_permission.denied_message)
+
+            with TIME_IN_COMMAND.labels(command=self.aliases[0]).time():
+                return await self.underlying(context, *args, **kwargs)
 
 
 @aio_time(TRIGGER_TIME)
@@ -228,7 +244,7 @@ def _register(func, names: typing.Union[typing.Iterable[str], str]) -> bool:
 
 def command(
     *aliases: str,
-    permission: Optional[Permission] = None,
+    require_permission: Optional[Permission] = None,
     require_channel: bool = False,
     require_direct_message: bool = False,
     **kwargs,
@@ -237,6 +253,7 @@ def command(
     Registers a command by aliases
 
     Args:
+        require_permission: permission level required to invoke this command.
         require_channel: require this command to be invoked in a channel
         require_direct_message: require this command to be invoked via a direct message
         *aliases ([str]): aliases to register
@@ -260,7 +277,7 @@ def command(
             aliases=aliases,
             require_channel=require_channel,
             require_direct_message=require_direct_message,
-            require_permission=permission,
+            require_permission=require_permission,
             **kwargs,
         )
         if not _register(cmd, aliases):
