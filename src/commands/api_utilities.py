@@ -18,8 +18,7 @@ from ..packages.parsing_rules import (
 RATID_PATTERN = suppress_first_word + irc_name.setResultsName("subject")
 
 
-@require_permission(RAT)
-@command("ratid")
+@command("ratid", require_permission=RAT)
 async def cmd_ratid(context: Context):
     if not RATID_PATTERN.matches(context.words_eol[0]):
         return await context.reply("Usage: !ratid <irc_nickname>")

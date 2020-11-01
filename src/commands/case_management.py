@@ -15,6 +15,7 @@ import itertools
 import re
 import typing
 import uuid
+import warnings
 from datetime import timezone
 
 import humanfriendly
@@ -121,9 +122,7 @@ CODE_RED_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subje
 REOPEN_PATTERN = suppress_first_word + api_id.setResultsName("subject")
 
 
-@require_channel
-@require_permission(RAT)
-@command("active", "activate", "inactive", "deactivate")
+@command("active", "activate", "inactive", "deactivate", require_permission=RAT, require_channel=True)
 async def cmd_case_management_active(ctx: Context):
     """
     Toggles the indicated case as active or inactive.  Requires an OPEN case.
@@ -152,9 +151,7 @@ async def cmd_case_management_active(ctx: Context):
         await ctx.reply(f'{case.client}\'s case is now {"Active" if case.active else "Inactive"}.')
 
 
-@require_channel
-@require_permission(RAT)
-@command("assign", "add", "go")
+@command("assign", "add", "go", require_channel=True, require_permission=RAT)
 async def cmd_case_management_assign(ctx: Context):
     if not ASSIGN_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !assign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
@@ -189,9 +186,7 @@ async def cmd_case_management_assign(ctx: Context):
     )
 
 
-@require_channel
-@require_permission(RAT)
-@command("clear", "close")
+@command("clear", "close", require_permission=RAT, require_channel=True)
 async def cmd_case_management_clear(ctx: Context):
     if not CLEAR_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !clear <Client Name|Board Index> [First Limpet Sender]")
@@ -230,9 +225,7 @@ async def cmd_case_management_clear(ctx: Context):
     await ctx.reply(f"Case {case.client} was cleared!")
 
 
-@require_channel
-@require_permission(RAT)
-@command("cmdr", "commander")
+@command("cmdr", "commander", require_channel=True, require_permission=RAT)
 async def cmd_case_management_cmdr(ctx: Context):
     if not CMDR_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !cmdr <Client Name|Board Index> <CMDR name>")
@@ -250,9 +243,8 @@ async def cmd_case_management_cmdr(ctx: Context):
         await ctx.reply(f"Client for {case.board_index} is now CMDR {case.client}")
 
 
-@require_channel
-@require_channel(RAT)
-@command("codered", "casered", "cr")
+
+@command("codered", "casered", "cr", require_channel=True, require_permission=RAT)
 async def cmd_case_management_codered(ctx: Context):
     if not CODE_RED_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !codered <Client Name|Board Index>")
@@ -282,9 +274,7 @@ async def cmd_case_management_codered(ctx: Context):
             await ctx.reply(f"{case.client} is no longer a Code Red.")
 
 
-@require_channel
-@require_permission(OVERSEER)
-@command("delete")
+@command("delete", require_channel=True, require_permission=OVERSEER)
 async def cmd_case_management_delete(ctx: Context):
     if len(ctx.words) < 2:
         await ctx.reply("Usage: !delete <API ID>")
@@ -306,9 +296,7 @@ async def cmd_case_management_delete(ctx: Context):
         await ctx.bot.board.remove_rescue(rescue)
 
 
-@require_channel
-@require_permission(RAT)
-@command("epic")
+@command("epic", require_channel=True, require_permission=RAT)
 async def cmd_case_management_epic(ctx: Context):
     # This command may be depreciated, and not used.  It's left in only as an artifact, or
     # if that changes.
@@ -316,36 +304,10 @@ async def cmd_case_management_epic(ctx: Context):
         "This command is no longer in use.  "
         "Please visit https://fuelrats.com/epic/nominate to nominate an epic rescue."
     )
-    return
-    # End Depreciation warning
-
-    if len(ctx.words) < 3:
-        await ctx.reply("Usage: !epic <Client Name|Board Index> <Description>")
-        return
-
-    # Pass case to validator, return a case if found or None
-    rescue = _validate(ctx, ctx.words[1])
-
-    if not rescue:
-        await ctx.reply("No case with that name or number.")
-        return
-
-    if rescue.epic:
-        await ctx.reply(f"{rescue.client}'s case is already considered an epic tale.")
-        return
-
-    new_epic = Epic(uuid=rescue.api_id, notes=ctx.words_eol[2], rescue=rescue)
-    async with ctx.bot.board.modify_rescue(rescue) as case:
-        case.epic.append(new_epic)
-        await ctx.reply(
-            f"{case.client}'s rescue has been marked as an " f"EPIC tale by {ctx.user.nickname}!"
-        )
-        await ctx.reply(f"Description: {new_epic.notes}")
+    warnings.warn("call to deprecated command", DeprecationWarning)
 
 
-@require_channel
-@require_permission(RAT)
-@command("grab")
+@command("grab", require_channel=True, require_permission=RAT)
 async def cmd_case_management_grab(ctx: Context):
     if not GRAB_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !grab <Client Name>")
@@ -388,9 +350,7 @@ async def cmd_case_management_grab(ctx: Context):
         )
 
 
-@require_channel
-@require_permission(RAT)
-@command("inject")
+@command("inject", require_channel=True, require_permission=RAT)
 async def cmd_case_management_inject(ctx: Context):
     if not INJECT_PATTERN.matches(ctx.words_eol[0]):
         logger.debug("pattern match failed.")
@@ -445,9 +405,7 @@ async def cmd_case_management_inject(ctx: Context):
     )
 
 
-@require_channel
-@require_permission(RAT)
-@command("ircnick", "nick", "nickname")
+@command("ircnick", "nick", "nickname", require_channel=True, require_permission=RAT)
 async def cmd_case_management_ircnick(ctx: Context):
     if not IRC_NICK_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !ircnick <Client Name|Board Index> <New Client Name>")
@@ -475,9 +433,7 @@ async def cmd_case_management_ircnick(ctx: Context):
         )
 
 
-@require_channel
-@require_permission(RAT)
-@command("pc", "ps", "xb")
+@command("pc", "ps", "xb", require_channel=True, require_permission=RAT)
 async def cmd_case_management_system(ctx: Context):
     if not JUST_RESCUE_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !<pc|ps|xb> <Client Name|Board Index>")
@@ -493,9 +449,7 @@ async def cmd_case_management_system(ctx: Context):
         await ctx.reply(f"{case.client}'s platform set to {case.platform.value}.")
 
 
-@require_channel()
-@require_permission(RAT)
-@command("quote")
+@command("quote", require_channel=True, require_permission=RAT)
 async def cmd_case_management_quote(ctx: Context):
     if not JUST_RESCUE_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !quote <Client Name|Board Index>")
@@ -525,9 +479,7 @@ async def cmd_case_management_quote(ctx: Context):
             await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
 
 
-@require_channel()
-@require_permission(OVERSEER)
-@command("quoteid")
+@command("quoteid", require_channel=True, require_permission=OVERSEER)
 async def cmd_case_management_quoteid(ctx: Context):
     # TODO: Remove NYI Message when API capability is ready.
     await ctx.reply("Use !quote.  API is not available in offline mode.")
@@ -570,9 +522,7 @@ async def cmd_case_management_quoteid(ctx: Context):
             await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
 
 
-@require_channel()
-@require_permission(OVERSEER)
-@command("sub")
+@command("sub", require_channel=True, require_permission=OVERSEER)
 async def cmd_case_management_sub(ctx: Context):
     if not SUB_CMD_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !sub <Client Name|Board Index> <Quote Number> [New Text]")
@@ -613,9 +563,7 @@ async def cmd_case_management_sub(ctx: Context):
         await ctx.reply(f"Deleted line {quote_id}.")
 
 
-@require_channel
-@require_permission(RAT)
-@command("sys", "loc", "location", "system")
+@command("sys", "loc", "location", "system", require_channel=True, require_permission=RAT)
 async def cmd_case_management_sys(ctx: Context):
     if not SYS_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !sys <Client Name|Board Index> <New System>")
@@ -632,9 +580,7 @@ async def cmd_case_management_sys(ctx: Context):
         await ctx.reply(f"{case.client}'s system set to {tokens.remainder!r}")
 
 
-@require_channel
-@require_permission(RAT)
-@command("title")
+@command("title", require_channel=True, require_permission=RAT)
 async def cmd_case_management_title(ctx: Context):
     if not TITLE_PATTERN.matches(ctx.words_eol[0]):
         await ctx.reply("Usage: !title <Client Name|Board Index> <Operation Title")
@@ -652,9 +598,7 @@ async def cmd_case_management_title(ctx: Context):
         await ctx.reply(f"{case.client}'s rescue title set to {tokens.remainder!r}")
 
 
-@require_channel
-@require_permission(RAT)
-@command("unassign", "rm", "remove", "standdown")
+@command("unassign", "rm", "remove", "standdown", require_channel=True, require_permission=RAT)
 async def cmd_case_management_unassign(ctx: Context):
     if not UNASSIGN_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: !unassign <Client Name|Case Number> <Rat 1> <Rat 2> <Rat 3>")
@@ -808,9 +752,7 @@ def _rescue_filter(
     return not all(filters)
 
 
-@command("reopen")
-@require_channel
-@require_permission(OVERSEER)
+@command("reopen", require_channel=True, require_permission=OVERSEER)
 async def cmd_reopen(context: Context):
     """ Re-open a closed rescue """
     if not REOPEN_PATTERN.matches(context.words_eol[0]):
