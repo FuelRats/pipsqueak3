@@ -25,7 +25,7 @@ async def cmd_landmark_near(ctx: Context, system_name: str):
     return await ctx.reply(f"{found.name} is {distance:.2f} LY from {nearest_landmark.name}")
 
 
-@permissions.require_permission([permissions.RAT])
+@permissions.require_permission(permissions.RAT)
 @command("landmark")
 @logger.catch(level="DEBUG")
 async def cmd_landmark(ctx: Context):
