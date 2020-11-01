@@ -106,6 +106,9 @@ class Command:
     require_permission: typing.Optional[Permission] = attr.ib(
         validator=attr.validators.optional(attr.validators.instance_of(Permission)), default=None
     )
+    require_permission_message: Optional[str] = attr.ib(
+        validator=attr.validators.optional(truthy_validator), default=None
+    )
     require_channel: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
     require_direct_message: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
     func: typing.Optional[typing.Callable] = attr.ib(default=None)
@@ -119,7 +122,11 @@ class Command:
                 if self.require_permission:
                     if not has_required_permission(context.user, self.require_permission):
                         logger.warning("A user tried to invoke a command they aren't allowed.")
-                        return await context.reply(self.require_permission.denied_message)
+                        return await context.reply(
+                            self.require_permission_message
+                            if self.require_permission_message is not None
+                            else self.require_permission.denied_message
+                        )
 
             with TIME_IN_COMMAND.labels(command=self.aliases[0]).time():
                 return await self.underlying(context, *args, **kwargs)
@@ -245,6 +252,7 @@ def _register(func, names: typing.Union[typing.Iterable[str], str]) -> bool:
 def command(
     *aliases: str,
     require_permission: Optional[Permission] = None,
+    require_permission_message: Optional[str] = None,
     require_channel: bool = False,
     require_direct_message: bool = False,
     **kwargs,
@@ -278,6 +286,7 @@ def command(
             require_channel=require_channel,
             require_direct_message=require_direct_message,
             require_permission=require_permission,
+            require_permission_message=require_permission_message,
             **kwargs,
         )
         if not _register(cmd, aliases):
