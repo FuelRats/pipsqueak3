@@ -327,6 +327,8 @@ def require_channel(func: Union[str, Callable] = None,
         ... async def my_command(context: Context):
         ...     pass
     """
+    warnings.warn("deprecated API, pass require_channel=bool to @command", DeprecationWarning)
+
     # form of @decorator("message") and @decorator(message=str)
     if isinstance(func, str):
         message = func
@@ -397,6 +399,8 @@ def require_dm(func: Union[str, Callable] = None,
         ... async def my_command(context: Context):
         ...     pass
     """
+    warnings.warn("deprecated API, pass require_dm=bool to @command", DeprecationWarning)
+
     # form of @decorator("message") and @decorator(message=str)
     if isinstance(func, str):
         message = func
