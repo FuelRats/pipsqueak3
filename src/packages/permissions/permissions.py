@@ -22,6 +22,7 @@ import prometheus_client
 from prometheus_async.aio import time as aio_time
 
 from ...config.datamodel import ConfigRoot
+import warnings
 
 REQUIRE_PERMISSION_TIME = prometheus_client.Summary("permissions_require_permissions_seconds",
                                                     "time in require_permission")
@@ -285,6 +286,7 @@ def require_permission(permission: Permission,
     Returns:
 
     """
+    warnings.warn("deprecated API, pass require_permission=Permission to @command", DeprecationWarning)
 
     def real_decorator(func):
         logger.debug("Inside the real_decorator")

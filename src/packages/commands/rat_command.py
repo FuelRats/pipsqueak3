@@ -13,7 +13,7 @@ This module is built on top of the Pydle system.
 """
 
 import typing
-from typing import Any, Callable, Tuple
+from typing import Any, Callable, Tuple, Optional
 
 import attr
 import prometheus_client
@@ -29,34 +29,28 @@ from ..context import Context
 from ..ratmama.ratmama_parser import handle_ratmama_announcement
 
 TRIGGER_TIME = prometheus_client.Histogram(
-    namespace="commands",
-    name="trigger",
-    unit="seconds",
-    documentation="time spent in trigger"
+    namespace="commands", name="trigger", unit="seconds", documentation="time spent in trigger"
 )
 TRIGGER_MISS = prometheus_client.Counter(
     namespace="commands",
     name="trigger_miss",
-    documentation="total times trigger couldn't handle a message"
+    documentation="total times trigger couldn't handle a message",
 )
 COMMAND_TIME = prometheus_client.Histogram(
     namespace="commands",
     name="in_command",
     unit="seconds",
-    documentation="time spent triggering commands"
+    documentation="time spent triggering commands",
 )
 FACT_TIME = prometheus_client.Histogram(
-    namespace="commands",
-    name="in_fact",
-    unit="seconds",
-    documentation="time spent triggering facts"
+    namespace="commands", name="in_fact", unit="seconds", documentation="time spent triggering facts"
 )
 TIME_IN_COMMAND = prometheus_client.Histogram(
     namespace="commands",
     name="time_in",
     unit="seconds",
     documentation="time spent triggering commands",
-    labelnames=['command']
+    labelnames=["command"],
 )
 
 
@@ -93,14 +87,17 @@ def truthy_validator(inst, attribute, value):
 class Command:
     underlying: typing.Callable = attr.ib(validator=attr.validators.is_callable())
 
-    aliases: typing.Tuple[str] = attr.ib(validator=attr.validators.and_(attr.validators.deep_iterable(
-        member_validator=attr.validators.instance_of(str),
-        iterable_validator=attr.validators.instance_of(tuple)),
-        truthy_validator
-    ), )
+    aliases: typing.Tuple[str] = attr.ib(
+        validator=attr.validators.and_(
+            attr.validators.deep_iterable(
+                member_validator=attr.validators.instance_of(str),
+                iterable_validator=attr.validators.instance_of(tuple),
+            ),
+            truthy_validator,
+        ),
+    )
     require_permission: typing.Optional[Permission] = attr.ib(
-        validator=attr.validators.optional(attr.validators.instance_of(Permission)),
-        default=None
+        validator=attr.validators.optional(attr.validators.instance_of(Permission)), default=None
     )
     require_channel: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
     require_direct_message: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
@@ -137,7 +134,8 @@ async def trigger(ctx) -> Any:
             command_fun, extra_args = get_rule(ctx.words, ctx.words_eol, prefixless=False)
             if command_fun:
                 logger.debug(
-                    f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found.")
+                    f"Rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} found."
+                )
             else:
                 logger.debug(f"Could not find command or rule for {ctx.words[0]}.")
     else:
@@ -146,7 +144,8 @@ async def trigger(ctx) -> Any:
         if command_fun:
             logger.debug(
                 f"Prefixless rule {getattr(command_fun, '__name__', '')} matching {ctx.words[0]} "
-                f"found.")
+                f"found."
+            )
 
     if ctx.words_eol[0].startswith("Incoming Client:"):
         command_fun = handle_ratmama_announcement
@@ -170,9 +169,9 @@ async def handle_fact(context: Context):
     """
     logger.trace("entering fact handler")
     pattern = (
-            Word(alphanums).setResultsName("name")
-            + pyparsing.Optional(Suppress('-') + Word(alphas).setResultsName("lang"))
-            + ZeroOrMore(Word(alphanums + '_[]|?.<>{}-=')).setResultsName("subjects")
+        Word(alphanums).setResultsName("name")
+        + pyparsing.Optional(Suppress("-") + Word(alphas).setResultsName("lang"))
+        + ZeroOrMore(Word(alphanums + "_[]|?.<>{}-=")).setResultsName("subjects")
     )
     logger.debug("parsing {!r} for facts...", context.words_eol[0])
     try:
@@ -182,7 +181,7 @@ async def handle_fact(context: Context):
         return
 
     fact = result.name
-    lang = result.lang if result.lang else 'en'
+    lang = result.lang if result.lang else "en"
     users = result.subjects.asList() if result.subjects else []
     try:
         # don't do anything if the fact doesn't exist
@@ -227,11 +226,19 @@ def _register(func, names: typing.Union[typing.Iterable[str], str]) -> bool:
     return True
 
 
-def command(*aliases: str, **kwargs):
+def command(
+    *aliases: str,
+    permission: Optional[Permission] = None,
+    require_channel: bool = False,
+    require_direct_message: bool = False,
+    **kwargs,
+):
     """
     Registers a command by aliases
 
     Args:
+        require_channel: require this command to be invoked in a channel
+        require_direct_message: require this command to be invoked via a direct message
         *aliases ([str]): aliases to register
 
     """
@@ -248,7 +255,14 @@ def command(*aliases: str, **kwargs):
         """
         logger.debug(f"Registering command aliases: {aliases}...")
 
-        cmd = Command(underlying=func, aliases=aliases, **kwargs)
+        cmd = Command(
+            underlying=func,
+            aliases=aliases,
+            require_channel=require_channel,
+            require_direct_message=require_direct_message,
+            require_permission=permission,
+            **kwargs,
+        )
         if not _register(cmd, aliases):
             raise InvalidCommandException("unable to register commands.")
         logger.debug(f"Registration of {aliases} completed.")
