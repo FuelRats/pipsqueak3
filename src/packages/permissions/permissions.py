@@ -14,7 +14,7 @@ This module is built on top of the Pydle system.
 import cattr
 from loguru import logger
 from functools import wraps
-from typing import Any, Union, Callable, Dict, Set
+from typing import Any, Union, Callable, Dict, Set, TYPE_CHECKING
 
 from src.config import CONFIG_MARKER
 from ..context import Context

@@ -106,11 +106,20 @@ class Command:
     require_permission: typing.Optional[Permission] = attr.ib(
         validator=attr.validators.optional(attr.validators.instance_of(Permission)), default=None
     )
-    require_permission_message: Optional[str] = attr.ib(
+    override_permission_message: Optional[str] = attr.ib(
         validator=attr.validators.optional(truthy_validator), default=None
     )
     require_channel: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
+
+    override_channel_message: Optional[str] = attr.ib(
+        validator=attr.validators.optional(truthy_validator), default=None
+    )
+
     require_direct_message: bool = attr.ib(default=False, validator=attr.validators.instance_of(bool))
+
+    override_dm_message: Optional[str] = attr.ib(
+        validator=attr.validators.optional(truthy_validator), default=None
+    )
     func: typing.Optional[typing.Callable] = attr.ib(default=None)
 
     async def __call__(self, context: Context, *args, **kwargs):
@@ -123,8 +132,8 @@ class Command:
                     if not has_required_permission(context.user, self.require_permission):
                         logger.warning("A user tried to invoke a command they aren't allowed.")
                         return await context.reply(
-                            self.require_permission_message
-                            if self.require_permission_message is not None
+                            self.override_permission_message
+                            if self.override_permission_message is not None
                             else self.require_permission.denied_message
                         )
                 if self.require_channel:
@@ -132,6 +141,8 @@ class Command:
                         logger.warning("A user tried to invoke a channel message in a direct message.")
                         return await context.reply(
                             "Cannot comply: This command must be invoked in a channel."
+                            if self.override_channel_message is None
+                            else self.override_channel_message
                         )
 
                 if self.require_direct_message:
@@ -139,6 +150,8 @@ class Command:
                         logger.warning("A user tried to invoke a DM only message in a channel.")
                         return await context.reply(
                             "Cannot comply: this command must be invoked in a direct message."
+                            if self.override_dm_message is not None
+                            else self.override_dm_message
                         )
             with TIME_IN_COMMAND.labels(command=self.aliases[0]).time():
                 return await self.underlying(context, *args, **kwargs)
@@ -265,6 +278,8 @@ def command(
     *aliases: str,
     require_permission: Optional[Permission] = None,
     require_permission_message: Optional[str] = None,
+    override_dm_message: Optional[str] = None,
+    override_channel_message: Optional[str] = None,
     require_channel: bool = False,
     require_direct_message: bool = False,
     **kwargs,
@@ -273,6 +288,9 @@ def command(
     Registers a command by aliases
 
     Args:
+        override_dm_message:
+        override_channel_message:
+        require_permission_message:
         require_permission: permission level required to invoke this command.
         require_channel: require this command to be invoked in a channel
         require_direct_message: require this command to be invoked via a direct message
@@ -298,7 +316,9 @@ def command(
             require_channel=require_channel,
             require_direct_message=require_direct_message,
             require_permission=require_permission,
-            require_permission_message=require_permission_message,
+            override_permission_message=require_permission_message,
+            override_dm_message=override_dm_message,
+            override_channel_message=override_channel_message,
             **kwargs,
         )
         if not _register(cmd, aliases):
