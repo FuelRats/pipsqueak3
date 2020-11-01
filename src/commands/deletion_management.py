@@ -44,9 +44,7 @@ def _validate(ctx: Context, validate: str) -> Optional[Rescue]:
     return rescue
 
 
-@require_channel
-@require_permission(RAT)
-@command("md", "mdadd")
+@command("md", "mdadd", require_channel=True, require_permission=RAT)
 async def del_management_md(ctx: Context):
     if len(ctx.words) <= 2:
         await ctx.reply("Usage: !md <Client Name|Board Index> <Reason for Deletion>")
@@ -73,9 +71,7 @@ async def del_management_md(ctx: Context):
     await ctx.bot.board.remove_rescue(rescue)
 
 
-@require_channel
-@require_permission(OVERSEER)
-@command("mdlist")
+@command("mdlist", require_permission=OVERSEER, require_direct_message=True)
 async def del_management_mdlist(ctx: Context):
     await ctx.reply("Marked for Deletion List:")
 
