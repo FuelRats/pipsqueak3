@@ -243,7 +243,6 @@ async def cmd_case_management_cmdr(ctx: Context):
         await ctx.reply(f"Client for {case.board_index} is now CMDR {case.client}")
 
 
-
 @command("codered", "casered", "cr", require_channel=True, require_permission=RAT)
 async def cmd_case_management_codered(ctx: Context):
     if not CODE_RED_PATTERN.matches(ctx.words_eol[0]):
