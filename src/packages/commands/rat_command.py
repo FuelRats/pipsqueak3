@@ -127,7 +127,19 @@ class Command:
                             if self.require_permission_message is not None
                             else self.require_permission.denied_message
                         )
+                if self.require_channel:
+                    if context.channel is None:
+                        logger.warning("A user tried to invoke a channel message in a direct message.")
+                        return await context.reply(
+                            "Cannot comply: This command must be invoked in a channel."
+                        )
 
+                if self.require_direct_message:
+                    if context.channel is not None:
+                        logger.warning("A user tried to invoke a DM only message in a channel.")
+                        return await context.reply(
+                            "Cannot comply: this command must be invoked in a direct message."
+                        )
             with TIME_IN_COMMAND.labels(command=self.aliases[0]).time():
                 return await self.underlying(context, *args, **kwargs)
 
