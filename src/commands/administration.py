@@ -11,21 +11,24 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
+from importlib import metadata
+
+from loguru import logger
+
 from ..config import setup
 from ..packages.cli_manager import cli_manager
 from ..packages.commands import command
 from ..packages.context import Context
-from ..packages.permissions import require_channel, require_permission, TECHRAT
-from loguru import logger
-from importlib import metadata
-import src
-from importlib import resources
-import toml
+from ..packages.permissions import TECHRAT, RECRUIT
 
 
-@command("rehash")
-@require_channel(message="please do this where everyone can see 😒")
-@require_permission(TECHRAT, override_message="no.")
+@command(
+    "rehash",
+    require_channel=True,
+    override_channel_message="please do this where everyone can see 😒",
+    require_permission=TECHRAT,
+    require_permission_message="no.",
+)
 async def cmd_rehash(context: Context):
     """ rehash the hash browns. (reloads config file)"""
     logger.warning(f"config rehashing invoked by user {context.user.nickname}")
@@ -45,9 +48,8 @@ async def cmd_rehash(context: Context):
         await context.reply(f"rehashing completed successfully. ({resulting_hash[:8]}) ")
 
 
-@command("version")
+@command("version", require_permission=RECRUIT)
 async def cmd_version(ctx: Context):
-    # FIXME pull from pyproject.toml somehow?
     try:
         return await ctx.reply(f"SPARK version {metadata.version('pipsqueak3')}")
     except metadata.PackageNotFoundError:
