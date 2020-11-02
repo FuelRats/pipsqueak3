@@ -150,7 +150,7 @@ class Command:
                         logger.warning("A user tried to invoke a DM only message in a channel.")
                         return await context.reply(
                             "Cannot comply: this command must be invoked in a direct message."
-                            if self.override_dm_message is not None
+                            if self.override_dm_message is None
                             else self.override_dm_message
                         )
             with TIME_IN_COMMAND.labels(command=self.aliases[0]).time():
