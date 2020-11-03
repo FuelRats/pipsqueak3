@@ -38,8 +38,7 @@ TIME_IN_PING = prometheus_client.Summary(
 )
 
 
-@require_permission(RAT)
-@command("ping")
+@command("ping", require_permission=RAT)
 async def cmd_ping(context: Context):
     """
     Pongs a ping. lets see if the bots alive (command decorator testing)

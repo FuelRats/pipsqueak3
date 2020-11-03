@@ -17,10 +17,8 @@ from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.mark_for_deletion import MarkForDeletion
 from ..packages.permissions.permissions import (
-    require_permission,
     RAT,
     OVERSEER,
-    require_channel,
 )
 from ..packages.rescue import Rescue
 from ..packages.utils import Status

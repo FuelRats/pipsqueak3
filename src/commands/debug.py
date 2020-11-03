@@ -19,7 +19,7 @@ from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.fuelrats_api.v3 import UnauthorizedImpersonation
-from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
+from src.packages.permissions.permissions import TECHRAT
 
 
 @command("debug-whois", require_channel=True, require_permission=TECHRAT)

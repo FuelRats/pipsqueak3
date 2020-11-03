@@ -25,7 +25,6 @@ from loguru import logger
 from ._list_flags import ListFlags
 from ..packages.commands import command
 from ..packages.context.context import Context
-from ..packages.epic import Epic
 from ..packages.parsing_rules import (
     rescue_identifier,
     irc_name,
@@ -36,10 +35,8 @@ from ..packages.parsing_rules import (
     api_id,
 )
 from ..packages.permissions.permissions import (
-    require_permission,
     RAT,
     OVERSEER,
-    require_channel,
 )
 from ..packages.quotation.rat_quotation import Quotation
 from ..packages.rat import Rat
