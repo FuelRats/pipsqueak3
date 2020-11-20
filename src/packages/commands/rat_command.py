@@ -87,7 +87,7 @@ _registered_commands = {}  # pylint: disable=invalid-name
 
 def truthy_validator(inst, attribute, value):
     if not value:
-        raise ValueError(value)
+        raise ValueError(f"attribute {attribute.name!r} must be truthy.")
 
 
 @attr.dataclass
