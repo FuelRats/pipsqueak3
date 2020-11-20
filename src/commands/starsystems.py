@@ -4,12 +4,19 @@ from ..packages import permissions
 import pyparsing
 from loguru import logger
 
+from ..packages.parsing_rules import suppress_first_word
+
+SEARCH_PATTERN = suppress_first_word + pyparsing.restOfLine.setResultsName("remainder")
+
 
 @command("search", require_permission=permissions.RAT)
 async def cmd_search(ctx: Context):
-    if len(ctx.words) != 2:
+    if not SEARCH_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: search <name of system>")
-    results = await ctx.bot.galaxy.search_systems_by_name(ctx.words[1])
+
+    tokens = SEARCH_PATTERN.parseString(ctx.words_eol[0])
+
+    results = await ctx.bot.galaxy.search_systems_by_name(tokens.remainder.strip())
     return await ctx.reply(f"{results!r}")
 
 
