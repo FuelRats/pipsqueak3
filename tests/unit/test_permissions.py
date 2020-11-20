@@ -22,13 +22,11 @@ from src.packages.context import Context
 from src.packages.permissions import permissions
 from src.packages.permissions import require_permission, require_channel, require_dm, Permission
 
-
+pytestmark = [pytest.mark.unit, pytest.mark.permissions]
 
 @pytest.fixture
-def restricted_command_fx(async_callable_fx):
-    restricted = require_permission(permissions.OVERSEER)(async_callable_fx)
-
-    Commands.command("restricted")(restricted)
+def restricted_command_fx(async_callable_fx, configuration_fx):
+    Commands.command("restricted", require_permission=permissions.OVERSEER)(async_callable_fx)
     yield  async_callable_fx
     del Commands._registered_commands["restricted"]
 
@@ -101,6 +99,7 @@ class TestPermissions(object):
     async def test_restricted_command_exact(self, bot_fx, restricted_command_fx):
         context = await Context.from_message(bot_fx, "#somechannel", "some_ov", "!restricted")
         await Commands.trigger(context)
+        assert restricted_command_fx.was_called
         assert restricted_command_fx.was_called_once
 
     @pytest.mark.asyncio

@@ -19,12 +19,10 @@ from src.config import PLUGIN_MANAGER
 from src.packages.commands import command
 from src.packages.context.context import Context
 from src.packages.fuelrats_api.v3 import UnauthorizedImpersonation
-from src.packages.permissions.permissions import require_permission, TECHRAT, require_channel
+from src.packages.permissions.permissions import TECHRAT
 
 
-@command("debug-whois")
-@require_channel
-@require_permission(TECHRAT)
+@command("debug-whois", require_channel=True, require_permission=TECHRAT)
 async def cmd_debug_whois(context):
     """A debug command for running a WHOIS command.
 
@@ -36,9 +34,7 @@ async def cmd_debug_whois(context):
     await context.reply(f"{data}")
 
 
-@command("debug-userinfo")
-@require_permission(TECHRAT)
-@require_channel
+@command("debug-userinfo", require_channel=True, require_permission=TECHRAT)
 async def cmd_debug_userinfo(context: Context):
     """
     A debug command for getting information about a user.
@@ -50,20 +46,7 @@ async def cmd_debug_userinfo(context: Context):
     )
 
 
-@command("superPing!")
-@require_channel
-@require_permission(TECHRAT)
-async def cmd_superping(context: Context):
-    """
-    A debug command to coerce mecha to respond.
-    """
-
-    await context.reply("pong!")
-
-
-@command("getConfigPlugins")
-@require_channel
-@require_permission(TECHRAT)
+@command("getConfigPlugins", require_channel=True, require_permission=TECHRAT)
 async def cmd_get_plugins(context: Context):
     """Lists configuration plugins"""
     await context.reply(f"getting plugins...")
@@ -73,9 +56,7 @@ async def cmd_get_plugins(context: Context):
     await context.reply(",".join(names))
 
 
-@command("get_nickname_api")
-@require_channel
-@require_permission(TECHRAT)
+@command("get_nickname_api", require_channel=True, require_permission=TECHRAT)
 async def cmd_get_nickname(context: Context):
     await context.reply("fetching....")
     result = await context.bot.api_handler.get_rat(
@@ -85,9 +66,7 @@ async def cmd_get_nickname(context: Context):
     logger.debug("got nickname result {!r}", result)
 
 
-@command("debug_ratid")
-@require_channel
-@require_permission(TECHRAT)
+@command("debug_ratid", require_channel=True, require_permission=TECHRAT)
 async def cmd_ratid(context: Context):
     target = context.words[-1]
     await context.reply(f"acquiring ratids for {target!r}...")
@@ -97,9 +76,7 @@ async def cmd_ratid(context: Context):
     await context.reply(",".join([f"{rat.uuid}" for rat in api_rats]))
 
 
-@command("debug_get_rat")
-@require_channel
-@require_permission(TECHRAT)
+@command("debug_get_rat", require_channel=True, require_permission=TECHRAT)
 async def cmd_debug_get_rat(context: Context):
     target = context.words[-1]
     try:
@@ -111,9 +88,7 @@ async def cmd_debug_get_rat(context: Context):
     await context.reply(f"identified rats: {','.join(repr(obj.name) for obj in subject)}")
 
 
-@command("debug_summoncase")
-@require_channel
-@require_permission(TECHRAT)
+@command("debug_summoncase", require_channel=True, require_permission=TECHRAT)
 async def cmd_debug_summoncase(context: Context):
     await context.reply("summoning case....")
     rescue = await context.bot.board.create_rescue(client="some_client")
@@ -121,9 +96,7 @@ async def cmd_debug_summoncase(context: Context):
     await context.reply("done.")
 
 
-@command("debug_fbr")
-@require_channel
-@require_permission(TECHRAT)
+@command("debug_fbr", require_channel=True, require_permission=TECHRAT)
 async def cmd_debug_fetch(context: Context):
     await context.reply("flushing my board and fetching...")
     keys = context.bot.board.keys()
@@ -142,9 +115,7 @@ async def cmd_debug_fetch(context: Context):
         await context.bot.board.append(rescue)
 
 
-@command("debug_fetch_rescue")
-@require_channel
-@require_permission(TECHRAT)
+@command("debug_fetch_rescue", require_channel=True, require_permission=TECHRAT)
 async def cmd_debug_fetch_single(context: Context):
     uid = UUID(context.words[-1])
     await context.reply(f"fetching @{uid}...")
@@ -155,9 +126,7 @@ async def cmd_debug_fetch_single(context: Context):
         await context.reply("go fish.")
 
 
-@command("debug_update_rescue")
-@require_channel
-@require_permission(TECHRAT)
+@command("debug_update_rescue", require_channel=True, require_permission=TECHRAT)
 async def cmd_update_rescue(context: Context):
     uid = UUID(context.words[-1])
     if uid not in context.bot.board:
@@ -175,9 +144,7 @@ async def cmd_update_rescue(context: Context):
     await context.reply("done.")
 
 
-@command("debug_go_online")
-@require_channel
-@require_permission(TECHRAT)
+@command("debug_go_online", require_channel=True, require_permission=TECHRAT)
 async def cmd_debug_go_online(context: Context):
     await context.reply("going online...")
     context.bot.board.api_handler = context.bot.api_handler

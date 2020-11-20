@@ -5,8 +5,7 @@ import pyparsing
 from loguru import logger
 
 
-@permissions.require_permission(permissions.RAT)
-@command("search")
+@command("search", require_permission=permissions.RAT)
 async def cmd_search(ctx: Context):
     if len(ctx.words) != 2:
         return await ctx.reply("Usage: search <name of system>")
@@ -25,8 +24,7 @@ async def cmd_landmark_near(ctx: Context, system_name: str):
     return await ctx.reply(f"{found.name} is {distance:.2f} LY from {nearest_landmark.name}")
 
 
-@permissions.require_permission(permissions.RAT)
-@command("landmark")
+@command("landmark", require_permission=permissions.RAT)
 @logger.catch(level="DEBUG")
 async def cmd_landmark(ctx: Context):
     keyword = pyparsing.oneOf("near", asKeyword=True).setResultsName("subcommand")
