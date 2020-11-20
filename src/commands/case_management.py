@@ -171,7 +171,7 @@ async def cmd_case_management_assign(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue.board_index) as case:
         logger.debug("assigning {!r} to case {}", rat_list, rescue.board_index)
         for name in rat_list:
-            rat = Rat(name=name, uuid=None)
+            rat = Rat(name=name.casefold(), uuid=None)
             await case.add_rat(rat)
 
             if rat.name in case.unidentified_rats and not ctx.DRILL_MODE:
@@ -192,7 +192,7 @@ async def cmd_case_management_clear(ctx: Context):
     # Pass case to validator, return a case if found or None
     rescue = ctx.bot.board.get(tokens.subject[0])
 
-    first_limpet = tokens.first_limpet[0] if tokens.first_limpet else None
+    first_limpet = tokens.first_limpet[0].casefold() if tokens.first_limpet else None
 
     if not rescue:
         await ctx.reply("No case with that name or number.")
