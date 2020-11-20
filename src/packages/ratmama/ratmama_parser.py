@@ -126,6 +126,11 @@ async def handle_ratmama_announcement(ctx: Context) -> None:
         return await ctx.reply(
             "Signal attempted to create rescue for a service. " "Dispatch: please inject this case."
         )
+    # Sanity check.
+    if client_name.casefold() == _config.trigger_keyword.casefold():
+        return await ctx.reply(
+            "Cannot comply: refusing to create rescue for the signal keyword."
+        )
 
     exist_rescue: Optional[Rescue] = (
         ctx.bot.board[client_name] if client_name in ctx.bot.board else None
