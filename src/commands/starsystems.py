@@ -1,3 +1,5 @@
+import asyncio
+
 from ..packages.context import Context
 from ..packages.commands import command
 from ..packages import permissions
@@ -9,7 +11,10 @@ from loguru import logger
 async def cmd_search(ctx: Context):
     if len(ctx.words) != 2:
         return await ctx.reply("Usage: search <name of system>")
-    results = await ctx.bot.galaxy.search_systems_by_name(ctx.words[1])
+    try:
+        results = await ctx.bot.galaxy.search_systems_by_name(ctx.words[1])
+    except asyncio.TimeoutError:
+        return await ctx.reply(f"Been searching for \"{ctx.words[1]}\" for too long... Giving up.")
     return await ctx.reply(f"{results!r}")
 
 
