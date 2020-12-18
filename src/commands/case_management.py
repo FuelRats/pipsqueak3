@@ -370,7 +370,7 @@ async def cmd_case_management_inject(ctx: Context):
         logger.debug("creating rescue for {!r}", tokens.subject[0])
         rescue = await ctx.bot.board.create_rescue(client=tokens.subject[0])
         async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
-            case.add_quote(ctx.words_eol[2], ctx.user.nickname)
+            case.add_quote(ctx.words_eol[0], ctx.user.nickname)
 
             # check specific capture groups for existence.
             if tokens.xbox:
@@ -385,7 +385,7 @@ async def cmd_case_management_inject(ctx: Context):
                 case.code_red = True
 
             await ctx.reply(
-                f"{case.client}'s case opened with: " f"{ctx.words_eol[2]}  (Case {case.board_index})"
+                f"{case.client}'s case opened with: " f"{ctx.words_eol[0]}  (Case {case.board_index})"
             )
 
             if case.code_red:
@@ -394,7 +394,7 @@ async def cmd_case_management_inject(ctx: Context):
             return
 
     async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
-        case.add_quote(ctx.words_eol[2], ctx.user.nickname)
+        case.add_quote(tokens.remainder, ctx.user.nickname)
 
     await ctx.reply(
         f"{case.client}'s case updated with: " f"'{ctx.words_eol[2]}' (Case {case.board_index})"
