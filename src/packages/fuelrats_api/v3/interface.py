@@ -210,6 +210,23 @@ class ApiV300WSS(FuelratsApiABC):
         return rats
 
     async def execute(self, work: Request, retry: bool = False) -> Response:
+        """
+        Attempts to execute the work item against the underlying connection.
+
+        This method will attempt to retry if a retry has not been attempted (`retry`=False).
+            This method achieves that by destroying the existing connection and restarting the
+            Relevant worker, then recursively calling itself with retry=True
+
+        Args:
+            work: work item
+            retry: is this call a retry attempt?
+
+        Returns:
+            Response object
+
+        Raises:
+            Hardfail from underlying API error, if connection is still dead after a retry.
+        """
         await self.ensure_connection()
 
         try:
