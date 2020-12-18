@@ -50,3 +50,18 @@ async def test_spark_239(bot_fx, rescue_sop_fx, monkeypatch):
     await trigger(context)
 
     assert rescue_sop_fx.client not in bot_fx.board
+
+
+async def test_spark_242(bot_fx):
+    """
+    Verifies that `!inject {name}` returns an usage error instead of dying horribly.
+    """
+
+    pre_len = len(bot_fx.board)
+
+    ctx = await Context.from_message(bot_fx, "#fuelrats", "Some_ov", "!inject sinkhole")
+
+    await trigger(ctx=ctx)
+
+    assert "sinkhole" in bot_fx.board
+    assert len(bot_fx.board) == pre_len + 1
