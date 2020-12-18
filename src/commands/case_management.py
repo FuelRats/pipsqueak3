@@ -394,7 +394,7 @@ async def cmd_case_management_inject(ctx: Context):
             return
 
     async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
-        case.add_quote(tokens.remainder, ctx.user.nickname)
+        case.add_quote(ctx.words_eol[0], ctx.user.nickname)
 
     await ctx.reply(
         f"{case.client}'s case updated with: " f"'{ctx.words_eol[2]}' (Case {case.board_index})"
