@@ -88,8 +88,8 @@ class ApiV300WSS(FuelratsApiABC):
         self.connected_event = asyncio.Event()
         logger.info("creating new socket connection....")
         async with websockets.connect(
-                uri=f"{self.config.uri}?bearer={self.config.authorization}",
-                subprotocols=("FR-JSONAPI-WS",),
+            uri=f"{self.config.uri}?bearer={self.config.authorization}",
+            subprotocols=("FR-JSONAPI-WS",),
         ) as soc:
             logger.info("created.")
             self.connection = Connection(socket=soc)
