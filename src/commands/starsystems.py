@@ -1,3 +1,5 @@
+import asyncio
+
 from ..packages.context import Context
 from ..packages.commands import command
 from ..packages import permissions
@@ -13,10 +15,12 @@ SEARCH_PATTERN = suppress_first_word + pyparsing.restOfLine.setResultsName("rema
 async def cmd_search(ctx: Context):
     if not SEARCH_PATTERN.matches(ctx.words_eol[0]):
         return await ctx.reply("Usage: search <name of system>")
-
     tokens = SEARCH_PATTERN.parseString(ctx.words_eol[0])
-
-    results = await ctx.bot.galaxy.search_systems_by_name(tokens.remainder.strip())
+    try:
+        results = await ctx.bot.galaxy.search_systems_by_name(tokens.remainder.strip())
+    except asyncio.TimeoutError:
+        return await ctx.reply(f"Been searching for {tokens.remainder.strip()!r} for too long... "
+                               f"Giving up.")
     return await ctx.reply(f"{results!r}")
 
 
