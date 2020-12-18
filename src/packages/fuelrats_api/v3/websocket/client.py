@@ -11,6 +11,11 @@ from .protocol import Response, Request
 from .events import RescueUpdate, CLS_FOR_EVENT
 from .. import event_converter
 from ..models.v1.apierror import APIException, ApiError, UnauthorizedImpersonation
+from ..._base import ApiException
+
+
+class Hardfail(ApiException):
+    """ API Hard failure. the underlying transport is in an unrecoverable fail state. """
 
 
 class Connection:
@@ -152,8 +157,8 @@ class Connection:
         # we do this here since exceptions cannot otherwise be meaningfully handled,
         # as the caller of this method is probably not doing so from a unmonitored task
         if self._rx_worker.done() and self._rx_worker.exception():
-            raise self._rx_worker.exception()
-        if self._tx_worker.done() and self._tx_worker.exception():
-            raise self._tx_worker.exception()
-        if self._fail_worker.done() and self._fail_worker.exception():
-            raise self._fail_worker.exception()
+            raise Hardfail from self._rx_worker.exception()
+        elif self._tx_worker.done() and self._tx_worker.exception():
+            raise Hardfail from self._tx_worker.exception()
+        elif self._fail_worker.done() and self._fail_worker.exception():
+            raise Hardfail from self._fail_worker.exception()

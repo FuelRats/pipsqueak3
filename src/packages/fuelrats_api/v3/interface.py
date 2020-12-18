@@ -14,7 +14,7 @@ from .models.v1.nickname import Nickname
 from .models.v1.rats import Rat as ApiRat, RAT_TYPE
 from .models.v1.rescue import Rescue as ApiRescue
 from .models.jsonapi.resource import Resource
-from .websocket.client import Connection
+from .websocket.client import Connection, Hardfail
 from .websocket.protocol import Request, Response
 from .._base import FuelratsApiABC, Impersonation
 from ...rat import Rat as InternalRat
@@ -84,6 +84,8 @@ class ApiV300WSS(FuelratsApiABC):
         A
         TASK
         """
+        # Ensure we have a new event signal.
+        self.connected_event = asyncio.Event()
         logger.info("creating new socket connection....")
         async with websockets.connect(
             uri=f"{self.config.uri}?bearer={self.config.authorization}",
@@ -115,7 +117,7 @@ class ApiV300WSS(FuelratsApiABC):
         )
         if not Impersonation:
             del work.query["representing"]
-        response = await self.connection.execute(work)
+        response = await self.execute(work)
         return response
 
     async def _get_rescue(self, key: UUID, impersonation: Impersonation) -> Optional[ApiRescue]:
@@ -123,7 +125,7 @@ class ApiV300WSS(FuelratsApiABC):
         work = Request(
             endpoint=["rescues", "read"], query={"id": f"{key}", "representing": impersonation}
         )
-        response = await self.connection.execute(work)
+        response = await self.execute(work)
         return cattr.structure(response.body["data"], Optional[ApiRescue])
 
     async def get_rescue(self, key: UUID, impersonation: Impersonation) -> typing.Optional[Rescue]:
@@ -133,8 +135,10 @@ class ApiV300WSS(FuelratsApiABC):
 
     async def ensure_connection(self):
         if not self.connected_event.is_set():
-            logger.debug("waiting for the connected event to be set...")
-            await self.connected_event.wait()
+            logger.trace("waiting for the connected event to be set...")
+            # wait for a short period for the connection to be established, but not indefinitely.
+            await asyncio.wait_for(fut=await self.connected_event.wait(), timeout=5)
+
         logger.trace("connected event is set!")
 
     async def create_rescue(self, rescue: Rescue, impersonating: Impersonation) -> Rescue:
@@ -144,7 +148,7 @@ class ApiV300WSS(FuelratsApiABC):
             query={"representing": impersonating},
             body={"data": attr.asdict(ApiRescue.from_internal(rescue), recurse=True)},
         )
-        result = await self.connection.execute(work)
+        result = await self.execute(work)
         # if we get this far, we got a OK response; which means the data field contains our rescue.
         payload: ApiRescue = cattr.structure(result.body["data"], ApiRescue)
         return payload.into_internal()
@@ -169,7 +173,7 @@ class ApiV300WSS(FuelratsApiABC):
         )
         # TODO: offline check
         logger.info(f"querying nickname {key}")
-        return await self.connection.execute(work)
+        return await self.execute(work)
 
     async def _get_rat_uuid(self, key: UUID, impersonation: Impersonation):
         await self.ensure_connection()
@@ -178,7 +182,7 @@ class ApiV300WSS(FuelratsApiABC):
             endpoint=["rats", "read"], query={"id": f"{key}", "representing": impersonation}
         )
         logger.debug("requesting rat {}", work)
-        return await self.connection.execute(work)
+        return await self.execute(work)
 
     async def _get_open_rescues(self, impersonate: Impersonation) -> List[ApiRescue]:
         await self.ensure_connection()
@@ -186,7 +190,7 @@ class ApiV300WSS(FuelratsApiABC):
             endpoint=["rescues", "search"], query={"filter": {"status": {"eq": "open"}}}, body={}
         )
         logger.trace("requesting open rescues...")
-        results = await self.connection.execute(work)
+        results = await self.execute(work)
         # Iterators are less expensive than comprehensions (differed compute).
         structured_data = cattr.structure(results.body["data"], List[ApiRescue])
         return structured_data
@@ -204,3 +208,40 @@ class ApiV300WSS(FuelratsApiABC):
         logger.debug("filtered Rats from nickname result: {!r}", rats)
 
         return rats
+
+    async def execute(self, work: Request, retry: bool = False) -> Response:
+        """
+        Attempts to execute the work item against the underlying connection.
+
+        This method will attempt to retry if a retry has not been attempted (`retry`=False).
+            This method achieves that by destroying the existing connection and restarting the
+            Relevant worker, then recursively calling itself with retry=True
+
+        Args:
+            work: work item
+            retry: is this call a retry attempt?
+
+        Returns:
+            Response object
+
+        Raises:
+            Hardfail from underlying API error, if connection is still dead after a retry.
+        """
+        await self.ensure_connection()
+
+        try:
+            # attempt to invoke the underlying connection work item
+            return await self.connection.execute(work=work)
+        # If this fails hard, spark needs to attempt to reconnect (unless its already tried.)
+        except Hardfail:
+            # unconditionally kill the connection.
+            self.connection.shutdown.set()
+            if not retry:
+                logger.exception("API hard failure detected, attempting to recover...")
+                # kill the old connection, since its in a hardfail state
+                self.connection.shutdown.set()
+                # re-create the run_task, which creates a new connection.
+                asyncio.create_task(self.run_task())
+                # recursively call this routine, as its possible to fail more than once.
+                return await self.execute(work=work, retry=True)
+            raise
