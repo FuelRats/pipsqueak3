@@ -44,7 +44,7 @@ class MockBot(MechaClient):
             "some_ov": {
                 "nickname": "some_ov",
                 "username": "ill_stop",
-                "hostname": "overseer.fuelrats.com",
+                "hostname": "some_ov@some-ov.overseer.fuelrats.com",
                 "away": False,
                 "away_message": None,
                 "account": None,
@@ -52,10 +52,20 @@ class MockBot(MechaClient):
                 "realname": "Stop sign",
 
             },
+            "some_rat": {
+                "nickname": "some_rat",
+                "username": "ratlingDelux",
+                "hostname": "delux@delux.rat.fuelrats.com",
+                "away": False,
+                "away_message": None,
+                "account": None,
+                "identified": True,
+                "realname": "snakeeyes",
+            },
             "some_admin": {
                 "nickname": "some_admin",
                 "username": "SirRaymondLuxuryYacht",
-                "hostname": "admin.fuelrats.com",
+                "hostname": "reality@netadmin.fuelrats.com",
                 "away": False,
                 "away_message": None,
                 "account": None,

@@ -12,13 +12,14 @@ See LICENSE.md
 """
 from __future__ import annotations  # enable forward-references
 
-from dataclasses import dataclass
+import attr
+import cattr
 from typing import Union, Optional
 
 from pydle import BasicClient
 
 
-@dataclass(frozen=True)
+@attr.define(frozen=True)
 class User:
     """
     Represents an IRC user
@@ -50,7 +51,15 @@ class User:
 
         # if we got a object back
         if data:
-            return cls(**data)
+            result = cls(**data)
+
+            # This needs to be an evolve as the cls is frozen.
+            # That and wanting to avoid a converter on the class itself.
+
+            # Inspection false-positive. suppress.
+            # noinspection PyDataclass
+            result = attr.evolve(inst=result, hostname=cls.process_vhost(result.hostname))
+            return result
 
     @classmethod
     def process_vhost(cls, vhost: Union[str, None]) -> Optional[str]:
