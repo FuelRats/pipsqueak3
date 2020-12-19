@@ -10,28 +10,28 @@ See LICENSE.md
 """
 import pytest
 
+from src.packages.permissions import has_required_permission, ADMIN
 from src.packages.user.user import User
 
 pytestmark = [pytest.mark.unit, pytest.mark.user]
 
 
-@pytest.mark.parametrize("expected_host", [
-    "recruit.fuelrats.com",
-    "rat.fuelrats.com",
-    "dispatch.fuelrats.com",
-    "overseer.fuelrats.com",
-    "op.fuelrats.com",
-    "techrat.fuelrats.com",
-    "netadmin.fuelrats.com",
-    "admin.fuelrats.com",
+@pytest.mark.parametrize("expected_host, payload", [
+    ("recruit.fuelrats.com", "someone@someone.recruit.fuelrats.com"),
+    ("rat.fuelrats.com", "someone@someone.rat.fuelrats.com"),
+    ("dispatch.fuelrats.com", "someone@someone.dispatch.fuelrats.com"),
+    ("overseer.fuelrats.com", "someone@someone.overseer.fuelrats.com"),
+    ("op.fuelrats.com", "someone@someone.op.fuelrats.com"),
+    ("techrat.fuelrats.com", "someone@someone.techrat.fuelrats.com"),
+    ("netadmin.fuelrats.com", "someone@someone.netadmin.fuelrats.com"),
+    ("admin.fuelrats.com", "someone@someone.admin.fuelrats.com"),
+    ("netadmin.fuelrats.com", "reality@netadmin.fuelrats.com")
 ])
-@pytest.mark.parametrize("prefix", ["potato.", "Orbital.", ""])
-def test_process_vhost(prefix: str, expected_host: str):
+def test_process_vhost(payload: str, expected_host: str):
     """
     Asserts vhost processing functions as expected
     """
-    mixed_host = f"{prefix}{expected_host}"
-    assert User.process_vhost(mixed_host) == expected_host
+    assert User.process_vhost(payload) == expected_host
 
 
 def test_process_vhost_orange():
@@ -110,7 +110,7 @@ async def test_user_from_whois_existing_user(bot_fx):
     assert data['identified'] == my_user.identified
     assert data['account'] == my_user.account
     assert "some_recruit" == my_user.nickname
-    assert data['hostname'] == my_user.hostname
+    assert data['hostname'].endswith(my_user.hostname)
     assert data['username'] == my_user.username
     assert data['realname'] == my_user.realname
 
@@ -161,6 +161,10 @@ async def test_user_eq(data: dict, monkeypatch, bot_fx):
 
     assert user_alpha == user_beta
 
+
+async def test_effective_permission(bot_fx):
+    user = await User.from_pydle(bot_fx, "some_admin")
+    has_required_permission(user, ADMIN)
 
 @pytest.mark.regressions
 def test_hash(user_fx):

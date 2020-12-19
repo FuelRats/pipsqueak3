@@ -33,7 +33,7 @@ class MockBot(MechaClient):
             "some_recruit": {
                 "nickname": "some_recruit",
                 "username": "ident_ed_your_car_sorry_bad_pun",
-                "hostname": "recruit.fuelrats.com",
+                "hostname": "some-recruit@some-recruit.recruit.fuelrats.com",
                 "away": False,
                 "away_message": None,
                 "account": None,

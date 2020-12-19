@@ -86,5 +86,10 @@ class User:
         # identify the role
         host = vhost.rsplit(".", 3)[-3]
 
+        # special case: privileged user naming scheme
+        if '@' in host:
+            # Split off the user from the host and return the group
+            host = host.split('@', maxsplit=1)[-1]
+
         # return the corresponding vhost
         return f"{host}.fuelrats.com"
