@@ -25,7 +25,9 @@ class RescueAttributes:
     )
     codeRed: bool = attr.ib(validator=attr.validators.instance_of(bool))
     data: Dict = attr.ib(validator=attr.validators.instance_of(dict))  # ???
-    notes: str = attr.ib(validator=attr.validators.instance_of(str))
+    notes: Optional[str] = attr.ib(validator=attr.validators.optional(
+        attr.validators.instance_of(str))
+    )
     platform: Optional[Platforms] = attr.ib(
         validator=attr.validators.optional(attr.validators.instance_of(Platforms))
     )

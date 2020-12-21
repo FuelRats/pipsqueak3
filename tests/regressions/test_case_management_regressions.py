@@ -65,3 +65,8 @@ async def test_spark_242(bot_fx):
 
     assert "sinkhole" in bot_fx.board
     assert len(bot_fx.board) == pre_len + 1
+
+    # verify that a) the inject doesn't break things a second time and b) that a new rescue isn't
+    # created when the inject is repeated.
+    await trigger(ctx=ctx)
+    assert len(bot_fx.board) == pre_len + 1, "That wasn't supposed to create *another* rescue."

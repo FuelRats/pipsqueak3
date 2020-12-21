@@ -393,11 +393,14 @@ async def cmd_case_management_inject(ctx: Context):
 
             return
 
+    if len(ctx.words_eol) < 3:
+        return await ctx.reply("Cannot comply: no inject message.")
+
     async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
         case.add_quote(ctx.words_eol[0], ctx.user.nickname)
 
     await ctx.reply(
-        f"{case.client}'s case updated with: " f"'{ctx.words_eol[2]}' (Case {case.board_index})"
+        f"{case.client}'s case updated with: {ctx.words_eol[2]!r} (Case {case.board_index})"
     )
 
 
@@ -756,14 +759,14 @@ async def cmd_reopen(context: Context):
 
     tokens = REOPEN_PATTERN.parseString(context.words_eol[0])
     # contextualize subsequent logging calls with the API ID of the request
-    with logger.contextualize(api_id=tokens.subject):
-        logger.debug("attempting to reopen rescue by UUID {}...", tokens.subject)
+    with logger.contextualize(api_id=tokens.subject[0]):
+        logger.debug("attempting to reopen rescue by UUID {}...", tokens.subject[0])
 
         rescue = await context.bot.board.api_handler.get_rescue(
-            key=tokens.subject, impersonation=context.user.account
+            key=tokens.subject[0], impersonation=context.user.account
         )
         if not rescue:
-            return await context.reply(f"no such rescue by id @{tokens.subject}")
+            return await context.reply(f"no such rescue by id @{tokens.subject[0]}")
 
         # We have a rescue, check that the board id / ircnick isn't already in use.
 
