@@ -124,6 +124,15 @@ class Context:
         else:
             await self.bot.message(self.user.nickname, msg)
 
+    async def replyNotice(self, msg: str):
+        """
+        Sends a message as a NOTICE to the user that send the command.
+
+        Arguments:
+            msg (str): Message to send.
+        """
+        await self.bot.notice(self.user.nickname, msg)
+
 
 def _split_message(string: str) -> typing.Tuple[typing.List[str], typing.List[str]]:
     """
