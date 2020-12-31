@@ -469,8 +469,8 @@ async def cmd_case_management_quiet(ctx: Context):
     if delta.hours:
         hour_plural = 's' if delta.hours > 1 else ''
         hour_part = f"{delta.hours} hour{hour_plural} and "
+    minute_plural = 's' if delta.minutes != 1 else ''
     await ctx.reply(
-        minute_plural = 's' if delta.minutes != 1 else '
         f"The last case was created {hour_part}{delta.minutes} minute{minute_plural} ago."
     )
 
