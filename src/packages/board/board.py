@@ -127,7 +127,7 @@ class RatBoard(abc.Mapping):
         Modification lock to prevent concurrent modification of the board.
         """
 
-        self._datetime_last_case = datetime.fromtimestamp(0, tz=timezone.utc)
+        self._datetime_last_case = None
         """
         Field used to calculate the time since the last case was created
         """

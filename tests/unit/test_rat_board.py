@@ -146,8 +146,8 @@ async def test_modify_rescue_datetime_last_case(rat_board_fx, monkeypatch):
     pre_datetime_last_case = rat_board_fx.last_case_datetime
     time.sleep(0.1)  # Wait a little for more predictability in the test
     await rat_board_fx.create_rescue()
+    assert rat_board_fx.last_case_datetime
     assert pre_datetime < rat_board_fx.last_case_datetime
-    assert pre_datetime_last_case < rat_board_fx.last_case_datetime
     assert rat_board_fx.last_case_datetime < datetime.now(tz=timezone.utc)  # The stored value may not be in the future
 
     # Test against the value set by the bot by the earlier test
