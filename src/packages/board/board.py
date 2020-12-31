@@ -367,6 +367,6 @@ class RatBoard(abc.Mapping):
         logger.trace("Released modification lock.")
 
     @property
-    def last_case_datetime(self):
+    def last_case_datetime(self) -> Optional[datetime]:
         """ Return the last case datetime (timezone-aware) """
         return self._datetime_last_case

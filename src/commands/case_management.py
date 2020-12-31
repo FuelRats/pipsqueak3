@@ -464,11 +464,12 @@ async def cmd_case_management_quiet(ctx: Context):
         await ctx.reply("Got no information yet")
         return
 
-    timediff = relativedelta(datetime.now(tz=timezone.utc), ctx.bot.board.last_case_datetime)
-
-    hourpart = timediff.hours > 0 and f"{timediff.hours} hours and " or ""
+    delta = relativedelta(datetime.now(tz=timezone.utc), ctx.bot.board.last_case_datetime)
+    hour_part = ""
+    if time_diff.hours:
+        hour_part = f"{delta.hours} hour{'s' if delta.hours>1} and "
     await ctx.reply(
-        f"The last case was created {hourpart}{timediff.minutes} minutes ago."
+        f"The last case was created {hour_part}{delta.minutes} minute{'s' if delta.minutes>1} ago."
     )
 
 
