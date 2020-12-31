@@ -155,7 +155,7 @@ class TestRatCommand(object):
     @pytest.mark.parametrize("alias", ['quiet'])
     async def test_call_command_quiet(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx):
         """
-        Verifiy that the !quiet command returns useful information
+        Verify that the !quiet command returns useful information
         """
         trigger_alias = f"{configuration_fx.commands.prefix}{alias}"
         logger.debug(f"Triggering alias: {trigger_alias}")
@@ -184,7 +184,7 @@ class TestRatCommand(object):
     @pytest.mark.parametrize("alias", ['active', 'inactive', 'activate', 'deactivate'])
     async def test_call_command_active_no_inject(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx):
         """
-        Verifiy that the !active command toggles the case active state when no injection message is passed
+        Verify that the !active command toggles the case active state when no injection message is passed
         At the same time, verify the bot output
         """
         rescue = await rat_board_fx.create_rescue(client=random_string_fx)
@@ -220,7 +220,7 @@ class TestRatCommand(object):
     @pytest.mark.parametrize("alias", ['active', 'inactive', 'activate', 'deactivate'])
     async def test_call_command_active_with_inject(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx):
         """
-        Verifiy that the !active command toggles the case active state when an injection message is passed
+        Verify that the !active command toggles the case active state when an injection message is passed
         At the same time, verify the bot output
         """
         rescue = await rat_board_fx.create_rescue(client=random_string_fx)
