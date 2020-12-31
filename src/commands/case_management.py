@@ -121,7 +121,7 @@ async def cmd_case_management_active(ctx: Context):
     Usage: !active 2|ClientName [OptionalInjectMessage]
 
     Example:    !active 2
-                !active Concordance12
+                !active Concordance12 The client left IRC without communication
 
     Channel Only: YES
     Permission: Rat
