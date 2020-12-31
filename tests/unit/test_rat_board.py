@@ -8,8 +8,8 @@ import pytest
 
 from src.packages.board.board import cycle_at
 
-import datetime
-from datetime import timezone
+from datetime import datetime, timezone
+import time
 
 pytestmark = [pytest.mark.unit, pytest.mark.ratboard]
 
@@ -137,10 +137,22 @@ async def test_modify_rescue_explosion(rat_board_fx, random_string_fx):
     assert random_string_fx in rat_board_fx, "the board dropped the rescue!"
 
 @pytest.mark.asyncio
-async def test_modify_rescue_datetimelastcase(rat_board_fx, monkeypatch):
+async def test_modify_rescue_datetime_last_case(rat_board_fx, monkeypatch):
     """
-    Verifies that _datetime_last_case is being modified when creating a new case
+    Verifies that last_case_datetime is being modified when creating a new case
     """
-    pre_datetime = datetime.datetime.now(tz=timezone.utc)
+    # Test against the default value
+    pre_datetime = datetime.now(tz=timezone.utc)
+    pre_datetime_last_case = rat_board_fx.last_case_datetime
+    time.sleep(0.1)  # Wait a little for more predictability in the test
     await rat_board_fx.create_rescue()
-    assert pre_datetime < rat_board_fx._datetime_last_case
+    assert pre_datetime < rat_board_fx.last_case_datetime
+    assert pre_datetime_last_case < rat_board_fx.last_case_datetime
+    assert rat_board_fx.last_case_datetime < datetime.now(tz=timezone.utc)  # The stored value may not be in the future
+
+    # Test against the value set by the bot by the earlier test
+    pre_datetime_last_case = rat_board_fx.last_case_datetime
+    time.sleep(0.1)  # Wait a little for more predictability in the test
+    await rat_board_fx.create_rescue()
+    assert pre_datetime_last_case < rat_board_fx.last_case_datetime
+    assert rat_board_fx.last_case_datetime < datetime.now(tz=timezone.utc)  # The stored value may not be in the future

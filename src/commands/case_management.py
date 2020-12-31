@@ -8,7 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-import datetime
 import functools
 import io
 import itertools
@@ -16,7 +15,7 @@ import re
 import typing
 import uuid
 import warnings
-from datetime import timezone
+from datetime import datetime, timezone
 
 import humanfriendly
 import pyparsing
@@ -455,32 +454,22 @@ async def cmd_case_management_quiet(ctx: Context):
     if ctx.bot is not None:
         if ctx.bot.board is not None:
     """
-    for rescue in ctx.bot.board.values():  # type: Rescue
+    for rescue in ctx.bot.board.values():
         if rescue.active:
             await ctx.reply("There is corrently an active rescue")
             return
 
-    if ctx.bot.board._datetime_last_case == datetime.datetime.utcfromtimestamp(0):
+    if ctx.bot.board.last_case_datetime == datetime.fromtimestamp(0, tz=timezone.utc):
         await ctx.reply("Got no information yet")
         return
 
-    timediff = divmod(
-        divmod(
-            int(
-                (
-                    datetime.datetime.now(tz=timezone.utc) - ctx.bot.board._datetime_last_case
-                ).total_seconds()
-            ),
-            60,
-        )[0],
-        60,
+    timediff = (datetime.now(tz=timezone.utc) - ctx.bot.board.last_case_datetime).total_seconds()
+    timediff = divmod(int(timediff//60), 60)
+    
+    hourpart = timediff[0] > 0 and f"{timediff[0]} hours and " or ""
+    await ctx.reply(
+        f"The last case was created {hourpart}{timediff[1]} minutes ago."
     )
-    if timediff[0] > 0:
-        await ctx.reply(
-            f"The last case was created {timediff[0]} hours and {timediff[1]} minutes ago."
-        )
-    else:
-        await ctx.reply(f"The last case was created {timediff[1]} minutes ago.")
 
 
 @command("quote", require_channel=True, require_permission=RAT)
@@ -505,7 +494,7 @@ async def cmd_case_management_quote(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             delta = humanfriendly.format_timespan(
-                (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                (datetime.now(tz=timezone.utc) - quote.updated_at),
                 detailed=False,
                 max_units=2,
             )
@@ -547,7 +536,7 @@ async def cmd_case_management_quoteid(ctx: Context):
         for i, quote in enumerate(rescue.quotes):
             quote_timestamp = (
                 humanfriendly.format_timespan(
-                    (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                    (datetime.now(tz=timezone.utc) - quote.updated_at),
                     detailed=False,
                     max_units=2,
                 )
@@ -584,7 +573,7 @@ async def cmd_case_management_sub(ctx: Context):
             last_author=ctx.user.nickname,
             author=rescue.quotes[quote_id].author,
             created_at=rescue.quotes[quote_id].created_at,
-            updated_at=datetime.datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
 
         async with ctx.bot.board.modify_rescue(rescue) as case:
