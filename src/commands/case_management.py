@@ -319,11 +319,10 @@ async def cmd_case_management_grab(ctx: Context):
         return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
 
     if not rescue:
-        case = await ctx.bot.board.create_rescue(client=ctx.words[1])
-        async with ctx.bot.board.modify_rescue(case) as case:
-            case.add_quote(last_message)
-
-        return await ctx.reply(f"{case.client}'s case opened with {last_message!r}")
+        return await ctx.reply(
+            f"There is no open case for {tokens.subject[0]}. "
+            f"Please first create one with '!inject {tokens.subject[0]} [CR] [PC/PS/XB]'"
+        )
 
     if ctx.words[1].casefold() in ctx.bot.last_user_message:
         last_message = ctx.bot.last_user_message[ctx.words[1].casefold()]
@@ -464,12 +463,10 @@ async def cmd_case_management_quiet(ctx: Context):
         return
 
     timediff = (datetime.now(tz=timezone.utc) - ctx.bot.board.last_case_datetime).total_seconds()
-    timediff = divmod(int(timediff//60), 60)
+    timediff = divmod(int(timediff // 60), 60)
 
     hourpart = timediff[0] > 0 and f"{timediff[0]} hours and " or ""
-    await ctx.reply(
-        f"The last case was created {hourpart}{timediff[1]} minutes ago."
-    )
+    await ctx.reply(f"The last case was created {hourpart}{timediff[1]} minutes ago.")
 
 
 @command("quote", require_channel=True, require_permission=RAT)
