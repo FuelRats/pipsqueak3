@@ -320,11 +320,10 @@ async def cmd_case_management_grab(ctx: Context):
         return await ctx.reply(f"Cannot comply: {ctx.words[1]} has not spoken recently.")
 
     if not rescue:
-        case = await ctx.bot.board.create_rescue(client=ctx.words[1])
-        async with ctx.bot.board.modify_rescue(case) as case:
-            case.add_quote(last_message)
-
-        return await ctx.reply(f"{case.client}'s case opened with {last_message!r}")
+        return await ctx.reply(
+            f"There is no open case for {tokens.subject[0]}. "
+            f"Please first create one with '!inject {tokens.subject[0]} [CR] [PC/PS/XB]'"
+        )
 
     if ctx.words[1].casefold() in ctx.bot.last_user_message:
         last_message = ctx.bot.last_user_message[ctx.words[1].casefold()]
