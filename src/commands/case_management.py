@@ -448,6 +448,29 @@ async def cmd_case_management_system(ctx: Context):
         await ctx.reply(f"{case.client}'s platform set to {case.platform.value}.")
 
 
+@command("quiet", require_channel=True, require_permission=RAT)
+async def cmd_case_management_quiet(ctx: Context):
+    # Check if there is an active rescue
+    """
+    if ctx.bot is not None:
+        if ctx.bot.board is not None:
+    """
+    for rescue in ctx.bot.board.values():  # type: Rescue
+        if rescue.active:
+            await ctx.reply("There is corrently an active rescue")
+            return
+
+    if ctx.bot.board._datetime_last_case == datetime.datetime.utcfromtimestamp(0):
+        await ctx.reply("Got no information yet")
+        return
+
+    timediff = divmod(divmod(int((datetime.datetime.now(tz=timezone.utc) - ctx.bot.board._datetime_last_case).total_seconds()), 60)[0], 60)
+    if timediff[0] > 0:
+        await ctx.reply(f"The last case was created {timediff[0]} hours and {timediff[1]} minutes ago.")
+    else:
+        await ctx.reply(f"The last case was created {timediff[1]} minutes ago.")
+
+
 @command("quote", require_channel=True, require_permission=RAT)
 async def cmd_case_management_quote(ctx: Context):
     if not JUST_RESCUE_PATTERN.matches(ctx.words_eol[0]):

@@ -118,3 +118,6 @@ config/configuration.toml
 docker-compose.yml
 Dockerfile
 .dockerignore
+
+# Visual Studio Code
+.vscode

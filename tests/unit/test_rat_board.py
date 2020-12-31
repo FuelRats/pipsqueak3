@@ -8,6 +8,9 @@ import pytest
 
 from src.packages.board.board import cycle_at
 
+import datetime
+from datetime import timezone
+
 pytestmark = [pytest.mark.unit, pytest.mark.ratboard]
 
 
@@ -132,3 +135,12 @@ async def test_modify_rescue_explosion(rat_board_fx, random_string_fx):
             raise RuntimeError  # intentionally raise an exception
 
     assert random_string_fx in rat_board_fx, "the board dropped the rescue!"
+
+@pytest.mark.asyncio
+async def test_modify_rescue_datetimelastcase(rat_board_fx, monkeypatch):
+    """
+    Verifies that _datetime_last_case is being modified when creating a new case
+    """
+    pre_datetime = datetime.datetime.now(tz=timezone.utc)
+    await rat_board_fx.create_rescue()
+    assert pre_datetime < rat_board_fx._datetime_last_case

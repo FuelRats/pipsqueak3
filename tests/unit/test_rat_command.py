@@ -21,6 +21,16 @@ import src.packages.commands.rat_command as Commands
 from src.packages.commands.rat_command import NameCollisionException
 from src.packages.context.context import Context
 
+from src.packages.permissions import permissions
+from src.packages.permissions import require_permission, require_channel, require_dm, Permission
+
+
+@pytest.fixture
+def restricted_command_fx(async_callable_fx, configuration_fx):
+    Commands.command("restricted", require_permission=permissions.OVERSEER)(async_callable_fx)
+    yield  async_callable_fx
+    del Commands._registered_commands["restricted"]
+
 
 
 @pytest.mark.unit
@@ -149,3 +159,33 @@ class TestRatCommand(object):
         await Commands.trigger(ctx)
 
         del Commands._registered_commands[name.casefold()]
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias", ['quiet'])
+    async def test_call_command_quiet(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx, restricted_command_fx, monkeypatch):
+        """
+        Verifiy that the !quiet command returns useful information
+        """
+        trigger_alias = f"{configuration_fx.commands.prefix}{alias}"
+        print(f"Triggering alias: {trigger_alias}")
+        bot_fx.board = rat_board_fx
+        ctx = await Context.from_message(bot_fx, "#unittest", "some_rat", trigger_alias)
+
+        # Pre-case creation
+        retn = await Commands.trigger(ctx)
+        print(f"sent pre: {bot_fx.sent_messages} - lastcase: {rat_board_fx._datetime_last_case}")
+        assert "Got no information yet" in bot_fx.sent_messages[0]['message'] # Works
+
+        # During case active
+        rescue = await rat_board_fx.create_rescue(client=random_string_fx)
+        retn = await Commands.trigger(ctx)
+        print(f"sent active: {bot_fx.sent_messages} - lastcase: {rat_board_fx._datetime_last_case}")
+        assert "There is corrently an active rescue" in bot_fx.sent_messages[1]['message'] # Does not work, still returns "Got no information yet"
+
+        # Post-case active
+        await rat_board_fx.remove_rescue(rescue._board_index)
+        retn = await Commands.trigger(ctx)
+        print(f"sent post: {bot_fx.sent_messages} - lastcase: {rat_board_fx._datetime_last_case}")
+        assert "The last case was created 0 minutes ago." in bot_fx.sent_messages[2]['message'] # Does not work, still returns "Got no information yet"
+
+        del Commands._registered_commands[alias.casefold()]
