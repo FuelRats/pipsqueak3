@@ -23,7 +23,7 @@ from ..epic import Epic
 from ..mark_for_deletion import MarkForDeletion
 from ..quotation import Quotation
 from ..rat import Rat
-from ..utils import Platforms, Status, Colors, color, bold
+from ..utils import Platforms, Status, Colors, color, bold, italic
 
 if TYPE_CHECKING:
     from ..board import RatBoard
@@ -106,7 +106,6 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._first_limpet: UUID = first_limpet
         self._board_index = board_index
         self._mark_for_deletion = mark_for_deletion
-        self._board_index = board_index
         self._lang_id = lang_id
         self._status = status
         self._hash = None
@@ -825,7 +824,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
     def __format__(self, format_spec):
         """
         'c' gives the thing colour
-        'a' gives rat assignments
+        'r' gives rat assignments
+        's' gives system names
         '@' gives uuids
 
         order of format specifiers is NOT sensitive but IS case sensitive!
@@ -837,9 +837,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
         show_system = "s" in format_spec
 
         buffer = StringIO()
-        buffer.write(f"[{self.board_index}")
+        buffer.write(f"[{self.board_index}] ")
 
-        buffer.write(f"@{self.api_id}] " if show_uuid else '] ')
+        buffer.write(f"{{{self.api_id}}} " if show_uuid else '')
         buffer.write(F"{self.client}'s case, ")
         if self.irc_nickname != self.client and self.irc_nickname is not None:
             buffer.write(f"IRC Nick: {self.irc_nickname!r}, ")
@@ -848,14 +848,14 @@ class Rescue:  # pylint: disable=too-many-public-methods
             buffer.write(f"in {self.system!r}, ")
 
         if self.code_red:
-            base = '(CR '
+            base = 'Code Red, '
             if coloured:
                 buffer.write(bold(color(base, Colors.RED)))
             else:
                 buffer.write(base)
 
         if self.platform:
-            base = self.platform.name
+            base = f"{self.platform.name}"
 
             if coloured:
                 if self.platform is Platforms.XB:
@@ -867,13 +867,25 @@ class Rescue:  # pylint: disable=too-many-public-methods
             else:
                 buffer.write(base)
 
-        if self.code_red:
-            buffer.write(')')
+        if not self.active:
+            if coloured:
+                buffer.write(italic(color(" (inactive)", Colors.GREY)))
+            else:
+                buffer.write(" (inactive)")
+
         if show_assigned_rats:
-            buffer.write(' Assigned Rats:')
-            buffer.write(', '.join([rat.name for rat in self.rats.values()]))
-            buffer.write("\n Unidentified Rats: ")
-            buffer.write(", ".join(self.unidentified_rats))
+            if((len(self.rats.values()) == 0) and (len(self.unidentified_rats) == 0)):
+                if coloured:
+                    buffer.write("\n" + color(" > No-one has been assigned yet",Colors.ORANGE))
+                else:
+                    buffer.write("\n > No-one has been assigned yet")
+            else:
+                if(len(self.rats.values()) > 0):
+                    buffer.write("\n > Assigned Rats:")
+                    buffer.write(', '.join([rat.name for rat in self.rats.values()]))
+                if(len(self.unidentified_rats) > 0):
+                    buffer.write("\n > Unidentified Rats: ")
+                    buffer.write(", ".join(self.unidentified_rats))
 
         # convert buffer back to string, and return that
         return buffer.getvalue()
