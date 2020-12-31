@@ -7,10 +7,13 @@ class ListFlags:
     Flags used by the !list command, includes a parser.
     """
 
-    show_inactive: bool = False
+    filter_active_rescues: bool = False
+    filter_inactive_rescues: bool = False
     filter_unassigned_rescues: bool = False
+    show_system_names: bool = False
     show_assigned_rats: bool = False
     show_uuids: bool = False
+    hide_colors: bool = False
 
     @classmethod
     def from_word(cls, argument: str):
@@ -25,9 +28,13 @@ class ListFlags:
         """
         argument = argument.casefold()
 
-        show_inactive = "i" in argument
+        filter_active_rescues = "a" in argument and not "i" in argument
         """
-        Show inactive rescues
+        Only show active rescues
+        """
+        filter_inactive_rescues = "i" in argument and not "a" in argument
+        """
+        Only show inactive rescues
         """
         show_assigned_rats = "r" in argument
         """
@@ -35,10 +42,24 @@ class ListFlags:
         """
         filter_unassigned_rescues = "u" in argument
         """
-        only show rescues without assigned rats
+        Only show rescues without assigned rats
+        """
+        show_system_names = "s" in argument
+        """
+        Show system names in the list
         """
         show_uuids = "@" in argument
         """
-        show API UUIDs
+        Show API UUIDs
         """
-        return cls(show_inactive, filter_unassigned_rescues, show_assigned_rats, show_uuids)
+        hide_colors = "c" in argument
+
+        return cls(
+            filter_active_rescues,
+            filter_inactive_rescues,
+            filter_unassigned_rescues,
+            show_system_names,
+            show_assigned_rats,
+            show_uuids,
+            hide_colors,
+        )
