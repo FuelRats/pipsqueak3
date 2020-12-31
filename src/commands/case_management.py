@@ -467,9 +467,11 @@ async def cmd_case_management_quiet(ctx: Context):
     delta = relativedelta(datetime.now(tz=timezone.utc), ctx.bot.board.last_case_datetime)
     hour_part = ""
     if delta.hours:
-        hour_part = f"{delta.hours} hour{'s' if delta.hours > 1 else ''} and "
+        hour_plural = 's' if delta.hours > 1 else ''
+        hour_part = f"{delta.hours} hour{hour_plural} and "
     await ctx.reply(
-        f"The last case was created {hour_part}{delta.minutes} minute{'s' if delta.minutes != 1 else ''} ago."
+        minute_plural = 's' if delta.minutes != 1 else '
+        f"The last case was created {hour_part}{delta.minutes} minute{minute_plural} ago."
     )
 
 
