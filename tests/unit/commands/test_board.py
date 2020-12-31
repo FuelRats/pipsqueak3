@@ -165,11 +165,7 @@ async def test_grab_create(bot_fx, random_string_fx):
     ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov", f"!grab {client}")
     await trigger(ctx)
 
-    assert len(bot_fx.board) == starting_rescue_len + 1, "case was unexpectedly NOT created."
-
-    rescue = bot_fx.board[client]
-    assert rescue is not None, "rescue failed to be created"
-    assert rescue.client == client, "client field on rescue failed to be set"
+    assert len(bot_fx.board) == starting_rescue_len, "case was unexpectedly created."
 
 
 @pytest.mark.parametrize("platform_str", ("pc", "xb", "ps"))
