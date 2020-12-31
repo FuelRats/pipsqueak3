@@ -1,12 +1,11 @@
 {{ board|length }} cases found
 {% for rescue in board.values() %}
-[{{ rescue.board_index }}{% if show_id %}@{{ rescue.api_id }} {% endif %}] {{ rescue.client }}'s case ({{ rescue.platform.colorize() }}) in {% if rescue.system %}
+[{{ rescue.board_index }}{% if show_id %}@{{ rescue.api_id }}{% endif %}] {{ rescue.client }}'s case ({{ rescue.platform.colorize() }}) in {% if rescue.system %}
     {{- rescue.system }} {% else %} an unspecified system {% endif %} {% if not rescue.active %} ({{ color("Inactive", Colors.GREY) }}) {% endif %}
-    {% if rescue.rats or rescue.unidentified_rats -%}
-    {%- for rat in rescue.rats %}
-        {{ rat.name }},
-    {%- endfor %}
-    {% if show_unident %}
+    {% if (rescue.rats or rescue.unidentified_rats) and show_unident or (rescue.rats and not show_unident)  -%}
+    {%- for rat in rescue.rats.values() %} {{ rat.name }}, {% endfor %}
+    {%- if show_unident and rescue.unidentified_rats -%}
+
         Unidentified Rats: {% for rat in rescue.unidentified_rats.values() -%} {{ rat.name }}, {% endfor -%}
     {%- endif %}
     {%- else -%}
