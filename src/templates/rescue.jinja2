@@ -1,5 +1,3 @@
-{{ board|length }} cases found
-{% for rescue in board.values() %}
 [{{ rescue.board_index }}{% if show_id %}@{{ rescue.api_id }}{% endif %}] {{ rescue.client }}'s case ({{ rescue.platform.colorize() }}) in {% if rescue.system %}
     {{- rescue.system }} {% else %} an unspecified system {% endif %} {% if not rescue.active %} ({{ color("Inactive", Colors.GREY) }}) {% endif %}
     {% if (rescue.rats or rescue.unidentified_rats) and show_unident or (rescue.rats and not show_unident)  -%}
@@ -11,4 +9,3 @@
     {%- else -%}
         No assigned Rats.
     {%- endif -%}
-{% endfor %}
