@@ -178,3 +178,78 @@ class TestRatCommand(object):
         retn = await Commands.trigger(ctx)
         logger.debug(f"sent post: {bot_fx.sent_messages} - lastcase: {rat_board_fx.last_case_datetime}")
         assert "The last case was created 0 minutes ago." in bot_fx.sent_messages[2]['message']
+
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias", ['active', 'inactive', 'activate', 'deactivate'])
+    async def test_call_command_active_no_inject(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx, monkeypatch):
+        """
+        Verifiy that the !active command toggles the case active state when no injection message is passed
+        At the same time, verify the bot output
+        """
+        rescue = await rat_board_fx.create_rescue(client=random_string_fx)
+        trigger_alias = f"{configuration_fx.commands.prefix}{alias} {rescue.board_index}"
+        logger.debug(f"Triggering alias: {trigger_alias}")
+        bot_fx.board = rat_board_fx
+        ctx = await Context.from_message(bot_fx, "#unittest", "some_rat", trigger_alias)
+
+        # Pre-case creation
+        default_state = rat_board_fx.get(rescue.board_index).active
+        logger.debug(f"Default active state: {default_state}")
+        assert default_state
+
+        # De-activate case
+        retn = await Commands.trigger(ctx)
+        toggled_state = rat_board_fx.get(rescue.board_index).active
+        logger.debug(f"Toggled active state (1): {toggled_state}")
+        assert not toggled_state
+
+        # Re-activate case
+        retn = await Commands.trigger(ctx)
+        toggled_state = rat_board_fx.get(rescue.board_index).active
+        logger.debug(f"Toggled active state (2): {toggled_state}")
+        assert toggled_state
+
+        # Check bot output
+        logger.debug(f"Messages sent: {bot_fx.sent_messages}")
+        assert f"{random_string_fx}'s case is now Inactive." in bot_fx.sent_messages[0]['message']
+        assert f"{random_string_fx}'s case is now Active." in bot_fx.sent_messages[1]['message']
+
+
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias", ['active', 'inactive', 'activate', 'deactivate'])
+    async def test_call_command_active_with_inject(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx):
+        """
+        Verifiy that the !active command toggles the case active state when an injection message is passed
+        At the same time, verify the bot output
+        """
+        rescue = await rat_board_fx.create_rescue(client=random_string_fx)
+        trigger_alias = f"{configuration_fx.commands.prefix}{alias} {rescue.board_index} test inject message"
+        logger.debug(f"Triggering alias: {trigger_alias}")
+        bot_fx.board = rat_board_fx
+        ctx = await Context.from_message(bot_fx, "#unittest", "some_rat", trigger_alias)
+
+        # Pre-case creation
+        default_state = rat_board_fx.get(rescue.board_index).active
+        logger.debug(f"Default active state: {default_state}")
+        assert default_state
+
+        # De-activate case
+        retn = await Commands.trigger(ctx)
+        toggled_state = rat_board_fx.get(rescue.board_index).active
+        logger.debug(f"Toggled active state (1): {toggled_state}")
+        assert not toggled_state
+
+        # Re-activate case
+        retn = await Commands.trigger(ctx)
+        toggled_state = rat_board_fx.get(rescue.board_index).active
+        logger.debug(f"Toggled active state (2): {toggled_state}")
+        assert toggled_state
+
+        # Check bot output
+        logger.debug(f"Messages sent: {bot_fx.sent_messages}")
+        assert f"{random_string_fx}'s case updated with: 'test inject message' (Case {rescue.board_index})" in bot_fx.sent_messages[0]['message']
+        assert f"{random_string_fx}'s case is now Inactive." in bot_fx.sent_messages[1]['message']
+        assert f"{random_string_fx}'s case updated with: 'test inject message' (Case {rescue.board_index})" in bot_fx.sent_messages[2]['message']
+        assert f"{random_string_fx}'s case is now Active." in bot_fx.sent_messages[3]['message']
