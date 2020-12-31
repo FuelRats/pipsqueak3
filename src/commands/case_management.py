@@ -53,13 +53,14 @@ ASSIGN_PATTERN = (
     + rescue_identifier.setResultsName("subject")
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
-ACTIVE_PATTERN = (
 
+ACTIVE_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
     # This comes positionally LAST or it catches the wrong things.
     + rest_of_line.setResultsName("remainder")
 )
+
 CLEAR_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
@@ -151,8 +152,8 @@ async def cmd_case_management_active(ctx: Context):
     async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
         logger.debug(f"Switching case to active = {not case.active}")
         case.active = not case.active
-        logger.debug(f"Length: {len(ctx.words_eol)}")
-        if len(ctx.words_eol) > 2:
+        logger.debug(f"Inject message: {tokens.remainder}")
+        if tokens.remainder:
             # Inject message before toggling active/inactive if it is passed
             case.add_quote(ctx.words_eol[0], ctx.user.nickname)
             await ctx.reply(

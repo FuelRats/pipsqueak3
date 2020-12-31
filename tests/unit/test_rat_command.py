@@ -153,7 +153,7 @@ class TestRatCommand(object):
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['quiet'])
-    async def test_call_command_quiet(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx, monkeypatch):
+    async def test_call_command_quiet(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx):
         """
         Verifiy that the !quiet command returns useful information
         """
@@ -182,7 +182,7 @@ class TestRatCommand(object):
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("alias", ['active', 'inactive', 'activate', 'deactivate'])
-    async def test_call_command_active_no_inject(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx, monkeypatch):
+    async def test_call_command_active_no_inject(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx):
         """
         Verifiy that the !active command toggles the case active state when no injection message is passed
         At the same time, verify the bot output
