@@ -12,6 +12,8 @@ from src.packages.rescue import Rescue
 from src.packages.utils import Platforms, sanitize
 from tests import strategies as custom_strategies
 
+from loguru import logger
+
 pytestmark = [pytest.mark.unit, pytest.mark.commands, pytest.mark.asyncio]
 
 
@@ -201,10 +203,11 @@ def _test_quote_header(cr_state, message, rescue):
     assert rescue.client.casefold() in message, "client name missing"
     assert rescue.platform.value.casefold() in message, "platform missing"
     assert "none" not in message, "somethings null thats not supposed to be"
+    logger.debug(f"Message: {message}")
     if rescue.irc_nickname == rescue.client:
         assert "irc nickname" not in message, "irc nickname incorrectly rendered"
     if cr_state:
-        assert "cr" in message, "code red state missing"
+        assert "cr" in message or "code red" in message, "code red state missing"
 
 
 @pytest.mark.parametrize("cr_state", (True, False))
