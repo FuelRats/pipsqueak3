@@ -465,7 +465,7 @@ async def cmd_case_management_quiet(ctx: Context):
 
     timediff = (datetime.now(tz=timezone.utc) - ctx.bot.board.last_case_datetime).total_seconds()
     timediff = divmod(int(timediff//60), 60)
-    
+
     hourpart = timediff[0] > 0 and f"{timediff[0]} hours and " or ""
     await ctx.reply(
         f"The last case was created {hourpart}{timediff[1]} minutes ago."
