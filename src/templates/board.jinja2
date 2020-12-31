@@ -1,4 +1,4 @@
 {{ board|length }} cases found
 {% for rescue in board.values() %}
-    {{ render_rescue(rescue, show_id, show_unident) }}
+    {{ render_rescue(rescue, show_id=show_id, show_unident=show_unident) }}
 {% endfor %}
