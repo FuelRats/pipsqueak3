@@ -464,9 +464,21 @@ async def cmd_case_management_quiet(ctx: Context):
         await ctx.reply("Got no information yet")
         return
 
-    timediff = divmod(divmod(int((datetime.datetime.now(tz=timezone.utc) - ctx.bot.board._datetime_last_case).total_seconds()), 60)[0], 60)
+    timediff = divmod(
+        divmod(
+            int(
+                (
+                    datetime.datetime.now(tz=timezone.utc) - ctx.bot.board._datetime_last_case
+                ).total_seconds()
+            ),
+            60,
+        )[0],
+        60,
+    )
     if timediff[0] > 0:
-        await ctx.reply(f"The last case was created {timediff[0]} hours and {timediff[1]} minutes ago.")
+        await ctx.reply(
+            f"The last case was created {timediff[0]} hours and {timediff[1]} minutes ago."
+        )
     else:
         await ctx.reply(f"The last case was created {timediff[1]} minutes ago.")
 
