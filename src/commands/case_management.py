@@ -53,8 +53,13 @@ ASSIGN_PATTERN = (
     + rescue_identifier.setResultsName("subject")
     + pyparsing.OneOrMore(irc_name).setResultsName("rats")
 )
-ACTIVE_PATTERN = suppress_first_word + rescue_identifier.setResultsName("subject")
+ACTIVE_PATTERN = (
 
+    suppress_first_word
+    + rescue_identifier.setResultsName("subject")
+    # This comes positionally LAST or it catches the wrong things.
+    + rest_of_line.setResultsName("remainder")
+)
 CLEAR_PATTERN = (
     suppress_first_word
     + rescue_identifier.setResultsName("subject")
@@ -124,16 +129,16 @@ async def cmd_case_management_active(ctx: Context):
     """
     Toggles the indicated case as active or inactive.  Requires an OPEN case.
 
-    Usage: !active 2|ClientName
+    Usage: !active 2|ClientName [OptionalInjectMessage]
 
     Example:    !active 2
-                !active Concordance12
+                !active Concordance12 The client left IRC without communication
 
     Channel Only: YES
     Permission: Rat
     """
     if not ACTIVE_PATTERN.matches(ctx.words_eol[0]):
-        await ctx.reply("Usage: !active <Client Name|Case Number>")
+        await ctx.reply("Usage: !active <Client Name|Case Number> [Optional inject message]")
         return
     tokens = ACTIVE_PATTERN.parseString(ctx.words_eol[0])
     rescue = ctx.bot.board.get(tokens.subject[0])
@@ -143,8 +148,16 @@ async def cmd_case_management_active(ctx: Context):
         return
 
     # We either have a valid case or we've left the method at this point.
-    async with ctx.bot.board.modify_rescue(rescue) as case:
+    async with ctx.bot.board.modify_rescue(rescue, impersonation=ctx.user.account) as case:
+        logger.debug(f"Switching case to active = {not case.active}")
         case.active = not case.active
+        logger.debug(f"Length: {len(ctx.words_eol)}")
+        if len(ctx.words_eol) > 2:
+            # Inject message before toggling active/inactive if it is passed
+            case.add_quote(ctx.words_eol[0], ctx.user.nickname)
+            await ctx.reply(
+                f"{case.client}'s case updated with: {ctx.words_eol[2]!r} (Case {case.board_index})"
+            )
         await ctx.reply(f'{case.client}\'s case is now {"Active" if case.active else "Inactive"}.')
 
 
