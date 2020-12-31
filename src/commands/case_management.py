@@ -16,6 +16,7 @@ import typing
 import uuid
 import warnings
 from datetime import datetime, timezone
+from dateutil.relativedelta import relativedelta
 
 import humanfriendly
 import pyparsing
@@ -463,12 +464,11 @@ async def cmd_case_management_quiet(ctx: Context):
         await ctx.reply("Got no information yet")
         return
 
-    timediff = (datetime.now(tz=timezone.utc) - ctx.bot.board.last_case_datetime).total_seconds()
-    timediff = divmod(int(timediff//60), 60)
+    timediff = relativedelta(datetime.now(tz=timezone.utc), ctx.bot.board.last_case_datetime)
 
-    hourpart = timediff[0] > 0 and f"{timediff[0]} hours and " or ""
+    hourpart = timediff.hours > 0 and f"{timediff.hours} hours and " or ""
     await ctx.reply(
-        f"The last case was created {hourpart}{timediff[1]} minutes ago."
+        f"The last case was created {hourpart}{timediff.minutes} minutes ago."
     )
 
 
