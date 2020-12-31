@@ -153,11 +153,11 @@ async def cmd_case_management_active(ctx: Context):
         logger.debug(f"Switching case to active = {not case.active}")
         case.active = not case.active
         logger.debug(f"Inject message: {tokens.remainder}")
-        if tokens.remainder:
+        if tokens.remainder.lstrip(" "):
             # Inject message before toggling active/inactive if it is passed
-            case.add_quote(ctx.words_eol[0], ctx.user.nickname)
+            case.add_quote(tokens.remainder, ctx.user.nickname)
             await ctx.reply(
-                f"{case.client}'s case updated with: {ctx.words_eol[2]!r} (Case {case.board_index})"
+                f"{case.client}'s case updated with: {tokens.remainder!r} (Case {case.board_index})"
             )
         await ctx.reply(f'{case.client}\'s case is now {"Active" if case.active else "Inactive"}.')
 
