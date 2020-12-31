@@ -8,7 +8,6 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-import datetime
 import functools
 import io
 import itertools
@@ -16,7 +15,8 @@ import re
 import typing
 import uuid
 import warnings
-from datetime import timezone
+from datetime import datetime, timezone
+from dateutil.relativedelta import relativedelta
 
 import humanfriendly
 import pyparsing
@@ -448,6 +448,33 @@ async def cmd_case_management_system(ctx: Context):
         await ctx.reply(f"{case.client}'s platform set to {case.platform.value}.")
 
 
+@command("quiet", require_channel=True, require_permission=RAT)
+async def cmd_case_management_quiet(ctx: Context):
+    # Check if there is an active rescue
+    """
+    if ctx.bot is not None:
+        if ctx.bot.board is not None:
+    """
+    for rescue in ctx.bot.board.values():
+        if rescue.active:
+            await ctx.reply("There is corrently an active rescue")
+            return
+
+    if not ctx.bot.board.last_case_datetime:
+        await ctx.reply("Got no information yet")
+        return
+
+    delta = relativedelta(datetime.now(tz=timezone.utc), ctx.bot.board.last_case_datetime)
+    hour_part = ""
+    if delta.hours:
+        hour_plural = 's' if delta.hours > 1 else ''
+        hour_part = f"{delta.hours} hour{hour_plural} and "
+    minute_plural = 's' if delta.minutes != 1 else ''
+    await ctx.reply(
+        f"The last case was created {hour_part}{delta.minutes} minute{minute_plural} ago."
+    )
+
+
 @command("quote", require_channel=True, require_permission=RAT)
 async def cmd_case_management_quote(ctx: Context):
     if not JUST_RESCUE_PATTERN.matches(ctx.words_eol[0]):
@@ -470,7 +497,7 @@ async def cmd_case_management_quote(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             delta = humanfriendly.format_timespan(
-                (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                (datetime.now(tz=timezone.utc) - quote.updated_at),
                 detailed=False,
                 max_units=2,
             )
@@ -512,7 +539,7 @@ async def cmd_case_management_quoteid(ctx: Context):
         for i, quote in enumerate(rescue.quotes):
             quote_timestamp = (
                 humanfriendly.format_timespan(
-                    (datetime.datetime.now(tz=timezone.utc) - quote.updated_at),
+                    (datetime.now(tz=timezone.utc) - quote.updated_at),
                     detailed=False,
                     max_units=2,
                 )
@@ -549,7 +576,7 @@ async def cmd_case_management_sub(ctx: Context):
             last_author=ctx.user.nickname,
             author=rescue.quotes[quote_id].author,
             created_at=rescue.quotes[quote_id].created_at,
-            updated_at=datetime.datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
         )
 
         async with ctx.bot.board.modify_rescue(rescue) as case:

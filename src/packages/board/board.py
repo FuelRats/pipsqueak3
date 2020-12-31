@@ -26,6 +26,8 @@ from ..fuelrats_api import FuelratsApiABC, ApiException, Impersonation
 from ..rescue import Rescue
 from ...config.datamodel import ConfigRoot
 
+from datetime import datetime, timezone
+
 cycle_at = 15
 """
 Determines at what board index does mecha (attempt) to start over indexing
@@ -93,6 +95,7 @@ class RatBoard(abc.Mapping):
         "_index_counter",
         "_offline",
         "_modification_lock",
+        "_datetime_last_case",
         "__weakref__",
     ]
 
@@ -122,6 +125,11 @@ class RatBoard(abc.Mapping):
         self._modification_lock = Lock()
         """
         Modification lock to prevent concurrent modification of the board.
+        """
+
+        self._datetime_last_case = None
+        """
+        Field used to calculate the time since the last case was created
         """
 
         super(RatBoard, self).__init__()
@@ -341,6 +349,7 @@ class RatBoard(abc.Mapping):
 
         finally:
             rescue.board_index = index
+            self._datetime_last_case = datetime.now(tz=timezone.utc)
             # Always append it to ourselves, regardless of API errors
             await self.append(rescue, overwrite=ovewrite)
 
@@ -356,3 +365,8 @@ class RatBoard(abc.Mapping):
             # TODO: add to internal deck in offline mode so we can push to the API when we eventually
             del self[target]
         logger.trace("Released modification lock.")
+
+    @property
+    def last_case_datetime(self) -> Optional[datetime]:
+        """ Return the last case datetime (timezone-aware) """
+        return self._datetime_last_case

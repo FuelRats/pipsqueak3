@@ -21,6 +21,7 @@ import src.packages.commands.rat_command as Commands
 from src.packages.commands.rat_command import NameCollisionException
 from src.packages.context.context import Context
 
+from loguru import logger
 
 
 @pytest.mark.unit
@@ -149,3 +150,31 @@ class TestRatCommand(object):
         await Commands.trigger(ctx)
 
         del Commands._registered_commands[name.casefold()]
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias", ['quiet'])
+    async def test_call_command_quiet(self, alias, bot_fx, rat_board_fx, configuration_fx, random_string_fx, monkeypatch):
+        """
+        Verifiy that the !quiet command returns useful information
+        """
+        trigger_alias = f"{configuration_fx.commands.prefix}{alias}"
+        logger.debug(f"Triggering alias: {trigger_alias}")
+        bot_fx.board = rat_board_fx
+        ctx = await Context.from_message(bot_fx, "#unittest", "some_rat", trigger_alias)
+
+        # Pre-case creation
+        retn = await Commands.trigger(ctx)
+        logger.debug(f"sent pre: {bot_fx.sent_messages} - lastcase: {rat_board_fx.last_case_datetime}")
+        assert "Got no information yet" in bot_fx.sent_messages[0]['message']
+
+        # During case active
+        rescue = await rat_board_fx.create_rescue(client=random_string_fx)
+        retn = await Commands.trigger(ctx)
+        logger.debug(f"sent active: {bot_fx.sent_messages} - lastcase: {rat_board_fx.last_case_datetime}")
+        assert "There is corrently an active rescue" in bot_fx.sent_messages[1]['message']
+
+        # Post-case active
+        await rat_board_fx.remove_rescue(rescue._board_index)
+        retn = await Commands.trigger(ctx)
+        logger.debug(f"sent post: {bot_fx.sent_messages} - lastcase: {rat_board_fx.last_case_datetime}")
+        assert "The last case was created 0 minutes ago." in bot_fx.sent_messages[2]['message']
