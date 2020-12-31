@@ -459,7 +459,7 @@ async def cmd_case_management_quiet(ctx: Context):
             await ctx.reply("There is corrently an active rescue")
             return
 
-    if ctx.bot.board.last_case_datetime == None:
+    if not ctx.bot.board.last_case_datetime:
         await ctx.reply("Got no information yet")
         return
 
