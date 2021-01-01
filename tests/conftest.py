@@ -129,6 +129,21 @@ def rat_good_fx(request) -> Rat:
     return rat
 
 
+@pytest.fixture(params=[("noIdRat", None, uuid4()),
+                        ("myPcRat", Platforms.PC, uuid4()),
+                        ("someXrat", Platforms.XB, uuid4()),
+                        ("psRatToTheRescue", Platforms.PS, uuid4())],
+                )
+def rat_no_id_and_good_fx(request) -> Rat:
+    """
+    Testing fixture containing both good and registered rats, and also unregistered rats
+    """
+    params = request.param
+    rat = Rat(uuid=params[2], name=params[0], platform=params[1])
+    RatCache().append(rat)
+    return rat
+
+
 @pytest.fixture
 def rat_board_fx() -> RatBoard:
     """
