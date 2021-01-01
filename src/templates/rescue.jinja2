@@ -1,4 +1,4 @@
-[{{ rescue.board_index }}{% if flags.show_uuids %}@{{ rescue.api_id }}{% endif %}] {{ rescue.client }}'s case ({{ (rescue.platform|default(Platforms.DEFAULT, true)).colorize() }}) in {% if rescue.system %} {{ rescue.system }} {% else %} {{ color("<unspecified>", Colors.GREY) }}{% endif %} {% if not rescue.active %} ({{ color("Inactive", Colors.GREY) }}) {% endif %}
+[{{ rescue.board_index }}{% if flags.show_uuids %}@{{ color(rescue.api_id, Colors.GREY) }}{% endif %}] {{ rescue.client }}'s case ({{ (rescue.platform|default(Platforms.DEFAULT, true)).colorize() }}) in {% if rescue.system %}{{ rescue.system }}{% else %} {{ color("<unspecified>", Colors.RED) }}{% endif %} {% if not rescue.active %} ({{ color("Inactive", Colors.GREY) }}) {% endif %}
     {%- if (rescue.rats or rescue.unidentified_rats) and flags.show_unidentified_rats or (rescue.rats and not flags.show_unidentified_rats)  %}
         Assigned Rats: {{rescue.rats.values() | map(attribute="name")| join(', ')}}
     {% if flags.show_unidentified_rats and rescue.unidentified_rats %}Unidentified Rats: {{rescue.unidentified_rats.values() | map(attribute="name")| join(', ')}}
