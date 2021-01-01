@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+import attr
 
 
-@dataclass(frozen=True)
+@attr.dataclass(frozen=True)
 class ListFlags:
     """
     Flags used by the !list command, includes a parser.
@@ -10,6 +10,7 @@ class ListFlags:
     show_inactive: bool = False
     filter_unassigned_rescues: bool = False
     show_assigned_rats: bool = False
+    show_unidentified_rats: bool = False
     show_uuids: bool = False
 
     @classmethod
@@ -41,4 +42,6 @@ class ListFlags:
         """
         show API UUIDs
         """
-        return cls(show_inactive, filter_unassigned_rescues, show_assigned_rats, show_uuids)
+        show_unident = True  # fixme remove hardcode
+        return cls(show_inactive, filter_unassigned_rescues, show_assigned_rats, show_unident,
+                   show_uuids)

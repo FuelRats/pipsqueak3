@@ -40,6 +40,7 @@ from ..packages.quotation.rat_quotation import Quotation
 from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status, color, bold, Colors
+from ..templates import env
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
@@ -737,14 +738,18 @@ async def cmd_list(ctx: Context):
         await ctx.reply("No active rescues.")
     else:
 
-        output = _list_rescue(active_rescues, format_specifiers)
+        output = await env.get_template("list.jinja2").render_async(
+            rescues=active_rescues, flags=flags
+        )
         if output:
             await ctx.reply(output)
     if flags.show_inactive:
         if not inactive_rescues:
             return await ctx.reply("No inactive rescues.")
 
-        output = _list_rescue(inactive_rescues, format_specifiers)
+        output = await env.get_template("list.jinja2").render_async(
+            rescues=inactive_rescues, flags=flags
+        )
         if output:
             await ctx.reply(output)
 

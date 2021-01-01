@@ -33,12 +33,15 @@ class Platforms(Enum):
     PC = "PC"
     XB = "XB"
     PS = "PS"
+    DEFAULT = "<NO PLATFORM>"
 
     def colorize(self) -> str:
         if self is Platforms.PS:
             text_color = Colors.GREY
         elif self is Platforms.XB:
             text_color = Colors.GREEN
+        elif self is Platforms.DEFAULT:
+            text_color = Colors.RED
         else:
             text_color = Colors.PURPLE
         return color(self.value, text_color)
