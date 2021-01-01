@@ -437,10 +437,12 @@ async def test_count_rescue_filter(
     rescue_sop_fx.code_red = False
     rescue_sop_fx.platform = platform
     rescue_sop_fx.active = active
+
     # Assign rat if identified
     logger.debug(f"Rat: {rat_no_id_and_good_fx}")
     if rat_no_id_and_good_fx.name != "noIdRat":
         await rescue_sop_fx.add_rat(rat_no_id_and_good_fx)
+
     await rat_board_fx.append(rescue_sop_fx)
 
     # Retrieve cases
@@ -448,12 +450,14 @@ async def test_count_rescue_filter(
     rescue_filter = functools.partial(_rescue_filter, flags, platform_check)
     logger.debug(f"rescue_filter: {rescue_filter}")
 
+    # Count result of _rescue_filter
     count_cases_output = 0
     for rescue in itertools.filterfalse(rescue_filter, iter(rat_board_fx.values())):
         count_cases_output = count_cases_output + 1
 
     logger.debug(f"Checking platform: {platform} vs {platform_check}")
     logger.debug(f"Checking flag: {flag} vs active {active} and ratname {rat_no_id_and_good_fx.name}")
+
     # Expected result
     if (platform == platform_check or platform_check == None) and (
         (flag == "")
@@ -467,10 +471,9 @@ async def test_count_rescue_filter(
     else:
         expected_result = 0
 
-    # Check tests
+    # Check test results
     logger.debug(f"Expected result: {expected_result}")
     logger.debug(f"Created {count_cases_output} cases")
     assert (
         count_cases_output == expected_result
     ), "An incorrect number of cases has been returned by _rescue_filter"
-    # assert False
