@@ -5,6 +5,7 @@ import hypothesis
 import pytest
 from hypothesis import strategies
 
+from src.commands._list_flags import ListFlags
 from src.packages.commands.rat_command import trigger
 from src.packages.context import Context
 from src.packages.rat import Rat
@@ -15,6 +16,10 @@ from tests import strategies as custom_strategies
 from loguru import logger
 
 pytestmark = [pytest.mark.unit, pytest.mark.commands, pytest.mark.asyncio]
+
+import functools
+import itertools
+from src.commands.case_management import _rescue_filter
 
 
 @pytest.mark.parametrize("initial, expected", [(False, True), (True, False)])
@@ -403,3 +408,69 @@ async def test_clear_rescue_unident_prod_mode(
     monkeypatch.setattr(context, "DRILL_MODE", False)
     await trigger(ctx=context)
     assert rescue_sop_fx.client in rat_board_fx, "unexpectedly cleared rescue."
+
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("platform", [Platforms.PC, Platforms.PS, Platforms.XB])
+@pytest.mark.parametrize("platform_check", [None, Platforms.PC, Platforms.PS, Platforms.XB])
+@pytest.mark.parametrize("active", [True, False])
+@pytest.mark.parametrize("flag", ["", "-a", "-i", "-u", "-au", "-iu"])
+async def test_count_rescue_filter(
+    rat_board_fx,
+    random_string_fx,
+    rat_no_id_and_good_fx: Rat,
+    rescue_sop_fx,
+    platform: Platforms,
+    platform_check: Platforms,
+    flag: str,
+    active: bool,
+):
+    """
+    Verify that the _rescue_filter returns the correct number of cases
+    """
+
+    # Set up test case
+    count_cases_start = len(rat_board_fx)
+    rescue_sop_fx.client = random_string_fx
+    rescue_sop_fx.system = "SOL"
+    rescue_sop_fx.code_red = False
+    rescue_sop_fx.platform = platform
+    rescue_sop_fx.active = active
+    # Assign rat if identified
+    logger.debug(f"Rat: {rat_no_id_and_good_fx}")
+    if rat_no_id_and_good_fx.name != "noIdRat":
+        await rescue_sop_fx.add_rat(rat_no_id_and_good_fx)
+    await rat_board_fx.append(rescue_sop_fx)
+
+    # Retrieve cases
+    flags = ListFlags.from_word(flag)
+    rescue_filter = functools.partial(_rescue_filter, flags, platform_check)
+    logger.debug(f"rescue_filter: {rescue_filter}")
+
+    count_cases_output = 0
+    for rescue in itertools.filterfalse(rescue_filter, iter(rat_board_fx.values())):
+        count_cases_output = count_cases_output + 1
+
+    logger.debug(f"Checking platform: {platform} vs {platform_check}")
+    logger.debug(f"Checking flag: {flag} vs active {active} and ratname {rat_no_id_and_good_fx.name}")
+    # Expected result
+    if (platform == platform_check or platform_check == None) and (
+        (flag == "")
+        or (flag == "-a" and active)
+        or (flag == "-i" and not active)
+        or (flag == "-u" and rat_no_id_and_good_fx.name == "noIdRat")
+        or (flag == "-au" and rat_no_id_and_good_fx.name == "noIdRat" and active)
+        or (flag == "-iu" and rat_no_id_and_good_fx.name == "noIdRat" and not active)
+    ):
+        expected_result = 1
+    else:
+        expected_result = 0
+
+    # Check tests
+    logger.debug(f"Expected result: {expected_result}")
+    logger.debug(f"Created {count_cases_output} cases")
+    assert (
+        count_cases_output == expected_result
+    ), "An incorrect number of cases has been returned by _rescue_filter"
+    # assert False
