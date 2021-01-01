@@ -410,7 +410,6 @@ async def test_clear_rescue_unident_prod_mode(
     assert rescue_sop_fx.client in rat_board_fx, "unexpectedly cleared rescue."
 
 
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("platform", [Platforms.PC, Platforms.PS, Platforms.XB])
 @pytest.mark.parametrize("platform_check", [None, Platforms.PC, Platforms.PS, Platforms.XB])
@@ -431,7 +430,6 @@ async def test_count_rescue_filter(
     """
 
     # Set up test case
-    count_cases_start = len(rat_board_fx)
     rescue_sop_fx.client = random_string_fx
     rescue_sop_fx.system = "SOL"
     rescue_sop_fx.code_red = False
@@ -452,14 +450,14 @@ async def test_count_rescue_filter(
 
     # Count result of _rescue_filter
     count_cases_output = 0
-    for rescue in itertools.filterfalse(rescue_filter, iter(rat_board_fx.values())):
+    for _ in itertools.filterfalse(rescue_filter, iter(rat_board_fx.values())):
         count_cases_output = count_cases_output + 1
 
     logger.debug(f"Checking platform: {platform} vs {platform_check}")
     logger.debug(f"Checking flag: {flag} vs active {active} and ratname {rat_no_id_and_good_fx.name}")
 
     # Expected result
-    if (platform == platform_check or platform_check == None) and (
+    if (platform == platform_check or platform_check is None) and (
         (flag == "")
         or (flag == "-a" and active)
         or (flag == "-i" and not active)
