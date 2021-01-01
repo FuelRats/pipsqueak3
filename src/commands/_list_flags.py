@@ -12,6 +12,7 @@ class ListFlags:
     show_assigned_rats: bool = False
     show_unidentified_rats: bool = False
     show_uuids: bool = False
+    show_quotes: bool = False
 
     @classmethod
     def from_word(cls, argument: str):
