@@ -28,11 +28,11 @@ class ListFlags:
         """
         argument = argument.casefold()
 
-        filter_active_rescues = "a" in argument and not "i" in argument
+        filter_active_rescues = "a" in argument and "i" not in argument
         """
         Only show active rescues
         """
-        filter_inactive_rescues = "i" in argument and not "a" in argument
+        filter_inactive_rescues = "i" in argument and "a" not in argument
         """
         Only show inactive rescues
         """

@@ -876,7 +876,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         if show_assigned_rats:
             if((len(self.rats.values()) == 0) and (len(self.unidentified_rats) == 0)):
                 if coloured:
-                    buffer.write("\n" + color(" > No-one has been assigned yet",Colors.ORANGE))
+                    buffer.write("\n" + color(" > No-one has been assigned yet", Colors.ORANGE))
                 else:
                     buffer.write("\n > No-one has been assigned yet")
             else:
