@@ -765,7 +765,8 @@ async def cmd_list(ctx: Context):
 
 
 async def _list_invalid_usage(ctx: Context):
-    await ctx.replyNotice("!list accepts the following flags:")
+    await ctx.replyNotice("Correct usage: !list [flags] [platform]")
+    await ctx.replyNotice("!list supports the following flags:")
     await ctx.replyNotice("-a: Only show active cases")
     await ctx.replyNotice("-i: Only show inactive (but still open) cases")
     await ctx.replyNotice("-r: Show assigned rats")
@@ -773,7 +774,7 @@ async def _list_invalid_usage(ctx: Context):
     await ctx.replyNotice("-s: Show system names")
     await ctx.replyNotice("-@: Show full case IDs.  (LONG)")
     await ctx.replyNotice("-c: Hide colors and markup from the output")
-    await ctx.replyNotice("Example: !list -ars SOL")
+    await ctx.replyNotice("Example: !list -isc PC")
 
 
 def _list_rescues(title, rescue_collection, format_specifiers):
