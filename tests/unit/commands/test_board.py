@@ -63,7 +63,11 @@ async def test_clear_no_rat(rescue_sop_fx, bot_fx):
 
 async def test_clear_invalid(bot_fx):
     rescue = await bot_fx.board.create_rescue(
-        uuid=uuid4(), client="no_cheese_no_life", active=True, system=None, platform=None,
+        uuid=uuid4(),
+        client="no_cheese_no_life",
+        active=True,
+        system=None,
+        platform=None,
     )
     ctx = await Context.from_message(bot_fx, "#unkn0wndev", "some_ov", f"!clear {rescue.board_index}")
     await trigger(ctx)
@@ -92,7 +96,10 @@ async def test_clear_invalid(bot_fx):
         case.platform = Platforms.PS
 
     ctx = await Context.from_message(
-        bot_fx, "#unkn0wndev", "some_ov", f"!clear {rescue.board_index} jack_the_ripper[pc]",
+        bot_fx,
+        "#unkn0wndev",
+        "some_ov",
+        f"!clear {rescue.board_index} jack_the_ripper[pc]",
     )
 
     await trigger(ctx)
@@ -213,8 +220,9 @@ def _test_quote_header(cr_state, message, rescue):
 @pytest.mark.parametrize("cr_state", (True, False))
 @pytest.mark.parametrize("platform", (Platforms.PC, Platforms.XB, Platforms.PS))
 async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms):
-    inject_ctx = await Context.from_message(bot_fx, "#ratchat", "some_ov",
-                                            f"!inject subject PC {'cr' if cr_state else ''} sol")
+    inject_ctx = await Context.from_message(
+        bot_fx, "#ratchat", "some_ov", f"!inject subject PC {'cr' if cr_state else ''} sol"
+    )
     # inject a case into existance
     await trigger(inject_ctx)
     rescue = bot_fx.board["subject"]
@@ -228,7 +236,7 @@ async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms)
         assert "code red!" in message, "cr message missing!"
     message = bot_fx.sent_messages.pop(0)["message"].casefold()
     assert f"{rescue.api_id}" in message, "rescue uuid missing"
-    assert F"{rescue.board_index}" in message, "incorrect / missing board index"
+    assert f"{rescue.board_index}" in message, "incorrect / missing board index"
 
 
 @pytest.mark.hypothesis
@@ -238,14 +246,17 @@ async def test_quote_inject_interop(bot_fx, cr_state: bool, platform: Platforms)
     payload=custom_strategies.valid_text(),
     platform=strategies.sampled_from([Platforms.PC, Platforms.XB, Platforms.PS]),
 )
-async def test_inject_creates_rescue(bot_fx, cr_state: bool, platform: Platforms, client: str,
-                                     payload: str):
+async def test_inject_creates_rescue(
+    bot_fx, cr_state: bool, platform: Platforms, client: str, payload: str
+):
     hypothesis.assume(client not in bot_fx.board)  # new rescue
     bot_fx.sent_messages.clear()  # hypothesis cleanup.
     starting_rescue_count = len(bot_fx.board)
-    await bot_fx.on_message("#ratchat", "some_ov",
-                            f"!inject {client} {platform.value} {'cr' if cr_state else ''} {payload}",
-                            )
+    await bot_fx.on_message(
+        "#ratchat",
+        "some_ov",
+        f"!inject {client} {platform.value} {'cr' if cr_state else ''} {payload}",
+    )
     assert client in bot_fx.board, "rescue not created / incorrectly created"
     message = ""
     while "case opened" not in message and bot_fx.sent_messages:
@@ -266,8 +277,9 @@ async def test_sub_replace(bot_fx, rescue_sop_fx, random_string_fx):
     await bot_fx.board.append(rescue_sop_fx)
     initial_quote_count = len(rescue_sop_fx.quotes)
 
-    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
-                                         f"!sub {rescue_sop_fx.irc_nickname} 0 {random_string_fx}")
+    context = await Context.from_message(
+        bot_fx, "#unittest", "some_admin", f"!sub {rescue_sop_fx.irc_nickname} 0 {random_string_fx}"
+    )
     try:
         await trigger(context)
     except:
@@ -281,8 +293,9 @@ async def test_sub_replace(bot_fx, rescue_sop_fx):
     await bot_fx.board.append(rescue_sop_fx)
     initial_quote_count = len(rescue_sop_fx.quotes)
 
-    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
-                                         f"!sub {rescue_sop_fx.irc_nickname} 0")
+    context = await Context.from_message(
+        bot_fx, "#unittest", "some_admin", f"!sub {rescue_sop_fx.irc_nickname} 0"
+    )
     await trigger(context)
     assert len(rescue_sop_fx.quotes) == initial_quote_count - 1, "quote added / deleted unexpectedly"
 
@@ -292,15 +305,17 @@ async def test_cmdr(bot_fx, rescue_sop_fx):
     await bot_fx.board.append(rescue_sop_fx)
     old_nick = rescue_sop_fx.client
 
-    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
-                                         f"!cmdr {rescue_sop_fx.board_index} snafu")
+    context = await Context.from_message(
+        bot_fx, "#unittest", "some_admin", f"!cmdr {rescue_sop_fx.board_index} snafu"
+    )
     await trigger(context)
 
     assert rescue_sop_fx.client != old_nick, "failed to update commander at all"
     assert rescue_sop_fx.client == "snafu", "failed to update commander correctly"
 
-    context = await Context.from_message(bot_fx, "#unittest", "some_ov",
-                                         f"!cmdr {rescue_sop_fx.irc_nickname} something_cheeky")
+    context = await Context.from_message(
+        bot_fx, "#unittest", "some_ov", f"!cmdr {rescue_sop_fx.irc_nickname} something_cheeky"
+    )
     await trigger(context)
 
     assert rescue_sop_fx.client == "something_cheeky"
@@ -311,8 +326,9 @@ async def test_cmdr(bot_fx, rescue_sop_fx):
     await bot_fx.board.append(rescue_sop_fx)
     old_nick = rescue_sop_fx.irc_nickname
 
-    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
-                                         f"!ircnick {rescue_sop_fx.board_index} snafu")
+    context = await Context.from_message(
+        bot_fx, "#unittest", "some_admin", f"!ircnick {rescue_sop_fx.board_index} snafu"
+    )
     await trigger(context)
 
     assert rescue_sop_fx.irc_nickname == "snafu", "failed to update irc nickname."
@@ -325,8 +341,9 @@ async def test_system(bot_fx, rescue_sop_fx):
     await bot_fx.board.append(rescue_sop_fx)
     old_sys = rescue_sop_fx.system
 
-    context = await Context.from_message(bot_fx, "#unittest", "some_admin",
-                                         f"!sys {rescue_sop_fx.board_index} Fuelum")
+    context = await Context.from_message(
+        bot_fx, "#unittest", "some_admin", f"!sys {rescue_sop_fx.board_index} Fuelum"
+    )
     await trigger(context)
 
     assert rescue_sop_fx != old_sys, "Failed to update system."
@@ -336,32 +353,32 @@ async def test_system(bot_fx, rescue_sop_fx):
 @pytest.mark.asyncio
 @pytest.mark.hypothesis
 @pytest.mark.parametrize(
-    "platform_string,platform",
-    [
-        ("pc", Platforms.PC),
-        ("ps", Platforms.PS),
-        ("xb", Platforms.XB)
-    ]
+    "platform_string,platform", [("pc", Platforms.PC), ("ps", Platforms.PS), ("xb", Platforms.XB)]
 )
 async def test_platform(bot_fx, platform_string: str, platform: Platforms, rescue_sop_fx):
     await bot_fx.board.append(rescue_sop_fx)
     context = await Context.from_message(
-        bot_fx, channel="#ratchat", sender="some_ov",
-        message=f"!{platform_string} {rescue_sop_fx.board_index}"
+        bot_fx,
+        channel="#ratchat",
+        sender="some_ov",
+        message=f"!{platform_string} {rescue_sop_fx.board_index}",
     )
     await trigger(ctx=context)
     assert rescue_sop_fx.platform is platform, "failed to update platform"
 
 
-async def test_clear_rescue_unident_drill_mode(bot_fx, rat_board_fx, rescue_sop_fx, rat_no_id_fx,
-                                               monkeypatch):
+async def test_clear_rescue_unident_drill_mode(
+    bot_fx, rat_board_fx, rescue_sop_fx, rat_no_id_fx, monkeypatch
+):
     """ verifies rescues WILL be closed to unidentified rats in drill mode"""
     rescue_sop_fx.unidentified_rats[rat_no_id_fx.name] = rat_no_id_fx
     await rat_board_fx.append(rescue_sop_fx)
 
     context = await Context.from_message(
-        bot_fx, channel="#fuelrats", sender="some_ov",
-        message=f"!clear {rescue_sop_fx.board_index} {rat_no_id_fx.name}"
+        bot_fx,
+        channel="#fuelrats",
+        sender="some_ov",
+        message=f"!clear {rescue_sop_fx.board_index} {rat_no_id_fx.name}",
     )
 
     monkeypatch.setattr(context, "DRILL_MODE", True)
@@ -369,15 +386,18 @@ async def test_clear_rescue_unident_drill_mode(bot_fx, rat_board_fx, rescue_sop_
     assert rescue_sop_fx not in rat_board_fx, "failed to clear rescue."
 
 
-async def test_clear_rescue_unident_prod_mode(bot_fx, rat_board_fx, rescue_sop_fx, rat_no_id_fx,
-                                              monkeypatch):
+async def test_clear_rescue_unident_prod_mode(
+    bot_fx, rat_board_fx, rescue_sop_fx, rat_no_id_fx, monkeypatch
+):
     """ verifies rescues will NOT be closed for unidentified rats outside drill mode """
     rescue_sop_fx.unidentified_rats[rat_no_id_fx.name] = rat_no_id_fx
     await rat_board_fx.append(rescue_sop_fx)
 
     context = await Context.from_message(
-        bot_fx, channel="#fuelrats", sender="some_ov",
-        message=f"!clear {rescue_sop_fx.board_index} {rat_no_id_fx.name}"
+        bot_fx,
+        channel="#fuelrats",
+        sender="some_ov",
+        message=f"!clear {rescue_sop_fx.board_index} {rat_no_id_fx.name}",
     )
 
     monkeypatch.setattr(context, "DRILL_MODE", False)
