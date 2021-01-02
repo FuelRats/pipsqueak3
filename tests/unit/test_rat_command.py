@@ -252,3 +252,25 @@ class TestRatCommand(object):
         assert f"{random_string_fx}'s case is now Inactive." in bot_fx.sent_messages[1]['message']
         assert f"{random_string_fx}'s case updated with: 'test inject message' (Case {rescue.board_index})" in bot_fx.sent_messages[2]['message']
         assert f"{random_string_fx}'s case is now Active." in bot_fx.sent_messages[3]['message']
+
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("alias", ['md', 'mdadd'])
+    @pytest.mark.parametrize("channel", ['#unittest', 'some_rat'])
+    async def test_call_command_md(self, alias, channel, bot_fx, configuration_fx, rat_board_fx, rescue_sop_fx):
+        assert rescue_sop_fx.marked_for_deletion.marked == False, "UNEXPECTED: SOP rescue already marked for deletion"
+        bot_fx.board = rat_board_fx
+        await bot_fx.board.append(rescue_sop_fx)
+        assert len(bot_fx.board) == 1, f"Setting up a test case failed"
+
+        trigger_alias = f"{configuration_fx.commands.prefix}{alias} {rescue_sop_fx.board_index}"
+        logger.debug(f"Triggering alias: {trigger_alias}")
+        await Commands.trigger(await Context.from_message(bot_fx, channel, "some_rat", trigger_alias))
+        assert len(bot_fx.board) == 1, f"Case got closed by {trigger_alias} [without inject message]"
+        assert not rescue_sop_fx.marked_for_deletion.marked, "SOP rescue became marked for deletion [without inject message]"
+
+        trigger_alias = f"{configuration_fx.commands.prefix}{alias} {rescue_sop_fx.board_index} Closing test case"
+        logger.debug(f"Triggering alias: {trigger_alias}")
+        await Commands.trigger(await Context.from_message(bot_fx, channel, "some_rat", trigger_alias))
+        assert len(bot_fx.board) == 0, f"Case did not get closed by {trigger_alias}"
+        assert rescue_sop_fx.marked_for_deletion.marked, "SOP rescue did not become marked for deletion"
