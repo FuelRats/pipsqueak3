@@ -33,10 +33,9 @@ from .packages.utils import sanitize
 from .features.message_history import MessageHistoryClient
 
 from typing import Dict
-from datetime import datetime, timezone
 import prometheus_client
 from prometheus_async.aio import time as aio_time
-
+import pendulum
 ON_MESSAGE_TIME = prometheus_client.Histogram(
     name="on_message",
     namespace="client",
@@ -90,7 +89,7 @@ class MechaClient(Client, MessageHistoryClient):
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config
         self._galaxy = None
-        self._start_time = datetime.now(tz=timezone.utc)
+        self._start_time = pendulum.now(tz=pendulum.tz.UTC)
         self._on_invite = require_permission(TECHRAT)(functools.partial(self._on_invite))
         TRACKED_MESSAGES.set_function(lambda: len(self._last_user_message))
         super().__init__(*args, **kwargs)
@@ -296,5 +295,5 @@ class MechaClient(Client, MessageHistoryClient):
         return self._last_user_message
 
     @property
-    def start_time(self) -> datetime:
+    def start_time(self) -> pendulum.DateTime:
         return self._start_time

@@ -16,6 +16,7 @@ import typing
 from asyncio import Lock
 from collections import abc
 from contextlib import asynccontextmanager
+from typing import Optional
 from uuid import UUID
 
 from loguru import logger
@@ -26,8 +27,7 @@ from ..fuelrats_api import FuelratsApiABC, ApiException, Impersonation
 from ..rescue import Rescue
 from ...config.datamodel import ConfigRoot
 
-from datetime import datetime, timezone
-
+import pendulum
 cycle_at = 15
 """
 Determines at what board index does mecha (attempt) to start over indexing
@@ -349,7 +349,7 @@ class RatBoard(abc.Mapping):
 
         finally:
             rescue.board_index = index
-            self._datetime_last_case = datetime.now(tz=timezone.utc)
+            self._datetime_last_case = pendulum.now(tz=pendulum.tz.UTC)
             # Always append it to ourselves, regardless of API errors
             await self.append(rescue, overwrite=ovewrite)
 
@@ -367,6 +367,6 @@ class RatBoard(abc.Mapping):
         logger.trace("Released modification lock.")
 
     @property
-    def last_case_datetime(self) -> Optional[datetime]:
+    def last_case_datetime(self) -> Optional[pendulum.DateTime]:
         """ Return the last case datetime (timezone-aware) """
         return self._datetime_last_case

@@ -11,9 +11,9 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 from copy import deepcopy
-from datetime import datetime
 from uuid import uuid4, UUID
 
+import pendulum
 import pytest
 from dateutil.tz import tzutc
 
@@ -83,7 +83,7 @@ def test_created_at_date_exists(rescue_sop_fx):
     """
     Verifies rescue.created_at datetime is set, and in the past.
     """
-    expected_time_differential = (datetime.now(tz=tzutc()) - rescue_sop_fx.created_at)
+    expected_time_differential = (pendulum.now() - rescue_sop_fx.created_at)
     assert expected_time_differential != 0
 
 
@@ -91,12 +91,12 @@ def test_updated_at_date_exists(rescue_sop_fx):
     """
     Verifies rescue.updated_at is correct
     """
-    rescue_sop_fx._updatedAt = datetime(1990, 1, 1, 1, 1, 1, tzinfo=tzutc())
+    rescue_sop_fx._updatedAt = pendulum.datetime(1990, 1, 1, 1, 1, 1, tz=pendulum.tz.UTC)
 
     with rescue_sop_fx.change():
         rescue_sop_fx.system = 'UpdatedSystem'
 
-    assert rescue_sop_fx.updated_at != datetime(1990, 1, 1, 1, 1, 1, tzinfo=tzutc())
+    assert rescue_sop_fx.updated_at != pendulum.datetime(1990, 1, 1, 1, 1, 1, tz=pendulum.tz.UTC)
 
 
 def test_updated_at_raises_typeerror(rescue_sop_fx):
@@ -104,7 +104,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
     Verify Rescue.updated_at raises TypeError if given incorrect value,
     or is set to a date in the past.
     """
-    rescue_sop_fx._createdAt = datetime(1991, 1, 1, 1, 1, 1, )
+    rescue_sop_fx._createdAt = pendulum.datetime(1991, 1, 1, 1, 1, 1, )
 
     # Set to a string time
     with pytest.raises(TypeError):
@@ -112,7 +112,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
 
     # Set to the past:
     with pytest.raises(ValueError):
-        rescue_sop_fx.updated_at = datetime(1990, 1, 1, 1, 1, 1, tzinfo=tzutc())
+        rescue_sop_fx.updated_at = pendulum.datetime(1990, 1, 1, 1, 1, 1, tz=pendulum.tz.UTC)
 
 
 @pytest.mark.parametrize("expected_rats", [

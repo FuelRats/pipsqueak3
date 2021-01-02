@@ -1,8 +1,8 @@
 import typing
-from datetime import datetime
 from typing import Optional, Dict
 
 import attr
+import pendulum
 
 from src.packages.fuelrats_api.v3.converters import to_datetime, from_datetime
 from ..jsonapi.resource import Resource
@@ -14,8 +14,8 @@ class Quotation:
     message: str = attr.ib(validator=attr.validators.instance_of(str))
     author: str = attr.ib(validator=attr.validators.instance_of(str))
     lastAuthor: str = attr.ib(validator=attr.validators.instance_of(str))
-    createdAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime))
-    updatedAt: datetime = attr.ib(validator=attr.validators.instance_of(datetime))
+    createdAt: pendulum.DateTime = attr.ib(validator=attr.validators.instance_of(pendulum.DateTime))
+    updatedAt: pendulum.DateTime = attr.ib(validator=attr.validators.instance_of(pendulum.DateTime))
 
     def into_internal(self) -> InternalQuotation:
         return InternalQuotation(

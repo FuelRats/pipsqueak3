@@ -11,8 +11,7 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-import datetime
-
+import pendulum
 
 class Fact:
     """
@@ -28,7 +27,7 @@ class Fact:
         self._aliases = aliases
         self._author = author
         self._editedby = editedby
-        self._edited = edited if edited else datetime.datetime.now(tz=datetime.timezone.utc)
+        self._edited = edited if edited else pendulum.now(pendulum.tz.UTC)
         self._mfd = mfd
 
     @property
@@ -94,11 +93,11 @@ class Fact:
         return self._editedby
 
     @property
-    def edited(self) -> datetime:
+    def edited(self) -> pendulum.DateTime:
         """
         Datetime stamp for last edit of fact.
 
-        Returns: datetime object
+        Returns: pendulum.DateTime object
         """
 
         return self._edited
@@ -211,18 +210,18 @@ class Fact:
         self._editedby = value
 
     @edited.setter
-    def edited(self, value: datetime):
+    def edited(self, value: pendulum.DateTime):
         """
         Sets the edited timestamp.  This is a datetime stamp and should not be
         modified willy-nilly.
 
         Args:
-            value: datetime last edit date
+            value: pendulum.DateTime last edit date
 
         Returns: Nothing
         """
 
-        if not isinstance(value, datetime.datetime):
+        if not isinstance(value, pendulum.DateTime):
             raise TypeError("Fact.edited must be of datetime type")
 
         self._edited = value

@@ -15,9 +15,7 @@ import re
 import typing
 import uuid
 import warnings
-from datetime import datetime, timezone
-from dateutil.relativedelta import relativedelta
-
+import pendulum
 import humanfriendly
 import pyparsing
 from loguru import logger
@@ -477,15 +475,19 @@ async def cmd_case_management_quiet(ctx: Context):
         await ctx.reply("Got no information yet")
         return
 
-    delta = relativedelta(datetime.now(tz=timezone.utc), ctx.bot.board.last_case_datetime)
-    hour_part = ""
-    if delta.hours:
-        hour_plural = 's' if delta.hours > 1 else ''
-        hour_part = f"{delta.hours} hour{hour_plural} and "
-    minute_plural = 's' if delta.minutes != 1 else ''
-    await ctx.reply(
-        f"The last case was created {hour_part}{delta.minutes} minute{minute_plural} ago."
-    )
+    # delta = pendulum.now(tz=pendulum.tz.UTC) - ctx.bot.board.last_case_datetime
+    # hour_part = ""
+    # if delta.hours:
+    #     hour_plural = 's' if delta.hours > 1 else ''
+    #     hour_part = f"{delta.hours} hour{hour_plural} and "
+    # minute_plural = 's' if delta.minutes != 1 else ''
+
+    human_delta = pendulum.now().diff_for_humans(ctx.bot.board.last_case_datetime)
+    if "before" in human_delta:
+        logger.warning(
+            "computed delta is in the future, this shouldn't be possible... {!r}", human_delta
+        )
+    await ctx.reply(f"The last case was created {human_delta.replace('after', 'ago')}.")
 
 
 @command("quote", require_channel=True, require_permission=RAT)
@@ -510,7 +512,7 @@ async def cmd_case_management_quote(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             delta = humanfriendly.format_timespan(
-                (datetime.now(tz=timezone.utc) - quote.updated_at),
+                (pendulum.now() - quote.updated_at),
                 detailed=False,
                 max_units=2,
             )
@@ -589,7 +591,7 @@ async def cmd_case_management_sub(ctx: Context):
             last_author=ctx.user.nickname,
             author=rescue.quotes[quote_id].author,
             created_at=rescue.quotes[quote_id].created_at,
-            updated_at=datetime.now(timezone.utc),
+            updated_at=pendulum.now(pendulum.tz.UTC),
         )
 
         async with ctx.bot.board.modify_rescue(rescue) as case:

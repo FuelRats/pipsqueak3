@@ -11,7 +11,7 @@ See LICENSE.md
 This module is built on top of the Pydle system.
 """
 from contextlib import contextmanager
-from datetime import datetime
+import pendulum
 from io import StringIO
 from typing import Union, Optional, List, TYPE_CHECKING, Dict, Set
 from uuid import UUID, uuid4
@@ -40,8 +40,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
                  system: Optional[str] = None,
                  irc_nickname: Optional[str] = None,
                  board: 'RatBoard' = None,
-                 created_at: Optional[datetime] = None,
-                 updated_at: Optional[datetime] = None,
+                 created_at: Optional[pendulum.DateTime] = None,
+                 updated_at: Optional[pendulum.DateTime] = None,
                  unidentified_rats: Optional[List[str]] = None,
                  active: bool = True,
                  quotes: Optional[List[Quotation]] = None,
@@ -66,9 +66,9 @@ class Rescue:  # pylint: disable=too-many-public-methods
             client (str): Commander name of the Commander rescued
             system (str): System name the Commander is stranded in
                 (WILL BE CAST TO UPPER CASE)
-            created_at (datetime): time the case was first created
+            created_at (pendulum.DateTime): time the case was first created
                 **( READONLY )**
-            updated_at (datetime): last time the case was modified
+            updated_at (pendulum.DateTime): last time the case was modified
             unidentified_rats (list): list of unidentified rats responding to
                 rescue **(nicknames)**
             active (bool): marks whether the case is active or not
@@ -91,8 +91,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._platform: Platforms = platform
         self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else {}
-        self._created_at: datetime = created_at if created_at else datetime.now(tz=tzutc())
-        self._updated_at: datetime = updated_at if updated_at else datetime.now(tz=tzutc())
+        self._created_at: pendulum.DateTime = created_at if created_at else pendulum.now(tz=pendulum.tz.UTC)
+        self._updated_at: pendulum.DateTime = updated_at if updated_at else pendulum.now(tz=pendulum.tz.UTC)
         self._api_id: UUID = uuid if uuid else uuid4()
         self._client: str = client
         self._irc_nick: str = irc_nickname if irc_nickname else client
@@ -358,7 +358,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self.modified.add("client")
 
     @property
-    def created_at(self) -> datetime:
+    def created_at(self) -> pendulum.DateTime:
         """
         Case creation time.
 
@@ -369,7 +369,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         It can only be set during Rescue object creation
 
         Returns:
-            datetime: creation date
+            pendulum.DateTime: creation date
         """
         return self._created_at
 
@@ -508,7 +508,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         Last time the rescue object was changed
 
         Returns:
-            datetime
+            pendulum.DateTime
         """
 
         return self._updated_at
@@ -519,7 +519,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
         Updates `Rescue.updated_at` property
 
         Args:
-            value (datetime): new last modified datetime
+            value (pendulum.DateTime): new last modified pendulum.DateTime
 
         Raises:
             TypeError: invalid `value` type.
@@ -528,8 +528,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         Returns:
 
         """
-        if not isinstance(value, datetime):
-            raise TypeError(f"Expected datetime, got {type(value)}")
+        if not isinstance(value, pendulum.DateTime):
+            raise TypeError(f"Expected pendulum.DateTime, got {type(value)}")
         if value < self.created_at:
             raise ValueError(f"{value} is older than the cases creation date!")
         self._updated_at = value
@@ -817,7 +817,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             ```
         """
         yield
-        self.updated_at = datetime.now(tz=tzutc())
+        self.updated_at = pendulum.DateTime.now(tz=tzutc())
 
     # TODO: to/from json
     # TODO: track changes

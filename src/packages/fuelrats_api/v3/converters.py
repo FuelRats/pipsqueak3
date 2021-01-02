@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+
+import pendulum
+from pendulum import DateTime
 from typing import Union, Any
 from uuid import UUID
 
-from dateutil.parser import parse as datetime_parser
+from dateutil.parser import parse as DateTime_parser
 from loguru import logger
 
 from src.packages.utils import Platforms
@@ -16,24 +18,24 @@ def to_platform(key: str):
     return Platforms[key.upper()]
 
 
-def to_datetime(raw: Union[str, datetime]) -> datetime:
+def to_datetime(raw: Union[str, DateTime]) -> DateTime:
     """
-    convert string to datetime; no-op if the input is already a datetime.
+    convert string to DateTime; no-op if the input is already a DateTime.
 
     This method exists because primitive constructors like `int(...)` are idempotent which makes
     them *really useful* for attrs converters. Datetime / `dateutil.parser` is NOT one of these.
     """
-    # step 0, if its already a datetime do nothing.
-    if isinstance(raw, datetime):
+    # step 0, if its already a DateTime do nothing.
+    if isinstance(raw, DateTime):
         return raw
-    return datetime_parser(raw)
+    return pendulum.parse(raw)
 
 
-def from_datetime(date: datetime) -> str:
+def from_datetime(date: pendulum.DateTime) -> str:
     """
-    converts a datetime object back to a ISO string
+    converts a DateTime object back to a ISO string
     """
-    return date.isoformat().replace("+00:00", "Z")
+    return date.astimezone(pendulum.tz.UTC).isoformat().replace("+00:00", "Z")
 
 
 def to_uuid(raw: Union[str, UUID]) -> UUID:
@@ -64,9 +66,9 @@ for converter in (cattr, event_converter):
     # UUID doesn't have a builtin de/structure hook, provide our own
     converter.register_structure_hook(UUID, structure_uuid)
     converter.register_unstructure_hook(UUID, lambda data: f"{data}")
-    # Nor does datetime, for some reason
-    converter.register_structure_hook(datetime, lambda data, _: to_datetime(data))
-    converter.register_unstructure_hook(datetime, lambda date: from_datetime(date))
+    # Nor does DateTime, for some reason
+    converter.register_structure_hook(DateTime, lambda data, _: to_datetime(data))
+    converter.register_unstructure_hook(DateTime, lambda date: from_datetime(date))
     # Platforms is an enum so cattr *does* provide one, its just not
     # conformant to the enum in the API so we need our own conversion hook...
     converter.register_structure_hook(Platforms, lambda platform, _: Platforms[platform.upper()])

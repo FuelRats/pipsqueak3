@@ -10,9 +10,8 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
+import pendulum
 import pytest
-import datetime
-from datetime import timezone
 
 pytestmark = [pytest.mark.unit, pytest.mark.fact_class]
 
@@ -187,7 +186,7 @@ def test_fact_edited(test_fact_empty_fx):
     Test that edited generates a datetime automagically, and returns it.
     """
     test_fact = test_fact_empty_fx
-    test_fact.edited = datetime.datetime.now(tz=timezone.utc)
+    test_fact.edited = pendulum.now()
 
     assert test_fact.edited
 
