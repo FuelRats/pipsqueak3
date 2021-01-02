@@ -13,6 +13,7 @@ See LICENSE.md
 
 import pendulum
 
+
 class Fact:
     """
     Represents a single Fact object.
