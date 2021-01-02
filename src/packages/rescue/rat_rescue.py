@@ -402,7 +402,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
             Fuelrats Api v2.1
         """
 
-        assert value is None or isinstance(value, str)
+        if not (value is None or isinstance(value, str)):
+            raise TypeError("value must be of type None or str")
 
         if value is None:
             # System must be nullable, so we specifically check for it
