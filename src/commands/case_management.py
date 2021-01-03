@@ -475,13 +475,6 @@ async def cmd_case_management_quiet(ctx: Context):
         await ctx.reply("Got no information yet")
         return
 
-    # delta = pendulum.now(tz=pendulum.tz.UTC) - ctx.bot.board.last_case_datetime
-    # hour_part = ""
-    # if delta.hours:
-    #     hour_plural = 's' if delta.hours > 1 else ''
-    #     hour_part = f"{delta.hours} hour{hour_plural} and "
-    # minute_plural = 's' if delta.minutes != 1 else ''
-
     human_delta = pendulum.now().diff_for_humans(ctx.bot.board.last_case_datetime)
     if "before" in human_delta:
         logger.warning(
@@ -512,7 +505,7 @@ async def cmd_case_management_quote(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             delta = humanfriendly.format_timespan(
-                (pendulum.now() - quote.updated_at),
+                (pendulum.now(pendulum.tz.UTC) - quote.updated_at),
                 detailed=False,
                 max_units=2,
             )

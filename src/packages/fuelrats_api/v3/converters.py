@@ -7,7 +7,6 @@ from pendulum import DateTime
 from typing import Union, Any
 from uuid import UUID
 
-from dateutil.parser import parse as DateTime_parser
 from loguru import logger
 
 from src.packages.utils import Platforms
@@ -66,7 +65,6 @@ for converter in (cattr, event_converter):
     # UUID doesn't have a builtin de/structure hook, provide our own
     converter.register_structure_hook(UUID, structure_uuid)
     converter.register_unstructure_hook(UUID, lambda data: f"{data}")
-    # Nor does DateTime, for some reason
     converter.register_structure_hook(DateTime, lambda data, _: to_datetime(data))
     converter.register_unstructure_hook(DateTime, lambda date: from_datetime(date))
     # Platforms is an enum so cattr *does* provide one, its just not
