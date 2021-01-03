@@ -161,7 +161,7 @@ async def test_user_eq(data: dict, monkeypatch, bot_fx):
 
     assert user_alpha == user_beta
 
-
+@pytest.mark.asyncio
 async def test_effective_permission(bot_fx):
     user = await User.from_pydle(bot_fx, "some_admin")
     has_required_permission(user, ADMIN)

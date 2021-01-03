@@ -1,5 +1,5 @@
 import typing
-from datetime import datetime
+import pendulum
 
 import attr
 
@@ -30,15 +30,15 @@ class NicknameAttributes:
     """The nickname's last IRC real name.\nRead Permission: Public"""
     lastRealName: typing.Optional[str] = None
     """Timestamp for when the user was last seen on IRC\nRead Permission: Public"""
-    lastSeen: typing.Optional[datetime] = None
+    lastSeen: typing.Optional[pendulum.DateTime] = None
     """The nickname's last known (hashed) usermask\nRead Permission: Public"""
     lastUserMask: typing.Optional[str] = None
     """The main nickname of the account this nickname belongs to\nRead Permission: Public"""
     display: typing.Optional[str] = None
     """The IRC nickname\nRead Permission: Public"""
-    createdAt: typing.Optional[datetime] = None
+    createdAt: typing.Optional[pendulum.DateTime] = None
     """Timestamp for when this nick was created\nRead Permission: Public"""
-    updatedAt: typing.Optional[datetime] = None
+    updatedAt: typing.Optional[pendulum.DateTime] = None
     """Timestamp for when this nick was last updated\nRead Permission: Public"""
     vhost: typing.Optional[str] = None
     """The virtual-host of this nickname\nRead Permission: Public"""

@@ -1,10 +1,9 @@
 import typing
-from datetime import datetime
 from typing import Optional
 
 import attr
+import pendulum
 
-from src.packages.fuelrats_api.v3.converters import to_platform, to_datetime
 from ..jsonapi.relationship import Relationship
 from ..jsonapi.resource import Resource
 from .....rat import Rat as InternalRat
@@ -29,11 +28,11 @@ class RatRelationships:
 @attr.dataclass
 class RatAttributes:
     name: str = attr.ib(validator=attr.validators.instance_of(str))
-    createdAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime),
+    createdAt: pendulum.DateTime = attr.ib(
+        validator=attr.validators.instance_of(pendulum.DateTime),
     )
-    updatedAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime),
+    updatedAt: pendulum.DateTime = attr.ib(
+        validator=attr.validators.instance_of(pendulum.DateTime),
     )
     platform: Platforms = attr.ib()
     frontierId: typing.Optional[str] = attr.ib(

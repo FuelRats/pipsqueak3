@@ -13,8 +13,7 @@ This module is built on top of the Pydle system.
 
 import contextlib
 import functools
-from datetime import datetime, timezone
-
+import pendulum
 import attr
 from loguru import logger
 
@@ -42,14 +41,14 @@ class Quotation:
         validator=attr.validators.instance_of(str),
         default="Mecha")
     """ Nickname of the last user to modify this rescue """
-    created_at: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime),
-        factory=functools.partial(datetime.now, tz=timezone.utc)
+    created_at: pendulum.DateTime = attr.ib(
+        validator=attr.validators.instance_of(pendulum.DateTime),
+        factory=functools.partial(pendulum.now, tz=pendulum.tz.UTC)
     )
     """ Initial creation time """
-    updated_at: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime),
-        factory=functools.partial(datetime.now, tz=timezone.utc)
+    updated_at: pendulum.DateTime = attr.ib(
+        validator=attr.validators.instance_of(pendulum.DateTime),
+        factory=functools.partial(pendulum.now, tz=pendulum.tz.UTC)
     )
     """ Last modification time """
 
@@ -68,7 +67,7 @@ class Quotation:
 
         yield self
         self.last_author = context.user.nickname
-        self.updated_at = datetime.now(tz=timezone.utc)
+        self.updated_at = pendulum.now()
 
         try:
             attr.validate(self)

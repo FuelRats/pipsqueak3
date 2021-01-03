@@ -11,8 +11,8 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-import datetime
 import psycopg2
+import pendulum
 import typing
 from psycopg2 import sql, pool
 from loguru import logger
@@ -172,7 +172,7 @@ class FactManager(DatabaseManager):
             edit_query = sql.SQL(f"UPDATE {self._fact_table} SET message=%(message)s, "
                                  f"edited=%(edit_time)s WHERE name=%(name)s AND lang=%(lang)s")
 
-            query_values = {"edit_time": datetime.datetime.now(datetime.timezone.utc),
+            query_values = {"edit_time": pendulum.now(),
                             "message": new_message, "name": name, "lang": lang}
 
             logger.debug(f"query_values = {query_values}")
@@ -306,7 +306,7 @@ class FactManager(DatabaseManager):
                             f"VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
         query_data = (fact_name, fact_lang, author, msg, old_field, new_field,
-                      datetime.datetime.utcnow())
+                      pendulum.now())
 
         try:
             await self.query(log_query, query_data)

@@ -177,7 +177,7 @@ class TestRatCommand(object):
         await rat_board_fx.remove_rescue(rescue._board_index)
         retn = await Commands.trigger(ctx)
         logger.debug(f"sent post: {bot_fx.sent_messages} - lastcase: {rat_board_fx.last_case_datetime}")
-        assert "The last case was created 0 minutes ago." in bot_fx.sent_messages[2]['message']
+        assert "The last case was created a few seconds ago." in bot_fx.sent_messages[2]['message']
 
 
     @pytest.mark.asyncio

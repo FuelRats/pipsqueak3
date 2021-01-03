@@ -8,10 +8,10 @@ from ..jsonapi.resource import Resource
 from ..jsonapi.document import Document
 from .....rescue import Rescue as InternalRescue
 from .....mark_for_deletion import MarkForDeletion
-from datetime import datetime
 from src.packages.fuelrats_api.v3.converters import to_datetime
 from .quotation import Quotation
 from .....utils import Platforms
+import pendulum
 
 
 @attr.dataclass
@@ -43,11 +43,11 @@ class RescueAttributes:
             iterable_validator=attr.validators.instance_of(list),
         )
     )
-    createdAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime), converter=to_datetime
+    createdAt: pendulum.DateTime = attr.ib(
+        validator=attr.validators.instance_of(pendulum.DateTime), converter=to_datetime
     )
-    updatedAt: datetime = attr.ib(
-        validator=attr.validators.instance_of(datetime), converter=to_datetime
+    updatedAt: pendulum.DateTime = attr.ib(
+        validator=attr.validators.instance_of(pendulum.DateTime), converter=to_datetime
     )
     status: str = attr.ib(validator=attr.validators.instance_of(str))
     outcome: Optional[str] = attr.ib(
