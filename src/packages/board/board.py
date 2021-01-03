@@ -349,7 +349,7 @@ class RatBoard(abc.Mapping):
 
         finally:
             rescue.board_index = index
-            self._datetime_last_case = pendulum.now(tz=pendulum.tz.UTC)
+            self._datetime_last_case = pendulum.now()
             # Always append it to ourselves, regardless of API errors
             await self.append(rescue, overwrite=ovewrite)
 

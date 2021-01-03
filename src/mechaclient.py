@@ -89,7 +89,7 @@ class MechaClient(Client, MessageHistoryClient):
         self._rat_board = None  # Instantiate Rat Board
         self._config = mecha_config
         self._galaxy = None
-        self._start_time = pendulum.now(tz=pendulum.tz.UTC)
+        self._start_time = pendulum.now()
         self._on_invite = require_permission(TECHRAT)(functools.partial(self._on_invite))
         TRACKED_MESSAGES.set_function(lambda: len(self._last_user_message))
         super().__init__(*args, **kwargs)

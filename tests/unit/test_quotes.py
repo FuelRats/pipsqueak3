@@ -52,7 +52,7 @@ class TestQuotes(object):
         assert expected_author == quote.author
 
     def test_created_at(self):
-        expected_time = pendulum.now(tz=pendulum.tz.UTC)
+        expected_time = pendulum.now()
         quote = Quotation(message="foo", created_at=expected_time)
         assert quote.created_at == expected_time
 

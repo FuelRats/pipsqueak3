@@ -91,12 +91,8 @@ class Rescue:  # pylint: disable=too-many-public-methods
         self._platform: Platforms = platform
         self.rat_board: 'RatBoard' = board
         self._rats = rats if rats else {}
-        self._created_at: pendulum.DateTime = created_at if created_at else pendulum.now(
-            tz=pendulum.tz.UTC
-        )
-        self._updated_at: pendulum.DateTime = updated_at if updated_at else pendulum.now(
-            tz=pendulum.tz.UTC
-        )
+        self._created_at: pendulum.DateTime = created_at if created_at else pendulum.now()
+        self._updated_at: pendulum.DateTime = updated_at if updated_at else pendulum.now()
         self._api_id: UUID = uuid if uuid else uuid4()
         self._client: str = client
         self._irc_nick: str = irc_nickname if irc_nickname else client
@@ -821,7 +817,7 @@ class Rescue:  # pylint: disable=too-many-public-methods
             ```
         """
         yield
-        self.updated_at = pendulum.DateTime.now(tz=tzutc())
+        self.updated_at = pendulum.DateTime.now()
 
     # TODO: to/from json
     # TODO: track changes

@@ -172,7 +172,7 @@ class FactManager(DatabaseManager):
             edit_query = sql.SQL(f"UPDATE {self._fact_table} SET message=%(message)s, "
                                  f"edited=%(edit_time)s WHERE name=%(name)s AND lang=%(lang)s")
 
-            query_values = {"edit_time": pendulum.now(pendulum.tz.UTC),
+            query_values = {"edit_time": pendulum.now(),
                             "message": new_message, "name": name, "lang": lang}
 
             logger.debug(f"query_values = {query_values}")

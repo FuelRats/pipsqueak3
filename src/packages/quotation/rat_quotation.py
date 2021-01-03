@@ -67,7 +67,7 @@ class Quotation:
 
         yield self
         self.last_author = context.user.nickname
-        self.updated_at = pendulum.now(tz=pendulum.tz.UTC)
+        self.updated_at = pendulum.now()
 
         try:
             attr.validate(self)

@@ -28,7 +28,7 @@ class Fact:
         self._aliases = aliases
         self._author = author
         self._editedby = editedby
-        self._edited = edited if edited else pendulum.now(pendulum.tz.UTC)
+        self._edited = edited if edited else pendulum.now()
         self._mfd = mfd
 
     @property

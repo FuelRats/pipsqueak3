@@ -505,7 +505,7 @@ async def cmd_case_management_quote(ctx: Context):
     if rescue.quotes:
         for i, quote in enumerate(rescue.quotes):
             delta = humanfriendly.format_timespan(
-                (pendulum.now(pendulum.tz.UTC) - quote.updated_at),
+                (pendulum.now() - quote.updated_at),
                 detailed=False,
                 max_units=2,
             )
@@ -547,7 +547,7 @@ async def cmd_case_management_quoteid(ctx: Context):
         for i, quote in enumerate(rescue.quotes):
             quote_timestamp = (
                 humanfriendly.format_timespan(
-                    (datetime.now(tz=timezone.utc) - quote.updated_at),
+                    (datetime.now() - quote.updated_at),
                     detailed=False,
                     max_units=2,
                 )
@@ -584,7 +584,7 @@ async def cmd_case_management_sub(ctx: Context):
             last_author=ctx.user.nickname,
             author=rescue.quotes[quote_id].author,
             created_at=rescue.quotes[quote_id].created_at,
-            updated_at=pendulum.now(pendulum.tz.UTC),
+            updated_at=pendulum.now(),
         )
 
         async with ctx.bot.board.modify_rescue(rescue) as case:
