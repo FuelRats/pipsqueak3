@@ -13,6 +13,7 @@ This module is built on top of the Pydle system.
 """
 import datetime
 import re
+import warnings
 from dataclasses import dataclass
 from enum import Enum
 from math import isclose, sqrt
@@ -203,6 +204,7 @@ def duration(time: datetime.timedelta) -> str:
     Returns: (str) Easier-to-read time.
 
     """
+    warnings.warn("This interface is deprecated in favor of pendulum APIs.", DeprecationWarning)
     if not isinstance(time, datetime.timedelta):
         raise TypeError("ratlib.duration method requires a datetime or timedelta.")
 
