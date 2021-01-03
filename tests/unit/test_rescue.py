@@ -91,12 +91,12 @@ def test_updated_at_date_exists(rescue_sop_fx):
     """
     Verifies rescue.updated_at is correct
     """
-    rescue_sop_fx._updatedAt = pendulum.datetime(1990, 1, 1, 1, 1, 1, tz=pendulum.tz.UTC)
+    rescue_sop_fx._updatedAt = pendulum.datetime(1990, 1, 1, 1, 1, 1)
 
     with rescue_sop_fx.change():
         rescue_sop_fx.system = 'UpdatedSystem'
 
-    assert rescue_sop_fx.updated_at != pendulum.datetime(1990, 1, 1, 1, 1, 1, tz=pendulum.tz.UTC)
+    assert rescue_sop_fx.updated_at != pendulum.datetime(1990, 1, 1, 1, 1, 1)
 
 
 def test_updated_at_raises_typeerror(rescue_sop_fx):
@@ -112,7 +112,7 @@ def test_updated_at_raises_typeerror(rescue_sop_fx):
 
     # Set to the past:
     with pytest.raises(ValueError):
-        rescue_sop_fx.updated_at = pendulum.datetime(1990, 1, 1, 1, 1, 1, tz=pendulum.tz.UTC)
+        rescue_sop_fx.updated_at = pendulum.datetime(1990, 1, 1, 1, 1, 1)
 
 
 @pytest.mark.parametrize("expected_rats", [
