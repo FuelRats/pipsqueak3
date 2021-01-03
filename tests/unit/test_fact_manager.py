@@ -53,14 +53,14 @@ def test_fm_fx(request) -> FactManager:
 
     test_data = [f"INSERT INTO {test_table} (name, lang, message, author, editedby, edited) "
                  f"VALUES ('stats', 'en', 'Fuel Rats Statistics: https://t.fuelr.at/stats',"
-                 f" 'CrunchyBaton955', 'CrunchyBaton955)', '{pendulum.DateTime(1970, 1, 1, 0, 0, 0)}')",
+                 f" 'CrunchyBaton955', 'CrunchyBaton955)', '{pendulum.datetime(1970, 1, 1, 0, 0, 0)}')",
                  f"INSERT INTO {test_table} (name, lang, message, author, editedby, edited) "
                  f"VALUES ('test', 'en', 'This is a test fact.', 'Shatt', 'Shatt',"
-                 f" '{pendulum.DateTime(1970, 1, 1, 0, 0, 0)}')",
+                 f" '{pendulum.datetime(1970, 1, 1, 0, 0, 0)}')",
                  f"INSERT INTO {test_table} (name, lang, message, author, editedby, edited) "
                  f"VALUES ('test', 'ru', 'This is a test fact. Чтобы зажечь "
                  f"маяк, зажмите клавижу Х и нажмите', 'Shatt', 'Shatt',"
-                 f" '{pendulum.DateTime(1970, 1, 1, 0, 0, 0)}')"]
+                 f" '{pendulum.datetime(1970, 1, 1, 0, 0, 0)}')"]
 
     try:
         pytest_fm = FactManager(fact_table=test_table, fact_log=test_log)
