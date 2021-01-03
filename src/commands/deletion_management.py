@@ -42,7 +42,7 @@ def _validate(ctx: Context, validate: str) -> Optional[Rescue]:
     return rescue
 
 
-@command("md", "mdadd", require_channel=True, require_permission=RAT)
+@command("md", "mdadd", require_permission=RAT)
 async def del_management_md(ctx: Context):
     if len(ctx.words) <= 2:
         await ctx.reply("Usage: !md <Client Name|Board Index> <Reason for Deletion>")
