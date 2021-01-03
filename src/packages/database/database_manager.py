@@ -112,25 +112,25 @@ class DatabaseManager:
             # otherwise retrieve from config file and use those values.
             self._dbhost = dbhost if dbhost is not None else self._config.database.host
             if not self._dbhost:
-                raise UnboundLocalError("_dbhost is not set")
+                raise AssertionError("_dbhost is not set")
 
             self._dbport = dbport if dbhost is not None else self._config.database.port
             if not self._dbport:
-                raise UnboundLocalError("_dbport is not set")
+                raise AssertionError("_dbport is not set")
 
             self._dbname = dbname if dbname is not None else self._config.database.dbname
             if not self._dbname:
-                raise UnboundLocalError("_dbname is not set")
+                raise AssertionError("_dbname is not set")
 
             self._dbuser = dbuser if dbuser is not None else self._config.database.username
             if not self._dbuser:
-                raise UnboundLocalError("_dbuser is not set")
+                raise AssertionError("_dbuser is not set")
 
             self._dbpass = (
                 dbpassword if dbpassword is not None else self._config.database.password
             )
             if not self._dbpass:
-                raise UnboundLocalError("_dbpass is not set")
+                raise AssertionError("_dbpass is not set")
 
         # Create Database Connections Pool
         try:
