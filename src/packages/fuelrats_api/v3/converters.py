@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 
 import pendulum
-from pendulum import DateTime
 from typing import Union, Any
 from uuid import UUID
 
@@ -17,22 +16,22 @@ def to_platform(key: str):
     return Platforms[key.upper()]
 
 
-def to_datetime(raw: Union[str, DateTime]) -> DateTime:
+def to_datetime(raw: Union[str, pendulum.DateTime]) -> pendulum.DateTime:
     """
-    convert string to DateTime; no-op if the input is already a DateTime.
+    convert string to pendulum.DateTime; no-op if the input is already a pendulum.DateTime.
 
     This method exists because primitive constructors like `int(...)` are idempotent which makes
     them *really useful* for attrs converters. Datetime / `dateutil.parser` is NOT one of these.
     """
-    # step 0, if its already a DateTime do nothing.
-    if isinstance(raw, DateTime):
+    # step 0, if its already a pendulum.DateTime do nothing.
+    if isinstance(raw, pendulum.DateTime):
         return raw
     return pendulum.parse(raw)
 
 
-def from_datetime(date: pendulum.DateTime) -> str:
+def from_datetime(date: pendulum.pendulum.DateTime) -> str:
     """
-    converts a DateTime object back to a ISO string
+    converts a pendulum.DateTime object back to a ISO string
     """
     return date.astimezone(pendulum.tz.UTC).isoformat().replace("+00:00", "Z")
 
@@ -65,8 +64,8 @@ for converter in (cattr, event_converter):
     # UUID doesn't have a builtin de/structure hook, provide our own
     converter.register_structure_hook(UUID, structure_uuid)
     converter.register_unstructure_hook(UUID, lambda data: f"{data}")
-    converter.register_structure_hook(DateTime, lambda data, _: to_datetime(data))
-    converter.register_unstructure_hook(DateTime, lambda date: from_datetime(date))
+    converter.register_structure_hook(pendulum.DateTime, lambda data, _: to_datetime(data))
+    converter.register_unstructure_hook(pendulum.DateTime, lambda date: from_datetime(date))
     # Platforms is an enum so cattr *does* provide one, its just not
     # conformant to the enum in the API so we need our own conversion hook...
     converter.register_structure_hook(Platforms, lambda platform, _: Platforms[platform.upper()])
