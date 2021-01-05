@@ -6,6 +6,4 @@
     {%- else -%}  {% if flags.show_unidentified_rats or flags.show_assigned_rats %}
         No assigned Rats.  {% endif %}
     {%- endif %}
-    {% if flags.show_quotes %}
-    {{ render_quotes(rescue) }}
-    {% endif %}
+    {% if flags.show_quotes %}{{ render_quotes(rescue) }}{% endif %}

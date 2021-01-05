@@ -497,21 +497,15 @@ async def cmd_case_management_quote(ctx: Context):
         await ctx.reply("No case with that name or number.")
         return
 
-    created_timestamp = rescue.updated_at.strftime("%b %d %H:%M:%S UTC")
-
-    header = f"{rescue:s@r}, updated {created_timestamp}"
-
-    await ctx.reply(header)
-
-    if rescue.quotes:
-        for i, quote in enumerate(rescue.quotes):
-            delta = humanfriendly.format_timespan(
-                (pendulum.now() - quote.updated_at),
-                detailed=False,
-                max_units=2,
-            )
-            quote_timestamp = f"{delta} ago"
-            await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
+    template = env.get_template("rescue.jinja2")
+    flags = ListFlags(
+        show_assigned_rats=True,
+        show_unidentified_rats=True,
+        show_quotes=True,
+        show_uuids=True
+    )
+    output = await template.render_async(rescue=rescue, flags=flags)
+    return await ctx.reply(output.rstrip("\n"))
 
 
 @command("quoteid", require_channel=True, require_permission=OVERSEER)
@@ -742,7 +736,7 @@ async def cmd_list(ctx: Context):
             rescues=active_rescues, flags=flags
         )
         if output:
-            await ctx.reply(output)
+            await ctx.reply(output.rstrip("\n"))
     if flags.show_inactive:
         if not inactive_rescues:
             return await ctx.reply("No inactive rescues.")
@@ -751,7 +745,7 @@ async def cmd_list(ctx: Context):
             rescues=inactive_rescues, flags=flags
         )
         if output:
-            await ctx.reply(output)
+            await ctx.reply(output.rstrip("\n"))
 
 
 def _list_rescue(rescue_collection, format_specifiers):
