@@ -13,6 +13,7 @@ from uuid import uuid4
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 from loguru import logger
+import pendulum
 
 from src.commands._list_flags import ListFlags
 from src.packages.board import RatBoard
@@ -41,8 +42,12 @@ async def render_board(board: RatBoard, **kwargs) -> str:
     )
 
 
-def render_quote(quote: Quotation) -> str:
-    ...
+async def render_quotes(rescue: Rescue) -> str:
+    template = env.get_template("quotation.jinja2")
+
+    return await template.render_async(
+        rescue=rescue
+    )
 
 
 logger.debug("loading environment...")
@@ -58,3 +63,5 @@ env.globals['Status'] = Status
 env.globals['render_rescue'] = render_rescue
 env.globals['render_board'] = render_board
 env.globals['Platforms'] = Platforms
+env.globals['now'] = pendulum.now
+env.globals['render_quotes'] = render_quotes
