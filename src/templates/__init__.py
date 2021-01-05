@@ -20,7 +20,7 @@ from src.packages.board import RatBoard
 from src.packages.quotation import Quotation
 from src.packages.rat import Rat
 from src.packages.rescue import Rescue
-from src.packages.utils.ratlib import Platforms, Status, Colors, color
+from src.packages.utils.ratlib import Platforms, Status, Colors, color, bold, italic
 
 
 async def render_rescue(rescue: Rescue, flags: ListFlags):
@@ -59,6 +59,8 @@ env = Environment(
 # inject some objects into the environment so it can be accessed within the templates
 env.globals['Colors'] = Colors
 env.globals['color'] = color
+env.globals['bold'] = bold
+env.globals['italic'] = italic
 env.globals['Status'] = Status
 env.globals['render_rescue'] = render_rescue
 env.globals['render_board'] = render_board
