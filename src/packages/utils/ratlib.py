@@ -37,14 +37,14 @@ class Platforms(Enum):
 
     def colorize(self) -> str:
         if self is Platforms.PS:
-            text_color = Colors.GREY
+            text_color = Colors.BLUE
         elif self is Platforms.XB:
             text_color = Colors.GREEN
         elif self is Platforms.DEFAULT:
             text_color = Colors.RED
         else:
             text_color = Colors.PURPLE
-        return color(self.value, text_color)
+        return bold(color(self.value, text_color))
 
 
 class Status(Enum):
