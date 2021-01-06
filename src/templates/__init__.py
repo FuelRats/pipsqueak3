@@ -13,13 +13,13 @@ import pendulum
 from jinja2 import Environment, PackageLoader, select_autoescape
 from loguru import logger
 
-from src.commands import ListFlags
 from src.packages.board import RatBoard
 from src.packages.rescue import Rescue
 from src.packages.utils.ratlib import Platforms, Status, Colors, color, bold, italic
+from .render_flags import RescueRenderFlags
 
 
-async def render_rescue(rescue: Rescue, flags: ListFlags):
+async def render_rescue(rescue: Rescue, flags: RescueRenderFlags):
     template = env.get_template("rescue.jinja2")
 
     return await template.render_async(rescue=rescue, show_id=flags.show_uuids, flags=flags)

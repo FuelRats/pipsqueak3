@@ -8,13 +8,14 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from . import debug
-from . import case_management
-from . import deletion_management
-from . import starsystems
 from . import administration
 from . import api_utilities
-from ._list_flags import ListFlags
+from . import case_management
+from . import debug
+from . import deletion_management
+from . import starsystems
+from src.templates.render_flags import RescueRenderFlags
+
 __all__ = [
     "debug",
     "case_management",
@@ -22,5 +23,5 @@ __all__ = [
     "starsystems",
     "administration",
     "api_utilities",
-    "ListFlags"
+    "RescueRenderFlags"
 ]

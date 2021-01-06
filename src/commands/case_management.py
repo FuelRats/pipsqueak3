@@ -20,7 +20,7 @@ import humanfriendly
 import pyparsing
 from loguru import logger
 
-from ._list_flags import ListFlags
+from ..templates import RescueRenderFlags
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.parsing_rules import (
@@ -498,7 +498,7 @@ async def cmd_case_management_quote(ctx: Context):
         return
 
     template = env.get_template("rescue.jinja2")
-    flags = ListFlags(
+    flags = RescueRenderFlags(
         show_assigned_rats=True,
         show_unidentified_rats=True,
         show_quotes=True,
@@ -679,7 +679,7 @@ async def cmd_list(ctx: Context):
     """
     _, *words = ctx.words
 
-    flags = ListFlags()
+    flags = RescueRenderFlags()
     platform_filter = None
 
     # plain invocation
@@ -695,7 +695,7 @@ async def cmd_list(ctx: Context):
             if word.startswith("-"):
                 if flags_set:
                     raise RuntimeError("invalid usage")  # FIXME: usage warning to user
-                flags = ListFlags.from_word(word)
+                flags = RescueRenderFlags.from_word(word)
                 flags_set = True
             else:
                 # platform or bust
@@ -759,7 +759,7 @@ def _list_rescue(rescue_collection, format_specifiers):
 
 
 def _rescue_filter(
-    flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
+    flags: RescueRenderFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
 ) -> bool:
     """
     determine whether the `rescue` object is one we care about

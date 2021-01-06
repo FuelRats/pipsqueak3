@@ -2,9 +2,9 @@ import attr
 
 
 @attr.dataclass(frozen=True)
-class ListFlags:
+class RescueRenderFlags:
     """
-    Flags used by the !list command, includes a parser.
+    Flags that control how a rescue is rendered.
     """
 
     show_inactive: bool = False
