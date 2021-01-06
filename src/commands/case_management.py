@@ -20,7 +20,7 @@ import humanfriendly
 import pyparsing
 from loguru import logger
 
-from ..templates import RescueRenderFlags
+from ..templates import RescueRenderFlags, template_environment
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.parsing_rules import (
@@ -40,7 +40,6 @@ from ..packages.quotation.rat_quotation import Quotation
 from ..packages.rat import Rat
 from ..packages.rescue import Rescue
 from ..packages.utils import Platforms, Status, color, bold, Colors
-from ..templates import env
 
 _TIME_RE = re.compile(r"(\d+)[: ](\d+)")
 """
@@ -497,12 +496,9 @@ async def cmd_case_management_quote(ctx: Context):
         await ctx.reply("No case with that name or number.")
         return
 
-    template = env.get_template("rescue.jinja2")
+    template = template_environment.get_template("rescue.jinja2")
     flags = RescueRenderFlags(
-        show_assigned_rats=True,
-        show_unidentified_rats=True,
-        show_quotes=True,
-        show_uuids=True
+        show_assigned_rats=True, show_unidentified_rats=True, show_quotes=True, show_uuids=True
     )
     output = await template.render_async(rescue=rescue, flags=flags)
     return await ctx.reply(output.rstrip("\n"))
@@ -732,7 +728,7 @@ async def cmd_list(ctx: Context):
         await ctx.reply("No active rescues.")
     else:
 
-        output = await env.get_template("list.jinja2").render_async(
+        output = await template_environment.get_template("list.jinja2").render_async(
             rescues=active_rescues, flags=flags
         )
         if output:
@@ -741,7 +737,7 @@ async def cmd_list(ctx: Context):
         if not inactive_rescues:
             return await ctx.reply("No inactive rescues.")
 
-        output = await env.get_template("list.jinja2").render_async(
+        output = await template_environment.get_template("list.jinja2").render_async(
             rescues=inactive_rescues, flags=flags
         )
         if output:
