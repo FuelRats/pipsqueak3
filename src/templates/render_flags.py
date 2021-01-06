@@ -43,6 +43,12 @@ class RescueRenderFlags:
         """
         show API UUIDs
         """
-        show_unident = True  # fixme remove hardcode
-        return cls(show_inactive, filter_unassigned_rescues, show_assigned_rats, show_unident,
-                   show_uuids)
+        show_unidentified = "d" in argument
+
+        return cls(
+            show_unidentified_rats=show_unidentified,
+            filter_unassigned_rescues=filter_unassigned_rescues,
+            show_assigned_rats=show_assigned_rats,
+            show_inactive=show_inactive,
+            show_uuids=show_uuids,
+        )
