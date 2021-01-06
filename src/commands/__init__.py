@@ -14,7 +14,6 @@ from . import case_management
 from . import debug
 from . import deletion_management
 from . import starsystems
-from src.templates.render_flags import RescueRenderFlags
 
 __all__ = [
     "debug",
@@ -23,5 +22,4 @@ __all__ = [
     "starsystems",
     "administration",
     "api_utilities",
-    "RescueRenderFlags"
 ]
