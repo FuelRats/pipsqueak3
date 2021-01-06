@@ -14,7 +14,7 @@ from . import deletion_management
 from . import starsystems
 from . import administration
 from . import api_utilities
-
+from ._list_flags import ListFlags
 __all__ = [
     "debug",
     "case_management",
@@ -22,4 +22,5 @@ __all__ = [
     "starsystems",
     "administration",
     "api_utilities",
+    "ListFlags"
 ]

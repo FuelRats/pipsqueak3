@@ -1,5 +1,5 @@
-""" 
-{description}
+"""
+Rendering templates
 
 Copyright (c) 2020 The Fuel Rat Mischief,
 All rights reserved.
@@ -9,16 +9,12 @@ Licensed under the BSD 3-Clause License.
 See LICENSE.md
 """
 
-from uuid import uuid4
-
+import pendulum
 from jinja2 import Environment, PackageLoader, select_autoescape
 from loguru import logger
-import pendulum
 
-from src.commands._list_flags import ListFlags
+from src.commands import ListFlags
 from src.packages.board import RatBoard
-from src.packages.quotation import Quotation
-from src.packages.rat import Rat
 from src.packages.rescue import Rescue
 from src.packages.utils.ratlib import Platforms, Status, Colors, color, bold, italic
 

@@ -137,7 +137,7 @@ class ApiV300WSS(FuelratsApiABC):
         if not self.connected_event.is_set():
             logger.trace("waiting for the connected event to be set...")
             # wait for a short period for the connection to be established, but not indefinitely.
-            await asyncio.wait_for(fut=await self.connected_event.wait(), timeout=5)
+            await asyncio.wait_for(fut=self.connected_event.wait(), timeout=5)
 
         logger.trace("connected event is set!")
 
