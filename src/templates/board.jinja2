@@ -1,0 +1,4 @@
+{#- {{ board|length }} cases found- #}
+{% for rescue in board.values() %}
+    {% if rescue.platform == target_platform or target_platform is none %} {{ render_rescue(rescue, flags=flags) }} {% endif %}
+{%- endfor %}

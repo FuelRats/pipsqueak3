@@ -8,12 +8,12 @@ Licensed under the BSD 3-Clause License.
 
 See LICENSE.md
 """
-from . import debug
-from . import case_management
-from . import deletion_management
-from . import starsystems
 from . import administration
 from . import api_utilities
+from . import case_management
+from . import debug
+from . import deletion_management
+from . import starsystems
 
 __all__ = [
     "debug",

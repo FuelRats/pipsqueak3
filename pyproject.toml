@@ -25,6 +25,7 @@ pyparsing = "^2.4.7"
 graypy = "^2.1.0"
 websockets = "^8.1"
 cattrs = ">=1.0.0"
+Jinja2 = "^2.11.2"
 pendulum = "^2.1.2"
 
 [tool.poetry.dev-dependencies]

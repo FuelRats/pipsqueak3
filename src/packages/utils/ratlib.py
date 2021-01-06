@@ -33,15 +33,18 @@ class Platforms(Enum):
     PC = "PC"
     XB = "XB"
     PS = "PS"
+    DEFAULT = "<NO PLATFORM>"
 
     def colorize(self) -> str:
-        if self is Platforms.PC:
-            text_color = Colors.GREY
+        if self is Platforms.PS:
+            text_color = Colors.BLUE
         elif self is Platforms.XB:
             text_color = Colors.GREEN
+        elif self is Platforms.DEFAULT:
+            text_color = Colors.RED
         else:
             text_color = Colors.PURPLE
-        return color(self.value, text_color)
+        return bold(color(self.value, text_color))
 
 
 class Status(Enum):
@@ -53,6 +56,13 @@ class Status(Enum):
     """The rescue is currently closed"""
     INACTIVE = 2
     """The rescue is open, but is marked inactive"""
+
+    def colorize(self) -> str:
+        if self is Status.INACTIVE:
+            return color("inactive", Colors.GREY)
+        if self is Status.CLOSED:
+            return color("inactive", Colors.RED)
+        return "inactive"
 
 
 class Colors(Enum):

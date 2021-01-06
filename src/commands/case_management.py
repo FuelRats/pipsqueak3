@@ -20,7 +20,7 @@ import humanfriendly
 import pyparsing
 from loguru import logger
 
-from ._list_flags import ListFlags
+from ..templates import RescueRenderFlags, template_environment
 from ..packages.commands import command
 from ..packages.context.context import Context
 from ..packages.parsing_rules import (
@@ -496,21 +496,12 @@ async def cmd_case_management_quote(ctx: Context):
         await ctx.reply("No case with that name or number.")
         return
 
-    created_timestamp = rescue.updated_at.strftime("%b %d %H:%M:%S UTC")
-
-    header = f"{rescue:s@r}, updated {created_timestamp}"
-
-    await ctx.reply(header)
-
-    if rescue.quotes:
-        for i, quote in enumerate(rescue.quotes):
-            delta = humanfriendly.format_timespan(
-                (pendulum.now() - quote.updated_at),
-                detailed=False,
-                max_units=2,
-            )
-            quote_timestamp = f"{delta} ago"
-            await ctx.reply(f"[{i}][{quote.author} ({quote_timestamp})] {quote.message}")
+    template = template_environment.get_template("rescue.jinja2")
+    flags = RescueRenderFlags(
+        show_assigned_rats=True, show_unidentified_rats=True, show_quotes=True, show_uuids=True
+    )
+    output = await template.render_async(rescue=rescue, flags=flags)
+    return await ctx.reply(output.rstrip("\n"))
 
 
 @command("quoteid", require_channel=True, require_permission=OVERSEER)
@@ -684,7 +675,7 @@ async def cmd_list(ctx: Context):
     """
     _, *words = ctx.words
 
-    flags = ListFlags()
+    flags = RescueRenderFlags()
     platform_filter = None
 
     # plain invocation
@@ -700,7 +691,7 @@ async def cmd_list(ctx: Context):
             if word.startswith("-"):
                 if flags_set:
                     raise RuntimeError("invalid usage")  # FIXME: usage warning to user
-                flags = ListFlags.from_word(word)
+                flags = RescueRenderFlags.from_word(word)
                 flags_set = True
             else:
                 # platform or bust
@@ -737,16 +728,20 @@ async def cmd_list(ctx: Context):
         await ctx.reply("No active rescues.")
     else:
 
-        output = _list_rescue(active_rescues, format_specifiers)
+        output = await template_environment.get_template("list.jinja2").render_async(
+            rescues=active_rescues, flags=flags
+        )
         if output:
-            await ctx.reply(output)
+            await ctx.reply(output.rstrip("\n"))
     if flags.show_inactive:
         if not inactive_rescues:
             return await ctx.reply("No inactive rescues.")
 
-        output = _list_rescue(inactive_rescues, format_specifiers)
+        output = await template_environment.get_template("list.jinja2").render_async(
+            rescues=inactive_rescues, flags=flags
+        )
         if output:
-            await ctx.reply(output)
+            await ctx.reply(output.rstrip("\n"))
 
 
 def _list_rescue(rescue_collection, format_specifiers):
@@ -760,7 +755,7 @@ def _list_rescue(rescue_collection, format_specifiers):
 
 
 def _rescue_filter(
-    flags: ListFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
+    flags: RescueRenderFlags, platform_filter: typing.Optional[Platforms], rescue: Rescue
 ) -> bool:
     """
     determine whether the `rescue` object is one we care about
