@@ -124,7 +124,7 @@ class Context:
         else:
             await self.bot.message(self.user.nickname, msg)
 
-    async def replyNotice(self, msg: str):
+    async def reply_notice(self, msg: str):
         """
         Sends a message as a NOTICE to the user that send the command.
         Arguments:

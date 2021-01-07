@@ -46,17 +46,6 @@ class Platforms(Enum):
             text_color = Colors.PURPLE
         return bold(color(self.value, text_color))
 
-    def plaintext(self) -> str:
-        if self is Platforms.PS:
-            text_color = Colors.BLUE
-        elif self is Platforms.XB:
-            text_color = Colors.GREEN
-        elif self is Platforms.DEFAULT:
-            text_color = Colors.RED
-        else:
-            text_color = Colors.PURPLE
-        return self.value
-
 
 class Status(Enum):
     """Rescue status enum"""
