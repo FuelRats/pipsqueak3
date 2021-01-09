@@ -672,6 +672,7 @@ async def cmd_list(ctx: Context):
         -s: Show system names
         -@: Show full case IDs.  (LONG)
         -c: Hide colors and markup from the output
+        -h: Shows the possible flags
 
     Args:
         ctx:
@@ -694,30 +695,35 @@ async def cmd_list(ctx: Context):
         for word in words:  # type: str
             if word.startswith("-"):
                 if flags_set:
-                    return await _list_invalid_usage(ctx)
+                    logger.error(f"2nd flag option triggered")
+                    return await _list_show_correct_usage(ctx)
                 flags = RescueRenderFlags.from_word(word)
                 flags_set = True
             else:
                 # platform or bust
                 if platform_filter_set:
-                    return await _list_invalid_usage(ctx)
+                    logger.error(f"2nd platform option triggered")
+                    return await _list_show_correct_usage(ctx)
 
+                platform_filter_set = True
                 try:
                     platform_filter = Platforms[word.upper()]
                 except KeyError:
                     return await ctx.reply(f"unrecognized platform '{word.upper()}'")
 
     else:
-        return await _list_invalid_usage(ctx)
+        return await _list_show_correct_usage(ctx)
     logger.debug(f"flags set:= {flags} \t platform_filter := {platform_filter}")
 
-    rescues: typing.List[Rescue] = []
-    rescue_filter = functools.partial(_rescue_filter, flags, platform_filter)
-    logger.debug(f"rescue_filter: {rescue_filter}")
+    if(flags.show_help_message):
+        return await _list_show_correct_usage(ctx)
 
-    for rescue in itertools.filterfalse(rescue_filter, iter(ctx.bot.board.values())):
-        logger.debug(f"rescue: {rescue}")
-        rescues.append(rescue)
+    rescues = list(itertools.filterfalse(
+        functools.partial(_rescue_filter, flags, platform_filter),
+        iter(ctx.bot.board.values())
+    ))
+    logger.debug("{} matching rescues, rescues :={!r}", len(rescues), rescues)
+
 
     if (
         (flags.filter_active_rescues ^ flags.filter_inactive_rescues)
@@ -731,24 +737,26 @@ async def cmd_list(ctx: Context):
     output = await template_environment.get_template("list.jinja2").render_async(
         rescues=rescues, flags=flags
     )
-    if output:
+
+    if len(rescues)>0:
         return await ctx.reply(output.rstrip("\n"))
 
     await ctx.reply(f"No open rescues{matching_filter}.")
 
 
-async def _list_invalid_usage(ctx: Context):
-    await ctx.replyNotice("Correct usage: !list [flags] [platform]")
-    await ctx.replyNotice("!list supports the following flags:")
-    await ctx.replyNotice("-a: Only show active cases")
-    await ctx.replyNotice("-i: Only show inactive (but still open) cases")
-    await ctx.replyNotice("-r: Show assigned rats")
-    await ctx.replyNotice("-d: Show assigned unidentified rats")
-    await ctx.replyNotice("-u: Show only cases with no assigned rats")
-    await ctx.replyNotice("-s: Show system names")
-    await ctx.replyNotice("-@: Show full case IDs.  (LONG)")
-    await ctx.replyNotice("-c: Hide colors and markup from the output")
-    await ctx.replyNotice("Example: !list -isc PC")
+async def _list_show_correct_usage(ctx: Context):
+    await ctx.reply_notice("Correct usage: !list [flags] [platform]")
+    await ctx.reply_notice("!list supports the following flags:")
+    await ctx.reply_notice("-a: Only show active cases")
+    await ctx.reply_notice("-i: Only show inactive (but still open) cases")
+    await ctx.reply_notice("-r: Show assigned rats")
+    await ctx.reply_notice("-d: Show assigned unidentified rats")
+    await ctx.reply_notice("-u: Show only cases with no assigned rats")
+    await ctx.reply_notice("-s: Show system names")
+    await ctx.reply_notice("-@: Show full case IDs.  (LONG)")
+    await ctx.reply_notice("-c: Hide colors and markup from the output")
+    await ctx.reply_notice("-h: Show only this help message")
+    await ctx.reply_notice("Example: !list -isc PC")
 
 
 def _rescue_filter(

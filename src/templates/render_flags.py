@@ -16,6 +16,7 @@ class RescueRenderFlags:
     show_uuids: bool = False
     show_quotes: bool = False
     hide_colors: bool = False
+    show_help_message: bool = False
 
     @classmethod
     def from_word(cls, argument: str):
@@ -62,6 +63,10 @@ class RescueRenderFlags:
         """
         Hide colors and markup from the output
         """
+        show_help_message = "h" in argument
+        """
+        Hide colors and markup from the output
+        """
 
         return cls(
             show_unidentified_rats=show_unidentified,
@@ -72,4 +77,5 @@ class RescueRenderFlags:
             show_system_names=show_system_names,
             show_uuids=show_uuids,
             hide_colors=hide_colors,
+            show_help_message=show_help_message,
         )
