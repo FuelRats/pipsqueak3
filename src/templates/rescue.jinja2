@@ -1,8 +1,10 @@
-[{{ rescue.board_index }}{% if flags.show_uuids %}@{{ color(rescue.api_id, Colors.GREY) }}{% endif %}] {{ rescue.client }}'s case ({{ (rescue.platform|default(Platforms.DEFAULT, true)).colorize() }}) in {% if rescue.system %}{{ rescue.system }}{% else %} {{ color("<unspecified>", Colors.RED) }}{% endif %} {% if rescue.code_red %} ({{ bold(color("CR", Colors.RED)) }}) {% endif %} {% if not rescue.active %} ({{ color("Inactive", Colors.GREY) }}) {% endif %}
-    {%- if (rescue.rats and flags.show_assigned_rats ) %}
+[{{ rescue.board_index }}{% if flags.show_uuids %}@{% if flags.hide_colors %}{{ rescue.api_id }}{% else %}{{ color(rescue.api_id, Colors.GREY) }}{% endif %}{% endif %}] {{ rescue.client }}'s case ({% if flags.hide_colors %}{{ (rescue.platform|default(Platforms.DEFAULT, true)).value }}{% else %}{{ (rescue.platform|default(Platforms.DEFAULT, true)).colorize() }}{% endif %}){% if flags.show_system_names %} in {% if rescue.system %}{{ rescue.system }}{% else %} {% if flags.hide_colors %}{{ "<unspecified>" }}{% else %}{{ color("<unspecified>", Colors.RED) }}{% endif %}{% endif %}{% endif %} {% if rescue.code_red %} ({% if flags.hide_colors %}{{ "CR" }}{% else %}{{ bold(color("CR", Colors.RED)) }}{% endif %}) {% endif %} {% if not rescue.active -%} ({% if flags.hide_colors %}{{ "Inactive" }}{% else %}{{ italic(color("Inactive", Colors.GREY)) }}{% endif %}) {% endif %}
+    {%- if (flags.show_assigned_rats and rescue.rats ) %}
         Assigned Rats: {{rescue.rats.values() | map(attribute="name")| join(', ')}} {% endif %}
-    {%- if flags.show_unidentified_rats and rescue.unidentified_rats %}
-        Unidentified Rats: {{rescue.unidentified_rats.values() | map(attribute="name")| join(', ')}}{% endif %}
-    {%- if (flags.show_assigned_rats and not rescue.rats) and (flags.show_unidentified_rats and not rescue.unidentified_rats) %}
+    {%- if (flags.show_assigned_rats and not rescue.rats) %}
         No assigned Rats. {% endif %}
+    {%- if flags.show_unidentified_rats and rescue.unidentified_rats %}
+        Assigned unidentified Rats: {{rescue.unidentified_rats.values() | map(attribute="name")| join(', ')}}{% endif %}
+    {%- if flags.show_unidentified_rats and not rescue.unidentified_rats %}
+        No assigned unidentified Rats. {% endif %}
     {% if flags.show_quotes %}{{ render_quotes(rescue) }}{% endif %}

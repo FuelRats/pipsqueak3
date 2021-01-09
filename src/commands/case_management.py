@@ -664,10 +664,15 @@ async def cmd_list(ctx: Context):
     Implementation of !list
 
         Supported parameters:
-        -i: Also show inactive (but still open) cases.
+        -a: Only show active cases
+        -i: Only show inactive (but still open) cases
         -r: Show assigned rats
+        -d: Show assigned unidentified rats
         -u: Show only cases with no assigned rats
+        -s: Show system names
         -@: Show full case IDs.  (LONG)
+        -c: Hide colors and markup from the output
+        -h: Shows the possible flags
 
     Args:
         ctx:
@@ -690,68 +695,69 @@ async def cmd_list(ctx: Context):
         for word in words:  # type: str
             if word.startswith("-"):
                 if flags_set:
-                    raise RuntimeError("invalid usage")  # FIXME: usage warning to user
+                    return await _list_show_correct_usage(ctx, "2nd set of flags provided")
                 flags = RescueRenderFlags.from_word(word)
                 flags_set = True
             else:
                 # platform or bust
                 if platform_filter_set:
-                    raise RuntimeError("invalid usage")  # FIXME: usage error
+                    return await _list_show_correct_usage(ctx, "2nd platform provided")
 
+                platform_filter_set = True
                 try:
                     platform_filter = Platforms[word.upper()]
                 except KeyError:
                     return await ctx.reply(f"unrecognized platform '{word.upper()}'")
 
     else:
-        raise RuntimeError  # FIXME: usage error
+        return await _list_show_correct_usage(ctx, "More then 2 arguments passed to !list")
     logger.debug(f"flags set:= {flags} \t platform_filter := {platform_filter}")
-    active_rescues: typing.List[Rescue] = []
-    inactive_rescues: typing.List[Rescue] = []
 
-    rescue_filter = functools.partial(_rescue_filter, flags, platform_filter)
+    if(flags.show_help_message):
+        return await _list_show_correct_usage(ctx, "-h flag was passed")
 
-    # for each rescue that doesn't matches the filter
-    for rescue in itertools.filterfalse(rescue_filter, iter(ctx.bot.board.values())):  # type: Rescue
-        # put it in the right list
-        if rescue.active:
-            active_rescues.append(rescue)
-        else:
-            inactive_rescues.append(rescue)
-    format_specifiers = "c"
-    if flags.show_assigned_rats:
-        format_specifiers += "r"
-    if flags.show_uuids:
-        format_specifiers += "@"
+    if(len(flags.unused_flags) > 0):
+        return await _list_show_correct_usage(ctx, f"Unused remaining flags: {flags.unused_flags}")
 
-    if not active_rescues:
-        await ctx.reply("No active rescues.")
+    rescues = list(itertools.filterfalse(
+        functools.partial(_rescue_filter, flags, platform_filter),
+        iter(ctx.bot.board.values())
+    ))
+    logger.debug("{} matching rescues, rescues :={!r}", len(rescues), rescues)
+
+    if (
+        (flags.filter_active_rescues ^ flags.filter_inactive_rescues)
+        or flags.filter_unassigned_rescues
+        or platform_filter
+    ):
+        matching_filter = " that match your filters"
     else:
+        matching_filter = ""
 
-        output = await template_environment.get_template("list.jinja2").render_async(
-            rescues=active_rescues, flags=flags
-        )
-        if output:
-            await ctx.reply(output.rstrip("\n"))
-    if flags.show_inactive:
-        if not inactive_rescues:
-            return await ctx.reply("No inactive rescues.")
+    output = await template_environment.get_template("list.jinja2").render_async(
+        rescues=rescues, flags=flags
+    )
 
-        output = await template_environment.get_template("list.jinja2").render_async(
-            rescues=inactive_rescues, flags=flags
-        )
-        if output:
-            await ctx.reply(output.rstrip("\n"))
+    if rescues:
+        return await ctx.reply(output.rstrip("\n"))
+
+    await ctx.reply(f"No open rescues{matching_filter}.")
 
 
-def _list_rescue(rescue_collection, format_specifiers):
-    buffer = io.StringIO()
-    buffer.write(f"{len(rescue_collection)} active cases. ")
-    for rescue in rescue_collection:
-        buffer.write(format(rescue, format_specifiers))
-        buffer.write("\n")
-    output = buffer.getvalue()
-    return output.rstrip("\n")
+async def _list_show_correct_usage(ctx: Context, reason: str):
+    logger.debug(f"Reason for showing the help message for !list: {reason}")
+    await ctx.reply_notice("Correct usage: !list [flags] [platform]")
+    await ctx.reply_notice("!list supports the following flags:")
+    await ctx.reply_notice("-a: Only show active cases")
+    await ctx.reply_notice("-i: Only show inactive (but still open) cases")
+    await ctx.reply_notice("-r: Show assigned rats")
+    await ctx.reply_notice("-d: Show assigned unidentified rats")
+    await ctx.reply_notice("-u: Show only cases with no assigned rats")
+    await ctx.reply_notice("-s: Show system names")
+    await ctx.reply_notice("-@: Show full case IDs.  (LONG)")
+    await ctx.reply_notice("-c: Hide colors and markup from the output")
+    await ctx.reply_notice("-h: Show only this help message")
+    await ctx.reply_notice("Example: !list -isc PC")
 
 
 def _rescue_filter(
@@ -771,12 +777,16 @@ def _rescue_filter(
     if flags.filter_unassigned_rescues:
         # return whether any rats are assigned
         # either properly or via unidentified rats
-        filters.append(bool(rescue.rats) or bool(rescue.unidentified_rats))
+        filters.append(not (bool(rescue.rats) or bool(rescue.unidentified_rats)))
 
     # use the active bool on rescue if we don't want inactives, otherwise True
-    filters.append(rescue.active if not flags.show_inactive else True)
+    if flags.filter_active_rescues:
+        filters.append(rescue.active)
 
-    if platform_filter:  # if we rae filtering on platform
+    if flags.filter_inactive_rescues:
+        filters.append(not rescue.active)
+
+    if platform_filter:  # if we are filtering on platform
         filters.append(rescue.platform is platform_filter)
     return not all(filters)
 
