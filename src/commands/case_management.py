@@ -738,7 +738,7 @@ async def cmd_list(ctx: Context):
         rescues=rescues, flags=flags
     )
 
-    if len(rescues) > 0:
+    if rescues:
         return await ctx.reply(output.rstrip("\n"))
 
     await ctx.reply(f"No open rescues{matching_filter}.")
