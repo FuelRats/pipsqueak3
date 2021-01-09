@@ -695,15 +695,13 @@ async def cmd_list(ctx: Context):
         for word in words:  # type: str
             if word.startswith("-"):
                 if flags_set:
-                    logger.error(f"2nd flag option triggered")
-                    return await _list_show_correct_usage(ctx)
+                    return await _list_show_correct_usage(ctx, "2nd set of flags provided")
                 flags = RescueRenderFlags.from_word(word)
                 flags_set = True
             else:
                 # platform or bust
                 if platform_filter_set:
-                    logger.error(f"2nd platform option triggered")
-                    return await _list_show_correct_usage(ctx)
+                    return await _list_show_correct_usage(ctx, "2nd platform provided")
 
                 platform_filter_set = True
                 try:
@@ -712,18 +710,20 @@ async def cmd_list(ctx: Context):
                     return await ctx.reply(f"unrecognized platform '{word.upper()}'")
 
     else:
-        return await _list_show_correct_usage(ctx)
+        return await _list_show_correct_usage(ctx, "More then 2 arguments passed to !list")
     logger.debug(f"flags set:= {flags} \t platform_filter := {platform_filter}")
 
     if(flags.show_help_message):
-        return await _list_show_correct_usage(ctx)
+        return await _list_show_correct_usage(ctx, "-h flag was passed")
+    
+    if(len(flags.unused_flags) > 0):
+        return await _list_show_correct_usage(ctx, f"Unused remaining flags: {flags.unused_flags}")
 
     rescues = list(itertools.filterfalse(
         functools.partial(_rescue_filter, flags, platform_filter),
         iter(ctx.bot.board.values())
     ))
     logger.debug("{} matching rescues, rescues :={!r}", len(rescues), rescues)
-
 
     if (
         (flags.filter_active_rescues ^ flags.filter_inactive_rescues)
@@ -738,13 +738,14 @@ async def cmd_list(ctx: Context):
         rescues=rescues, flags=flags
     )
 
-    if len(rescues)>0:
+    if len(rescues) > 0:
         return await ctx.reply(output.rstrip("\n"))
 
     await ctx.reply(f"No open rescues{matching_filter}.")
 
 
-async def _list_show_correct_usage(ctx: Context):
+async def _list_show_correct_usage(ctx: Context, reason: str):
+    logger.debug(f"Reason for showing the help message for !list: {reason}")
     await ctx.reply_notice("Correct usage: !list [flags] [platform]")
     await ctx.reply_notice("!list supports the following flags:")
     await ctx.reply_notice("-a: Only show active cases")

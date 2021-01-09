@@ -17,6 +17,7 @@ class RescueRenderFlags:
     show_quotes: bool = False
     hide_colors: bool = False
     show_help_message: bool = False
+    unused_flags: str = ""
 
     @classmethod
     def from_word(cls, argument: str):
@@ -30,43 +31,41 @@ class RescueRenderFlags:
             ListFlags instance
         """
         argument = argument.casefold()
+        unused_flags = argument.lstrip("-")
 
+        # Only show active (a) or inactive (i) rescues
         filter_active_rescues = "a" in argument and "i" not in argument
-        """
-        Only show active rescues
-        """
         filter_inactive_rescues = "i" in argument and "a" not in argument
-        """
-        Only show inactive rescues
-        """
+        unused_flags = unused_flags.replace('a', '')
+        unused_flags = unused_flags.replace('i', '')
+
+        # Show assigned rats per rescue
         show_assigned_rats = "r" in argument
-        """
-        Show assigned rats per rescue
-        """
+        unused_flags = unused_flags.replace('r', '')
+
+        # Only show rescues without assigned rats
         filter_unassigned_rescues = "u" in argument
-        """
-        Only show rescues without assigned rats
-        """
+        unused_flags = unused_flags.replace('u', '')
+
+        # Show system names in the list
         show_system_names = "s" in argument
-        """
-        Show system names in the list
-        """
+        unused_flags = unused_flags.replace('s', '')
+
+        # Show API UUIDs
         show_uuids = "@" in argument
-        """
-        Show API UUIDs
-        """
+        unused_flags = unused_flags.replace('@', '')
+
+        # Show unidentified rats
         show_unidentified = "d" in argument
-        """
-        Show unidentified rats
-        """
+        unused_flags = unused_flags.replace('d', '')
+
+        # Hide colors and markup from the output
         hide_colors = "c" in argument
-        """
-        Hide colors and markup from the output
-        """
+        unused_flags = unused_flags.replace('c', '')
+
+        # Show the help message for correct usage
         show_help_message = "h" in argument
-        """
-        Hide colors and markup from the output
-        """
+        unused_flags = unused_flags.replace('h', '')
 
         return cls(
             show_unidentified_rats=show_unidentified,
@@ -78,4 +77,5 @@ class RescueRenderFlags:
             show_uuids=show_uuids,
             hide_colors=hide_colors,
             show_help_message=show_help_message,
+            unused_flags=unused_flags,
         )
