@@ -715,7 +715,7 @@ async def cmd_list(ctx: Context):
 
     if(flags.show_help_message):
         return await _list_show_correct_usage(ctx, "-h flag was passed")
-    
+
     if(len(flags.unused_flags) > 0):
         return await _list_show_correct_usage(ctx, f"Unused remaining flags: {flags.unused_flags}")
 
