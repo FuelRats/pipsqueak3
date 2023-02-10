@@ -37,7 +37,7 @@ pytest-httpserver = "*"
 codecov = "*"
 pycodestyle = "*"
 hypothesis = "^5.8.0"
-ipython = "^7.18.1"
+ipython = "^8.10.0"
 black = "^20.8b1"
 autopep8 = "^1.5.4"
 
